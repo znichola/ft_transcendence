@@ -1,7 +1,7 @@
 # it's based on debian!
 FROM node:20.5
 
-EXPOSE 6000/tcp
+EXPOSE 5173/tcp
 
 # set comamnd prompt to indicate the container
 RUN echo 'PS1="react \w > "' >> ~/.bashrc
