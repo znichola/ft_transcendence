@@ -1,0 +1,38 @@
+version: "3.8"
+
+networks:
+  transnet:
+    driver: bridge
+    name: transnet
+
+volumes:
+  localdrive:
+    driver: local
+    name: localdrive
+    driver_opts:
+      device: /Users/${USER}/Documents/ft_transcendence_test
+      type: none
+      o: bind
+
+services:
+  nest:
+    container_name: nest
+    build: requirements/nest
+    networks:
+      - transnet
+    ports:
+      - "3000:3000"
+    volumes:
+      - localdrive:/web
+    init: true
+
+  react:
+    container_name: react
+    build: requirements/react
+    networks:
+      - transnet
+    ports:
+      - "6000:6000"
+    volumes:
+      - localdrive:/web
+    init: true
