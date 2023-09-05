@@ -28,7 +28,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /Users/${USER}/Documents/ft_transcendence_test:/web
+      - /Users/${USER}/Documents/ft_transcendence_test:/backend
     init: true
 
   react:
@@ -39,5 +39,18 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - /Users/${USER}/Documents/ft_transcendence_test:/web
+      - /Users/${USER}/Documents/ft_transcendence_test:/app
+    init: true
+
+  postgres:
+    container_name: postgres
+    build: requirements/postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=testdb
+    networks:
+      - transnet
+    volumes:
+      - /Users/${USER}/Documents/ft_transcendence_test:/database
     init: true

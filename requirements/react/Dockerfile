@@ -10,7 +10,7 @@ RUN echo 'PS1="react \w > "' >> ~/.bashrc
 # RUN apt-get install -y zsh vim git
 # RUN yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-WORKDIR /web
+WORKDIR /app
 
 CMD ["tail", "-f", "/dev/null"]
 
