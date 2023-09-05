@@ -1,22 +1,24 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+    <body className="flex flex-col min-h-screen text-center">
+      <h1 className="text-5xl font-bold text-center py-20 text-slate-800">Vite + React</h1>
+      <div>
+        <button
+          className="px-4 py-2 text-base text-yellow-300 font-bold rounded-3xl bg-white  shadow-lg  hover:bg-yellow-300 border-yellow-200 hover:border-0 border-2 min-w-fit hover:text-white"
+          onClick={() => setCount((count) => count + 1)}
+        >
           count is {count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-    </>
-  )
+      <footer className="mt-auto text-slate-400 p-4">
+        Edit <code>src/App.tsx</code> and save to test HMR
+      </footer>
+    </body>
+  );
 }
 
-export default App
+export default App;
