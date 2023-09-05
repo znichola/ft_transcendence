@@ -14,6 +14,9 @@ fclean :
 
 re : fclean up
 
+ip :
+	@docker ps -q | xargs -I{} docker inspect -f '{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {}
+
 CN = nest react
 
 $(CN) :

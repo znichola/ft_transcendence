@@ -7,6 +7,7 @@ import App from "./App.tsx";
 import Login from "./Login.tsx";
 import Profile from "./Profile.tsx";
 import "./index.css";
+import FetchUser from "./FetchUser.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
   {
     path: "/profile",
     element: <Profile />
+  },
+  {
+    path: "/fetch-user",
+    element: <FetchUser />
   }
 ]);
 
