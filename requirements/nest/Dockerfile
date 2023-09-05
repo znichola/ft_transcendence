@@ -12,7 +12,7 @@ EXPOSE 3000/tcp
 # set comamnd prompt to indicate the container
 RUN echo 'PS1="nest \w > "' >> ~/.bashrc
 
-WORKDIR /web
+WORKDIR /backend
 
 CMD ["tail", "-f", "/dev/null"]
 
