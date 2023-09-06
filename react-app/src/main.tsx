@@ -3,11 +3,12 @@ import ReactDOM from "react-dom/client";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import "./index.css";
 import App from "./App.tsx";
 import Login from "./Login.tsx";
 import Profile from "./Profile.tsx";
-import "./index.css";
 import FetchUser from "./FetchUser.tsx";
+import Board from "./NikiTickTackToe.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,12 +21,16 @@ const router = createBrowserRouter([
   },
   {
     path: "/profile",
-    element: <Profile />
+    element: <Profile />,
   },
   {
     path: "/fetch-user",
-    element: <FetchUser />
-  }
+    element: <FetchUser />,
+  },
+  {
+    path: "/ttt",
+    element: <Board />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
