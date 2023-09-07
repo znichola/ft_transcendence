@@ -28,6 +28,27 @@ npm run dev # in the react container, to run the vite dev server with hot reload
 nest start --watch # to start the nest.js server in watchmode
 ```
 
+When using the react+nestjs branch to launch the development env for the first time:
+
+```bash
+git clone git@github.com:znichola/ft_transcendence_test.git
+cd ft_transcendence_test
+make up
+
+# in a new window navagte back to the same repo
+make react
+> cd react-app
+> npm install
+> npm run dev 
+
+# in a new window navagte back to the same repo
+make nest
+> cd nestjs
+> npm install
+> nest start --watch
+```
+
+
 It's actaully not needed to do the steps below, but it's how you would launch vscode attached to a container.
 - in the bottom right of vscode you have the blue connect button, click this 
 - and attach to running container, pick the react or nest container

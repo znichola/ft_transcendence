@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./index.css";
@@ -9,11 +8,12 @@ import Login from "./Login.tsx";
 import Profile from "./Profile.tsx";
 import FetchUser from "./FetchUser.tsx";
 import Board from "./NikiTickTackToe.tsx";
+import Root from "./routes/Root.tsx"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Root />
   },
   {
     path: "/login",
@@ -31,6 +31,10 @@ const router = createBrowserRouter([
     path: "/ttt",
     element: <Board />,
   },
+  {
+    path: "/app",
+    element: <App />
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
