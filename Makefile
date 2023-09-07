@@ -17,9 +17,12 @@ re : fclean up
 ip :
 	@docker ps -q | xargs -I{} docker inspect -f '{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {}
 
-CN = nest react
+CN = nest react postgress
 
 $(CN) :
 	docker exec -it $@ /bin/bash
 
-.PHONY: fclean re node
+# https://stackoverflow.com/questions/31466428/how-to-restart-a-single-container-with-docker-compose
+# docker-compose up --detach --build $@
+
+.PHONY: up fclean re ip $(CN)

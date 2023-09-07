@@ -10,14 +10,14 @@ networks:
 #     driver: local
 #     name: localdrive
 #     driver_opts:
-#       device: /Users/${USER}/Documents/ft_transcendence_test
+#       device: ${PWD}
 #       type: none
 #       o: bind
 # this is broken for file changes, they don't seem to showup correctly for a modified file
 # no idea why this is the case, new files and deleted files so showup, but a modified file 
 # always shows the original file
 #    volumes:
-#      - /Users/${USER}/Documents/ft_transcendence_test:/web
+#      - ${PWD}:/web
 
 services:
   nest:
@@ -28,7 +28,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /Users/${USER}/Documents/ft_transcendence_test:/backend
+      - ${PWD}:/backend
     init: true
 
   react:
@@ -39,7 +39,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - /Users/${USER}/Documents/ft_transcendence_test:/app
+      - ${PWD}:/app
     init: true
 
   postgres:
@@ -52,5 +52,5 @@ services:
     networks:
       - transnet
     volumes:
-      - /Users/${USER}/Documents/ft_transcendence_test:/database
+      - ${PWD}:/database
     init: true
