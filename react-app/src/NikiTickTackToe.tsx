@@ -1,23 +1,11 @@
 import { useState } from "react";
 
-// function Square({
-//   value,
-//   onSquareClick,
-// }: {
-//   value: string;
-//   onSquareClick: () => void;
-// }) {
-//   return <button onClick={onSquareClick}>{value}</button>;
-// }
-
 export default function Board() {
   const [xIsNext, setXIsNext] = useState(true);
   // const [squares, setSquares] = useState([
   //   ...Array.from({ length: 10 }, (_, i) => (i++).toString()),
   // ]);
   const [squares, setSquares] = useState([...Array(10).fill("・")]);
-
-  const winner = calculateWinner(squares);
 
   function handleClick(i: number) {
     const nextSquares = squares.slice();
@@ -32,68 +20,23 @@ export default function Board() {
     setXIsNext(!xIsNext);
   }
 
-  return (
-    <div className="w-80 resize overflow-auto border-8 ring-offset-8">
-      <div className="bg-red-400 p-2 border-b-4">
-        <h2 className="text-3xl font-semibold text-slate-700 p-2 capitalize">
-          {winner == "X" || winner == "O"
-            ? winner + " is the winner"
-            : "play tick tack toe"}
-        </h2>
-      </div>
-      <div className="bg-blue-300 p-2 h-max">
-        <div>
-          <Square
-            value={squares[0]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(0)}
-          />
-          <Square
-            value={squares[1]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(1)}
-          />
-          <Square
-            value={squares[2]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(2)}
-          />
-        </div>
+  function handleReset() {
+    const nextSquares = [...Array(10).fill("・")];
+    setSquares(nextSquares);
+  }
 
-        <div>
+  return (
+    <div className="min-w-fit min-h-fit w-80 h-100 resize overflow-auto border-8 ring-offset-8 grid">
+      <HeaderBTN winner={calculateWinner(squares)} resetBoard={handleReset} />
+      <div className="bg-blue-300 min-w-fit min-h-fit grid gap-4 grid-cols-3 grid-rows-3 p-4">
+        {[...Array(9)].map((_, i) => (
           <Square
-            value={squares[3]}
+            key={i}
+            value={squares[i]}
             nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(3)}
+            onSquareClick={() => handleClick(i)}
           />
-          <Square
-            value={squares[4]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(4)}
-          />
-          <Square
-            value={squares[5]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(5)}
-          />
-        </div>
-        <div>
-          <Square
-            value={squares[6]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(6)}
-          />
-          <Square
-            value={squares[7]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(7)}
-          />
-          <Square
-            value={squares[8]}
-            nextValue={xIsNext ? "X" : "O"}
-            onSquareClick={() => handleClick(8)}
-          />
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -113,13 +56,38 @@ function Square({
       onClick={onSquareClick}
       className={`group text-5xl font-bold ${
         value == "X" || value == "O" ? "text-slate-700" : "text-stone-300"
-      } border-4 border-slate-700 h-20 w-20 hover:border-red-400 m-1 bg-amber-50`}
+      } border-4 border-slate-700 h-20 w-20 hover:border-red-400 bg-amber-50`}
     >
-      <span className="hidden group-hover:contents"> {value == "X" || value == "O" ? value : nextValue} </span>
+      <span className="hidden group-hover:contents">
+        {" "}
+        {value == "X" || value == "O" ? value : nextValue}{" "}
+      </span>
       <span className="contents group-hover:hidden"> {value} </span>
     </button>
   );
-}9
+}
+
+function HeaderBTN({
+  winner,
+  resetBoard,
+}: {
+  winner: string | null;
+  resetBoard: () => void;
+}) {
+  return (
+    <button
+      onClick={resetBoard}
+      className="group bg-red-400 px-2 py-6 border-b-4 text-3xl font-semibold text-slate-700 capitalize"
+    >
+      <span className="group-hover:hidden contents ">
+        {winner == "X" || winner == "O"
+          ? winner + " is the winner"
+          : "play Tic-Tac-Toe"}
+      </span>
+      <span className="group-hover:contents hidden"> click to reset </span>
+    </button>
+  );
+}
 
 function calculateWinner(s: string[]): string | null {
   const lines = [
