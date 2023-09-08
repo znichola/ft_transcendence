@@ -1,38 +1,31 @@
 import { useState } from "react";
 import { api } from "./utils.tsx";
+import { UserData } from "./interfaces.tsx";
 
 export default function ProfileCard() {
-  interface MyData {
-    id: number;
-    user: string;
-    friends: number;
-    img_url: string;
-    rank: number;
-  }
+  const [userProfile, setUserProfile] = useState<UserData>();
 
-  const [userProfile, setUserProfile] = useState<MyData>();
-
-  const promise = api<MyData>("http://localhost:3000/user/defaultus");
+  const promise = api<UserData>("http://localhost:3000/user/0");
   promise.then((value) => {
     setUserProfile(value);
   });
 
-  const number_of_victories = 1;
   return (
     <div className=" flex gap-2 bg-lime-300 p-5  rounded-3xl  text-lime-800 shadow-lg">
       <img
         className=" rounded-full object-scale-down h-24 shadow"
-        src={userProfile?.img_url || "https://i.imgflip.com/2/aeztm.jpg"}
+        src={userProfile?.avatar || "https://i.imgflip.com/2/aeztm.jpg"}
         alt="User-Profile-Image"
       />
       <div className="flex flex-col">
         <div className=" text-lime-950 font-bold ">
-          {userProfile?.user || "No username"}{" "}
+          {userProfile?.username || "No username"}{" "}
         </div>
         <div>
-          {(userProfile?.friends || "None") + " friends"}
+          {(userProfile?.friend_ids ? userProfile?.friend_ids.length : "None") +
+            " friends"}
         </div>
-        <div>numeber of victories: {number_of_victories} </div>
+        <div>numeber of victories: {userProfile?.wins || "None"} </div>
         <div>rank: {userProfile?.rank ? userProfile.rank : "Norank"} </div>
       </div>
     </div>

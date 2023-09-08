@@ -2,7 +2,9 @@
 // /user/id
 export interface UserData {
   id: number;
-  user: string;
+  username: string;
+  first: string;
+  last: string;
   elo: number;
   rank: number;
   status: "online" | "offline" | "ingame";
@@ -10,7 +12,7 @@ export interface UserData {
   losses: number;
   friend_ids: [number];
   game_ids: [number];
-  img_url: string;
+  avatar: string;
 }
 
 // /game/id

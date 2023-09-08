@@ -8,12 +8,21 @@ import Login from "./Login.tsx";
 import Profile from "./Profile.tsx";
 import FetchUser from "./FetchUser.tsx";
 import Board from "./NikiTickTackToe.tsx";
-import Root from "./routes/Root.tsx"
+import Root from "./routes/Root.tsx";
+import ErrorPage from "./error-page.tsx";
+import Contact from "./routes/contat.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />
+    element: <Root />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/contact/:contactId",
+        element: <Contact />,
+      },
+    ],
   },
   {
     path: "/login",
@@ -33,8 +42,8 @@ const router = createBrowserRouter([
   },
   {
     path: "/app",
-    element: <App />
-  }
+    element: <App />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
