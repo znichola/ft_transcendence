@@ -26,9 +26,9 @@ export default function Board() {
   }
 
   return (
-    <div className="min-h-fit min-w-fit w-80 h-110 resize aspect-[80/100] overflow-auto border-8 ring-offset-8 grid">
+    <div className="h-110 grid aspect-[80/100] min-h-fit w-80 min-w-fit resize overflow-auto border-8 ring-offset-8">
       <HeaderBTN winner={calculateWinner(squares)} resetBoard={handleReset} />
-      <div className="bg-blue-300 aspect-square min-w-80 grid gap-4 grid-cols-3 grid-rows-3 p-4">
+      <div className="min-w-80 grid aspect-square grid-cols-3 grid-rows-3 gap-4 bg-blue-300 p-4">
         {[...Array(9)].map((_, i) => (
           <Square
             key={i}
@@ -56,7 +56,7 @@ function Square({
       onClick={onSquareClick}
       className={`group text-5xl font-bold ${
         value == "X" || value == "O" ? "text-slate-700" : "text-stone-300"
-      } border-4 border-slate-700 min-h-20 min-w-20 aspect-square hover:border-red-400 bg-amber-50`}
+      } min-h-20 min-w-20 aspect-square border-4 border-slate-700 bg-amber-50 hover:border-red-400`}
     >
       <span className="hidden group-hover:contents">
         {" "}
@@ -77,14 +77,14 @@ function HeaderBTN({
   return (
     <button
       onClick={resetBoard}
-      className="group bg-red-400 px-2 py-6 border-b-4 text-3xl font-semibold text-slate-700 capitalize"
+      className="group border-b-4 bg-red-400 px-2 py-6 text-3xl font-semibold capitalize text-slate-700"
     >
-      <span className="group-hover:hidden contents ">
+      <span className="contents group-hover:hidden ">
         {winner == "X" || winner == "O"
           ? winner + " is the winner"
           : "play Tic-Tac-Toe"}
       </span>
-      <span className="group-hover:contents hidden"> click to reset </span>
+      <span className="hidden group-hover:contents"> click to reset </span>
     </button>
   );
 }

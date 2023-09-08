@@ -11,14 +11,14 @@ export default function ProfileCard() {
   });
 
   return (
-    <div className=" flex gap-2 bg-lime-300 p-5  rounded-3xl  text-lime-800 shadow-lg">
+    <div className=" flex gap-2 rounded-3xl bg-lime-300  p-5  text-lime-800 shadow-lg">
       <img
-        className=" rounded-full object-scale-down h-24 shadow"
+        className=" h-24 rounded-full object-scale-down shadow"
         src={userProfile?.avatar || "https://i.imgflip.com/2/aeztm.jpg"}
         alt="User-Profile-Image"
       />
       <div className="flex flex-col">
-        <div className=" text-lime-950 font-bold ">
+        <div className=" font-bold text-lime-950 ">
           {userProfile?.username || "No username"}{" "}
         </div>
         <div>
