@@ -1,4 +1,4 @@
-import ProfileCard from "./ProfileCard.tsx"
+import ProfileCard from "./ProfileCard.tsx";
 
 export default function Profile() {
   return (

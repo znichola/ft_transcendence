@@ -4,7 +4,7 @@ import { useRouteError } from "react-router-dom";
 // https://www.reddit.com/r/typescript/comments/12d2db3/whats_the_correct_type_for_error_in_userouteerror/
 
 export default function ErrorPage() {
-  const error : unknown = useRouteError();
+  const error: unknown = useRouteError();
   console.error(error);
   return (
     <div

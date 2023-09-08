@@ -1,4 +1,3 @@
-
 // /user/id
 export interface UserData {
   id: number;
@@ -21,4 +20,3 @@ export interface GameHistory {
   player_right: number;
   result: number;
 }
-

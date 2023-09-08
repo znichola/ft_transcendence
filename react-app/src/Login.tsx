@@ -4,7 +4,7 @@ export default function Login() {
   const [login, setLogin] = useState("");
 
   function onBTNclick(
-    e: React.MouseEvent<HTMLInputElement, globalThis.MouseEvent>
+    e: React.MouseEvent<HTMLInputElement, globalThis.MouseEvent>,
   ) {
     e.preventDefault();
     alert(login);
