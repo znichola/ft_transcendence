@@ -54,4 +54,12 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - and attach to running container, pick the react or nest container
 - this is important for vscode to have acess to the node module files for code linting, completion etc..
 - if you can't, open the settings UI with ctrl+shift+p then type Preferences: Open Settins (UI)
-- search for docker path and add the resuot of $`which docker` there
+- search for docker path and add the result of $`which docker` there
+
+## Bootstrapping the frontend app
+
+- install vue react-ts
+- install tailwind
+- install prettier
+- install prettier tailwind
+- install react router
