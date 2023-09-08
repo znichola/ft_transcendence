@@ -45,7 +45,7 @@ const userData: UserData[] = [
     losses: 20,
     friend_ids: [1, 3],
     game_ids: [101],
-    avatar: 'https://example.com/user2.jpg',
+    avatar: 'https://placekitten.com/g/200/200',
   },
   {
     id: 3,
@@ -59,7 +59,7 @@ const userData: UserData[] = [
     losses: 15,
     friend_ids: [1, 2],
     game_ids: [102],
-    avatar: 'https://example.com/user3.jpg',
+    avatar: 'https://placehold.co/400',
   },
 ];
 

@@ -4,30 +4,12 @@ import { Link, Outlet } from "react-router-dom";
 export default function Root() {
   return (
     <>
-      <div className="flex flex-row">
-        <div className="flex flex-col justify-between py-5 absolute min-h-screen bg-sky-100">
-          <nav className="flex flex-col sm:justify-center w-40">
-            {[
-              ["Home", "/"],
-              ["login", "/login"],
-              ["profile", "/profile"],
-              ["fetch-user", "/fetch-user"],
-              ["tic tac toe", "/ttt"],
-              ["app", "/app"],
-              ["contact", "/contact"],
-            ].map(([title, url]) => (
-              <Link
-                to={url}
-                className="text-xl transition ease-in-out delay-100 hover:translate-x-2 tran pl-8 px-3 py-2 text-slate-700 font-medium hover:bg-amber-100 hover:text-red-500"
-              >
-                {title}
-              </Link>
-            ))}
-          </nav>
-          <TheMasterminds />
+      <div className="flex">
+        <div id="side-bar" className=" inline-block">
+          <div className="w-40"></div>
+          <SideBar />
         </div>
-
-        <div id="detail" className="px-48">
+        <div id="page0-content" className="grow">
           <Outlet />
         </div>
       </div>
@@ -53,5 +35,32 @@ export function TheMasterminds() {
         les mastermind
       </span>
     </a>
+  );
+}
+
+export function SideBar() {
+  return (
+    <div className="flex flex-col justify-between py-5 absolute min-h-screen bg-sky-100 w-40 shadow-lg">
+      <nav className="flex flex-col sm:justify-center ">
+        {[
+          ["Home", "/"],
+          ["login", "/login"],
+          ["profile", "/profile"],
+          ["fetch-user", "/fetch-user"],
+          ["tic tac toe", "/ttt"],
+          ["app", "/app"],
+          ["contact", "/contact"],
+        ].map(([title, url]) => (
+          <Link
+            to={url}
+            key={title}
+            className="text-xl transition ease-in-out delay-100 hover:translate-x-2 tran pl-8 px-3 py-2 text-slate-700 font-medium hover:bg-amber-100 hover:text-red-500"
+          >
+            {title}
+          </Link>
+        ))}
+      </nav>
+      <TheMasterminds />
+    </div>
   );
 }

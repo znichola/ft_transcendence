@@ -7,7 +7,7 @@ export default function ProfileCard() {
 
   const promise = api<UserData>("http://localhost:3000/user/0");
   promise.then((value) => {
-    setUserProfile(value);
+    if (!value) setUserProfile(value); // this if (!value) stops react for spamming the get request, go figure
   });
 
   return (

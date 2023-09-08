@@ -7,7 +7,7 @@ export default function Contact() {
 
   const promise = api<UserData>("http://localhost:3000/user/0");
   promise.then((value) => {
-    setContact(value);
+    if (!value) setContact(value);
   });
 
   return (

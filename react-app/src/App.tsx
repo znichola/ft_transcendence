@@ -4,7 +4,7 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <body className="flex flex-col min-h-screen text-center">
+    <div className="flex flex-col min-h-screen text-center">
       <h1 className="text-5xl font-bold text-center py-20 text-slate-800">Vite + React</h1>
       <div>
         <button
@@ -17,7 +17,7 @@ function App() {
       <footer className="mt-auto text-slate-400 p-4">
         Edit <code>src/App.tsx</code> and save to test HMR
       </footer>
-    </body>
+    </div>
   );
 }
 

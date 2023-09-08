@@ -26,9 +26,9 @@ export default function Board() {
   }
 
   return (
-    <div className="min-w-fit min-h-fit w-80 h-100 resize overflow-auto border-8 ring-offset-8 grid">
+    <div className="min-h-fit min-w-fit w-80 h-110 resize aspect-[80/100] overflow-auto border-8 ring-offset-8 grid">
       <HeaderBTN winner={calculateWinner(squares)} resetBoard={handleReset} />
-      <div className="bg-blue-300 min-w-fit min-h-fit grid gap-4 grid-cols-3 grid-rows-3 p-4">
+      <div className="bg-blue-300 aspect-square min-w-80 grid gap-4 grid-cols-3 grid-rows-3 p-4">
         {[...Array(9)].map((_, i) => (
           <Square
             key={i}
@@ -56,7 +56,7 @@ function Square({
       onClick={onSquareClick}
       className={`group text-5xl font-bold ${
         value == "X" || value == "O" ? "text-slate-700" : "text-stone-300"
-      } border-4 border-slate-700 h-20 w-20 hover:border-red-400 bg-amber-50`}
+      } border-4 border-slate-700 min-h-20 min-w-20 aspect-square hover:border-red-400 bg-amber-50`}
     >
       <span className="hidden group-hover:contents">
         {" "}
