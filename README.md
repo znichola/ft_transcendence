@@ -46,6 +46,21 @@ make nest
 > cd nestjs
 > npm install
 > nest start --watch
+
+# in case the prisma folder and configuration is missing
+make nest
+> cd nestjs
+> npm install prisma
+> npm install @prisma/client
+> npx prisma init
+
+# to inspect the database data
+# by default, allows you to access localhost:5555 from your browser
+make nest
+> cd nestjs
+> npx prisma studio
+
+# to 
 ```
 
 
