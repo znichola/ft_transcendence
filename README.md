@@ -63,3 +63,8 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install prettier
 - install prettier tailwind
 - install react router
+
+## API the front end needs
+
+- get current user info
+- somehow using the authentication something or another

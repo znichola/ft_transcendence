@@ -21,7 +21,7 @@ interface UserData {
 const userData: UserData[] = [
   {
     id: 1,
-    username: 'Defaultus Maximus',
+    username: 'def42',
     first: 'Defaultus',
     last: 'Maximus',
     elo: 1500,

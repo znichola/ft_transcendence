@@ -1,4 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
+import { api } from "../utils.tsx";
+import { UserData } from "../interfaces.tsx";
+import { useEffect, useState } from "react";
 
 // side nav
 export default function Root() {
@@ -40,8 +43,10 @@ export function TheMasterminds() {
 
 export function SideBar() {
   return (
-    <div className="absolute flex min-h-screen w-64 flex-col justify-between bg-slate-300 py-5 shadow-lg">
-      <nav className="flex flex-col capitalize sm:justify-center">
+    <div className="absolute flex min-h-screen w-64 flex-col justify-between bg-slate-300 pb-5 shadow-lg">
+      <StatusBar />
+
+      <nav className="flex flex-col pt-5 capitalize sm:justify-center">
         {[
           ["Home", "/"],
           ["login", "/login"],
@@ -62,5 +67,37 @@ export function SideBar() {
       </nav>
       <TheMasterminds />
     </div>
+  );
+}
+
+export function StatusBar() {
+  const [currentUser, setCurrentUser] = useState<UserData>();
+  useEffect(() => {
+    let ignore = false;
+    api<UserData>("http://localhost:3000/user/0").then((result) => {
+      if (!ignore) {
+        setCurrentUser(result);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const promise = api<UserData>("http://localhost:3000/user/0");
+  promise.then((value) => {
+    if (!value) setCurrentUser(value); // this if (!value) stops react for spamming the get request, go figure
+  });
+
+  return (
+    <>
+      <div className="h-24 bg-pink-400">
+        <img
+          src={currentUser?.avatar}
+          alt={currentUser?.username + " prifile image"}
+        />
+        <p>{"1" === 1 ? "true" : "false"}</p>
+      </div>
+    </>
   );
 }
