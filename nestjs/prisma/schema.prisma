@@ -11,26 +11,26 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  login42  String @unique
-  avatar   String
+  id      Int    @id @default(autoincrement())
+  name    String @unique
+  login42 String @unique
+  avatar  String
 
   elo    Int @default(1500)
   wins   Int @default(0)
   losses Int @default(0)
 
-  friends Friend[] @relation("friends")
-  friendOf Friend[] @relation("friendOf")
+  // friends Friend[] @relation("friends")
+  // friendOf Friend[] @relation("friendOf")
 }
 
-model Friend {
-  user1Id Int
-  user2Id Int
+// model Friend {
+//   user1Id Int
+//   user2Id Int
 
-  user1 User @relation("friendOf", fields: [user1Id], references: [id])
-  user2 User @relation("friends", fields: [user2Id], references: [id])
-  status String
+//   user1 User @relation("friendOf", fields: [user1Id], references: [id])
+//   user2 User @relation("friends", fields: [user2Id], references: [id])
+//   status String
 
-  @@id([user1Id, user2Id])
-}
+//   @@id([user1Id, user2Id])
+// }

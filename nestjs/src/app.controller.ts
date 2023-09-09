@@ -1,6 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-
 // mockUserData.ts
 
 interface UserData {
@@ -59,7 +58,7 @@ const userData: UserData[] = [
   },
 ];
 
-@Controller('user')
+@Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -68,8 +67,4 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get(':userid')
-  getLogin(@Param('userid') userid: number) {
-    return userData[userid];
-  }
 }
