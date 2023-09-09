@@ -1,6 +1,6 @@
 # TRANSCENDENCE
 
-Test playground for the final project of the common core of the 42 course.
+Test playground for the final project of the 42 common core.
 
 ## How to dev
 
