@@ -27,9 +27,11 @@ export function Avatar({
       case "online":
         return "bg-green-600";
       case "offline":
-        return "bg-gray-400";
+        return "bg-gray-300";
       case "ingame":
-        return "bg-blue-600";
+        return "bg-blue-400";
+      case "unavailable":
+        return "bg-red-500";
       default:
         return "bg-ping-700";
     }
@@ -50,7 +52,6 @@ export function Avatar({
 }
 
 export function ProfileInfo() {
-
   return (
     <>
       <div></div>

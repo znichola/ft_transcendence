@@ -27,7 +27,7 @@ async function createUser(
     create: {
       login42: login,
       name: username,
-      avatar: avatar || '',
+      avatar: avatar || 'https://placehold.co/200',
       elo: elo || 1500,
       wins: wins || 0,
       losses: losses || 0,
@@ -40,48 +40,66 @@ async function createFunnyUsers() {
   await createUser(
     'funnyuser1',
     'LaughMaster',
-    'https://picsum.photos/200',
+    'https://picsum.photos/id/31/200',
     2000,
     100,
     10,
     1,
   );
-  await createUser('funnyuser2', 'Jokester', 'https://picsum.photos/200');
+  await createUser('funnyuser2', 'Jokester', 'https://picsum.photos/id/40/200');
   await createUser(
     'funnyuser3',
-    'PunMaster',
-    'https://picsum.photos/200',
+    'Pun Master : Dung Master',
+    'https://picsum.photos/id/21/200',
     1600,
     50,
     30,
-    1,
+    3,
   );
   await createUser(
     'funnyuser4',
-    'Chuckler',
-    'https://picsum.photos/200',
+    'Chuckler Crukler Buckler',
+    'https://picsum.photos/id/54/200',
     1400,
     25,
     40,
-    1,
+    2,
   );
   await createUser(
     'funnyuser5',
-    'GiggleQueen',
-    'https://picsum.photos/200',
+    'Giggle Queen',
+    'https://picsum.photos/id/64/200',
     1200,
     10,
     50,
-    1,
+    0,
   );
   await createUser(
     'funnyuser6',
-    'ComedyGenius',
-    'https://picsum.photos/200',
+    '🤪 Genius',
+    'https://picsum.photos/id/177/200',
     1000,
     5,
     60,
-    1,
+    2,
+  );
+  await createUser(
+    'funnyuser7',
+    'Jekerino 🥳',
+    'https://picsum.photos/id/342/200',
+    420,
+    7,
+    20,
+    3,
+  );
+  await createUser(
+    'funnyuser8',
+    'Bare 🐻 Man',
+    'https://picsum.photos/id/443/200',
+    1600,
+    20,
+    33,
+    0,
   );
 }
 
@@ -91,7 +109,11 @@ async function main() {
   createStatus('ingame');
   createStatus('unavailable');
 
-  createUser('default42', 'Defaultus Maximus');
+  createUser(
+    'default42',
+    'Defaultus Maximus',
+    'https://i.imgflip.com/2/aeztm.jpg',
+  );
   createUser('test', 'Testus');
 
   createFunnyUsers();

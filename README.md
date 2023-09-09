@@ -61,6 +61,10 @@ make nest
 > npx prisma studio
 
 # to 
+make nest
+> npx prisma db seed 
+
+# to 
 ```
 
 
