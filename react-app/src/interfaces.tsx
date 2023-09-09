@@ -1,7 +1,7 @@
 // /user/id
 export interface UserData {
   id: number;
-  username: string;
+  name: string;
   login42: string;
   elo: number;
   rank: number;

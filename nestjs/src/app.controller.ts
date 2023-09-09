@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 
 interface UserData {
   id: number;
-  username: string;
+  name: string;
   login42: string;
   elo: number;
   rank: number;
@@ -20,7 +20,7 @@ interface UserData {
 const userData: UserData[] = [
   {
     id: 1,
-    username: 'Defaultus Maximus',
+    name: 'Defaultus Maximus',
     login42: 'default42',
     elo: 1500,
     rank: 1,
@@ -33,7 +33,7 @@ const userData: UserData[] = [
   },
   {
     id: 2,
-    username: 'User2',
+    name: 'User2',
     login42: 'jane42',
     elo: 1400,
     rank: 2,
@@ -46,7 +46,7 @@ const userData: UserData[] = [
   },
   {
     id: 3,
-    username: 'User3',
+    name: 'User3',
     login42: 'jane42',
     elo: 1600,
     rank: 3,

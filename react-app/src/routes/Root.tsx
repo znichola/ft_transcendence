@@ -95,14 +95,14 @@ export function StatusPill() {
       <div className="flex bg-white shadow-md ">
         <Avatar
           size="m-2 mb-3 mt-3 w-16 h-16"
-          alt={currentUser?.username}
+          alt={currentUser?.name}
           status={currentUser?.status}
           img={currentUser?.avatar}
         />
 
         <div className="flex flex-col content-center justify-center ">
           <p className="font-semibold text-slate-700">
-            {currentUser?.username}
+            {currentUser?.name}
           </p>
           <p className="text-slate-400">{"@" + currentUser?.login42}</p>
         </div>
