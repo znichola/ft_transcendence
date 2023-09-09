@@ -50,11 +50,3 @@ export function Avatar({
     </div>
   );
 }
-
-export function ProfileInfo() {
-  return (
-    <>
-      <div></div>
-    </>
-  );
-}

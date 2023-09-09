@@ -55,7 +55,7 @@ export function SideBar() {
           ["fetch-user", "/fetch-user"],
           ["tic tac toe", "/ttt"],
           ["app", "/app"],
-          ["contact", "/contact"],
+          ["all users", "/users"],
         ].map(([title, url]) => (
           <Link
             to={url}
@@ -84,11 +84,6 @@ export function StatusBar() {
       ignore = true;
     };
   }, []);
-
-  const promise = api<UserData>("http://localhost:3000/user/default42");
-  promise.then((value) => {
-    if (!value) setCurrentUser(value); // this if (!value) stops react for spamming the get request, go figure
-  });
 
   return (
     <>

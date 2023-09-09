@@ -13,6 +13,7 @@ import ErrorPage from "./error-page.tsx";
 import Contact from "./routes/contact.tsx";
 import Test from "./Test.tsx";
 import Auth from "./routes/auth.tsx";
+import AllUsers from "./routes/AllUsers.tsx";
 import {
   QueryClient,
   QueryClientProvider,
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/contact/:contactId",
         element: <Contact key={1} />,
+      },
+      {
+        path: "/users",
+        element: <AllUsers key={1}/>,
       },
       {
         path: "/login",
