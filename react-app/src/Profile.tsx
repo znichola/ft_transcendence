@@ -19,7 +19,7 @@ export function Avatar({
 }: {
   size: string;
   alt: string | undefined;
-  status: "online" | "offline" | "ingame" | undefined;
+  status: string | undefined;
   img: string | undefined;
 }) {
   function statusColor() {

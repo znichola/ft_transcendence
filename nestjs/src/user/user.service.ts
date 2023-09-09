@@ -32,13 +32,12 @@ export class UserService {
     return user;
   }
 
-  async getUserStatus(statusid: number): Promise<String> {
+  async getUserStatus(statusid: number): Promise<string> {
     const statusString = await prisma.status.findFirst({
       where: {
         id: statusid,
       },
     });
-    console.log(statusString.name);
     return statusString.name;
   }
 }

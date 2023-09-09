@@ -5,7 +5,7 @@ export interface UserData {
   login42: string;
   elo: number;
   // rank: number;
-  status?: String;
+  status?: string;
   statusId: number;
   wins: number;
   losses: number;
