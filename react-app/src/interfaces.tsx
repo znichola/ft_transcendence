@@ -2,8 +2,7 @@
 export interface UserData {
   id: number;
   username: string;
-  first: string;
-  last: string;
+  login42: string;
   elo: number;
   rank: number;
   status: "online" | "offline" | "ingame";

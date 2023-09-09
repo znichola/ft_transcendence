@@ -12,6 +12,7 @@ import Root from "./routes/Root.tsx";
 import ErrorPage from "./error-page.tsx";
 import Contact from "./routes/contact.tsx";
 import Test from "./Test.tsx";
+import Auth from "./routes/auth.tsx";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
     path: "/test",
     element: <Test />,
   },
+  {
+    path: "/auth",
+    element: <Auth />
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
