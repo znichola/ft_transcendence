@@ -44,7 +44,7 @@ export function TheMasterminds() {
 
 export function SideBar() {
   return (
-    <div className="absolute flex min-h-screen w-64 flex-col justify-between bg-slate-300 pb-5 shadow-lg">
+    <div className="absolute flex min-h-screen w-64 flex-col justify-between bg-slate-200 pb-5 shadow-lg">
       <StatusPill />
 
       <nav className="flex flex-col pt-5 capitalize sm:justify-center">
@@ -92,20 +92,19 @@ export function StatusPill() {
 
   return (
     <>
-      <div className="flex h-24 rounded-full bg-white shadow-md">
+      <div className="flex bg-white shadow-md ">
         <Avatar
-          alt={currentUser?.username}
+          size="m-2 mb-3 mt-3 w-16 h-16"
+          alt={currentUser?.name}
           status={currentUser?.status}
           img={currentUser?.avatar}
         />
 
-        <div className=" flex-col flex">
-          <p className="flex-1 bg-pink-400  text-center">
-            {currentUser?.username}
+        <div className="flex flex-col content-center justify-center ">
+          <p className="font-semibold text-slate-700">
+            {currentUser?.name}
           </p>
-          <p className="flex-1  bg-orange-400 text-center">
-            {currentUser?.login42}
-          </p>
+          <p className="text-slate-400">{"@" + currentUser?.login42}</p>
         </div>
       </div>
     </>

@@ -12,10 +12,12 @@ export default function Profile() {
 }
 
 export function Avatar({
+  size,
   alt,
   status,
   img,
 }: {
+  size: string;
   alt: string | undefined;
   status: "online" | "offline" | "ingame" | undefined;
   img: string | undefined;
@@ -34,7 +36,7 @@ export function Avatar({
   }
 
   return (
-    <div className="relative m-4 h-16  w-16">
+    <div className={`relative ${size}`}>
       <img
         className="rounded-full ring-2 ring-gray-100"
         src={img}

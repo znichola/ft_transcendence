@@ -26,7 +26,7 @@ export default function ProfileCard() {
       />
       <div className="flex flex-col">
         <div className=" font-bold text-lime-950 ">
-          {userProfile?.username || "No username"}{" "}
+          {userProfile?.name || "No username"}{" "}
         </div>
         <div>
           {(userProfile?.friend_ids ? userProfile?.friend_ids.length : "None") +
