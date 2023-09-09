@@ -75,7 +75,7 @@ export function StatusPill() {
   const [currentUser, setCurrentUser] = useState<UserData>();
   useEffect(() => {
     let ignore = false;
-    api<UserData>("http://localhost:3000/user/0").then((result) => {
+    api<UserData>("http://localhost:3000/user/default42").then((result) => {
       if (!ignore) {
         setCurrentUser(result);
       }
@@ -85,7 +85,7 @@ export function StatusPill() {
     };
   }, []);
 
-  const promise = api<UserData>("http://localhost:3000/user/0");
+  const promise = api<UserData>("http://localhost:3000/user/default42");
   promise.then((value) => {
     if (!value) setCurrentUser(value); // this if (!value) stops react for spamming the get request, go figure
   });

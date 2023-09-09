@@ -13,6 +13,11 @@ import ErrorPage from "./error-page.tsx";
 import Contact from "./routes/contact.tsx";
 import Test from "./Test.tsx";
 import Auth from "./routes/auth.tsx";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -52,12 +57,16 @@ const router = createBrowserRouter([
   },
   {
     path: "/auth",
-    element: <Auth />
-  }
+    element: <Auth />,
+  },
 ]);
+
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </React.StrictMode>,
 );

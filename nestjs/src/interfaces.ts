@@ -5,7 +5,8 @@ export interface UserData {
   login42: string;
   elo: number;
   // rank: number;
-  status: "online" | "offline" | "ingame";
+  status?: String;
+  statusId: number;
   wins: number;
   losses: number;
   // friend_ids: [number];

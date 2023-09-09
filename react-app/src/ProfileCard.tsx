@@ -6,7 +6,7 @@ export default function ProfileCard() {
   const [userProfile, setUserProfile] = useState<UserData>();
   useEffect(() => {
     let ignore = false;
-    api<UserData>("http://localhost:3000/user/0").then((result) => {
+    api<UserData>("http://localhost:3000/user/default42").then((result) => {
       if (!ignore) {
         setUserProfile(result);
       }

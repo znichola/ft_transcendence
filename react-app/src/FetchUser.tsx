@@ -10,7 +10,7 @@ interface MyData {
 function FetchUser() {
   const [user, setUser] = useState("");
 
-  const promise = api<MyData>("http://localhost:3000/user/defaultus");
+  const promise = api<MyData>("http://localhost:3000/user/default42");
   promise.then((value) => {
     setUser(value.user);
   });

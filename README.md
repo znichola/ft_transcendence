@@ -78,6 +78,7 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install prettier
 - install prettier tailwind
 - install react router
+- install react query
 
 ## API the front end needs
 

@@ -27,14 +27,14 @@ export function Avatar({
       case "online":
         return "bg-green-600";
       case "offline":
-        return "bg-grey-400";
+        return "bg-gray-400";
       case "ingame":
         return "bg-blue-600";
       default:
         return "bg-ping-700";
     }
   }
-
+  console.log(status);
   return (
     <div className={`relative ${size}`}>
       <img
@@ -46,5 +46,14 @@ export function Avatar({
         className={`absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusColor()} ring ring-white`}
       ></div>
     </div>
+  );
+}
+
+export function ProfileInfo() {
+
+  return (
+    <>
+      <div></div>
+    </>
   );
 }
