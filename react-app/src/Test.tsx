@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinnerMessage } from "./components";
+import { fetchAllUsers, fetchUser } from "./api";
+import { Avatar } from "./Profile";
 
 export default function Test() {
   return (
@@ -23,22 +25,43 @@ function Example() {
   const { isLoading, error, data } = useQuery({
     queryKey: ["repoData"],
     queryFn: () =>
-      fetch("https://a").then((res) =>
-        res.json(),
-      ),
+      fetch("http://localhost:3000/user/default42").then((res) => res.json()),
   });
 
   if (isLoading) return <LoadingSpinnerMessage />;
 
-  if (error) return "An error has occurred: " + (error as Error)?.message;
+  if (error) return "An error has occurred: " + (error as Error).message;
 
   return (
     <div>
-      <h1>{data.name}</h1>
-      <p>{data.description}</p>
-      <strong>👀 {data.subscribers_count}</strong>{" "}
-      <strong>✨ {data.stargazers_count}</strong>{" "}
-      <strong>🍴 {data.forks_count}</strong>
+      <Avatar
+        size="m-2 mb-3 mt-3 w-16 h-16"
+        alt={data.name}
+        status={data.status}
+        img={data.avatar}
+      />
     </div>
   );
 }
+
+// function Example() {
+//   const { isLoading, isError, data, error } = useQuery({
+//     queryKey: ["allUserData"],
+//     queryFn: fetchAllUsers,
+//   });
+
+//   if (isLoading) return <LoadingSpinnerMessage />;
+
+//   if (isError) return "An error has occurred: " + (error as Error)?.message;
+
+//   return (
+// <div>
+//   <Avatar
+//     size="m-2 mb-3 mt-3 w-16 h-16"
+//     alt={data.asd}
+//     status={data?.status}
+//     img={data?.avatar}
+//   />
+// </div>
+//   );
+// }
