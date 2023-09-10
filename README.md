@@ -77,7 +77,7 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 
 ## Bootstrapping the frontend app
 
-- install vue react-ts
+- install vite react-ts
 - install tailwind
 - install prettier
 - install prettier tailwind
@@ -86,6 +86,9 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install react query dev tools
   - npm i @tanstack/react-query-devtools
   - https://tanstack.com/query/latest/docs/react/devtools
+- install axios
+  - npm install axios
+  - https://github.com/axios/axios#installing
 
 
 ## API the front end needs

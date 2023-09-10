@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinnerMessage } from "./components";
-import { fetchAllUsers, fetchUser } from "./api";
+import { fetchAllUsers, fetchTodoList, fetchUser } from "./api";
+import axios, { isCancel, AxiosError } from "axios";
+
 import { Avatar } from "./Profile";
 
 export default function Test() {
@@ -22,16 +24,18 @@ export default function Test() {
 }
 
 function Example() {
-  const { isLoading, error, data } = useQuery({
-    queryKey: ["repoData"],
-    queryFn: () =>
-      fetch("http://localhost:3000/user/default42").then((res) => res.json()),
+  const { isLoading, isError, data, error } = useQuery({
+    queryKey: ["todos"],
+    queryFn: fetchTodoList,
   });
 
-  if (isLoading) return <LoadingSpinnerMessage />;
+  if (isLoading) {
+    return <span>Loading...</span>;
+  }
 
-  if (error) return "An error has occurred: " + (error as Error).message;
-
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
   return (
     <div>
       <Avatar

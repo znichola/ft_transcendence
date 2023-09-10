@@ -36,3 +36,13 @@ export function fetchUser(login42: string) {
       throw err;
     });
 }
+
+export function fetchTodoList() {
+  api<UserData>("http://localhost:3000/user/" + "test")
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
