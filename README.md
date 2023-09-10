@@ -83,6 +83,10 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install prettier tailwind
 - install react router
 - install react query
+- install react query dev tools
+  - npm i @tanstack/react-query-devtools
+  - https://tanstack.com/query/latest/docs/react/devtools
+
 
 ## API the front end needs
 

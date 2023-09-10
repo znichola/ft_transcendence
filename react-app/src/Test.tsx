@@ -1,3 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
+import { LoadingSpinnerMessage } from "./components";
+
 export default function Test() {
   return (
     <>
@@ -11,6 +14,31 @@ export default function Test() {
           <p>fizbuz</p>
         </div>
       </div>
+      <Example />
     </>
+  );
+}
+
+function Example() {
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["repoData"],
+    queryFn: () =>
+      fetch("https://a").then((res) =>
+        res.json(),
+      ),
+  });
+
+  if (isLoading) return <LoadingSpinnerMessage />;
+
+  if (error) return "An error has occurred: " + (error as Error)?.message;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.description}</p>
+      <strong>👀 {data.subscribers_count}</strong>{" "}
+      <strong>✨ {data.stargazers_count}</strong>{" "}
+      <strong>🍴 {data.forks_count}</strong>
+    </div>
   );
 }
