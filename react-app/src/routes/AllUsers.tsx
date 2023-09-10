@@ -29,7 +29,7 @@ export default function AllUsers() {
   else
     return (
       <>
-        {users.map((u) => (<UserInfo user={u} key={u.login42}/>))}
+        {users.map((u) => (<UserInfo user={u} url={"/" + u.login42} key={u.login42}/>))}
       </>
     );
 }

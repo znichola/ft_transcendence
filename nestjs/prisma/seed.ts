@@ -103,6 +103,69 @@ async function createFunnyUsers() {
   );
 }
 
+// please generate some realistic dummy data following this schema
+//   await createUser(
+//     '/*username*/',
+//     '/*Full Display Name*/',
+//     'https://picsum.photos/id//*a number*//200',
+//     /*number 0-3000*/,
+//     /*number 0-100*/,
+//     /*number 0-100*/,
+//     /*number 0-3*/,
+//   );
+
+async function creatDummyData() {
+  await createUser(
+    'user123',
+    'John Doe',
+    'https://picsum.photos/id/101/200',
+    2450,
+    78,
+    93,
+    2,
+  );
+
+  await createUser(
+    'jane.smith',
+    'Jane Smith',
+    'https://picsum.photos/id/205/200',
+    1234,
+    45,
+    62,
+    0,
+  );
+
+  await createUser(
+    'rockstar88',
+    'Axl Rose',
+    'https://picsum.photos/id/305/200',
+    1500,
+    90,
+    84,
+    3,
+  );
+
+  await createUser(
+    'coding_ninja',
+    'Alice Johnson',
+    'https://picsum.photos/id/410/200',
+    2875,
+    63,
+    75,
+    1,
+  );
+
+  await createUser(
+    'sportsfan42',
+    'Michael Jordan',
+    'https://picsum.photos/id/512/200',
+    1980,
+    82,
+    96,
+    3,
+  );
+}
+
 async function main() {
   createStatus('online');
   createStatus('offline');
@@ -117,6 +180,7 @@ async function main() {
   createUser('test', 'Testus');
 
   createFunnyUsers();
+  creatDummyData();
 }
 main()
   .then(async () => {
