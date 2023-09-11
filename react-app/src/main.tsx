@@ -30,12 +30,13 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/contact/:contactId",
+        path: "/users/:login42",
         element: <Contact key={0} />,
+        // element: <Contact key={0} />,
       },
       {
         path: "/users",
-        element: <AllUsers key={1}/>,
+        element: <AllUsers key={1} />,
       },
       {
         path: "/login",

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { api } from "../utils";
 import { UserData } from "../interfaces";
+import { useParams } from "react-router-dom";
 
 export default function Contact() {
   const [contact, setContact] = useState<UserData>();
+  const { login42 } = useParams<"login42">();
   useEffect(() => {
     let ignore = false;
-    api<UserData>("http://localhost:3000/user/funnyuser1").then((result) => {
+    api<UserData>("http://localhost:3000/user/"+login42).then((result) => {
       if (!ignore) {
         setContact(result);
       }
@@ -14,9 +16,8 @@ export default function Contact() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [login42]);
 
-  console.log(contact)
 
   return (
     <div id="contact">
@@ -29,9 +30,7 @@ export default function Contact() {
       </div>
 
       <div>
-        <h1>
-          {contact?.name || "No Name" }
-        </h1>
+        <h1>{contact?.name || "No Name"}</h1>
       </div>
     </div>
   );

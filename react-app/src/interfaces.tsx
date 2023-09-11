@@ -12,6 +12,7 @@ export interface UserData {
   // friend_ids: [number];
   // game_ids: [number];
   avatar: string;
+  bio?: string;
 }
 
 // /game/id
