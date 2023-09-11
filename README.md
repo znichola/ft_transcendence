@@ -47,14 +47,19 @@ make nest
 > npm install
 > nest start --watch
 
-# in case the prisma folder and configuration is missing
+# installation of prisma in the container
 make nest
 > cd nestjs
 > npm install prisma
 > npm install @prisma/client
-> npx prisma init
 
-# to inspect the database data
+# initialize the database after a make re or for first use
+make nest
+> cd nestjs
+> npx prisma migrate dev
+> npx prisma db seed
+
+# to inspect the database data, run from a containerized VS Code
 # by default, allows you to access localhost:5555 from your browser
 make nest
 > cd nestjs
