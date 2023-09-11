@@ -4,68 +4,39 @@ import { fetchAllUsers, fetchTodoList, fetchUser } from "./api";
 import axios, { isCancel, AxiosError } from "axios";
 
 import { Avatar } from "./Profile";
+import { useEffect, useState } from "react";
+import { UserData } from "./interfaces";
 
 export default function Test() {
   return (
     <>
-      <div className="flex ">
-        <div className="h-12 bg-pink-500">
-          <div className="w-32 bg-blue-400">
-            <p>foobar</p>
-          </div>
-        </div>
-        <div className="grow bg-green-400">
-          <p>fizbuz</p>
-        </div>
-      </div>
-      <Example />
+      <h1 className="text-xl font-bold">
+        This is a basic test root, do with it what you will!
+      </h1>
+      <ExampleWorkigAxiosGet />
     </>
   );
 }
+// don't touch it!!!!
+function ExampleWorkigAxiosGet() {
+  const [posts, setPosts] = useState<UserData[]>([]);
 
-function Example() {
-  const { isLoading, isError, data, error } = useQuery({
-    queryKey: ["todos"],
-    queryFn: fetchTodoList,
-  });
+  useEffect(() => {
+    axios
+      .get<UserData[]>("http://localhost:3000/user/")
+      .then((response) => {
+        setPosts(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
-  if (isLoading) {
-    return <span>Loading...</span>;
-  }
-
-  if (isError) {
-    return <span>Error: {error.message}</span>;
-  }
   return (
-    <div>
-      <Avatar
-        size="m-2 mb-3 mt-3 w-16 h-16"
-        alt={data.name}
-        status={data.status}
-        img={data.avatar}
-      />
-    </div>
+    <ul>
+      {posts.map((post) => (
+        <li key={post.login42}>{post.elo}</li>
+      ))}
+    </ul>
   );
 }
-
-// function Example() {
-//   const { isLoading, isError, data, error } = useQuery({
-//     queryKey: ["allUserData"],
-//     queryFn: fetchAllUsers,
-//   });
-
-//   if (isLoading) return <LoadingSpinnerMessage />;
-
-//   if (isError) return "An error has occurred: " + (error as Error)?.message;
-
-//   return (
-// <div>
-//   <Avatar
-//     size="m-2 mb-3 mt-3 w-16 h-16"
-//     alt={data.asd}
-//     status={data?.status}
-//     img={data?.avatar}
-//   />
-// </div>
-//   );
-// }
