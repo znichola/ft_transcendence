@@ -1,4 +1,4 @@
-import { Param, Controller, Get, Post, Body } from '@nestjs/common';
+import { Param, Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserData } from '../interfaces';
 
@@ -7,8 +7,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getAllUsers(): Promise<UserData[]> {
-    const usersInfo = await this.userService.findAll();
+  async getAllUsers(@Query('page') page: string): Promise<UserData[]> {
+    const usersInfo = await this.userService.findAll(parseInt(page));
     const promisedUsersInfo = usersInfo.map(async (user) => {
       user.status = await this.userService.getUserStatus(user.statusId);
       return user;
@@ -26,6 +26,7 @@ export class UserController {
     return userInfo;
   }
 
+  // REDO in PUT for real project
   @Post(':username')
   async updateUser(@Param('username') username: string, @Body() bodyData: UserData): Promise<UserData> {
     return this.userService.updateUserName(username, bodyData.name);

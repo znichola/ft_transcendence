@@ -6,8 +6,14 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
-  async findAll(): Promise<UserData[]> {
-    const allUsers = await prisma.user.findMany();
+  async findAll(page?: number): Promise<UserData[]> {
+    const allUsers = await prisma.user.findMany({
+      skip: (page - 1) * 10 || 0,
+      take: 10,
+      orderBy: {
+        elo: 'desc'
+      },
+    });
     return allUsers;
   }
 
