@@ -42,7 +42,7 @@ export function Avatar({
       <img
         className="rounded-full ring-2 ring-gray-100"
         src={img}
-        alt={alt || "undefined" + " prifile image"}
+        alt={alt || "undefined" + " profile image"}
       />
       <div
         className={`absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusColor()} ring ring-white`}

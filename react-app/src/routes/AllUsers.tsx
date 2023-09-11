@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { UserData } from "../interfaces";
 import { api } from "../utils";
 import { Avatar } from "../Profile";
+import { Link } from "react-router-dom";
 
 export default function AllUsers() {
   const [users, setUsers] = useState<UserData[]>();
@@ -29,14 +30,16 @@ export default function AllUsers() {
   else
     return (
       <>
-        {users.map((u) => (<UserInfo user={u} url={"/" + u.login42} key={u.login42}/>))}
+        {users.map((u) => (
+          <UserInfo user={u} url={"/" + u.login42} key={u.login42} />
+        ))}
       </>
     );
 }
 
-export function UserInfo({ user, url }: { user: UserData, url: string }) {
+export function UserInfo({ user, url }: { user: UserData; url: string }) {
   return (
-    <div className="flex bg-white shadow m-4 ">
+    <div className="m-4 flex bg-red-100 shadow ">
       <Avatar
         size="m-2 mb-3 mt-3 w-16 h-16"
         alt={user?.name}
@@ -46,7 +49,7 @@ export function UserInfo({ user, url }: { user: UserData, url: string }) {
 
       <div className="flex flex-col content-center justify-center ">
         <p className="font-semibold text-slate-700">{user?.name}</p>
-        <p className="text-slate-400">{"@" + user?.login42}</p>
+        <Link to={"/users/" + user.login42} className="text-slate-400">{"@" + user?.login42}</Link>
       </div>
     </div>
   );
