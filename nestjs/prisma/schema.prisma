@@ -15,7 +15,7 @@ model User {
   name    String  @unique
   login42 String  @unique
   avatar  String
-  bio     String?
+  bio     String? @db.VarChar(140)
 
   elo    Int @default(1500)
   wins   Int @default(0)
@@ -26,6 +26,11 @@ model User {
 
   friends1 Friend[] @relation("Friends")
   friends2 Friend[] @relation("FriendsOf")
+
+  ownedRooms  Chatroom[]     @relation("Owner")
+  joinedRooms ChatroomUser[] @relation("Member")
+
+  messages Message[]
 }
 
 model Status {
@@ -35,8 +40,6 @@ model Status {
 }
 
 model Friend {
-  id Int @default(autoincrement())
-
   user1Id Int
   user2Id Int
 
@@ -45,5 +48,48 @@ model Friend {
 
   status String
 
-  @@unique([user1Id, user2Id])
+  @@id([user1Id, user2Id])
+}
+
+model Chatroom {
+  id Int @id @default(autoincrement())
+
+  ownerId Int
+  owner   User @relation("Owner", fields: [ownerId], references: [id])
+
+  chatroomUsers ChatroomUser[]
+  messages      Message[]
+}
+
+model ChatroomUser {
+  chatroomId Int
+  userId     Int
+
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id])
+  user     User     @relation("Member", fields: [userId], references: [id])
+
+  roleId Int
+  role   ChatroomRole @relation(fields: [roleId], references: [id])
+
+  @@id([chatroomId, userId])
+}
+
+model ChatroomRole {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  chatroomUsers ChatroomUser[]
+}
+
+model Message {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  chatroomId Int
+  chatroom   Chatroom @relation(fields: [chatroomId], references: [id])
+
+  sentAt DateTime @default(now())
 }

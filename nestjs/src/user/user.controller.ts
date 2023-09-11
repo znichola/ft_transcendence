@@ -15,20 +15,30 @@ export class UserController {
     });
     const parsedUsersInfo = await Promise.all(promisedUsersInfo);
     return parsedUsersInfo;
-
   }
 
   @Get(':username')
   async getOne(@Param('username') username: string): Promise<UserData> {
     const userInfo = await this.userService.findUser(username);
     userInfo.status = await this.userService.getUserStatus(userInfo.statusId);
-    console.log(userInfo);
     return userInfo;
   }
 
   // REDO in PUT for real project
   @Post(':username')
-  async updateUser(@Param('username') username: string, @Body() bodyData: UserData): Promise<UserData> {
+  async updateUser(
+    @Param('username') username: string,
+    @Body() bodyData: UserData,
+  ): Promise<UserData> {
     return this.userService.updateUserName(username, bodyData.name);
+  }
+
+  @Get(':username/friends')
+  async UserFriends(@Param('username') username: string): Promise<object[]>
+  {
+    const userId = await this.userService.getUserId(username);
+    const friendsList : UserData[] = [];
+    const friendList = await this.userService.GetUserFriends(userId);
+    return friendList;
   }
 }

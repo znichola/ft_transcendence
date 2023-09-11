@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
+import { userInfo } from 'os';
 import { UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -11,7 +13,7 @@ export class UserService {
       skip: (page - 1) * 10 || 0,
       take: 10,
       orderBy: {
-        elo: 'desc'
+        elo: 'desc',
       },
     });
     return allUsers;
@@ -21,6 +23,15 @@ export class UserService {
     const user = await prisma.user.findFirst({
       where: {
         login42: login,
+      },
+    });
+    return user;
+  }
+
+  async findUserFromId(userId: number): Promise<UserData> {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
       },
     });
     return user;
@@ -38,12 +49,39 @@ export class UserService {
     return user;
   }
 
-  async getUserStatus(statusid: number): Promise<string> {
+  async getUserStatus(statusId: number): Promise<string> {
     const statusString = await prisma.status.findFirst({
       where: {
-        id: statusid,
+        id: statusId,
       },
     });
     return statusString.name;
+  }
+
+  async getUserId(login: string): Promise<number> {
+    const user = await prisma.user.findFirst({
+      where: {
+        login42: login,
+      },
+    });
+    return user.id;
+  }
+
+  async GetUserFriends(userId: number): Promise<object[]>
+  {
+    const results = await prisma.friend.findMany({
+      where: {
+        OR: [
+          {
+            user1Id: userId,
+          },
+          {
+            user2Id: userId,
+          },
+        ],
+      },
+    });
+
+    return results;
   }
 }

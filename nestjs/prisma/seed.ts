@@ -22,7 +22,7 @@ async function createUser(
   statusStr?: string,
 ) {
   const status = await prisma.status.findFirst({
-    where: { name: statusStr || 'online' }
+    where: { name: statusStr || 'online' },
   });
   await prisma.user.upsert({
     where: { login42: login },
@@ -35,6 +35,16 @@ async function createUser(
       wins: wins || 0,
       losses: losses || 0,
       statusId: status.id,
+    },
+  });
+}
+
+async function createChatroomRole(roleName: string) {
+  await prisma.chatroomRole.upsert({
+    where: { name: roleName },
+    update: {},
+    create: {
+      name: roleName,
     },
   });
 }
@@ -182,8 +192,13 @@ async function main() {
   );
   await createUser('test', 'Testus');
 
+  await createChatroomRole('member');
+  await createChatroomRole('admin');
+  await createChatroomRole('owner');
+
   await createFunnyUsers();
   await creatDummyData();
+
 }
 main()
   .then(async () => {
