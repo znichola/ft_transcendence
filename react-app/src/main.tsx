@@ -5,10 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
 
-// const axiosClient = axios.create({ baseURL: "http://localhost:3000", });
-
-// export default axiosClient
-
 axios.defaults.baseURL = "http://localhost:3000";
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
 // axios.defaults.headers.post["Content-Type"] =
