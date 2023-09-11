@@ -7,8 +7,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getAllUsers(): Promise<object> {
-    return this.userService.findAll();
+  async getAllUsers(): Promise<UserData[]> {
+    const usersInfo = await this.userService.findAll();
+    const promisedUsersInfo = usersInfo.map(async (user) => {
+      user.status = await this.userService.getUserStatus(user.statusId);
+      return user;
+    });
+    const parsedUsersInfo = await Promise.all(promisedUsersInfo);
+    return parsedUsersInfo;
+
   }
 
   @Get(':username')
@@ -20,7 +27,7 @@ export class UserController {
   }
 
   @Post(':username')
-  async updateUser(@Param('username') username: string): Promise<object> {
-    return this.userService.updateUser(username, 'test2');
+  async updateUser(@Param('username') username: string, @Body() bodyData: UserData): Promise<UserData> {
+    return this.userService.updateUserName(username, bodyData.name);
   }
 }

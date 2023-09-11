@@ -6,7 +6,7 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
-  async findAll(): Promise<object> {
+  async findAll(): Promise<UserData[]> {
     const allUsers = await prisma.user.findMany();
     return allUsers;
   }
@@ -20,7 +20,7 @@ export class UserService {
     return user;
   }
 
-  async updateUser(login: string, newName: string): Promise<object> {
+  async updateUserName(login: string, newName: string): Promise<UserData> {
     const user = await prisma.user.update({
       where: {
         login42: login,
