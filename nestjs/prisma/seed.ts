@@ -19,8 +19,11 @@ async function createUser(
   elo?: number,
   wins?: number,
   losses?: number,
-  statusId?: number,
+  statusStr?: string,
 ) {
+  const status = await prisma.status.findFirst({
+    where: { name: statusStr || 'online' }
+  });
   await prisma.user.upsert({
     where: { login42: login },
     update: {},
@@ -31,7 +34,7 @@ async function createUser(
       elo: elo || 1500,
       wins: wins || 0,
       losses: losses || 0,
-      statusId: statusId || 0,
+      statusId: status.id,
     },
   });
 }
@@ -44,7 +47,7 @@ async function createFunnyUsers() {
     2000,
     100,
     10,
-    1,
+    'online',
   );
   await createUser('funnyuser2', 'Jokester', 'https://picsum.photos/id/40/200');
   await createUser(
@@ -54,7 +57,7 @@ async function createFunnyUsers() {
     1600,
     50,
     30,
-    3,
+    'online',
   );
   await createUser(
     'funnyuser4',
@@ -63,7 +66,7 @@ async function createFunnyUsers() {
     1400,
     25,
     40,
-    2,
+    'online',
   );
   await createUser(
     'funnyuser5',
@@ -72,7 +75,7 @@ async function createFunnyUsers() {
     1200,
     10,
     50,
-    0,
+    'ingame',
   );
   await createUser(
     'funnyuser6',
@@ -81,7 +84,7 @@ async function createFunnyUsers() {
     1000,
     5,
     60,
-    2,
+    'offline',
   );
   await createUser(
     'funnyuser7',
@@ -90,7 +93,7 @@ async function createFunnyUsers() {
     420,
     7,
     20,
-    3,
+    'offline',
   );
   await createUser(
     'funnyuser8',
@@ -99,7 +102,7 @@ async function createFunnyUsers() {
     1600,
     20,
     33,
-    0,
+    'offline',
   );
 }
 
@@ -122,7 +125,7 @@ async function creatDummyData() {
     2450,
     78,
     93,
-    2,
+    'offline',
   );
 
   await createUser(
@@ -132,7 +135,7 @@ async function creatDummyData() {
     1234,
     45,
     62,
-    0,
+    'online',
   );
 
   await createUser(
@@ -142,7 +145,7 @@ async function creatDummyData() {
     1500,
     90,
     84,
-    3,
+    'unavailable',
   );
 
   await createUser(
@@ -152,7 +155,7 @@ async function creatDummyData() {
     2875,
     63,
     75,
-    1,
+    'offline',
   );
 
   await createUser(
@@ -162,25 +165,25 @@ async function creatDummyData() {
     1980,
     82,
     96,
-    3,
+    'ingame',
   );
 }
 
 async function main() {
-  createStatus('online');
-  createStatus('offline');
-  createStatus('ingame');
-  createStatus('unavailable');
+  await createStatus('online');
+  await createStatus('offline');
+  await createStatus('ingame');
+  await createStatus('unavailable');
 
-  createUser(
+  await createUser(
     'default42',
     'Defaultus Maximus',
     'https://i.imgflip.com/2/aeztm.jpg',
   );
-  createUser('test', 'Testus');
+  await createUser('test', 'Testus');
 
-  createFunnyUsers();
-  creatDummyData();
+  await createFunnyUsers();
+  await creatDummyData();
 }
 main()
   .then(async () => {
