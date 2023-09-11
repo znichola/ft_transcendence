@@ -20,7 +20,7 @@ export default function AllUsers() {
 
   return (
     <>
-      {users.map((u) => (
+      {users.map(u => (
         <UserInfo user={u} key={u.login42} />
       ))}
     </>
@@ -29,7 +29,7 @@ export default function AllUsers() {
 
 export function UserInfo({ user }: { user: UserData; }) {
   return (
-    <div className="m-4 flex bg-red-100 shadow ">
+    <div className="m-4 flex bg-white shadow ">
       <Avatar
         size="m-2 mb-3 mt-3 w-16 h-16"
         alt={user.name}
