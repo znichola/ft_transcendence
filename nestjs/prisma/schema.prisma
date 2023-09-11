@@ -11,10 +11,11 @@ datasource db {
 }
 
 model User {
-  id      Int    @id @default(autoincrement())
-  name    String @unique
-  login42 String @unique
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  login42 String  @unique
   avatar  String
+  bio     String?
 
   elo    Int @default(1500)
   wins   Int @default(0)
@@ -22,8 +23,9 @@ model User {
 
   statusId Int    @default(0)
   status   Status @relation(fields: [statusId], references: [id])
-  // friends Friend[] @relation("friends")
-  // friendOf Friend[] @relation("friendOf")
+
+  friends1 Friend[] @relation("Friends")
+  friends2 Friend[] @relation("FriendsOf")
 }
 
 model Status {
@@ -32,13 +34,16 @@ model Status {
   User User[]
 }
 
-// model Friend {
-//   user1Id Int
-//   user2Id Int
+model Friend {
+  id Int @default(autoincrement())
 
-//   user1 User @relation("friendOf", fields: [user1Id], references: [id])
-//   user2 User @relation("friends", fields: [user2Id], references: [id])
-//   status String
+  user1Id Int
+  user2Id Int
 
-//   @@id([user1Id, user2Id])
-// }
+  user1 User @relation("Friends", fields: [user1Id], references: [id])
+  user2 User @relation("FriendsOf", fields: [user2Id], references: [id])
+
+  status String
+
+  @@unique([user1Id, user2Id])
+}
