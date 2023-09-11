@@ -31,7 +31,10 @@ export default function AllUsers() {
 
 export function UserInfo({ user }: { user: UserData }) {
   return (
-    <div className="m-4 flex bg-white shadow max-w-md">
+    <div className="m-4 flex max-w-md bg-white shadow">
+      <div className="flex flex-col content-center justify-center border-r border-slate-200 p-4 font-bold text-slate-500">
+        <p>{user.elo}</p>
+      </div>
       <Avatar
         size="m-2 mb-3 mt-3 w-16 h-16"
         alt={user.name}
