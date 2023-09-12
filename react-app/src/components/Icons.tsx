@@ -428,3 +428,33 @@ export const IconAdd = ({
     </svg>
   );
 };
+
+export const IconAddPulse = ({
+  className = "h-5 w-5 align-middle text-rose-600",
+  strokeWidth = 2,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
+  return (
+    <div>
+      <span className="relative flex h-5 w-5">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-300 opacity-10 "></span>
+        <svg
+          className={className}
+          stroke-width={strokeWidth}
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4.5v15m7.5-7.5h-15"
+          />
+        </svg>
+      </span>
+    </div>
+  );
+};

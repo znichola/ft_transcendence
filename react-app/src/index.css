@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 * {
-  scrollbar-width: thin;
+  scrollbar-width: none;
+	scrollbar-color: red;
 }
+
+/* this below is fore chrome */
 
 /* width */
 ::-webkit-scrollbar {
