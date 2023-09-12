@@ -13,7 +13,7 @@ export default function Root() {
           <div className="w-64 "></div>
           <SideBar />
         </div>
-        <div id="page0-content" className="grow">
+        <div id="page0-content" className="flex items-center h-screen w-screen justify-center">
           <Outlet />
         </div>
       </div>
