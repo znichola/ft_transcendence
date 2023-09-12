@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
-import { userInfo } from 'os';
 import { UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -67,9 +65,8 @@ export class UserService {
     return user.id;
   }
 
-  async GetUserFriends(userId: number): Promise<object[]>
-  {
-    const results = await prisma.friend.findMany({
+  async GetUserFriends(userId: number): Promise<UserData[]> {
+    const userFriends = await prisma.friend.findMany({
       where: {
         OR: [
           {
@@ -82,6 +79,36 @@ export class UserService {
       },
     });
 
+    const userPromises = userFriends.map(async (value) => {
+      console.log(value);
+      console.log('--');
+      let user: UserData;
+      if (value.user1Id == userId) {
+        user = await this.findUserFromId(value.user2Id);
+      } else {
+        user = await this.findUserFromId(value.user1Id);
+      }
+      return user;
+    });
+
+    const results: UserData[] = await Promise.all(userPromises);
     return results;
+  }
+
+  async findAllByStatus(
+    statusName: string,
+    page?: number,
+  ): Promise<UserData[]> {
+    const status = await prisma.status.findFirst({
+      where: { name: statusName },
+      include: {
+        user: { skip: (page - 1) * 10 || 0, take: 10, orderBy: { elo: 'desc' } },
+      },
+    });
+    if (status) {
+      const users = status.user;
+      return users;
+    }
+    return [];
   }
 }

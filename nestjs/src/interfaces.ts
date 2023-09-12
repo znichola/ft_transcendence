@@ -1,3 +1,11 @@
+export interface UserFriends {
+  user1Id: number;
+  user2Id: number;
+  status: string;
+  user1: UserData;
+  user2: UserData;
+}
+
 // /user/id
 export interface UserData {
   id: number;

@@ -21,7 +21,7 @@ model User {
   wins   Int @default(0)
   losses Int @default(0)
 
-  statusId Int    @default(0)
+  statusId Int
   status   Status @relation(fields: [statusId], references: [id])
 
   friends1 Friend[] @relation("Friends")
@@ -30,13 +30,16 @@ model User {
   ownedRooms  Chatroom[]     @relation("Owner")
   joinedRooms ChatroomUser[] @relation("Member")
 
+  createdGames Game[] @relation("Created")
+  joinedGames  Game[] @relation("Joined")
+
   messages Message[]
 }
 
 model Status {
   id   Int    @id @default(autoincrement())
   name String @unique
-  User User[]
+  user User[]
 }
 
 model Friend {
@@ -57,8 +60,21 @@ model Chatroom {
   ownerId Int
   owner   User @relation("Owner", fields: [ownerId], references: [id])
 
+  name String
+
+  statusId Int
+  status   ChatroomStatus @relation(fields: [statusId], references: [id])
+
+  password String?
+
   chatroomUsers ChatroomUser[]
   messages      Message[]
+}
+
+model ChatroomStatus {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  Chatroom Chatroom[]
 }
 
 model ChatroomUser {
@@ -92,4 +108,32 @@ model Message {
   chatroom   Chatroom @relation(fields: [chatroomId], references: [id])
 
   sentAt DateTime @default(now())
+}
+
+model Game {
+  id       Int      @id @default(autoincrement())
+  typeId   Int
+  gameType GameType @relation(fields: [typeId], references: [id])
+  date DateTime @default(now())
+
+  player1Id        Int
+  player1          User @relation("Created", fields: [player1Id], references: [id])
+  player1StartElo  Int
+  player1Score     Int
+  player1EloChange Int
+
+  player2Id        Int
+  player2          User @relation("Joined", fields: [player2Id], references: [id])
+  player2StartElo  Int
+  player2Score     Int
+  player2EloChange Int
+}
+
+model GameType {
+  id    Int    @id @default(autoincrement())
+  name  String
+  timer Int
+  score Int
+
+  games Game[]
 }
