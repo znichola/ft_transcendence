@@ -1,14 +1,20 @@
 // These are all SVG icons !
 
-export const IconNewspaper = () => {
+export const IconNewspaper = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
     >
       <path
         strokeLinecap="round"
@@ -19,14 +25,20 @@ export const IconNewspaper = () => {
   );
 };
 
-export const IconPeople = () => {
+export const IconPeople = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      stroke-width={2}
       stroke="currentColor"
     >
       <path
@@ -38,11 +50,17 @@ export const IconPeople = () => {
   );
 };
 
-export const IconGroupChatBubble = () => {
+export const IconGroupChatBubble = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -57,11 +75,17 @@ export const IconGroupChatBubble = () => {
   );
 };
 
-export const IconChatBubble = () => {
+export const IconChatBubble = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -76,11 +100,17 @@ export const IconChatBubble = () => {
   );
 };
 
-export const IconHomeComputer = () => {
+export const IconHomeComputer = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -95,11 +125,17 @@ export const IconHomeComputer = () => {
   );
 };
 
-export const IconBashShell = () => {
+export const IconBashShell = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -114,11 +150,17 @@ export const IconBashShell = () => {
   );
 };
 
-export const IconBolt = () => {
+export const IconBolt = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -133,11 +175,17 @@ export const IconBolt = () => {
   );
 };
 
-export const IconAtSymbol = () => {
+export const IconAtSymbol = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
   return (
     <svg
-      className="h-5 w-5 align-middle"
-      stroke-width={2}
+      className={className}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -153,13 +201,15 @@ export const IconAtSymbol = () => {
 
 export const IconDownChevron = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -176,13 +226,15 @@ export const IconDownChevron = ({
 
 export const IconWorld = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -199,13 +251,15 @@ export const IconWorld = ({
 
 export const IconUser = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -222,13 +276,15 @@ export const IconUser = ({
 
 export const IconUserGroup = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -245,13 +301,15 @@ export const IconUserGroup = ({
 
 export const IconHeart = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -268,13 +326,15 @@ export const IconHeart = ({
 
 export const IconFire = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -296,13 +356,15 @@ export const IconFire = ({
 
 export const IconMegaphone = ({
   className = "h-5 w-5 align-middle",
+  strokeWidth = 2
 }: {
-  className: string;
+  className?: string;
+  strokeWidth?: number;
 }) => {
   return (
     <svg
       className={className}
-      stroke-width={2}
+      stroke-width={strokeWidth}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

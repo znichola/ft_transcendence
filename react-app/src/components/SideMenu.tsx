@@ -85,7 +85,7 @@ function NavSimple({
   icon: Icon,
 }: {
   name: string;
-  icon: () => JSX.Element;
+  icon: ({ className, strokeSize }: { className?: string, strokeSize?: number }) => JSX.Element;
 }) {
   return (
     <nav className="flex-1">
@@ -105,7 +105,7 @@ function NavSubmenu({
   icon: Icon,
 }: {
   name: string;
-  icon: () => JSX.Element;
+  icon: ({ className, strokeWidth }: { className?: string, strokeWidth?: number }) => JSX.Element;
 }) {
   return (
     <li className="m-2 flex cursor-pointer border-l-rose-600 py-3 pl-5 text-sm text-gray-600 transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600">
