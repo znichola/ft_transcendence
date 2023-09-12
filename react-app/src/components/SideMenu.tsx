@@ -19,6 +19,7 @@ import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components";
 import Avatar from "../components/Avatar.tsx";
 import { TheMasterminds } from "../routes/Root";
+import { Link } from "react-router-dom";
 
 export default function SideMenu() {
   return (
@@ -30,30 +31,30 @@ export default function SideMenu() {
         <div className="mt-3 flex flex-1 flex-col">
           <div className="">
             <Category name="User" />
-            <NavSimple name="Play Pong" icon={IconHomeComputer} />
-            <NavSimple name="My Profile" icon={IconUser} />
-            <NavSimple name="Issue a new pong" icon={IconMegaphone} />
-            <NavSimple name="Global Ranking" icon={IconWorld} />
+            <Nav name="Play Pong" to="/play" icon={IconHomeComputer} />
+            <Nav name="My Profile" to="/users/default42" icon={IconUser} />
+            <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
+            <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
             <Category name="Social" />
             <NavExpandable name="Messages" icon={IconGroupChatBubble}>
-              <NavSimple name="Start a new conversation" icon={IconAddPulse} />
-              <NavSimple name="Funky Dude 42" icon={IconUser} />
-              <NavSimple name="😎 Cool Gal 69" icon={IconUser} />
+              <Nav name="Start a new conversation" icon={IconAddPulse} />
+              <Nav name="Funky Dude 42" icon={IconUser} />
+              <Nav name="😎 Cool Gal 69" icon={IconUser} />
             </NavExpandable>
             <NavExpandable name="Chat Channels" icon={IconUserGroup}>
-              <NavSimple name="Start and new channel" icon={IconAddPulse} />
-              <NavSimple name="Only 1337 pongers" icon={IconBashShell} />
-              <NavSimple name="Noobish helpdesk" icon={IconBashShell} />
+              <Nav name="Start and new channel" icon={IconAddPulse} />
+              <Nav name="Only 1337 pongers" icon={IconBashShell} />
+              <Nav name="Noobish helpdesk" icon={IconBashShell} />
             </NavExpandable>
             <NavExpandable name="Friends" icon={IconPeople}>
-              <NavSimple name="Find new friends" icon={IconAddPulse} />
-              <NavSimple name="Funky Dude 42" icon={IconUser} />
-              <NavSimple name="😎 Cool Gal 69" icon={IconUser} />
+              <Nav name="Find new friends" icon={IconAddPulse} />
+              <Nav name="Funky Dude 42" icon={IconUser} />
+              <Nav name="😎 Cool Gal 69" icon={IconUser} />
             </NavExpandable>
             <Category name="External Links" />
-            <NavSimple name="Dev log" icon={IconNewspaper} />
-            <NavSimple name="Hart on github" icon={IconHeart} />
-            <NavSimple name="Complain about ... the css" icon={IconBolt} />
+            <Nav name="Dev log" icon={IconNewspaper} />
+            <Nav name="Hart on github" icon={IconHeart} />
+            <Nav name="Complain about ... the css" icon={IconBolt} />
           </div>
 
           <TheMasterminds />
@@ -70,11 +71,13 @@ function Category({ name }: { name: string }) {
   );
 }
 
-function NavSimple({
+function Nav({
   name,
+  to,
   icon: Icon,
 }: {
   name: string;
+  to?: string;
   icon: ({
     className,
     strokeSize,
@@ -85,13 +88,13 @@ function NavSimple({
 }) {
   return (
     <nav className="flex-1">
-      <a
-        href="#"
+      <Link
+        to={to || "#"}
         className="flex cursor-pointer items-center border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4"
       >
         {Icon && <Icon />}
         <p className="pl-4">{name}</p>
-      </a>
+      </Link>
     </nav>
   );
 }
@@ -120,7 +123,7 @@ function NavExpandable({
         defaultChecked={false}
       />
       <button className="peer relative flex w-full items-center border-l-rose-600 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 focus:border-l-4">
-        <NavSimple name={name} icon={Icon} />
+        <Nav name={name} icon={Icon} />
         {/* {Icon && <Icon />} */}
         {/* <div className="w-4" /> */}
         {/* {name} */}
