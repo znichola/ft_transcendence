@@ -8,7 +8,7 @@ import axios from "axios";
 axios.defaults.baseURL = "http://localhost:3000";
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
 // axios.defaults.headers.post["Content-Type"] =
-  // "application/x-www-form-urlencoded";
+// "application/x-www-form-urlencoded";
 
 import "./index.css";
 import App from "./App.tsx";
@@ -22,6 +22,7 @@ import Contact from "./routes/contact.tsx";
 import Test from "./Test.tsx";
 import Auth from "./routes/auth.tsx";
 import AllUsers from "./routes/AllUsers.tsx";
+import SideMenu from "./components/SideMenu.tsx";
 
 const router = createBrowserRouter([
   {
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
   {
     path: "/auth",
     element: <Auth />,
+  },
+  {
+    path: "/side",
+    element: <SideMenu />,
   },
 ]);
 
