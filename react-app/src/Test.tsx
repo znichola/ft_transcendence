@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { LoadingSpinnerMessage } from "./components";
+import { LoadingSpinnerMessage } from "./components/Loading";
 import { fetchAllUsers, fetchTodoList, fetchUser } from "./api";
 import axios from "axios";
 

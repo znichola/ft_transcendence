@@ -3,7 +3,7 @@ import Avatar from "../components/Avatar";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { LoadingSpinnerMessage } from "../components";
+import { LoadingSpinnerMessage } from "../components/Loading";
 
 export default function AllUsers() {
   const {
@@ -11,7 +11,7 @@ export default function AllUsers() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["/users"],
+    queryKey: ["/user"],
     queryFn: () => axios.get<UserData[]>("/user").then((res) => res.data),
   });
 
@@ -44,7 +44,7 @@ export function UserInfo({ user }: { user: UserData }) {
 
       <div className="flex flex-col content-center justify-center ">
         <p className="font-semibold text-slate-700">{user.name}</p>
-        <Link to={"/users/" + user.login42} className="text-slate-400">
+        <Link to={"/user/" + user.login42} className="text-slate-400">
           {"@" + user.login42}
         </Link>
       </div>

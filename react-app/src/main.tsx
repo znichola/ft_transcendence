@@ -12,17 +12,17 @@ axios.defaults.baseURL = "http://localhost:3000";
 
 import "./index.css";
 import App from "./App.tsx";
-import Login from "./Login.tsx";
+import Login from "./routes/Login.tsx";
 import Profile from "./Profile.tsx";
-import FetchUser from "./FetchUser.tsx";
-import Board from "./NikiTickTackToe.tsx";
+import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
-import ErrorPage from "./error-page.tsx";
-import Contact from "./routes/contact.tsx";
+import Contact from "./routes/UserListing.tsx";
 import Test from "./Test.tsx";
 import Auth from "./routes/auth.tsx";
 import AllUsers from "./routes/AllUsers.tsx";
 import SideMenu from "./components/SideMenu.tsx";
+import GlobalRanking from "./routes/GlobalRanking.tsx";
+import ErrorPage from "./routes/Error-page.tsx";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +33,6 @@ const router = createBrowserRouter([
       {
         path: "/users/:login42",
         element: <Contact key={0} />,
-        // element: <Contact key={0} />,
       },
       {
         path: "/users",
@@ -46,10 +45,6 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile key={3} />,
-      },
-      {
-        path: "/fetch-user",
-        element: <FetchUser key={4} />,
       },
       {
         path: "/ttt",

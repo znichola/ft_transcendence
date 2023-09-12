@@ -13,12 +13,12 @@ import {
   IconMegaphone,
   IconHeart,
   IconBolt,
+  IconBrain,
 } from "./Icons";
 import axios from "axios";
 import { UserData } from "../interfaces";
-import { LoadingSpinnerMessage } from "../components";
+import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
-import { TheMasterminds } from "../routes/Root";
 import { Link } from "react-router-dom";
 
 export default function SideMenu() {
@@ -52,7 +52,7 @@ export default function SideMenu() {
               <Nav name="😎 Cool Gal 69" icon={IconUser} />
             </NavExpandable>
             <Category name="External Links" />
-            <Nav name="Dev log" icon={IconNewspaper} />
+            <Nav name="Dev log" to="/ttt" icon={IconNewspaper} />
             <Nav name="Hart on github" icon={IconHeart} />
             <Nav name="Complain about ... the css" icon={IconBolt} />
           </div>
@@ -179,5 +179,19 @@ function CurrentUserEloStats() {
         <div className="h-40 bg-slate-100"></div>
       </div>
     </>
+  );
+}
+
+function TheMasterminds() {
+  return (
+    <Link
+      to="/"
+      className="group mt-auto flex flex-col items-center justify-center px-4"
+    >
+      <IconBrain className="h-10 w-10 fill-slate-600 drop-shadow group-hover:fill-red-500" />
+      <span className="italic text-slate-600 drop-shadow group-hover:text-red-500">
+        les Masterminds
+      </span>
+    </Link>
   );
 }

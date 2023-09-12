@@ -1,7 +1,7 @@
 import { UserData } from "../interfaces";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { LoadingSpinnerMessage } from "../components";
+import { LoadingSpinnerMessage } from "../components/Loading";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Contact() {
@@ -17,16 +17,18 @@ export default function Contact() {
       axios.get<UserData>("/user/" + login42).then((res) => res.data),
   });
 
+  // see comment below, feel free to remove
+  // my shitty change if you don't like it.
   function handleHistoryClick() {
-    navigate("/users");
+    navigate("/user");
   }
 
   function handleMessageClick() {
-    navigate("/users");
+    navigate("/user");
   }
 
   function handleChallengeClick() {
-    navigate("/users");
+    navigate("/user");
   }
 
   if (isLoading) return <LoadingSpinnerMessage message="Loading Profile" />;
@@ -64,7 +66,9 @@ export default function Contact() {
         <div className="flex h-[25%] w-[90%] items-center justify-center gap-7 pt-2 text-white">
           <div
             className="flex h-[100%] grow cursor-pointer items-center justify-center rounded-md bg-indigo-700 shadow-md"
-            onClick={handleHistoryClick}
+            // You can declair an anon funciton right here are just have a 
+            // result which is the function you wanted with a parameter
+            onClick={() => navigate("/user")}
           >
             <p className="text-3xl font-bold">Match History</p>
           </div>
