@@ -15,7 +15,7 @@ import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
 import Contact from "./routes/UserPage.tsx";
 import Test from "./test-files-and-tmp-stuff/Test.tsx";
-import Auth from "./routes/auth.tsx";
+import Auth from "./routes/Auth.tsx";
 import AllUsers from "./routes/AllUsers.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
