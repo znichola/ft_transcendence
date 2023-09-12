@@ -14,14 +14,33 @@ import {
   IconHeart,
   IconBolt,
   IconBrain,
+  IconFire,
+  IconAtSymbol,
 } from "./Icons";
 import axios from "axios";
 import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
+import NavFriends from "./SideNaveFriendsList.tsx";
+
+const user = "default42";
 
 export default function SideMenu() {
+  const {
+    data: currentUser,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["currentUser", user],
+    queryFn: () =>
+      axios.get<UserData>("/user/default42").then((res) => res.data),
+  });
+  
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Fetching user profile" />;
+  if (isError) return <p>Error fethcing data</p>;
+
   return (
     <div className="h-screen w-80">
       <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden rounded-br-lg rounded-tr-lg bg-white pt-5 shadow-md">
@@ -32,29 +51,45 @@ export default function SideMenu() {
           <div className="">
             <Category name="User" />
             <Nav name="Play Pong" to="/play" icon={IconHomeComputer} />
-            <Nav name="My Profile" to="/users/default42" icon={IconUser} />
+            <Nav name="My Profile" to="/user/default42" icon={IconUser} />
             <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
             <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
             <Category name="Social" />
             <NavExpandable name="Messages" icon={IconGroupChatBubble}>
-              <Nav name="Start a new conversation" icon={IconAddPulse} />
+              <Nav
+                name="Start a new conversation"
+                to="/message"
+                icon={IconAddPulse}
+              />
               <Nav name="Funky Dude 42" icon={IconUser} />
               <Nav name="😎 Cool Gal 69" icon={IconUser} />
             </NavExpandable>
             <NavExpandable name="Chat Channels" icon={IconUserGroup}>
-              <Nav name="Start and new channel" icon={IconAddPulse} />
+              <Nav
+                name="Start and new chatroom"
+                to="/chatroom"
+                icon={IconAddPulse}
+              />
               <Nav name="Only 1337 pongers" icon={IconBashShell} />
               <Nav name="Noobish helpdesk" icon={IconBashShell} />
             </NavExpandable>
             <NavExpandable name="Friends" icon={IconPeople}>
-              <Nav name="Find new friends" icon={IconAddPulse} />
-              <Nav name="Funky Dude 42" icon={IconUser} />
-              <Nav name="😎 Cool Gal 69" icon={IconUser} />
+              <Nav name="Find new friends" to="friend" icon={IconAddPulse} />
+              <NavFriends currentUser={currentUser} />
             </NavExpandable>
+
+            <Category name="Temporay links for dev" />
+            <Nav name="auth" to="/auth" icon={IconAtSymbol} />
+            <Nav name="login" to="/login" icon={IconFire} />
+
             <Category name="External Links" />
             <Nav name="Dev log" to="/ttt" icon={IconNewspaper} />
             <Nav name="Hart on github" icon={IconHeart} />
-            <Nav name="Complain about ... the css" icon={IconBolt} />
+            <Nav
+              name="Complain about ... the css"
+              to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              icon={IconBolt}
+            />
           </div>
 
           <TheMasterminds />
@@ -71,7 +106,7 @@ function Category({ name }: { name: string }) {
   );
 }
 
-function Nav({
+export function Nav({
   name,
   to,
   icon: Icon,
@@ -133,7 +168,7 @@ function NavExpandable({
         />
       </button>
       <IconDownChevron className="absolute right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
-      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-slate-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
+      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-rose-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
         {children}
       </ul>
     </div>
@@ -146,9 +181,8 @@ function CurrentUserStats() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["currentUser", "default42"],
-    queryFn: () =>
-      axios.get<UserData>("/user/default42").then((res) => res.data),
+    queryKey: ["currentUser", user],
+    queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
   });
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;

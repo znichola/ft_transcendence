@@ -32,7 +32,7 @@ export default function Avatar({
         alt={alt || "undefined" + " profile image"}
       />
       <div
-        className={`group absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusColor()} ring ring-white`}
+        className={`group absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusColor(status)} ring ring-white`}
       >
         {status === "ingame" && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>

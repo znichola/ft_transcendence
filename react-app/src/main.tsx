@@ -11,18 +11,21 @@ axios.defaults.baseURL = "http://localhost:3000";
 // "application/x-www-form-urlencoded";
 
 import "./index.css";
-import App from "./App.tsx";
-import Login from "./routes/Login.tsx";
-import Profile from "./Profile.tsx";
 import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
-import Contact from "./routes/UserListing.tsx";
-import Test from "./Test.tsx";
+import Contact from "./routes/UserPage.tsx";
+import Test from "./test-files-and-tmp-stuff/Test.tsx";
 import Auth from "./routes/auth.tsx";
 import AllUsers from "./routes/AllUsers.tsx";
-import SideMenu from "./components/SideMenu.tsx";
+import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
-import ErrorPage from "./routes/Error-page.tsx";
+import PlayPong from "./routes/PlayPong.tsx";
+import PongFeed from "./routes/PongFeed.tsx";
+import AddNewChatRoom from "./routes/AddNewChatRoom.tsx";
+import AddNewChat from "./routes/AddNewChat.tsx";
+import AddNewFriend from "./routes/AddNewFriend.tsx";
+import Login from "./routes/UserLogin.tsx";
+// import Login from "./routes/Foo.tsx";
 
 const router = createBrowserRouter([
   {
@@ -31,42 +34,55 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/users/:login42",
-        element: <Contact key={0} />,
+        path: "/play",
+        element: <PlayPong />,
+      },
+      {
+        path: "/user/:login42",
+        element: <Contact />,
       },
       {
         path: "/users",
-        element: <AllUsers key={1} />,
+        element: <AllUsers />,
+      },
+      {
+        path: "/pong",
+        element: <PongFeed />,
+      },
+      {
+        path: "/ranking",
+        element: <GlobalRanking />,
+      },
+      {
+        path: "/message",
+        element: <AddNewChat />,
+      },
+      {
+        path: "/chatroom",
+        element: <AddNewChatRoom />,
+      },
+      {
+        path: "/friend",
+        element: <AddNewFriend />,
+      },
+      // below are the temp dev links
+      {
+        path: "/ttt",
+        element: <Board />,
+      },
+      {
+        path: "/test",
+        element: <Test />,
+      },
+      {
+        path: "/auth",
+        element: <Auth />,
       },
       {
         path: "/login",
-        element: <Login key={2} />,
-      },
-      {
-        path: "/profile",
-        element: <Profile key={3} />,
-      },
-      {
-        path: "/ttt",
-        element: <Board key={5} />,
-      },
-      {
-        path: "/app",
-        element: <App key={6} />,
-      },
+        element: <Login />
+      }
     ],
-  },
-  {
-    path: "/test",
-    element: <Test />,
-  },
-  {
-    path: "/auth",
-    element: <Auth />,
-  },
-  {
-    path: "/side",
-    element: <SideMenu />,
   },
 ]);
 

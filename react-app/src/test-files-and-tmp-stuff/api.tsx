@@ -1,6 +1,6 @@
 // https://stackoverflow.com/questions/41103360/how-to-use-fetch-in-typescript
 
-import { UserData } from "./interfaces";
+import { UserData } from "../interfaces";
 
 // Standard variation
 export async function api<T>(url: string): Promise<T> {

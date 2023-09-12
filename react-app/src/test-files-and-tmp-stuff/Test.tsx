@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { LoadingSpinnerMessage } from "./components/Loading";
-import { fetchAllUsers, fetchTodoList, fetchUser } from "./api";
+import { LoadingSpinnerMessage } from "../components/Loading";
 import axios from "axios";
 
-import { Avatar } from "./Profile";
 import { useEffect, useState } from "react";
-import { UserData } from "./interfaces";
+import { UserData } from "../interfaces";
 
 export default function Test() {
   return (
