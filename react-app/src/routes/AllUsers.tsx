@@ -1,5 +1,5 @@
 import { UserData } from "../interfaces";
-import { Avatar } from "../Profile";
+import Avatar from "../components/Avatar";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";

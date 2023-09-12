@@ -2,7 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 import { api } from "../utils.tsx";
 import { UserData } from "../interfaces.tsx";
 import { useEffect, useState } from "react";
-import { Avatar } from "../Profile.tsx";
+import Avatar from "../components/Avatar.tsx";
 
 // side nav
 export default function Root() {

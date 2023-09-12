@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components";
-import { Avatar } from "../Profile";
+import Avatar from "../components/Avatar.tsx";
 import { TheMasterminds } from "../routes/Root";
 
 export default function SideMenu() {
@@ -25,7 +25,7 @@ export default function SideMenu() {
     <div className="h-screen w-80">
       <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden rounded-br-lg rounded-tr-lg bg-white pt-5 shadow-md">
         <CurrentUserStats />
-        <div className="h-8"/>
+        <div className="h-8" />
         <CurrentUserEloStats />
         <div className="mt-3 flex flex-1 flex-col">
           <div className="">
@@ -43,7 +43,7 @@ export default function SideMenu() {
             <NavExpandable name="Chat Channels" icon={IconUserGroup}>
               <NavSimple name="Start and new channel" icon={IconAddPulse} />
               <NavSimple name="Only 1337 pongers" icon={IconBashShell} />
-              <NavSimple name="Noobs helpdesk" icon={IconBashShell} />
+              <NavSimple name="Noobish helpdesk" icon={IconBashShell} />
             </NavExpandable>
             <NavExpandable name="Friends" icon={IconPeople}>
               <NavSimple name="Find new friends" icon={IconAddPulse} />
@@ -57,7 +57,7 @@ export default function SideMenu() {
           </div>
 
           <TheMasterminds />
-          <div className="h-4"/>
+          <div className="h-4" />
         </div>
       </div>
     </div>
@@ -130,7 +130,7 @@ function NavExpandable({
         />
       </button>
       <IconDownChevron className="absolute right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
-      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-slate-50 shadow-sm font-medium transition-all duration-300 peer-checked:max-h-96">
+      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-slate-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
         {children}
       </ul>
     </div>
@@ -172,8 +172,9 @@ function CurrentUserStats() {
 function CurrentUserEloStats() {
   return (
     <>
-      <div className="h-40 bg-slate-100"></div>
+      <div className="p-2">
+        <div className="h-40 bg-slate-100"></div>
+      </div>
     </>
   );
 }
-
