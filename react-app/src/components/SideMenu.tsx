@@ -15,7 +15,7 @@ import {
   IconBolt,
   IconBrain,
   IconFire,
-  IconAtSymbol,
+  IconFingerPrint,
 } from "./Icons";
 import axios from "axios";
 import { UserData } from "../interfaces";
@@ -79,7 +79,7 @@ export default function SideMenu() {
             </NavExpandable>
 
             <Category name="Temporay links for dev" />
-            <Nav name="auth" to="/auth" icon={IconAtSymbol} />
+            <Nav name="auth" to="/auth" icon={IconFingerPrint} />
             <Nav name="login" to="/login" icon={IconFire} />
 
             <Category name="External Links" />

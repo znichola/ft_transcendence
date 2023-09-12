@@ -37,6 +37,7 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
     <>
       {friends.map((u) => (
         <Nav
+          key={u.login42}
           name={u.name}
           to={"/user/" + u.login42}
           icon={() => (
