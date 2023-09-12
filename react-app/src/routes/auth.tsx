@@ -1,6 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useSearchParams } from "react-router-dom";
+
 export default function Auth() {
-  return (
-    <div className="flex min-h-screen items-center justify-center ">
+  let [searchParams, setSearchParams] = useSearchParams()
+  console.log("ALED", searchParams.get("code"));
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["auth"],
+    queryFn: () => axios.post("/login", {code: searchParams.get("code"), state: 'state'}).then((res) => res.data),
+  });
+  if (isLoading)
+    return (
+      <div className="flex min-h-screen items-center justify-center ">
         <div className="mb-4 flex items-center justify-center">
           <svg
             aria-hidden="true"
@@ -20,6 +31,8 @@ export default function Auth() {
           </svg>
         </div>
         {/* You can add additional information or messages here */}
-    </div>
-  );
+      </div>
+    );
+  if (isError) return <p>Lol.</p>;
+  
 }
