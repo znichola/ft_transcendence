@@ -111,4 +111,18 @@ export class UserService {
     }
     return [];
   }
+
+  async registerUser(login: string, displayName: string, avatar: string): Promise<UserData> {
+    const user = await prisma.user.upsert({
+      where: { login42: login },
+      create: { 
+        login42: login,
+        name: displayName,
+        avatar: avatar,
+        statusId: 1,
+      },
+      update: { statusId: 1 },
+    });
+    return user;
+  }
 }
