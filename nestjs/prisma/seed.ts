@@ -39,12 +39,13 @@ async function createUser(
   });
 }
 
-async function createChatroomRole(roleName: string) {
-  await prisma.chatroomRole.upsert({
-    where: { name: roleName },
+async function createChatroom(owner: number, name: string) {
+  await prisma.chatroom.upsert({
+    where: { id: 0},
     update: {},
     create: {
-      name: roleName,
+      ownerId: 1,
+      name: name,
     },
   });
 }
@@ -192,9 +193,7 @@ async function main() {
   );
   await createUser('test', 'Testus');
 
-  await createChatroomRole('member');
-  await createChatroomRole('admin');
-  await createChatroomRole('owner');
+  createChatroom(1, 'test');
 
   await createFunnyUsers();
   await creatDummyData();

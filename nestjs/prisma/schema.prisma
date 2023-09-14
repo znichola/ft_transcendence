@@ -62,19 +62,12 @@ model Chatroom {
 
   name String
 
-  statusId Int
-  status   ChatroomStatus @relation(fields: [statusId], references: [id])
+  status ChatroomVisibilityStatus @default(PUBLIC)
 
   password String?
 
   chatroomUsers ChatroomUser[]
   messages      Message[]
-}
-
-model ChatroomStatus {
-  id       Int        @id @default(autoincrement())
-  name     String     @unique
-  Chatroom Chatroom[]
 }
 
 model ChatroomUser {
@@ -84,17 +77,9 @@ model ChatroomUser {
   chatroom Chatroom @relation(fields: [chatroomId], references: [id])
   user     User     @relation("Member", fields: [userId], references: [id])
 
-  roleId Int
-  role   ChatroomRole @relation(fields: [roleId], references: [id])
+  role ChatroomUserRole @default(MEMBER)
 
   @@id([chatroomId, userId])
-}
-
-model ChatroomRole {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  chatroomUsers ChatroomUser[]
 }
 
 model Message {
@@ -114,7 +99,7 @@ model Game {
   id       Int      @id @default(autoincrement())
   typeId   Int
   gameType GameType @relation(fields: [typeId], references: [id])
-  date DateTime @default(now())
+  date     DateTime @default(now())
 
   player1Id        Int
   player1          User @relation("Created", fields: [player1Id], references: [id])
@@ -136,4 +121,16 @@ model GameType {
   score Int
 
   games Game[]
+}
+
+enum ChatroomUserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ChatroomVisibilityStatus {
+  PUBLIC
+  PRIVATE
+  PROTECTED
 }
