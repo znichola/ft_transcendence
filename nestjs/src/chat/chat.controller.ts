@@ -21,50 +21,50 @@ export class ChatController
 	@UsePipes(ValidationPipe)
 	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto)
 	{
-		this.chatService.createNewChatRoom(createChatroomDto);
+		await this.chatService.createNewChatRoom(createChatroomDto);
 	}
 
 	@Get(':id')
 	async getOneChatRoom(@Param('id') id: number): Promise<ChatRoomData>
 	{
-		return this.chatService.getOneChatRoom(id);
+		return await this.chatService.getOneChatRoom(id);
 	}
 
 	@Delete(':id')
 	async deleteChatroom(@Param('id') id: number)
 	{
-		this.chatService.deleteChatroom(id);
+		await this.chatService.deleteChatroom(id);
 	}
 
 	@Get(':id/members')
 	async getMembersOfChatRoom(@Param('id') id: number): Promise<ChatroomMember[]>
 	{
-		return this.chatService.getMembersOfChatRoom(id);
+		return await this.chatService.getMembersOfChatRoom(id);
 	}
 
 	@Post(':id/members')
 	@UsePipes(ValidationPipe)
 	async addMemberToChatRoom(@Param('id') id: number, @Body() addMemberDto: AddMemberToChatroomDto)
 	{
-		this.chatService.addMemberToChatRoom(id, addMemberDto);
+		await this.chatService.addMemberToChatRoom(id, addMemberDto);
 	}
 
 	@Get(':id/members/:memberId')
 	async getOneMemberFromChatroom(@Param('id') chatroomId: number, @Param('memberId') memberId: number)
 	{
-		return this.chatService.getOneMemberFromChatroom(chatroomId, memberId);
+		return await this.chatService.getOneMemberFromChatroom(chatroomId, memberId);
 	}
 
 	@Delete(':id/members/:memberId')
 	async deleteMemberFromChatRoom(@Param('id') chatroomId: number, @Param('memberId') memberId: number)
 	{
-		this.chatService.deleteMemberFromChatRoom(chatroomId, memberId);
+		await this.chatService.deleteMemberFromChatRoom(chatroomId, memberId);
 	}
 
 	@Patch(':id/members/:memberId')
 	@UsePipes(ValidationPipe)
 	async updateMemberFromChatroom(@Param('id') chatroomId: number, @Param('memberId') memberId: number, @Body() patch: UpdateRoleDto)
 	{
-		this.chatService.updateRoleOfMemberFromChatroom(chatroomId, memberId, patch);
+		await this.chatService.updateRoleOfMemberFromChatroom(chatroomId, memberId, patch);
 	}
 }

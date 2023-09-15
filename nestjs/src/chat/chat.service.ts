@@ -1,4 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
 import { UpdateRoleDto } from './dto/update-role-dto';
@@ -8,6 +9,8 @@ import { ChatroomMember } from './interfaces/chat-room-member.interface';
 @Injectable()
 export class ChatService
 {
+	constructor(private prisma: PrismaService){}
+
 	private chatRooms: ChatRoomData[] = [];
 
 	async getAllChatRooms(): Promise<ChatRoomData[]>
@@ -17,6 +20,7 @@ export class ChatService
 
 	async createNewChatRoom(chatroomDto: CreateChatroomDto)
 	{
+		await this.checkUserExists(chatroomDto.ownerId);
 		let newChatRoom = new ChatRoomData(chatroomDto.ownerId);
 		this.chatRooms.push(newChatRoom);
 	}
@@ -25,7 +29,7 @@ export class ChatService
 	{
 		const chatroom = this.chatRooms.find(chatroom => chatroom.id == id);
 		if (chatroom == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		return this.chatRooms.find(chatroom => chatroom.id == id);
 	}
 
@@ -33,7 +37,7 @@ export class ChatService
 	{
 		let indexToDelete = this.chatRooms.findIndex(chatroom => chatroom.id == id);
 		if (indexToDelete == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		delete this.chatRooms[indexToDelete];
 	}
 
@@ -41,7 +45,7 @@ export class ChatService
 	{
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == id);
 		if (chatroomIndex == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		return this.chatRooms[chatroomIndex].members;
 	}
 
@@ -49,7 +53,7 @@ export class ChatService
 	{
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);
 		if (chatroomIndex == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		return this.chatRooms[chatroomIndex].members.find(member => member.id == memberId);
 	}
 
@@ -57,7 +61,7 @@ export class ChatService
 	{
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
 		if (chatroomIndex == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		let newMember = new ChatroomMember(addMemberDto.userId);	
 		this.chatRooms[chatroomIndex].members.push(newMember);
 	}
@@ -66,10 +70,10 @@ export class ChatService
 	{
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
 		if (chatroomIndex == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		let indexToDelete = this.chatRooms[chatroomIndex].members.findIndex(member => member.id == memberId);
 		if (indexToDelete == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		delete this.chatRooms[chatRoomId].members[indexToDelete];
 	}
 
@@ -77,10 +81,22 @@ export class ChatService
 	{
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);		
 		if (chatroomIndex == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		let indexToUpdate = this.chatRooms[chatroomIndex].members.findIndex(member => member.id == memberId);
 		if (indexToUpdate == undefined)
-			throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+			throw new NotFoundException();
 		this.chatRooms[chatroomIndex].members[indexToUpdate].role = updateRoleDto.role;
+	}
+
+	private async checkUserExists(userId: number)
+	{
+		const user = await this.prisma.user.findFirst({
+			where:
+			{
+				id: userId,
+			},
+		});
+		if (user == null)
+			throw new HttpException('This user does not exist', HttpStatus.NOT_FOUND);
 	}
 }
