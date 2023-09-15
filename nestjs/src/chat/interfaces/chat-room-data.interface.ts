@@ -3,10 +3,12 @@ import { ChatroomMember } from "./chat-room-member.interface";
 export class ChatRoomData
 {
 	public readonly	id:				number;
-	public readonly	creation_date:	Date;
+	//public readonly	creation_date:	Date;
+	public			name:			string;
 	public 			ownerId:		number;
-	public 			members:		ChatroomMember[];
+	//public 			members:		ChatroomMember[];
 
+	/*
 	constructor(ownerId: number)
 	{
 		this.id = Math.random();
@@ -19,4 +21,5 @@ export class ChatRoomData
 		owner.role = 1;
 		this.members.push(owner);
 	}
+	*/
 }

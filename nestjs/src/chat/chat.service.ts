@@ -15,22 +15,24 @@ export class ChatService
 
 	async getAllChatRooms(): Promise<ChatRoomData[]>
 	{
-		return this.chatRooms;
+		return await this.prisma.chatroom.findMany({})
 	}
 
 	async createNewChatRoom(chatroomDto: CreateChatroomDto)
 	{
 		await this.checkUserExists(chatroomDto.ownerId);
-		let newChatRoom = new ChatRoomData(chatroomDto.ownerId);
-		this.chatRooms.push(newChatRoom);
+		await this.prisma.chatroom.create({
+			data: chatroomDto
+		});
 	}
 
-	async getOneChatRoom(id: number): Promise<ChatRoomData>
+	async getOneChatRoom(chatroomId: number): Promise<ChatRoomData>
 	{
-		const chatroom = this.chatRooms.find(chatroom => chatroom.id == id);
-		if (chatroom == undefined)
-			throw new NotFoundException();
-		return this.chatRooms.find(chatroom => chatroom.id == id);
+		return await this.prisma.chatroom.findFirst({
+			where: {
+				id: +chatroomId,
+			},
+		})
 	}
 
 	async deleteChatroom(id: number)
@@ -43,31 +45,40 @@ export class ChatService
 
 	async getMembersOfChatRoom(id: number): Promise<ChatroomMember[]>
 	{
+		/*
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == id);
 		if (chatroomIndex == undefined)
 			throw new NotFoundException();
 		return this.chatRooms[chatroomIndex].members;
+		*/
+		return null;
 	}
 
 	async getOneMemberFromChatroom(chatroomId: number, memberId: number)
 	{
+		/*
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);
 		if (chatroomIndex == undefined)
-			throw new NotFoundException();
+			throw new NotFoundException();	
 		return this.chatRooms[chatroomIndex].members.find(member => member.id == memberId);
+		*/
+		return null;
 	}
 
 	async addMemberToChatRoom(chatRoomId: number, addMemberDto: AddMemberToChatroomDto)
 	{
+		/*
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
 		if (chatroomIndex == undefined)
 			throw new NotFoundException();
 		let newMember = new ChatroomMember(addMemberDto.userId);	
 		this.chatRooms[chatroomIndex].members.push(newMember);
+		*/
 	}
 
 	async deleteMemberFromChatRoom(chatRoomId: number, memberId: number)
 	{
+		/*
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
 		if (chatroomIndex == undefined)
 			throw new NotFoundException();
@@ -75,10 +86,12 @@ export class ChatService
 		if (indexToDelete == undefined)
 			throw new NotFoundException();
 		delete this.chatRooms[chatRoomId].members[indexToDelete];
+		*/
 	}
 
 	async updateRoleOfMemberFromChatroom(chatroomId: number, memberId: number, updateRoleDto: UpdateRoleDto)
 	{
+		/*
 		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);		
 		if (chatroomIndex == undefined)
 			throw new NotFoundException();
@@ -86,6 +99,7 @@ export class ChatService
 		if (indexToUpdate == undefined)
 			throw new NotFoundException();
 		this.chatRooms[chatroomIndex].members[indexToUpdate].role = updateRoleDto.role;
+		*/
 	}
 
 	private async checkUserExists(userId: number)

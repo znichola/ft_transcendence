@@ -4,4 +4,6 @@ export class CreateChatroomDto
 {
     @IsInt()
     ownerId: number;
+
+    name: string;
 }
