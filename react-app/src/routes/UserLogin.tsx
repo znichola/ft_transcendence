@@ -1,4 +1,12 @@
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
 export default function Login() {
+  useQuery({
+    queryKey: ["auth"],
+    queryFn: () => axios.get("/auth/login", {withCredentials: true}).then((res) => res.data),
+  });
+  
   return (
     <>
       <AuthButton />

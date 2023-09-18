@@ -4,10 +4,9 @@ import { useSearchParams } from "react-router-dom";
 
 export default function Auth() {
   let [searchParams, setSearchParams] = useSearchParams()
-  console.log("ALED", searchParams.get("code"));
   const { data, isLoading, isError } = useQuery({
     queryKey: ["auth"],
-    queryFn: () => axios.post("/login", {code: searchParams.get("code"), state: 'state'}).then((res) => res.data),
+    queryFn: () => axios.post("/auth/login", {withCredentials: true, code: searchParams.get("code"), state: 'state'}).then((res) => res.data),
   });
   if (isLoading)
     return (
