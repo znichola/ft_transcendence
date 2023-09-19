@@ -6,7 +6,7 @@ export default function Auth() {
   let [searchParams, setSearchParams] = useSearchParams()
   const { data, isLoading, isError } = useQuery({
     queryKey: ["auth"],
-    queryFn: () => axios.post("/auth/login", {withCredentials: true, code: searchParams.get("code"), state: 'state'}).then((res) => res.data),
+    queryFn: () => axios.post("/auth/login", {code: searchParams.get("code"), state: 'state'}, { withCredentials: true }).then((res) => res.data),
   });
   if (isLoading)
     return (
