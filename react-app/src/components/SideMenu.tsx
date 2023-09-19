@@ -37,7 +37,7 @@ export default function SideMenu() {
     queryFn: () =>
       axios.get<UserData>("/user/default42").then((res) => res.data),
   });
-  
+
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;
   if (isError) return <p>Error fethcing data</p>;
@@ -210,9 +210,9 @@ function CurrentUserStats() {
 function CurrentUserEloStats() {
   return (
     <>
-      <div className="p-2">
-        <div className="h-40 bg-slate-100">
-          <ProfileElo data={[1201, 1190, 921, 843, 1176, 1298, 1495, 1687]}/>
+      <div className="flex justify-center p-2">
+        <div className="h-40 rounded-xl bg-stone-50 shadow-inner p-4">
+          <ProfileElo data={[1201, 1190, 991, 1249, 1176, 1298, 1495, 1587]} />
         </div>
       </div>
     </>
