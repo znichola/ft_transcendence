@@ -23,6 +23,7 @@ import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
+import ProfileElo from "./ProfileElo.tsx";
 
 const user = "default42";
 
@@ -210,7 +211,9 @@ function CurrentUserEloStats() {
   return (
     <>
       <div className="p-2">
-        <div className="h-40 bg-slate-100"></div>
+        <div className="h-40 bg-slate-100">
+          <ProfileElo data={[1201, 1190, 921, 843, 1176, 1298, 1495, 1687]}/>
+        </div>
       </div>
     </>
   );
