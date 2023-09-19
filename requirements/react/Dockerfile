@@ -12,7 +12,7 @@ RUN echo 'PS1="react \w > "' >> ~/.bashrc
 
 WORKDIR /app
 
-CMD ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["sh", "./requirements/react/config.sh"]
 
 # docker build -t react-server .
 # docker run --init --name react-server -p 3000:3000 react-server

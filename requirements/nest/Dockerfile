@@ -14,7 +14,7 @@ RUN echo 'PS1="nest \w > "' >> ~/.bashrc
 
 WORKDIR /backend
 
-CMD ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["sh", "./requirements/nest/config.sh"]
 
 # docker build -t nest-server .
 # docker run --init --name nest-server -p 3000:3000 nest-server
