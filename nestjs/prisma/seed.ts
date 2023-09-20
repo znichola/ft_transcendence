@@ -1,16 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
-async function createStatus(statusName: string) {
-  await prisma.status.upsert({
-    where: { name: statusName },
-    update: {},
-    create: {
-      name: statusName,
-    },
-  });
-}
 
 async function createUser(
   login: string,
@@ -19,11 +9,8 @@ async function createUser(
   elo?: number,
   wins?: number,
   losses?: number,
-  statusStr?: string,
+  status?: UserStatus,
 ) {
-  const status = await prisma.status.findFirst({
-    where: { name: statusStr || 'online' },
-  });
   await prisma.user.upsert({
     where: { login42: login },
     update: {},
@@ -34,7 +21,7 @@ async function createUser(
       elo: elo || 1500,
       wins: wins || 0,
       losses: losses || 0,
-      statusId: status.id,
+      status: status,
     },
   });
 }
@@ -58,7 +45,7 @@ async function createFunnyUsers() {
     2000,
     100,
     10,
-    'online',
+    UserStatus.ONLINE,
   );
   await createUser('funnyuser2', 'Jokester', 'https://picsum.photos/id/40/200');
   await createUser(
@@ -68,7 +55,7 @@ async function createFunnyUsers() {
     1600,
     50,
     30,
-    'online',
+    UserStatus.ONLINE,
   );
   await createUser(
     'funnyuser4',
@@ -77,7 +64,7 @@ async function createFunnyUsers() {
     1400,
     25,
     40,
-    'online',
+    UserStatus.ONLINE,
   );
   await createUser(
     'funnyuser5',
@@ -86,7 +73,7 @@ async function createFunnyUsers() {
     1200,
     10,
     50,
-    'ingame',
+    UserStatus.INGAME,
   );
   await createUser(
     'funnyuser6',
@@ -95,7 +82,7 @@ async function createFunnyUsers() {
     1000,
     5,
     60,
-    'offline',
+    UserStatus.OFFLINE,
   );
   await createUser(
     'funnyuser7',
@@ -104,7 +91,7 @@ async function createFunnyUsers() {
     420,
     7,
     20,
-    'offline',
+    UserStatus.OFFLINE,
   );
   await createUser(
     'funnyuser8',
@@ -113,7 +100,7 @@ async function createFunnyUsers() {
     1600,
     20,
     33,
-    'offline',
+    UserStatus.OFFLINE,
   );
 }
 
@@ -136,7 +123,7 @@ async function creatDummyData() {
     2450,
     78,
     93,
-    'offline',
+    UserStatus.OFFLINE,
   );
 
   await createUser(
@@ -146,7 +133,7 @@ async function creatDummyData() {
     1234,
     45,
     62,
-    'online',
+    UserStatus.ONLINE,
   );
 
   await createUser(
@@ -156,7 +143,7 @@ async function creatDummyData() {
     1500,
     90,
     84,
-    'unavailable',
+    UserStatus.UNAVAILABLE,
   );
 
   await createUser(
@@ -166,7 +153,7 @@ async function creatDummyData() {
     2875,
     63,
     75,
-    'offline',
+    UserStatus.OFFLINE,
   );
 
   await createUser(
@@ -176,16 +163,11 @@ async function creatDummyData() {
     1980,
     82,
     96,
-    'ingame',
+    UserStatus.INGAME,
   );
 }
 
 async function main() {
-  await createStatus('online');
-  await createStatus('offline');
-  await createStatus('ingame');
-  await createStatus('unavailable');
-
   await createUser(
     'default42',
     'Defaultus Maximus',

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { UserData } from "../interfaces";
+import { UserData, UserFriend } from "../interfaces";
 import axios from "axios";
 import { LoadingDots } from "./Loading";
 import { Nav } from "./SideMenu";
@@ -11,20 +11,20 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
     isError,
   } = useQuery({
     queryKey: ["users"],
-    queryFn: () => axios.get<UserData[]>("/user/" + currentUser.login42 +"/friends").then((res) => res.data),
+    queryFn: () => axios.get<UserFriend>("/user/" + currentUser.login42 +"/friends").then((res) => res.data),
   });
   if (isLoading) return <LoadingDots/>
   if (isError) return <p>Error fetching freinds</p>
   
     function statusColor(status : UserData["status"]) {
     switch (status) {
-      case "online":
+      case "ONLINE":
         return "ring-green-600";
-      case "offline":
+      case "OFFLINE":
         return "ring-gray-300";
-      case "ingame":
+      case "INGAME":
         return "ring-blue-400";
-      case "unavailable":
+      case "UNAVAILABLE":
         return "ring-red-500";
       default:
         return "ring-ping-700";
@@ -35,7 +35,7 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
 
   return (
     <>
-      {friends.map((u) => (
+      {friends.friends.map((u) => (
         <Nav
           key={u.login42}
           name={u.name}

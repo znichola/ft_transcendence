@@ -21,8 +21,7 @@ model User {
   wins   Int @default(0)
   losses Int @default(0)
 
-  statusId Int
-  status   Status @relation(fields: [statusId], references: [id])
+  status   UserStatus @default(ONLINE)
 
   friends1 Friend[] @relation("Friends")
   friends2 Friend[] @relation("FriendsOf")
@@ -36,12 +35,13 @@ model User {
   messages Message[]
 }
 
-model Status {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  user User[]
-}
+// model Status {
+//   id   Int    @id @default(autoincrement())
+//   name String @unique
+//   user User[]
+// }
 
+// rename model to relations, to implement blocking people using this one same exact very nice table
 model Friend {
   user1Id Int
   user2Id Int
@@ -49,7 +49,7 @@ model Friend {
   user1 User @relation("Friends", fields: [user1Id], references: [id])
   user2 User @relation("FriendsOf", fields: [user2Id], references: [id])
 
-  status String
+  status FriendStatus @default(PENDING)
 
   @@id([user1Id, user2Id])
 }
@@ -133,4 +133,17 @@ enum ChatroomVisibilityStatus {
   PUBLIC
   PRIVATE
   PROTECTED
+}
+
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  INGAME
+  UNAVAILABLE
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
 }

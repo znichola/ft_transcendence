@@ -1,6 +1,7 @@
 import { Param, Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserData } from '../interfaces';
+import { FriendData, UserData, UserFriend } from '../interfaces';
+import { FriendStatus } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
@@ -10,23 +11,20 @@ export class UserController {
   async getAllUsers(@Query('page') page: string, @Query('status') status?: string): Promise<UserData[]> {
     var usersInfo: UserData[];
     if (status) {
-      usersInfo = await this.userService.findAllByStatus(status, parseInt(page));
+      usersInfo = await this.userService.findAll(parseInt(page));
     }
     else {
       usersInfo = await this.userService.findAll(parseInt(page));
     }
-    const promisedUsersInfo = usersInfo.map(async (user) => {
-      user.status = await this.userService.getUserStatus(user.statusId);
-      return user;
-    });
-    const parsedUsersInfo = await Promise.all(promisedUsersInfo);
-    return parsedUsersInfo;
+    return usersInfo;
   }
 
   @Get(':username')
   async getOne(@Param('username') username: string): Promise<UserData> {
     const userInfo = await this.userService.findUser(username);
-    userInfo.status = await this.userService.getUserStatus(userInfo.statusId);
+    if (!userInfo) {
+      return null;
+    }
     return userInfo;
   }
 
@@ -40,9 +38,24 @@ export class UserController {
   }
 
   @Get(':username/friends')
-  async UserFriends(@Param('username') username: string): Promise<UserData[]> {
+  async userFriends(@Param('username') username: string): Promise<UserFriend> {
     const userId = await this.userService.getUserId(username);
-    const friendList = await this.userService.GetUserFriends(userId);
+    const approvedFriends: FriendData[] = await this.userService.getUserFriends(userId);
+    const pendingFriends: FriendData[] = await this.userService.getUserFriendsByStatus(userId, false, FriendStatus.PENDING);
+    const requestsFriends: FriendData[] = await this.userService.getUserFriendsByStatus(userId, true, FriendStatus.PENDING);
+    console.log(approvedFriends);
+    const friendList: UserFriend = {
+      friends: approvedFriends,
+      pending: pendingFriends,
+      requests: requestsFriends,
+    };
     return friendList;
+  }
+
+  @Post(':username/friends')
+  async addFriend(@Param('username') username: string, @Body() bodyData) {
+    const userId = await this.userService.getUserId(username);
+    const receiverId = await this.userService.getUserId(bodyData.receiver)
+    await this.userService.createFriend(userId, receiverId);
   }
 }

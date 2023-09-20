@@ -11,13 +11,13 @@ export default function Avatar({
 }) {
   function statusColor() {
     switch (status) {
-      case "online":
+      case "ONLINE":
         return "bg-green-600";
-      case "offline":
+      case "OFFLINE":
         return "bg-gray-300";
-      case "ingame":
+      case "INGAME":
         return "bg-blue-400";
-      case "unavailable":
+      case "UNAVAILABLE":
         return "bg-red-500";
       default:
         return "bg-ping-700";

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserData } from 'src/interfaces';
+import { FriendStatus, UserStatus } from '@prisma/client';
+import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 const prisma: PrismaService = new PrismaService();
@@ -47,25 +48,29 @@ export class UserService {
     return user;
   }
 
-  async getUserStatus(statusId: number): Promise<string> {
-    const statusString = await prisma.status.findFirst({
-      where: {
-        id: statusId,
-      },
-    });
-    return statusString.name;
-  }
-
   async getUserId(login: string): Promise<number> {
-    const user = await prisma.user.findFirst({
-      where: {
-        login42: login,
-      },
+    const user = await prisma.user.findUnique({
+      where: { login42: login },
+      select: { id: true }
     });
     return user.id;
   }
 
-  async GetUserFriends(userId: number): Promise<UserData[]> {
+
+  async getFriendData(userId: number): Promise<FriendData> {
+    const friend = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        login42: true,
+        name: true,
+        avatar: true,
+        status: true,
+      },
+    });
+    return friend;
+  }
+
+  async getUserFriends(userId: number): Promise<FriendData[]> {
     const userFriends = await prisma.friend.findMany({
       where: {
         OR: [
@@ -76,41 +81,63 @@ export class UserService {
             user2Id: userId,
           },
         ],
+        status: FriendStatus.ACCEPTED,
       },
     });
 
     const userPromises = userFriends.map(async (value) => {
-      console.log(value);
-      console.log('--');
-      let user: UserData;
+      let user: FriendData;
       if (value.user1Id == userId) {
-        user = await this.findUserFromId(value.user2Id);
+        user = await this.getFriendData(value.user2Id);
       } else {
-        user = await this.findUserFromId(value.user1Id);
+        user = await this.getFriendData(value.user1Id);
       }
       return user;
     });
 
-    const results: UserData[] = await Promise.all(userPromises);
+    const results: FriendData[] = await Promise.all(userPromises);
     return results;
   }
 
-  async findAllByStatus(
-    statusName: string,
-    page?: number,
-  ): Promise<UserData[]> {
-    const status = await prisma.status.findFirst({
-      where: { name: statusName },
-      include: {
-        user: { skip: (page - 1) * 10 || 0, take: 10, orderBy: { elo: 'desc' } },
-      },
-    });
-    if (status) {
-      const users = status.user;
-      return users;
-    }
-    return [];
+async getUserFriendsByStatus(userId: number, incoming: boolean, status: FriendStatus): Promise<FriendData[]> {
+  const whereCondition: { user1Id?: number, user2Id?: number, status: FriendStatus } = { status: status}
+  if (incoming) {
+    whereCondition.user2Id = userId
+  } else {
+    whereCondition.user1Id = userId
   }
+  const pending = await prisma.friend.findMany({
+    where: whereCondition
+  });
+  const userPromises = pending.map(async (value) => {
+    let user: FriendData;
+    if (value.user1Id == userId) {
+      user = await this.getFriendData(value.user2Id);
+    } else {
+      user = await this.getFriendData(value.user1Id);
+    }
+    return user;
+  });
+  const results: FriendData[] = await Promise.all(userPromises);
+  return results;
+}
+
+  // async findAllByStatus(
+  //   statusName: string,
+  //   page?: number,
+  // ): Promise<UserData[]> {
+  //   const status = await prisma.status.findFirst({
+  //     where: { name: statusName },
+  //     include: {
+  //       user: { skip: (page - 1) * 10 || 0, take: 10, orderBy: { elo: 'desc' } },
+  //     },
+  //   });
+  //   if (status) {
+  //     const users = status.user;
+  //     return users;
+  //   }
+  //   return [];
+  // }
 
   async registerUser(login: string, displayName: string, avatar: string): Promise<UserData> {
     const user = await prisma.user.upsert({
@@ -119,10 +146,18 @@ export class UserService {
         login42: login,
         name: displayName,
         avatar: avatar,
-        statusId: 1,
       },
-      update: { statusId: 1 },
+      update: { status: UserStatus.ONLINE },
     });
     return user;
+  }
+
+  async createFriend(requesterId: number, receiverId: number){
+    await prisma.friend.create({
+      data: {
+        user1Id: requesterId,
+        user2Id: receiverId,
+      }
+    });
   }
 }

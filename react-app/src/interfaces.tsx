@@ -1,3 +1,16 @@
+export interface FriendData {
+  login42: string,
+  name: string,
+  status: string,
+  avatar: string,
+}
+
+export interface UserFriend {
+  friends: FriendData[];
+  pending: FriendData[];
+  requests: FriendData[];
+}
+
 // /user/id
 export interface UserData {
   id: number;
@@ -6,7 +19,6 @@ export interface UserData {
   elo: number;
   // rank: number;
   status?: string;
-  statusId: number;
   wins: number;
   losses: number;
   // friend_ids: [number];

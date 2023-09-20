@@ -1,9 +1,14 @@
-export interface UserFriends {
-  user1Id: number;
-  user2Id: number;
-  status: string;
-  user1: UserData;
-  user2: UserData;
+export interface FriendData {
+  login42: string,
+  name: string,
+  status: string,
+  avatar: string,
+}
+
+export interface UserFriend {
+  friends: FriendData[];
+  pending: FriendData[];
+  requests: FriendData[];
 }
 
 // /user/id
@@ -14,7 +19,6 @@ export interface UserData {
   elo: number;
   // rank: number;
   status?: string;
-  statusId: number;
   wins: number;
   losses: number;
   // friend_ids: [number];
