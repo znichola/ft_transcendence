@@ -1,4 +1,7 @@
 import { PrismaClient, UserStatus } from '@prisma/client';
+import { faker } from '@faker-js/faker';
+
+faker.seed(1234);
 
 const prisma = new PrismaClient();
 
@@ -10,25 +13,31 @@ async function createUser(
   wins?: number,
   losses?: number,
   status?: UserStatus,
+  bio?: string,
 ) {
-  await prisma.user.upsert({
-    where: { login42: login },
-    update: {},
-    create: {
-      login42: login,
-      name: username,
-      avatar: avatar || 'https://placehold.co/200',
-      elo: elo || 1500,
-      wins: wins || 0,
-      losses: losses || 0,
-      status: status,
-    },
-  });
+  await prisma.user
+    .upsert({
+      where: { login42: login },
+      update: {},
+      create: {
+        login42: login,
+        name: username,
+        avatar: avatar || 'https://placehold.co/200',
+        elo: elo || 1500,
+        wins: wins || 0,
+        losses: losses || 0,
+        status: status,
+        bio: bio,
+      },
+    })
+    .catch(async (e) => {
+      console.error(e);
+    });
 }
 
 async function createChatroom(owner: number, name: string) {
   await prisma.chatroom.upsert({
-    where: { id: 0},
+    where: { id: 0 },
     update: {},
     create: {
       ownerId: 1,
@@ -167,6 +176,26 @@ async function creatDummyData() {
   );
 }
 
+async function FakerData() {
+  for (let i = 0; i < 100; i++) {
+    await createUser(
+      faker.internet.userName(),
+      faker.person.fullName(),
+      faker.internet.avatar(),
+      faker.number.int({ min: 0, max: 2800 }),
+      faker.number.int({ min: 0, max: 300 }),
+      faker.number.int({ min: 0, max: 300 }),
+      faker.helpers.arrayElement([
+        UserStatus.INGAME,
+        UserStatus.ONLINE,
+        UserStatus.OFFLINE,
+        UserStatus.UNAVAILABLE,
+      ]),
+      faker.person.bio(),
+    );
+  }
+}
+
 async function main() {
   await createUser(
     'default42',
@@ -179,7 +208,7 @@ async function main() {
 
   await createFunnyUsers();
   await creatDummyData();
-
+  await FakerData();
 }
 main()
   .then(async () => {

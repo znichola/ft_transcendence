@@ -33,7 +33,7 @@ export default function Avatar({
       <div
         className={`group absolute bottom-0 right-0 h-3 w-3 rounded-full ${statusColor()} ring ring-white`}
       >
-        {status === "ingame" && (
+        {status === "INGAME" && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
         )}
         <span className="absolute left-1/2 hidden -translate-y-full translate-x-1 rounded-md border border-slate-100 bg-slate-50 p-1 px-2 text-sm capitalize text-slate-400 opacity-0 shadow-sm transition-opacity group-hover:flex group-hover:opacity-100">
