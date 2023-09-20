@@ -158,17 +158,13 @@ function NavExpandable({
         id={`menu-${name}`}
         defaultChecked={false}
       />
-      <button className="peer relative flex w-full items-center border-l-rose-600 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 focus:border-l-4">
-        <Nav name={name} icon={Icon} />
-        {/* {Icon && <Icon />} */}
-        {/* <div className="w-4" /> */}
-        {/* {name} */}
-        <label
-          htmlFor={`menu-${name}`}
-          className="absolute inset-0 h-full w-full cursor-pointer"
-        />
-      </button>
-      <IconDownChevron className="absolute right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
+      <label htmlFor={`menu-${name}`} className="relative cursor-pointer flex h-full w-full items-center border-l-rose-600 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 focus:border-l-4">
+				<div className="flex item-center border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4">
+					{Icon && <Icon />}
+					<p className="pl-4">{name}</p>
+				</div>
+      </label>
+      <IconDownChevron className="absolute pointer-events-none right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
       <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-rose-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
         {children}
       </ul>
