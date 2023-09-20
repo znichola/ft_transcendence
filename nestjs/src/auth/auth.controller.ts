@@ -7,6 +7,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
@@ -92,6 +93,6 @@ export class AuthController {
     const userLogin: string = await this.authService.getLoginFromToken(req.cookies.test.access_token);
     return userLogin;
     }
-    return null;
+    throw new UnauthorizedException();
   }
 }
