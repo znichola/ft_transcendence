@@ -23,6 +23,7 @@ import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
+import ProfileElo from "./ProfileElo.tsx";
 
 const user = "default42";
 
@@ -36,7 +37,7 @@ export default function SideMenu() {
     queryFn: () =>
       axios.get<UserData>("/user/default42").then((res) => res.data),
   });
-  
+
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;
   if (isError) return <p>Error fethcing data</p>;
@@ -209,8 +210,10 @@ function CurrentUserStats() {
 function CurrentUserEloStats() {
   return (
     <>
-      <div className="p-2">
-        <div className="h-40 bg-slate-100"></div>
+      <div className="flex justify-center p-2">
+        <div className="h-40 rounded-xl bg-stone-50 shadow-inner p-4">
+          <ProfileElo data={[1201, 1190, 991, 1249, 1176, 1298, 1495, 1587]} />
+        </div>
       </div>
     </>
   );
