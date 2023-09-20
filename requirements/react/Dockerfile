@@ -6,14 +6,14 @@ EXPOSE 5173/tcp
 # set comamnd prompt to indicate the container
 RUN echo 'PS1="react \w > "' >> ~/.bashrc
 
-# set comamnd prompt to indicate the container
-# RUN apt-get install -y zsh vim git
-# RUN yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+RUN mkdir -p /script
+COPY /config.sh /script
+RUN chmod +x /script/config.sh
 
 WORKDIR /app
 
-ENTRYPOINT ["sh", "./requirements/react/config.sh"]
-
+ENTRYPOINT ["/script/config.sh"]
+CMD [ "npm", "run", "dev" ]
 # docker build -t react-server .
 # docker run --init --name react-server -p 3000:3000 react-server
 # docker exec -it react-server zsh
