@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
 
 axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.withCredentials = true
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
 // axios.defaults.headers.post["Content-Type"] =
 // "application/x-www-form-urlencoded";
