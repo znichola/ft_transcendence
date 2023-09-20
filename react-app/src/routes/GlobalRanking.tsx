@@ -1,6 +1,7 @@
 import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
+import PaginatedUsers from "./PaginatedUsers";
 
 export default function GlobalRanking() {
   return (
@@ -53,6 +54,7 @@ export default function GlobalRanking() {
       </Form>
       {/* also pagination should be added for the all users selector, something to get it working properly */}
       <AllUsers />
+      {/* <PaginatedUsers /> */}
     </div>
   );
 }

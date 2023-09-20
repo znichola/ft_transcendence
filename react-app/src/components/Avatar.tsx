@@ -23,7 +23,6 @@ export default function Avatar({
         return "bg-ping-700";
     }
   }
-  console.log(status);
   return (
     <div className={`relative ${size}`}>
       <img
