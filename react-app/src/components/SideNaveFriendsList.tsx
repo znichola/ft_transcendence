@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { UserData, UserFriend } from "../interfaces";
+import { UserData, UserFriends } from "../interfaces";
 import axios from "axios";
 import { LoadingDots } from "./Loading";
 import { Nav } from "./SideMenu";
@@ -10,13 +10,16 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => axios.get<UserFriend>("/user/" + currentUser.login42 +"/friends").then((res) => res.data),
+    queryKey: ["Friends"],
+    queryFn: () =>
+      axios
+        .get<UserFriends>("/user/" + currentUser.login42 + "/friends")
+        .then((res) => res.data),
   });
-  if (isLoading) return <LoadingDots/>
-  if (isError) return <p>Error fetching freinds</p>
-  
-    function statusColor(status : UserData["status"]) {
+  if (isLoading) return <LoadingDots />;
+  if (isError) return <p>Error fetching freinds</p>;
+
+  function statusColor(status: UserData["status"]) {
     switch (status) {
       case "ONLINE":
         return "ring-green-600";
@@ -30,8 +33,8 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
         return "ring-ping-700";
     }
   }
-  
-  console.log(friends)
+
+  console.log(friends);
 
   return (
     <>
@@ -43,7 +46,8 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
           icon={() => (
             <img
               className={
-                "h-5 w-5 rounded-full ring-2" + " " + statusColor(u.status)}
+                "h-5 w-5 rounded-full ring-2" + " " + statusColor(u.status)
+              }
               src={u.avatar}
               alt={u.login42 || "undefined" + " profile image"}
             />

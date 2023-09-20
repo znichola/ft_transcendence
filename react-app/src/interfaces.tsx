@@ -27,9 +27,23 @@ export interface UserData {
   bio?: string;
 }
 
+export interface FriendData {
+  login42: string,
+  name: string,
+  status: string,
+  avatar: string,
+}
+
+export interface UserFriends {
+  friends: FriendData[];
+  pending: FriendData[];
+  requests: FriendData[];
+}
+
 // /game/id
 export interface GameHistory {
   player_left: number;
   player_right: number;
   result: number;
 }
+

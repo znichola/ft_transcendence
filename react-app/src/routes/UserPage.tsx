@@ -82,7 +82,7 @@ export default function Contact() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: [login42],
+    queryKey: ["UserData", login42],
     queryFn: () =>
       axios.get<UserData>("/user/" + login42).then((res) => res.data),
   });

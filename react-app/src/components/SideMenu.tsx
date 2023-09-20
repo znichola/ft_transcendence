@@ -24,18 +24,24 @@ import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
 import ProfileElo from "./ProfileElo.tsx";
-
-const user = "default42";
+import { getCurrentUser } from "../Api-axios.tsx";
 
 export default function SideMenu() {
+  const { data: cu, isError: noUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+  });
+  let user: string | undefined = "default42";
+  if (!noUser) user = cu;
+  if (user == undefined || user == null) user = "default42";
+
   const {
-    data: currentUser,
+    data: currentUserData,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["currentUser", user],
-    queryFn: () =>
-      axios.get<UserData>("/user/default42").then((res) => res.data),
+    queryKey: ["UserData", user],
+    queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
   });
 
   if (isLoading)
@@ -76,7 +82,7 @@ export default function SideMenu() {
             </NavExpandable>
             <NavExpandable name="Friends" icon={IconPeople}>
               <Nav name="Find new friends" to="friend" icon={IconAddPulse} />
-              <NavFriends currentUser={currentUser} />
+              <NavFriends currentUser={currentUserData} />
             </NavExpandable>
 
             <Category name="Temporay links for dev" />
@@ -173,14 +179,23 @@ function NavExpandable({
 }
 
 function CurrentUserStats() {
+  const { data: cu, isError: noUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+  });
+  let user: string | undefined = "default42";
+  if (!noUser) user = cu;
+  if (user == undefined || user == null) user = "default42";
+
   const {
-    data: currentUser,
+    data: currentUserData,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["currentUser", user],
+    queryKey: ["UserData", user],
     queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
   });
+
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;
   if (isError) return <p>Error fethcing data</p>;
@@ -189,14 +204,14 @@ function CurrentUserStats() {
       <div className="flex">
         <Avatar
           size="m-2 mb-3 mt-3 w-16 h-16"
-          alt={currentUser.name}
-          status={currentUser.status}
-          img={currentUser.avatar}
+          alt={currentUserData.name}
+          status={currentUserData.status}
+          img={currentUserData.avatar}
         />
 
         <div className="flex flex-col content-center justify-center ">
-          <p className="font-semibold text-slate-700">{currentUser.name}</p>
-          <p className="text-slate-400">{"@" + currentUser.login42}</p>
+          <p className="font-semibold text-slate-700">{currentUserData.name}</p>
+          <p className="text-slate-400">{"@" + currentUserData.login42}</p>
         </div>
       </div>
     </>
@@ -207,7 +222,7 @@ function CurrentUserEloStats() {
   return (
     <>
       <div className="flex justify-center p-2">
-        <div className="h-40 rounded-xl bg-stone-50 shadow-inner p-4">
+        <div className="h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
           <ProfileElo data={[1201, 1190, 991, 1249, 1176, 1298, 1495, 1587]} />
         </div>
       </div>
