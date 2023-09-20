@@ -1,7 +1,6 @@
-make nest
 cd nestjs
+npm install
 npx prisma migrate dev
 npx prisma db seed
-echo "Starting to watch..."
-nest start --watch
-echo "Oups"
+echo "Finished nest setup ..."
+exec "$@"

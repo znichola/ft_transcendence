@@ -6,16 +6,16 @@ RUN npm i -g @nestjs/cli
 EXPOSE 3000/tcp
 
 # set comamnd prompt to indicate the container
-# RUN apt-get install -y zsh vim git
-# RUN yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# set comamnd prompt to indicate the container
 RUN echo 'PS1="nest \w > "' >> ~/.bashrc
+
+RUN mkdir -p /script
+COPY /config.sh /script
+RUN chmod +x /script/config.sh
 
 WORKDIR /backend
 
-ENTRYPOINT ["sh", "./requirements/nest/config.sh"]
-
+ENTRYPOINT ["/script/config.sh"]
+CMD [ "nest", "start", "--watch" ]
 # docker build -t nest-server .
 # docker run --init --name nest-server -p 3000:3000 nest-server
 # docker exec -it nest-server zsh
