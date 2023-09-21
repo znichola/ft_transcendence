@@ -6,7 +6,7 @@ import { LoadingSpinner } from "../components/Loading";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useIntersection } from "../functions/uneIntersection";
-import { useRef } from "react";
+import { ReactNode, useRef } from "react";
 
 export default function AllUsers() {
   const fetchPage = async ({ pageParam = 1 }) =>
@@ -41,8 +41,7 @@ export default function AllUsers() {
         {_posts?.map((u) => <UserInfo user={u} key={u.login42} />)}
       </div>
       <button
-        ref={ref}
-        // no iead why it's giving me this error but still works, for later
+        ref={ref} // no iead why it's giving me this error but still works, for later
         onClick={() => fetchNextPage()}
         disabled={isFetchingNextPage}
       >
@@ -61,9 +60,14 @@ export default function AllUsers() {
 export function UserInfo({ user }: { user: UserData }) {
   return (
     <div className="m-4 flex max-w-md bg-white shadow">
-      <div className="flex flex-col content-center justify-center border-r border-slate-200 p-4 font-bold text-slate-500">
-        <p>{user.elo}</p>
-      </div>
+      <FlipHover>
+        <FrontOfCard>
+          <div className="text-sm">{user.wins + " " + user.losses}</div>
+        </FrontOfCard>
+        <BackOfCard>
+          <p>{user.elo}</p>
+        </BackOfCard>
+      </FlipHover>
       <Avatar
         size="m-2 mb-3 mt-3 w-16 h-16"
         alt={user.name}
@@ -76,6 +80,32 @@ export function UserInfo({ user }: { user: UserData }) {
         <Link to={"/user/" + user.login42} className="text-slate-400">
           {"@" + user.login42}
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function FrontOfCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex h-full w-full items-center justify-center bg-white transition-all delay-200 duration-100 group-hover:opacity-0">
+      {children}
+    </div>
+  );
+}
+
+function BackOfCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="card-back pointer-events-none absolute inset-0 z-10 flex h-full w-full items-center justify-center bg-stone-100 transition-all">
+      {children}
+    </div>
+  );
+}
+
+function FlipHover({ children }: { children: ReactNode }) {
+  return (
+    <div className="border-r border-slate-200">
+      <div className="group card relative h-full w-full overflow-hidden p-8 bg-pink-700 font-bold text-slate-500 transition-all duration-700">
+        {children}
       </div>
     </div>
   );

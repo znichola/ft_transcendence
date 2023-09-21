@@ -57,8 +57,12 @@ export default function SideMenu() {
         <div className="mt-3 flex flex-1 flex-col">
           <div className="">
             <Category name="User" />
-            <Nav name="Play Pong" to="/play" icon={IconHomeComputer} />
-            <Nav name="My Profile" to="/user/default42" icon={IconUser} />
+            <NavHighlight
+              name="Play a game of Pong"
+              to="/play"
+              icon={IconHomeComputer}
+            />
+            <Nav name="My Profile" to={"/user/" + user} icon={IconUser} />
             <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
             <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
             <Category name="Social" />
@@ -141,6 +145,34 @@ export function Nav({
   );
 }
 
+export function NavHighlight({
+  name,
+  to,
+  icon: Icon,
+}: {
+  name: string;
+  to?: string;
+  icon: ({
+    className,
+    strokeSize,
+  }: {
+    className?: string;
+    strokeSize?: number;
+  }) => JSX.Element;
+}) {
+  return (
+    <nav className="flex-1 px-1">
+      <Link
+        to={to || "#"}
+        className="bg-size-200 flex cursor-pointer items-center rounded-md bg-gradient-to-tl from-fuchsia-600 via-orange-500 to-purple-600 px-4 py-2 text-sm font-medium text-slate-100 shadow-md outline-none transition-all duration-100 ease-in-out hover:bg-right-bottom focus:bg-right-bottom"
+      >
+        {Icon && <Icon />}
+        <p className="py-1 pl-4">{name}</p>
+      </Link>
+    </nav>
+  );
+}
+
 function NavExpandable({
   name,
   icon: Icon,
@@ -164,13 +196,16 @@ function NavExpandable({
         id={`menu-${name}`}
         defaultChecked={false}
       />
-      <label htmlFor={`menu-${name}`} className="relative cursor-pointer flex h-full w-full items-center border-l-rose-600 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 focus:border-l-4">
-				<div className="flex item-center border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4">
-					{Icon && <Icon />}
-					<p className="pl-4">{name}</p>
-				</div>
+      <label
+        htmlFor={`menu-${name}`}
+        className="relative flex h-full w-full cursor-pointer items-center border-l-rose-600 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 focus:border-l-4"
+      >
+        <div className="item-center flex border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4">
+          {Icon && <Icon />}
+          <p className="pl-4">{name}</p>
+        </div>
       </label>
-      <IconDownChevron className="absolute pointer-events-none right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
+      <IconDownChevron className="pointer-events-none absolute right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
       <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-rose-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
         {children}
       </ul>
