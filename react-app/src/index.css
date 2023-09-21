@@ -3,15 +3,6 @@
 @tailwind utilities;
 
 /* https://birdeatsbug.com/blog/creating-hover-effects-with-tailwind-css */
-/* ============ flip hover styles ============ */
-.card:hover {
-  transform: rotateX(180deg);
-  transform-style: preserve-3d;
-}
-.card-back {
-  transform: rotateX(180deg);
-}
-
 
 /* no scrollbar */
 * {

@@ -1,7 +1,6 @@
 import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
-import PaginatedUsers from "./PaginatedUsers";
 
 export default function GlobalRanking() {
   return (

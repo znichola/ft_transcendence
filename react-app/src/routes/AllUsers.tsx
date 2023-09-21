@@ -59,15 +59,16 @@ export default function AllUsers() {
 
 export function UserInfo({ user }: { user: UserData }) {
   return (
-    <div className="m-4 flex max-w-md bg-white shadow">
-      <FlipHover>
-        <FrontOfCard>
-          <div className="text-sm">{user.wins + " " + user.losses}</div>
-        </FrontOfCard>
-        <BackOfCard>
-          <p>{user.elo}</p>
-        </BackOfCard>
-      </FlipHover>
+    <div className="m-4 flex max-h-24 max-w-md bg-white shadow">
+      <div className="group flex w-20  flex-col items-center justify-center overflow-hidden border-r border-slate-200  ">
+        <div className="flex min-w-full grow flex-col items-center justify-center gap-1 overflow-hidden transition-all duration-700 group-hover:max-h-0">
+          <div className="font-bold text-slate-500">{user.elo}</div>
+        </div>
+        <div className="flex h-0 min-w-full items-center justify-center overflow-hidden bg-stone-100 transition-all duration-700 group-hover:h-12 ">
+          <div className="font-bold text-green-400">{user.wins}</div>
+          <div className="text-slate-400">{user.losses}</div>
+        </div>
+      </div>
       <Avatar
         size="m-2 mb-3 mt-3 w-16 h-16"
         alt={user.name}
@@ -104,7 +105,7 @@ function BackOfCard({ children }: { children: ReactNode }) {
 function FlipHover({ children }: { children: ReactNode }) {
   return (
     <div className="border-r border-slate-200">
-      <div className="group card relative h-full w-full overflow-hidden p-8 bg-pink-700 font-bold text-slate-500 transition-all duration-700">
+      <div className="card group relative h-full w-full overflow-hidden bg-pink-700 p-8 font-bold text-slate-500 transition-all duration-700">
         {children}
       </div>
     </div>
