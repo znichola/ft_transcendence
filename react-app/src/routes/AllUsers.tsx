@@ -8,7 +8,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useIntersection } from "../functions/uneIntersection";
 import { useRef } from "react";
 
-export default function AllUsers() {
+export default function AllUsers({Filter}) {
   const fetchPage = async ({ pageParam = 1 }) =>
     axios.get<UserData[]>("/user/?page=" + pageParam).then((res) => res.data);
   const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
@@ -38,7 +38,7 @@ export default function AllUsers() {
   return (
     <>
       <div className="m-4 flex-col gap-4">
-        {_posts?.map((u) => <UserInfo user={u} key={u.login42} />)}
+        {_posts?.map((user) => <Filter user={user}/>)}
       </div>
       <button
         ref={ref}
@@ -60,7 +60,7 @@ export default function AllUsers() {
 
 export function UserInfo({ user }: { user: UserData }) {
   return (
-    <div className="m-4 flex max-w-md bg-white shadow">
+    <div className="m-4 min-w-[20rem] pr-3 flex max-w-md bg-white shadow">
       <div className="flex flex-col content-center justify-center border-r border-slate-200 p-4 font-bold text-slate-500">
         <p>{user.elo}</p>
       </div>
