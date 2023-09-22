@@ -56,3 +56,12 @@ services:
     volumes:
       - ${PWD}:/database
     init: true
+
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    env_file:
+      - .env
+    ports:
+      - "80:4242"
+      
