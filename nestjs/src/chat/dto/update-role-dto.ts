@@ -1,7 +1,6 @@
-import { IsInt } from "class-validator";
+import { ChatroomUserRole } from "@prisma/client";
 
 export class UpdateRoleDto
 {
-    @IsInt()
-    role: number;
+    role: ChatroomUserRole;
 }

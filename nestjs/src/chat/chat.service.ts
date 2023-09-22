@@ -1,19 +1,19 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
 import { UpdateRoleDto } from './dto/update-role-dto';
-import { ChatRoomData } from './interfaces/chat-room-data.interface';
-import { ChatroomMember } from './interfaces/chat-room-member.interface';
+import { UpdateVisibilityDto } from './dto/update-visibility-dto';
+import { Chatroom, ChatroomUser } from '@prisma/client';
+import PasswordValidator = require("password-validator");
+import { UpdateOwnerDto } from './dto/update-owner-dto';
 
 @Injectable()
 export class ChatService
 {
 	constructor(private prisma: PrismaService){}
 
-	private chatRooms: ChatRoomData[] = [];
-
-	async getAllChatRooms(): Promise<ChatRoomData[]>
+	async getAllChatRooms(): Promise<Chatroom[]>
 	{
 		return await this.prisma.chatroom.findMany({})
 	}
@@ -26,7 +26,7 @@ export class ChatService
 		});
 	}
 
-	async getOneChatRoom(chatroomId: number): Promise<ChatRoomData>
+	async getOneChatRoom(chatroomId: number): Promise<Chatroom>
 	{
 		return await this.prisma.chatroom.findFirst({
 			where: {
@@ -37,69 +37,116 @@ export class ChatService
 
 	async deleteChatroom(id: number)
 	{
-		let indexToDelete = this.chatRooms.findIndex(chatroom => chatroom.id == id);
-		if (indexToDelete == undefined)
-			throw new NotFoundException();
-		delete this.chatRooms[indexToDelete];
+		await this.prisma.chatroom.delete({
+			where: {
+				id: +id,
+			},
+		})
 	}
 
-	async getMembersOfChatRoom(id: number): Promise<ChatroomMember[]>
+	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto)
 	{
-		/*
-		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == id);
-		if (chatroomIndex == undefined)
-			throw new NotFoundException();
-		return this.chatRooms[chatroomIndex].members;
-		*/
-		return null;
+		/* check that there is a password if visibility is protected */
+
+		if ((updateChatroomDto.status == "PROTECTED" && updateChatroomDto.password == null) ||
+			(updateChatroomDto.status != "PROTECTED" && updateChatroomDto.password != null))
+		{
+			throw new BadRequestException();
+		}
+
+		if (updateChatroomDto.status == "PROTECTED")
+		{
+			/* check that the password is strong */
+			let schema = new PasswordValidator();
+			schema
+				.is().min(8)
+				.is().max(20);
+			if (!schema.validate(updateChatroomDto.password))
+			{
+				throw new BadRequestException("Password validation failed");
+			}
+		}
+		
+		await this.prisma.chatroom.update({
+			where: {
+				id: +id,
+			},
+			data: updateChatroomDto
+		});
 	}
 
-	async getOneMemberFromChatroom(chatroomId: number, memberId: number)
+	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
 	{
-		/*
-		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);
-		if (chatroomIndex == undefined)
-			throw new NotFoundException();	
-		return this.chatRooms[chatroomIndex].members.find(member => member.id == memberId);
-		*/
-		return null;
+		/* check if ownerId is a member of the chatroom */
+		const user = await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +id, userId: +patch.ownerId},
+			}
+		});
+
+		if (user == null)
+		{
+			throw new BadRequestException("This user is not a member of the chatroom.");	
+		}
+
+		/* check if user is not banned etc. */
+
+		await this.prisma.chatroom.update({
+			where: {
+				id: +id,
+			},
+			data: {
+				ownerId: +patch.ownerId,
+			}
+		});
 	}
 
-	async addMemberToChatRoom(chatRoomId: number, addMemberDto: AddMemberToChatroomDto)
+	async getMembersOfChatRoom(id: number): Promise<ChatroomUser[]>
 	{
-		/*
-		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
-		if (chatroomIndex == undefined)
-			throw new NotFoundException();
-		let newMember = new ChatroomMember(addMemberDto.userId);	
-		this.chatRooms[chatroomIndex].members.push(newMember);
-		*/
+		return await this.prisma.chatroomUser.findMany({
+			where: {
+				chatroomId: +id,
+			}
+		})
 	}
 
-	async deleteMemberFromChatRoom(chatRoomId: number, memberId: number)
+	async getOneMemberFromChatroom(chatroomId: number, memberId: number): Promise<ChatroomUser>
 	{
-		/*
-		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatRoomId);		
-		if (chatroomIndex == undefined)
-			throw new NotFoundException();
-		let indexToDelete = this.chatRooms[chatroomIndex].members.findIndex(member => member.id == memberId);
-		if (indexToDelete == undefined)
-			throw new NotFoundException();
-		delete this.chatRooms[chatRoomId].members[indexToDelete];
-		*/
+		return await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +memberId},
+			}
+		})
+	}
+
+	async addMemberToChatRoom(chatroomId: number, addMemberDto: AddMemberToChatroomDto)
+	{
+		await this.prisma.chatroomUser.create({
+			data: {
+				chatroomId: +chatroomId,
+				userId: +addMemberDto.userId,
+				role: addMemberDto.role
+			},
+		});
+	}
+
+	async deleteMemberFromChatRoom(chatroomId: number, memberId: number)
+	{
+		await this.prisma.chatroomUser.delete({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +memberId},
+			},
+		})
 	}
 
 	async updateRoleOfMemberFromChatroom(chatroomId: number, memberId: number, updateRoleDto: UpdateRoleDto)
 	{
-		/*
-		let chatroomIndex = this.chatRooms.findIndex(chatroom => chatroom.id == chatroomId);		
-		if (chatroomIndex == undefined)
-			throw new NotFoundException();
-		let indexToUpdate = this.chatRooms[chatroomIndex].members.findIndex(member => member.id == memberId);
-		if (indexToUpdate == undefined)
-			throw new NotFoundException();
-		this.chatRooms[chatroomIndex].members[indexToUpdate].role = updateRoleDto.role;
-		*/
+		await this.prisma.chatroomUser.update({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +memberId},
+			},
+			data: updateRoleDto
+		})
 	}
 
 	private async checkUserExists(userId: number)
@@ -107,7 +154,7 @@ export class ChatService
 		const user = await this.prisma.user.findFirst({
 			where:
 			{
-				id: userId,
+				id: +userId,
 			},
 		});
 		if (user == null)
