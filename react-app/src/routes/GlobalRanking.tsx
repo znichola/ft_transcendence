@@ -1,9 +1,10 @@
 import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
-import { UserInfo } from "./AllUsers";
+import {  } from "./AllUsers";
 import { UserData } from "../interfaces";
 import { useState } from "react";
+import UserInfoCard from "../components/UserInfoCard";
 
 const FilterMenu = function () {
   const [name_filter, changeNameFilter] = useState("");
@@ -15,7 +16,7 @@ const FilterMenu = function () {
       user.login42.toLowerCase().startsWith(name_filter) ||
       user.name.toLowerCase().startsWith(name_filter)
     )
-      return <UserInfo user={user} key={user.login42} />;
+      return <UserInfoCard user={user} key={user.login42} />;
     return <></>;
   };
 
