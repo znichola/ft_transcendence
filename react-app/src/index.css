@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* https://birdeatsbug.com/blog/creating-hover-effects-with-tailwind-css */
+
+/* no scrollbar */
+* {
+  scrollbar-width: none;
+	scrollbar-color: red;
+}
+
+/* this below is fore chrome */
+
+/* width */
+::-webkit-scrollbar {
+  display: none;
+  /* width: 10px; */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f10000;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #190a99;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #9a1798;
+}

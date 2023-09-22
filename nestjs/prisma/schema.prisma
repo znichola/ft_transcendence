@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  login42 String  @unique
+  avatar  String
+  bio     String? @db.VarChar(140)
+
+  elo    Int @default(1500)
+  wins   Int @default(0)
+  losses Int @default(0)
+
+  status   UserStatus @default(ONLINE)
+
+  friends1 Friend[] @relation("Friends")
+  friends2 Friend[] @relation("FriendsOf")
+
+  ownedRooms  Chatroom[]     @relation("Owner")
+  joinedRooms ChatroomUser[] @relation("Member")
+
+  createdGames Game[] @relation("Created")
+  joinedGames  Game[] @relation("Joined")
+
+  messages Message[]
+}
+
+// model Status {
+//   id   Int    @id @default(autoincrement())
+//   name String @unique
+//   user User[]
+// }
+
+// rename model to relations, to implement blocking people using this one same exact very nice table
+model Friend {
+  user1Id Int
+  user2Id Int
+
+  user1 User @relation("Friends", fields: [user1Id], references: [id])
+  user2 User @relation("FriendsOf", fields: [user2Id], references: [id])
+
+  status FriendStatus @default(PENDING)
+
+  @@id([user1Id, user2Id])
+}
+
+model Chatroom {
+  id Int @id @default(autoincrement())
+
+  ownerId Int
+  owner   User @relation("Owner", fields: [ownerId], references: [id])
+
+  name String
+
+  status ChatroomVisibilityStatus @default(PUBLIC)
+
+  password String?
+
+  chatroomUsers ChatroomUser[]
+  messages      Message[]
+}
+
+model ChatroomUser {
+  chatroomId Int
+  userId     Int
+
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id])
+  user     User     @relation("Member", fields: [userId], references: [id])
+
+  role ChatroomUserRole @default(MEMBER)
+
+  @@id([chatroomId, userId])
+}
+
+model Message {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  chatroomId Int
+  chatroom   Chatroom @relation(fields: [chatroomId], references: [id])
+
+  sentAt DateTime @default(now())
+}
+
+model Game {
+  id       Int      @id @default(autoincrement())
+  typeId   Int
+  gameType GameType @relation(fields: [typeId], references: [id])
+  date     DateTime @default(now())
+
+  player1Id        Int
+  player1          User @relation("Created", fields: [player1Id], references: [id])
+  player1StartElo  Int
+  player1Score     Int
+  player1EloChange Int
+
+  player2Id        Int
+  player2          User @relation("Joined", fields: [player2Id], references: [id])
+  player2StartElo  Int
+  player2Score     Int
+  player2EloChange Int
+}
+
+model GameType {
+  id    Int    @id @default(autoincrement())
+  name  String
+  timer Int
+  score Int
+
+  games Game[]
+}
+
+enum ChatroomUserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ChatroomVisibilityStatus {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+}
+
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  INGAME
+  UNAVAILABLE
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}

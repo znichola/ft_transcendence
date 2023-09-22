@@ -3,7 +3,7 @@ CONTAINERS = $(shell docker ps -a -q)
 TIDY=2>/dev/null ; true
 
 up :
-	docker compose -p mastermind up
+	docker compose -f docker-compose.yml -p mastermind up --build
 
 fclean :
 	docker stop       $(CONTAINERS)                  $(TIDY)
@@ -14,9 +14,15 @@ fclean :
 
 re : fclean up
 
-CN = nest react
+ip :
+	@docker ps -q | xargs -I{} docker inspect -f '{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {}
+
+CN = nest react postgress
 
 $(CN) :
 	docker exec -it $@ /bin/bash
 
-.PHONY: fclean re node
+# https://stackoverflow.com/questions/31466428/how-to-restart-a-single-container-with-docker-compose
+# docker-compose up --detach --build $@
+
+.PHONY: up fclean re ip $(CN)

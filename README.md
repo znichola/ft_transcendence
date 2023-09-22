@@ -1,6 +1,6 @@
 # TRANSCENDENCE
 
-Test playground for the final project of the common core of the 42 course.
+Test playground for the final project of the 42 common core.
 
 ## How to dev
 
@@ -46,6 +46,32 @@ make nest
 > cd nestjs
 > npm install
 > nest start --watch
+
+
+# installation of prisma in the container
+make nest
+> cd nestjs
+> npm install prisma
+> npm install @prisma/client
+
+# initialize the database after a make re or for first use
+make nest
+> cd nestjs
+> npx prisma migrate dev
+> npx prisma db seed
+
+# to inspect the database data, run from a containerized VS Code
+# by default, allows you to access localhost:5555 from your browser
+make nest
+> cd nestjs
+> npx prisma studio
+
+# to 
+make nest
+> npx prisma db seed 
+
+# to 
+
 ```
 
 
@@ -54,4 +80,25 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - and attach to running container, pick the react or nest container
 - this is important for vscode to have acess to the node module files for code linting, completion etc..
 - if you can't, open the settings UI with ctrl+shift+p then type Preferences: Open Settins (UI)
-- search for docker path and add the resuot of $`which docker` there
+- search for docker path and add the result of $`which docker` there
+
+## Bootstrapping the frontend app
+
+- install vite react-ts
+- install tailwind
+- install prettier
+- install prettier tailwind
+- install react router
+- install react query
+- install react query dev tools
+  - npm i @tanstack/react-query-devtools
+  - https://tanstack.com/query/latest/docs/react/devtools
+- install axios
+  - npm install axios
+  - https://github.com/axios/axios#installing
+
+
+## API the front end needs
+
+- get current user info
+- somehow using the authentication something or another
