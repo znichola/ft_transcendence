@@ -100,5 +100,13 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 
 ## API the front end needs
 
+- install nestjs
+- install prisma
+- install axios
+- install cookie-parser
+- install jwt
+- install swagger
+  - npm install @nestjs/swagger swagger-ui-express
+  - https://rehmat-sayany.medium.com/integrating-swagger-with-nestjs-a-step-by-step-guide-abd532743c43
 - get current user info
 - somehow using the authentication something or another
