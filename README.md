@@ -47,6 +47,7 @@ make nest
 > npm install
 > nest start --watch
 
+
 # installation of prisma in the container
 make nest
 > cd nestjs
@@ -70,6 +71,7 @@ make nest
 > npx prisma db seed 
 
 # to 
+
 ```
 
 
