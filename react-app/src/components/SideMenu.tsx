@@ -4,7 +4,6 @@ import {
   IconDownChevron,
   IconGroupChatBubble,
   IconHomeComputer,
-  IconNewspaper,
   IconPeople,
   IconUser,
   IconAddPulse,
@@ -16,6 +15,7 @@ import {
   IconBrain,
   IconFire,
   IconFingerPrint,
+  IconGit,
 } from "./Icons";
 import axios from "axios";
 import { UserData } from "../interfaces";
@@ -92,7 +92,11 @@ export default function SideMenu() {
             <Nav name="login" to="/login" icon={IconFire} />
 
             <Category name="External Links" />
-            <Nav name="Dev log" to="/ttt" icon={IconNewspaper} />
+            <Nav
+              name="Git repo"
+              to="https://github.com/znichola/ft_transcendence_test"
+              icon={IconGit}
+            />
             <Nav name="Hart on github" icon={IconHeart} />
             <Nav
               name="Complain about ... the css"
