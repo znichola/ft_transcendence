@@ -55,7 +55,7 @@ function UserInfo({ user }: { user: UserData }) {
 					alt={user.login42}
 				/>
 				<div className="z-0 flex h-[7.5em] min-w-[20.25em] translate-x-[-12em] scale-[0.01] items-center overflow-y-auto rounded-xl bg-slate-100 pl-[8em] pt-[2em] pb-[2em] pr-10 shadow transition-all duration-500 group-hover:visible group-hover:translate-x-[-6.2em] group-hover:scale-100">
-					<p className="text-justify text-[0.75em] text-gray-800">{bio_test}</p>
+					<p className="text-justify text-[0.75em] text-gray-800">{user.bio || bio_test}</p>
 				</div>
 			</div>
       <div className="flex h-[100%] w-[100%] flex-col items-center justify-center overflow-hidden p-3 pl-5 font-bold text-white">
