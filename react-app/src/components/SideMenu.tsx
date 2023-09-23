@@ -27,13 +27,11 @@ import ProfileElo from "./ProfileElo.tsx";
 import { getCurrentUser } from "../Api-axios.tsx";
 
 export default function SideMenu() {
-  const { data: cu, isError: noUser } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
+    initialData: "default42",
   });
-  let user: string | undefined = "default42";
-  if (!noUser) user = cu;
-  if (user == undefined || user == null) user = "default42";
 
   const {
     data: currentUserData,
@@ -214,13 +212,11 @@ function NavExpandable({
 }
 
 function CurrentUserStats() {
-  const { data: cu, isError: noUser } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
+    initialData: "default42",
   });
-  let user: string | undefined = "default42";
-  if (!noUser) user = cu;
-  if (user == undefined || user == null) user = "default42";
 
   const {
     data: currentUserData,

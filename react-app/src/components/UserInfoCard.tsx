@@ -2,18 +2,34 @@ import { Link } from "react-router-dom";
 import { UserData } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "../Api-axios";
 
-export default function UserInfoCard({ user }: { user: UserData }) {
+export default function UserInfoCard({ user: cardUser }: { user: UserData }) {
+  const { data: user } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+    initialData: "default42",
+  });
+
   return (
     <div className="m-4 flex h-28 w-[430px] max-w-md justify-between bg-white shadow ">
       <div className="flex">
-        <EloWinRate user={user} />
-        <AvatarName user={user} />
+        <EloWinRate user={cardUser} />
+        <AvatarName user={cardUser} />
       </div>
 
       <div className="flex flex-col py-2">
-        <SideButton name={"Duel"} to="#" icon={IconBolt} />
-        <SideButton name={"Chat"} to="#" icon={IconChatBubble} />
+        <SideButton
+          name={"Duel"}
+          to={"/pong/" + user + "/vs/" + cardUser.login42}
+          icon={IconBolt}
+        />
+        <SideButton
+          name={"Chat"}
+          to={"/message/" + cardUser.login42}
+          icon={IconChatBubble}
+        />
         <SideButtonFriend name={"Friend"} icon={IconAddUser} />
       </div>
     </div>
@@ -101,9 +117,6 @@ function SideButtonFriend({
     strokeWidth?: number;
   }) => JSX.Element;
 }) {
-
-
-
   return (
     <>
       <button className="felx-col group relative flex w-12 flex-1 items-center justify-end ">

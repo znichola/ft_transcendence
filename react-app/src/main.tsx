@@ -17,7 +17,6 @@ import Root from "./routes/Root.tsx";
 import Contact from "./routes/UserPage.tsx";
 import Test from "./test-files-and-tmp-stuff/Test.tsx";
 import Auth from "./routes/Auth.tsx";
-import AllUsers from "./routes/AllUsers.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
 import PlayPong from "./routes/PlayPong.tsx";
@@ -26,6 +25,8 @@ import AddNewChatRoom from "./routes/AddNewChatRoom.tsx";
 import AddNewChat from "./routes/AddNewChat.tsx";
 import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
+import DirectMessage from "./routes/DirectMessage.tsx";
+import PongDuel from "./routes/PongDuel.tsx";
 // import Login from "./routes/Foo.tsx";
 
 const router = createBrowserRouter([
@@ -43,12 +44,12 @@ const router = createBrowserRouter([
         element: <Contact />,
       },
       {
-        path: "/users",
-        element: <AllUsers />,
-      },
-      {
         path: "/pong",
         element: <PongFeed />,
+      },
+      {
+        path: "/pong/:player1_login42/vs/:player2_login42",
+        element: <PongDuel />,
       },
       {
         path: "/ranking",
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "/message",
         element: <AddNewChat />,
+      },
+      {
+        path: "/message/:login42",
+        element: <DirectMessage />,
       },
       {
         path: "/chatroom",
@@ -81,8 +86,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <Login />
-      }
+        element: <Login />,
+      },
     ],
   },
 ]);
