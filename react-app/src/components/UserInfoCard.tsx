@@ -95,10 +95,10 @@ function SideButton({
         to={to || "#"}
         className="felx-col group relative flex w-12 flex-1 items-center justify-end "
       >
-        <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300 group-hover:opacity-0">
+        <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-inner transition-all group-hover:w-12 ">
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-inner transition-all group-hover:w-max group-hover:p-2 shadow-md">
           <div className="text-xs font-bold text-slate-50">{name}</div>
         </div>
       </Link>
@@ -152,8 +152,7 @@ function SideButtonFriend({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300">
           {<IconAddUser strokeWidth={2} />}
         </div>
-        {/* css max transitions https://stackoverflow.com/questions/3508605/how-can-i-transition-height-0-to-height-auto-using-css/8331169#8331169 */}
-        <div className="duration-400 absolute flex h-full max-w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-inner transition-[max-width] group-hover:max-w-[200px] group-hover:p-2 ">
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2 ">
           <span className="text-xs font-bold text-slate-50">
             {isError
               ? "error fetching data"
@@ -162,7 +161,7 @@ function SideButtonFriend({
               : isFriend
               ? "already freinds"
               : isPending
-              ? "accept their request"
+              ? "accept friend request"
               : isRequensted
               ? "already set freind request"
               : "add freind"}
