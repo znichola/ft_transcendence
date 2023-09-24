@@ -10,13 +10,15 @@ const FilterMenu = function () {
   const [name_filter, changeNameFilter] = useState("");
   const [state_filter, changeOnlineFilter] = useState("NONE");
 
-  const Filter = ({ user }: { user: UserData }) => {
-    if (state_filter != "NONE" && !(user.status == state_filter)) return <></>;
+  const Filter = ({ cardUser, currentUser }: { cardUser: UserData, currentUser: string }) => {
+    console.log(currentUser, "current user filter function")
+    if (state_filter != "NONE" && !(cardUser.status == state_filter))
+      return <></>;
     if (
-      user.login42.toLowerCase().startsWith(name_filter) ||
-      user.name.toLowerCase().startsWith(name_filter)
+      cardUser.login42.toLowerCase().startsWith(name_filter) ||
+      cardUser.name.toLowerCase().startsWith(name_filter)
     )
-      return <UserInfoCard user={user} key={user.login42} />;
+      return <UserInfoCard cardUser={cardUser} currentUser={currentUser} key={cardUser.login42} />;
     return <></>;
   };
 

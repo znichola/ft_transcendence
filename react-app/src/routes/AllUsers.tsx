@@ -4,11 +4,17 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { LoadingSpinner } from "../components/Loading";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useIntersection } from "../functions/uneIntersection";
 import { ReactNode, useRef } from "react";
+import { getCurrentUser } from "../Api-axios";
 
 export default function AllUsers({ Filter }) {
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+    initialData: "default42",
+  });
   const fetchPage = async ({ pageParam = 1 }) =>
     axios.get<UserData[]>("/user/?page=" + pageParam).then((res) => res.data);
   const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
@@ -38,7 +44,7 @@ export default function AllUsers({ Filter }) {
   return (
     <>
       <div className="m-4 flex-col gap-4">
-        {_posts?.map((user) => <Filter user={user} />)}
+        {_posts?.map((u) => <Filter cardUser={u} currentUser={currentUser} />)}
       </div>
       <button
         ref={ref} // no iead why it's giving me this error but still works, for later
