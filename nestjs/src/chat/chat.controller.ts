@@ -6,6 +6,8 @@ import { UpdateRoleDto } from './dto/update-role-dto';
 import { Chatroom, ChatroomUser } from '@prisma/client';
 import { UpdateVisibilityDto } from './dto/update-visibility-dto';
 import { UpdateOwnerDto } from './dto/update-owner-dto';
+import { SendMessageDto } from './dto/send-message-dto';
+import { UpdateMessageDto } from './dto/update-message-dto';
 
 @Controller('chat')
 export class ChatController
@@ -35,6 +37,38 @@ export class ChatController
 	async deleteChatroom(@Param('id') id: number)
 	{
 		await this.chatService.deleteChatroom(id);
+	}
+
+	@Get(':id/messages')
+	async getAllMessages(@Param('id') id: number)
+	{
+		return await this.chatService.getAllMessagesFromChatroom(id);
+	}
+
+	@Get(':id/messages/:msgId')
+	async getOneMessage(@Param('id') id: number, @Param('msgId') msgId: number)
+	{
+		return await this.chatService.getOneMessageFromChatroom(id, msgId);
+	}
+
+	@Post(':id/messages')
+	@UsePipes(ValidationPipe)
+	async sendMessage(@Param('id') chatroomId: number, @Body() payload: SendMessageDto)
+	{
+		await this.chatService.sendMessageToChatroom(chatroomId, payload.from, payload.content);
+	}
+
+	@Put(':id/messages/:msgId')
+	@UsePipes(ValidationPipe)
+	async updateMessage(@Param('id') chatroomId: number, @Param('msgId') msgId: number, @Body() payload: UpdateMessageDto)
+	{
+		await this.chatService.updateMessageFromChatroom(msgId, payload.content);
+	}
+
+	@Delete(':id/messages/:msgId')
+	async deleteMessage(@Param('id') chatroomId: number, @Param('msgId') msgId: number)
+	{
+		await this.chatService.deleteMessageFromChatroom(msgId);
 	}
 
 	@Patch(':id/visibility')

@@ -44,6 +44,62 @@ export class ChatService
 		})
 	}
 
+	async getOneMessageFromChatroom(id: number, msgId: number)
+	{
+		return await this.prisma.message.findUnique({
+			where: {
+				id: +msgId,
+				chatroomId: +id
+			}
+		})
+	}
+
+	async getAllMessagesFromChatroom(id: number)
+	{
+		return await this.prisma.message.findMany({
+			where: {
+				chatroomId: +id,
+			},
+		});
+	}
+
+	async sendMessageToChatroom(chatroomId: number, userId: number, content: string)
+	{
+		//check permissions of chatroomId
+		this.checkIsMember(userId, chatroomId);
+
+		const message = {
+			userId: +userId,
+			chatroomId:	+chatroomId,
+			text: content,
+		}
+
+		await this.prisma.message.create({
+			data: message,
+		});
+	}
+
+	async updateMessageFromChatroom(msgId: number, newContent: string)
+	{
+		await this.prisma.message.update({
+			where: {
+				id: +msgId,
+			},
+			data: {
+				text: newContent,
+			},
+		});
+	}
+
+	async deleteMessageFromChatroom(msgId: number)
+	{
+		await this.prisma.message.delete({
+			where: {
+				id: +msgId,
+			}
+		});
+	}
+
 	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto)
 	{
 		/* check that there is a password if visibility is protected */
@@ -66,7 +122,7 @@ export class ChatService
 				throw new BadRequestException("Password validation failed");
 			}
 		}
-		
+
 		await this.prisma.chatroom.update({
 			where: {
 				id: +id,
@@ -86,7 +142,7 @@ export class ChatService
 
 		if (user == null)
 		{
-			throw new BadRequestException("This user is not a member of the chatroom.");	
+			throw new BadRequestException("This user is not a member of the chatroom.");
 		}
 
 		/* check if user is not banned etc. */
@@ -159,5 +215,31 @@ export class ChatService
 		});
 		if (user == null)
 			throw new HttpException('This user does not exist', HttpStatus.NOT_FOUND);
+	}
+
+	private async checkIsMember(userId: number, chatroomId: number)
+	{
+		const chatroom = await this.prisma.chatroom.findUnique({
+			where: {
+				id: +chatroomId
+			},
+		});
+
+		if (chatroom == null)
+			throw new NotFoundException("This chatroom does not exist");
+
+		if (chatroom.ownerId == userId)
+			return true;
+
+		const user = await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId},
+			},
+		});
+
+		if (user == null)
+			throw new NotFoundException('This user is not a member of the chatroom');
+
+		return true;
 	}
 }
