@@ -1,8 +1,10 @@
 import ChatMessages from "../components/ChatMassages";
+import ChatRoomMenu from "../components/ChatRoomMenu";
 
 export default function ChatRoom() {
   return (
-    <div className="w-[50rem] h-full bg-green-200">
+    <div className="h-full">
+      <ChatRoomMenu/>
       <ChatMessages/>
     </div>
   );

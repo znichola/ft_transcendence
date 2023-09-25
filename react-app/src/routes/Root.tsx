@@ -5,12 +5,11 @@ import SideMenu from "../components/SideMenu.tsx";
 export default function Root() {
   return (
     <>
-      <div className="flex">
-        <div id="side-bar" className="inline-block ">
-          <div className="w-64 "></div>
+      <div className="flex xl:justify-center bg-stone-200">
+        <div id="side-bar" className="h-screen w-80 min-w-[18rem]  shadow-md ">
           <SideMenu />
         </div>
-        <div id="page0-content" className="flex items-center h-screen w-screen justify-center bg-stone-100">
+        <div className="flex h-screen w-full flex-col items-center justify-center bg-stone-100 xl:max-w-4xl text-slate-600">
           <Outlet />
         </div>
       </div>
