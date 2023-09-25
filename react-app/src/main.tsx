@@ -27,6 +27,7 @@ import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
 import DirectMessage from "./routes/DirectMessage.tsx";
 import PongDuel from "./routes/PongDuel.tsx";
+import ChatRoom from "./routes/ChatRoom.tsx";
 // import Login from "./routes/Foo.tsx";
 
 const router = createBrowserRouter([
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
       {
         path: "/chatroom",
         element: <AddNewChatRoom />,
+      },
+      {
+        path: "/chat/:id",
+        element: <ChatRoom />,
       },
       {
         path: "/friend",

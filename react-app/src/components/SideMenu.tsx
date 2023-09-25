@@ -90,6 +90,7 @@ export default function SideMenu() {
             <Category name="Temporay links for dev" />
             <Nav name="auth" to="/auth" icon={IconFingerPrint} />
             <Nav name="login" to="/login" icon={IconFire} />
+            <Nav name="chat test" to="/chat/123" icon={IconGroupChatBubble} />
 
             <Category name="External Links" />
             <Nav
