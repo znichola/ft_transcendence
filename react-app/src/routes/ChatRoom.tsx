@@ -1,7 +1,10 @@
+import ChatRoomMenu from "../components/ChatRoomMenu";
+
 export default function ChatRoom() {
   return (
     <>
-      <div>Foobar</div>
+      <div className="">Foobar</div>
+      <ChatRoomMenu/>
     </>
   );
 }
