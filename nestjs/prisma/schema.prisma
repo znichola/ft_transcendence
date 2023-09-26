@@ -17,11 +17,12 @@ model User {
   avatar  String
   bio     String? @db.VarChar(140)
 
-  elo    Int @default(1500)
-  wins   Int @default(0)
-  losses Int @default(0)
+  elo        Int   @default(1500)
+  wins       Int   @default(0)
+  losses     Int   @default(0)
+  eloHistory Int[] @default([1500])
 
-  status   UserStatus @default(ONLINE)
+  status UserStatus @default(ONLINE)
 
   friends1 Friend[] @relation("Friends")
   friends2 Friend[] @relation("FriendsOf")

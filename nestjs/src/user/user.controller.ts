@@ -1,21 +1,17 @@
 import { Param, Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriend } from '../interfaces';
-import { FriendStatus } from '@prisma/client';
+import { FriendStatus, UserStatus } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getAllUsers(@Query('page') page: string, @Query('status') status?: string): Promise<UserData[]> {
-    var usersInfo: UserData[];
-    if (status) {
-      usersInfo = await this.userService.findAll(parseInt(page));
-    }
-    else {
-      usersInfo = await this.userService.findAll(parseInt(page));
-    }
+  async getAllUsers(@Query('page') page: string, @Query('status') status?: string, @Query('name') name?:string): Promise<string[]> {
+    let searchStatus: UserStatus = UserStatus[status.toUpperCase()];
+    console.log(searchStatus);
+    const usersInfo: string[] = await this.userService.findAll(parseInt(page), name, searchStatus);
     return usersInfo;
   }
 
@@ -28,7 +24,7 @@ export class UserController {
     return userInfo;
   }
 
-  // REDO in PUT for real project
+  // REDO in PUT for real project?
   @Post(':username')
   async updateUser(
     @Param('username') username: string,
