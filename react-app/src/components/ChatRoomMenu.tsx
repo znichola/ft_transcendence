@@ -5,40 +5,55 @@ import {
   IconCrown,
   IconGear,
   IconMinusCircle,
+  IconSearch,
   IconUserGroup,
 } from "./Icons";
 import axios from "axios";
 import { LoadingSpinnerMessage } from "./Loading";
+import { Form } from "react-router-dom";
 
 export default function ChatRoomMenu() {
   return (
-    <>
-      <div className="flex h-28 w-full flex-col items-center justify-between bg-rose-100 py-2 ">
-        <h1 className="text-4xl font-semibold">Noobish Helpdesk</h1>
+    <div className="px-4 pt-4">
+      <div className="relative flex h-28 w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
+        <h1 className="text-spate-400 text-4xl font-semibold">
+          Noobish Helpdesk
+        </h1>
+        <div className="h-6 bg-green-400"/>
         <div className="flex gap-2">
-          <ManageUsers />
-          <Setting />
+          <div className="flex">
+            <input id="manage-user" type="checkbox" className="peer hidden" />
+            <label
+              htmlFor="manage-user"
+              className=" rounded-full border-b-2 border-stone-300 transition-all duration-100 ease-in-out peer-checked:bg-rose-300 peer-hover:border-rose-500"
+            >
+              <ManageUserButton />
+            </label>
+            <div className="absolute left-0 min-w-full translate-y-10 p-6 transition-all duration-100 ease-in-out peer-checked:bg-blue-500">
+              <ManageUsersUI />
+            </div>
+          </div>
+          <SettingsButton />
         </div>
-        <ManageUsersUI />
+      </div>
+    </div>
+  );
+}
+
+function ManageUserButton() {
+  return (
+    <>
+      <div className="flex h-8 w-8 items-center justify-center">
+        <IconUserGroup />
       </div>
     </>
   );
 }
 
-function ManageUsers() {
+function SettingsButton() {
   return (
     <>
-      <button className="flex h-8 w-8 items-center justify-center bg-amber-400 ">
-        <IconUserGroup />
-      </button>
-    </>
-  );
-}
-
-function Setting() {
-  return (
-    <>
-      <button className="flex h-8 w-8 items-center justify-center bg-amber-400">
+      <button className="flex h-8 w-8 items-center justify-center">
         <IconGear />
       </button>
     </>
@@ -49,7 +64,12 @@ function ManageUsersUI() {
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
   return (
     <>
-      <ul className="flex flex-col gap-2 rounded-lg bg-white p-2 shadow z-10">
+      <ul className="flex flex-col justify-center gap-2 rounded-lg bg-white p-3 shadow">
+        <div className="flex justify-center  ">
+          <div className="max-w-md grow ">
+            <UserSearch />
+          </div>
+        </div>
         {chatroomUsers.map((u) => (
           <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
         ))}
@@ -57,6 +77,38 @@ function ManageUsersUI() {
     </>
   );
 }
+
+function UserSearch() {
+  return (
+    <>
+      <div className="rounded-xl border border-slate-300 p-2  focus-within:border-rose-500 ">
+        <Form className="flex h-full w-full pl-3 ">
+          <input
+            className="focus: w-full outline-none  focus:border-none focus:ring-0"
+            type="search"
+            placeholder="search channel users"
+          />
+          <div className="border-l border-slate-300">
+            <button className="flex h-full w-10 items-center justify-center  text-slate-300">
+              <IconSearch />
+            </button>
+          </div>
+        </Form>
+      </div>
+    </>
+  );
+}
+
+<div className="relative rounded-2xl bg-white px-6 pb-8 pt-10 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:px-10">
+  <div className="mx-auto max-w-md">
+    <form action="" className="relative mx-auto w-max">
+      <input
+        type="search"
+        className="peer relative z-10 h-12 w-12 cursor-pointer rounded-full border bg-transparent pl-12 outline-none focus:w-full focus:cursor-text focus:border-lime-300 focus:pl-16 focus:pr-4"
+      />
+    </form>
+  </div>
+</div>;
 
 // "MEMBER" | "ADMIN" | "OWNER"
 function ManageUserCard({ login42, role }: { login42: string; role: string }) {
@@ -81,9 +133,9 @@ function ManageUserCard({ login42, role }: { login42: string; role: string }) {
           src={user.avatar}
           alt={user.login42 || "undefined" + " profile image"}
         />
-        <div className="grow">{user.name}</div>
-        <AdminButton userRole="OWNER" cardRole={role} />
-        <KickUserButton userRole="OWNER" cardRole={role} />
+        <div className="grow ">{user.name}</div>
+        <AdminButton userRole="ADMIN" cardRole={role} />
+        <KickUserButton userRole="ADMIN" cardRole={role} />
       </li>
     </>
   );
@@ -112,8 +164,7 @@ function AdminButton({
     );
   }
   if (cardRole === "MEMBER") {
-    if (userRole === "MEMBER")
-      return <div className="h-5 w-5 " />;
+    if (userRole === "MEMBER") return <div className="h-5 w-5 " />;
     return (
       <IconCheckBadge
         className={`h-5 w-5 align-middle text-slate-200 ${
