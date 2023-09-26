@@ -11,8 +11,13 @@ import {
 import axios from "axios";
 import { LoadingSpinnerMessage } from "./Loading";
 import { Form } from "react-router-dom";
+import { useState } from "react";
 
 export default function ChatRoomMenu() {
+  const [buttonState, setButtonState] = useState<
+    "USERS" | "SETTINGS" | "UNSET"
+  >("UNSET");
+
   return (
     <div className="px-3 pt-3">
       <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
@@ -22,29 +27,39 @@ export default function ChatRoomMenu() {
         <div className="h-4 bg-green-400" />
         <div className="flex gap-2">
           <div className="flex">
-            <input id="manage-user" type="checkbox" className="peer hidden" />
-            <label
-              htmlFor="manage-user"
-              className="rounded-full border border-transparent peer-checked:text-rose-500 peer-hover:border peer-hover:border-rose-400 peer-hover:bg-rose-100"
+            <input
+              type="checkbox"
+              checked={buttonState === "USERS"}
+              className="peer hidden"
+            />
+            <button
+              onClick={() =>
+                setButtonState(buttonState === "USERS" ? "UNSET" : "USERS")
+              }
+              className="rounded-full border border-transparent peer-checked:text-rose-500 hover:border hover:border-rose-400 hover:bg-rose-100"
             >
               <ManageUserButton />
-            </label>
+            </button>
             <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
               <ManageUsersUI />
             </div>
           </div>
           <div className="flex">
             <input
-              id="manage-settings"
+              checked={buttonState === "SETTINGS"}
               type="checkbox"
               className="peer hidden"
             />
-            <label
-              htmlFor="manage-settings"
-              className="rounded-full border border-transparent peer-checked:text-rose-500 peer-hover:border peer-hover:border-rose-400 peer-hover:bg-rose-100"
+            <button
+              onClick={() =>
+                setButtonState(
+                  buttonState === "SETTINGS" ? "UNSET" : "SETTINGS",
+                )
+              }
+              className="rounded-full border border-transparent peer-checked:text-rose-500 hover:border hover:border-rose-400 hover:bg-rose-100"
             >
               <SettingsButton />
-            </label>
+            </button>
             <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
               <SettingsButtonUI />
             </div>
@@ -97,9 +112,7 @@ function SettingsButtonUI() {
   return (
     <>
       <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-        <div className="h-14">
-
-        </div>
+        <div className="h-14"></div>
       </div>
     </>
   );
