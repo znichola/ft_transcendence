@@ -14,26 +14,41 @@ import { Form } from "react-router-dom";
 
 export default function ChatRoomMenu() {
   return (
-    <div className="px-4 pt-4">
-      <div className="relative flex h-28 w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
+    <div className="px-3 pt-3">
+      <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
         <h1 className="text-spate-400 text-4xl font-semibold">
           Noobish Helpdesk
         </h1>
-        <div className="h-6 bg-green-400"/>
+        <div className="h-4 bg-green-400" />
         <div className="flex gap-2">
           <div className="flex">
             <input id="manage-user" type="checkbox" className="peer hidden" />
             <label
               htmlFor="manage-user"
-              className=" rounded-full border-b-2 border-stone-300 transition-all duration-100 ease-in-out peer-checked:bg-rose-300 peer-hover:border-rose-500"
+              className="rounded-full border border-transparent peer-checked:text-rose-500 peer-hover:border peer-hover:border-rose-400 peer-hover:bg-rose-100"
             >
               <ManageUserButton />
             </label>
-            <div className="absolute left-0 min-w-full translate-y-10 p-6 transition-all duration-100 ease-in-out peer-checked:bg-blue-500">
+            <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
               <ManageUsersUI />
             </div>
           </div>
-          <SettingsButton />
+          <div className="flex">
+            <input
+              id="manage-settings"
+              type="checkbox"
+              className="peer hidden"
+            />
+            <label
+              htmlFor="manage-settings"
+              className="rounded-full border border-transparent peer-checked:text-rose-500 peer-hover:border peer-hover:border-rose-400 peer-hover:bg-rose-100"
+            >
+              <SettingsButton />
+            </label>
+            <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
+              <SettingsButtonUI />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -53,9 +68,9 @@ function ManageUserButton() {
 function SettingsButton() {
   return (
     <>
-      <button className="flex h-8 w-8 items-center justify-center">
+      <div className="flex h-8 w-8 items-center justify-center">
         <IconGear />
-      </button>
+      </div>
     </>
   );
 }
@@ -64,7 +79,7 @@ function ManageUsersUI() {
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
   return (
     <>
-      <ul className="flex flex-col justify-center gap-2 rounded-lg bg-white p-3 shadow">
+      <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
             <UserSearch />
@@ -78,10 +93,22 @@ function ManageUsersUI() {
   );
 }
 
+function SettingsButtonUI() {
+  return (
+    <>
+      <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
+        <div className="h-14">
+
+        </div>
+      </div>
+    </>
+  );
+}
+
 function UserSearch() {
   return (
     <>
-      <div className="rounded-xl border border-slate-300 p-2  focus-within:border-rose-500 ">
+      <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
         <Form className="flex h-full w-full pl-3 ">
           <input
             className="focus: w-full outline-none  focus:border-none focus:ring-0"
