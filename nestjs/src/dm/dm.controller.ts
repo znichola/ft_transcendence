@@ -1,34 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
 import { DmService } from './dm.service';
-import { CreateDmDto } from './dto/create-conversation.dto';
-import { UpdateDmDto } from './dto/update-dm.dto';
+import { SendDmDto } from './dto/send-dm-dto';
 
 @Controller('conversations')
 export class DmController {
-  constructor(private readonly dmService: DmService) {}
+	constructor(private readonly dmService: DmService) {}
 
-  @Post()
-  create(@Body() createDmDto: CreateDmDto) {
-    return this.dmService.create(createDmDto);
-  }
+	@Get()
+	findAllConversations()
+	{
+		return this.dmService.getAllConversations();
+	}
 
-  @Get()
-  findAll() {
-    return this.dmService.findAll();
-  }
+	@Get(':user1')
+	findAllConversationsOfUser(@Param('user1') user1: string)
+	{
+		return this.dmService.getAllConversationsOfUser(user1);
+	}
 
-  @Get(':user1')
-  findOne(@Param('id') id: string) {
-    return this.dmService.findOne(+id);
-  }
+	@Get(':user1/:user2')
+	findOneConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	{
+		return this.dmService.getOneConversation(user1, user2);
+	}
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDmDto: UpdateDmDto) {
-    return this.dmService.update(+id, updateDmDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dmService.remove(+id);
-  }
+	@Post(':user1/:user2')
+	@UsePipes(ValidationPipe)
+	sendMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Body() payload: SendDmDto)
+	{
+		return this.dmService.sendMessage(user1, user2, payload);
+	}
 }
