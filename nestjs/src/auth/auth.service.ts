@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserData } from 'src/interfaces';
+import { AuthGuard } from './auth.guard';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,7 @@ export class AuthService {
 
   async getLoginFromToken(token: string): Promise<string> {
     const decoded = this.jwtService.decode(token);
-    console.log(decoded);
+    console.log('decoding');
     const login: string = decoded['login'];
     return login;
   }

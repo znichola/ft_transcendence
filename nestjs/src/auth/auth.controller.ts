@@ -7,7 +7,6 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
@@ -19,21 +18,10 @@ import axios from 'axios';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Get('login')
-  async loggedIn(@Req() req: Request) {
-    console.log(req.headers);
-    console.log('------------');
-    console.log(req.cookies);
-
-    const userLogin: string = await this.authService.getLoginFromToken(req.cookies.test.access_token)
-    console.log(userLogin);
-  }
-
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
     @Body() bodyData: object,
-    @Req() req: Request,
     @Res() res: Response,
   ) {
     console.log('In Auth Controller');
@@ -86,13 +74,12 @@ export class AuthController {
     }
   }
 
-  //@UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('user')
   async getLoggedUser(@Req() req: Request): Promise<string> {
-    if (req.cookies.test) {
-    const userLogin: string = await this.authService.getLoginFromToken(req.cookies.test.access_token);
+    const userLogin: string = await this.authService.getLoginFromToken(
+      req.cookies.test.access_token,
+    );
     return userLogin;
-    }
-    throw new UnauthorizedException();
   }
 }
