@@ -1,7 +1,8 @@
-import { Param, Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Param, Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriend } from '../interfaces';
 import { FriendStatus, UserStatus } from '@prisma/client';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -25,12 +26,13 @@ export class UserController {
   }
 
   // REDO in PUT for real project?
+  @UseGuards(AuthGuard)
   @Post(':username')
   async updateUser(
     @Param('username') username: string,
     @Body() bodyData: UserData,
   ): Promise<UserData> {
-    return this.userService.updateUserName(username, bodyData.name);
+    return this.userService.updateUserName(username, bodyData.name, bodyData.bio);
   }
 
   @Get(':username/friends')

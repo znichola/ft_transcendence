@@ -17,7 +17,7 @@ export interface UserData {
   name: string;
   login42: string;
   elo: number;
-  // rank: number;
+  eloHistory: number[];
   status?: string;
   wins: number;
   losses: number;

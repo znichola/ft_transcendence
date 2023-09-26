@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { FriendStatus, UserStatus } from '@prisma/client';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -73,18 +74,20 @@ export class UserService {
     return user;
   }
 
-  async updateUserName(login: string, newName: string): Promise<UserData> {
+  async updateUserName(login: string, newName: string, newBio: string): Promise<UserData> {
     const user = await prisma.user.update({
       where: {
         login42: login,
       },
       data: {
         name: newName,
+        bio: newBio,
       },
     });
     return user;
   }
 
+  @UseGuards(AuthGuard)
   async getUserId(login: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { login42: login },
@@ -93,6 +96,7 @@ export class UserService {
     return user.id;
   }
 
+  @UseGuards(AuthGuard)
   async getFriendData(userId: number): Promise<FriendData> {
     const friend = await prisma.user.findUnique({
       where: { id: userId },
@@ -106,6 +110,7 @@ export class UserService {
     return friend;
   }
 
+  @UseGuards(AuthGuard)
   async getUserFriends(userId: number): Promise<FriendData[]> {
     const userFriends = await prisma.friend.findMany({
       where: {
@@ -200,6 +205,7 @@ export class UserService {
     return user;
   }
 
+  @UseGuards(AuthGuard)
   async createFriend(requesterId: number, receiverId: number) {
     await prisma.friend.create({
       data: {
