@@ -6,6 +6,10 @@ import { Nav } from "./SideMenu.tsx";
 import { getCurrentUser } from "../Api-axios.tsx";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Component, useState } from "react";
+
+
+const messages = ["Lundi", "Mardi", "Mercredi"];
 
 function statusColor(status: UserData["status"]) {
   switch (status) {
@@ -22,61 +26,86 @@ function statusColor(status: UserData["status"]) {
   }
 }
 
-function Message({sender, text, tmp}:{sender: UserData, text: string}){
+function Message({sender, text, left}:{sender: UserData, text: string, left: boolean}) {
   return (
-    <div className="shadow-md bg-white rounded-xl p-3">
-      <div className={`${tmp == 1 ? "float-right" : "float-left"} inline-block px-5`}>
-        <img
-          className={
-            "h-20 w-20 rounded-full ring-2 min-h-[5rem]" + " " + statusColor(sender.status)
-          }
-          src={sender.avatar}
-          alt={sender.login42 || "undefined" + " profile image"}
-        />
-      </div>
-        <div className={`grow order-${tmp * 0} ${tmp == 1 ? "text-right" : ""} break-words pt-6 px-3 min-w-0`}>
-          {text}
-        </div>
+    <div className={`flex gap-5 ${left ? "text-left" : "flex-row-reverse" }`}>
+      <img
+        className={
+          "min-w-[5rem] w-20 h-20 rounded-full ring-2" + " " + statusColor(sender.status)
+        }
+        src={sender.avatar}
+        alt={sender.login42 || "undefined" + " profile image"}
+      />
+      <p className="break-words shadow-md bg-white rounded-xl p-3 whitespace-pre-line pt-6 px-3 min-w-0">
+        {text}
+      </p>
     </div>
   );
+}
+
+
+export class FakeUser implements UserData {
+  id: number;
+  name: string;
+  login42: string;
+  elo: number;
+  // rank: number;
+  status?: string;
+  wins: number;
+  losses: number;
+  // friend_ids: [number];
+  // game_ids: [number];
+  avatar: string;
+  bio?: string;
+  constructor() {
+    this.id = 0;
+    this.login42 = "default42";
+    this.name = "Defaultus";
+    this.elo = 1500;
+    this.status = 'ONLINE';
+    this.wins = 0;
+    this.losses = 0;
+    this.avatar = "https://i.imgflip.com/2/aeztm.jpg"
+    this.bio = "My bio"
+  }
 }
 
 // Image en dehors des messages et glisses quand overflow
 
 export default function ChatMessages() {
 
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-    initialData: "default42",
-  });
+  const [inputValue, setInputValue] = useState("");
 
-  const {
-    data: currentUserData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["UserData", user],
-    queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
-  });
+  function handleChange(event) {
+    setInputValue(event.currentTarget.value);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    messages.push(inputValue);
+    setInputValue("");
+  }
+
+  function handlerOnEnter(event) {
+    if(event.keyCode == 13 && event.shiftKey == false) {
+      handleSubmit(event);
+    }
+  }
 
   return(
-    <div className="flex flex-col-reverse w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-4 text lg:text-xl font-light bg-stone-100">
-      <Message sender={currentUserData} text={"Je suis le message 1"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 2"} tmp={1}/>
-      <Message sender={currentUserData} text={"Je suis le message 3"} tmp={0}/>
-      <Message sender={currentUserData} text={"Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker."} tmp={1}/>
-      <Message sender={currentUserData} text={"Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker."} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 5"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 6"} tmp={1}/>
-      <Message sender={currentUserData} text={"Je suis le message 7"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 8"} tmp={1}/>
-      <Message sender={currentUserData} text={"Je suis le message 9"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 10"} tmp={1}/>
-      <Message sender={currentUserData} text={"Je suis le message 11"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 12"} tmp={1}/>
-      <Message sender={currentUserData} text={"Je suis le message 13"} tmp={0}/>
-      <Message sender={currentUserData} text={"Je suis le message 14"} tmp={1}/>
+    <div className="flex flex-col w-full h-full py-5">
+      <div className="flex flex-col w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-6 text lg:text-xl font-light bg-stone-100">
+        {
+          messages.map((element, index) => {
+            return(<Message sender={new FakeUser} text={element} left={index%2==0}/>);
+          })
+        }
+      </div>
+      <div className="h-32 w-full px-20">
+        <form className="flex justify-center w-full" onSubmit={handleSubmit} onKeyDown={handlerOnEnter}>
+          <textarea className="rounded-lg px-5 h-10 w-full max-w-[50rem]" placeholder="Enter a message..." value={inputValue} onChange={handleChange}/>
+        </form>
+      </div>
     </div>
   );
 }
