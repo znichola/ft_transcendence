@@ -9,7 +9,7 @@ export class UserController {
 
   @Get()
   async getAllUsers(@Query('page') page: string, @Query('status') status?: string, @Query('name') name?:string): Promise<string[]> {
-    let searchStatus: UserStatus = UserStatus[status.toUpperCase()];
+    let searchStatus: UserStatus = UserStatus[status];
     console.log(searchStatus);
     const usersInfo: string[] = await this.userService.findAll(parseInt(page), name, searchStatus);
     return usersInfo;

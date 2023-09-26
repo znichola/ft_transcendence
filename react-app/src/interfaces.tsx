@@ -1,8 +1,8 @@
 export interface FriendData {
-  login42: string,
-  name: string,
-  status: string,
-  avatar: string,
+  login42: string;
+  name: string;
+  status: string;
+  avatar: string;
 }
 
 export interface UserFriend {
@@ -17,6 +17,7 @@ export interface UserData {
   name: string;
   login42: string;
   elo: number;
+  eloHistory: number[];
   // rank: number;
   status?: string;
   wins: number;
@@ -28,10 +29,10 @@ export interface UserData {
 }
 
 export interface FriendData {
-  login42: string,
-  name: string,
-  status: string,
-  avatar: string,
+  login42: string;
+  name: string;
+  status: string;
+  avatar: string;
 }
 
 export interface UserFriends {
@@ -46,4 +47,3 @@ export interface GameHistory {
   player_right: number;
   result: number;
 }
-

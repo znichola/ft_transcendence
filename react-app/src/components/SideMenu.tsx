@@ -50,7 +50,7 @@ export default function SideMenu() {
     <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden bg-white pt-5 ">
       <CurrentUserStats />
       <div className="h-8" />
-      <CurrentUserEloStats />
+      <CurrentUserEloStats user={currentUserData}/>
       <div className="mt-3 flex flex-1 flex-col">
         <div className="">
           <Category name="User" />
@@ -252,12 +252,12 @@ function CurrentUserStats() {
   );
 }
 
-function CurrentUserEloStats() {
+function CurrentUserEloStats({user} : {user: UserData}) {
   return (
     <>
       <div className="flex justify-center p-2">
         <div className="h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-          <ProfileElo data={[1201, 1190, 991, 1249, 1176, 1298, 1495, 1587]} />
+          <ProfileElo data={user.eloHistory.slice(-20)} />
         </div>
       </div>
     </>
