@@ -7,15 +7,52 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
-  async findAll(page?: number): Promise<UserData[]> {
+  async findAll(page?: number, searchName?: string, findStatus?: UserStatus): Promise<string[]> {
+    const whereCondition: {
+      OR: [
+          {
+            login42: { contains: string };
+          },
+          {
+            name: { contains: string };
+          },
+        ];
+        status?: UserStatus;
+      }
+     = {
+      OR: [
+        {
+          login42: { contains: '' },
+        },
+        {
+          name: { contains: '' },
+        },
+      ],
+    };
+    console.log(searchName, findStatus);
+    if (searchName) {
+      whereCondition.OR = [
+          {
+            login42: { contains: searchName },
+          },
+          {
+            name: { contains: searchName },
+          },
+        ];
+    }
+    whereCondition.status = findStatus;
     const allUsers = await prisma.user.findMany({
+      select: { login42: true },
+      where: whereCondition,
       skip: (page - 1) * 10 || 0,
       take: 10,
       orderBy: {
         elo: 'desc',
       },
     });
-    return allUsers;
+
+    const usersArray: string[] = allUsers.map(user => user.login42);
+    return usersArray;
   }
 
   async findUser(login: string): Promise<UserData> {
@@ -51,11 +88,10 @@ export class UserService {
   async getUserId(login: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { login42: login },
-      select: { id: true }
+      select: { id: true },
     });
     return user.id;
   }
-
 
   async getFriendData(userId: number): Promise<FriendData> {
     const friend = await prisma.user.findUnique({
@@ -99,28 +135,36 @@ export class UserService {
     return results;
   }
 
-async getUserFriendsByStatus(userId: number, incoming: boolean, status: FriendStatus): Promise<FriendData[]> {
-  const whereCondition: { user1Id?: number, user2Id?: number, status: FriendStatus } = { status: status}
-  if (incoming) {
-    whereCondition.user2Id = userId
-  } else {
-    whereCondition.user1Id = userId
-  }
-  const pending = await prisma.friend.findMany({
-    where: whereCondition
-  });
-  const userPromises = pending.map(async (value) => {
-    let user: FriendData;
-    if (value.user1Id == userId) {
-      user = await this.getFriendData(value.user2Id);
+  async getUserFriendsByStatus(
+    userId: number,
+    incoming: boolean,
+    status: FriendStatus,
+  ): Promise<FriendData[]> {
+    const whereCondition: {
+      user1Id?: number;
+      user2Id?: number;
+      status: FriendStatus;
+    } = { status: status };
+    if (incoming) {
+      whereCondition.user2Id = userId;
     } else {
-      user = await this.getFriendData(value.user1Id);
+      whereCondition.user1Id = userId;
     }
-    return user;
-  });
-  const results: FriendData[] = await Promise.all(userPromises);
-  return results;
-}
+    const pending = await prisma.friend.findMany({
+      where: whereCondition,
+    });
+    const userPromises = pending.map(async (value) => {
+      let user: FriendData;
+      if (value.user1Id == userId) {
+        user = await this.getFriendData(value.user2Id);
+      } else {
+        user = await this.getFriendData(value.user1Id);
+      }
+      return user;
+    });
+    const results: FriendData[] = await Promise.all(userPromises);
+    return results;
+  }
 
   // async findAllByStatus(
   //   statusName: string,
@@ -139,10 +183,14 @@ async getUserFriendsByStatus(userId: number, incoming: boolean, status: FriendSt
   //   return [];
   // }
 
-  async registerUser(login: string, displayName: string, avatar: string): Promise<UserData> {
+  async registerUser(
+    login: string,
+    displayName: string,
+    avatar: string,
+  ): Promise<UserData> {
     const user = await prisma.user.upsert({
       where: { login42: login },
-      create: { 
+      create: {
         login42: login,
         name: displayName,
         avatar: avatar,
@@ -152,12 +200,12 @@ async getUserFriendsByStatus(userId: number, incoming: boolean, status: FriendSt
     return user;
   }
 
-  async createFriend(requesterId: number, receiverId: number){
+  async createFriend(requesterId: number, receiverId: number) {
     await prisma.friend.create({
       data: {
         user1Id: requesterId,
         user2Id: receiverId,
-      }
+      },
     });
   }
 }

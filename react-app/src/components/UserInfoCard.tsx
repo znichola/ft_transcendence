@@ -152,7 +152,13 @@ function SideButtonFriend({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300">
           {<IconAddUser strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2 ">
+        <div
+          className={`duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl  shadow-md transition-all group-hover:w-max group-hover:p-2 ${
+            isFriend
+              ? "from-amber-600 to-fuchsia-400"
+              : "from-fuchsia-600 to-orange-500"
+          } `}
+        >
           <span className="text-xs font-bold text-slate-50">
             {isError
               ? "error fetching data"

@@ -29,8 +29,7 @@ export function LoadingSpinner() {
   return (
     <>
       <div
-        style={{ borderTopColor: "transparent" }}
-        className="h-4 w-4 animate-spin rounded-full border-2 border-slate-700"
+        className="h-4 w-4 animate-spin rounded-full border-2 border-slate-700 border-b-transparent"
       ></div>
     </>
   );
