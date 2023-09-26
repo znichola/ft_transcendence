@@ -93,8 +93,8 @@ export default function ChatMessages() {
   }
 
   return(
-    <div className="flex flex-col w-full h-full py-5">
-      <div className="flex flex-col w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-6 text lg:text-xl font-light bg-stone-100">
+    <div className="flex flex-col flex-grow-0 w-full h-[85%] py-5">
+      <div className="flex flex-col w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-6 text lg:text-xl font-light bg-stone-100 ">
         {
           messages.map((element, index) => {
             return(<Message sender={new FakeUser} text={element} left={index%2==0}/>);
