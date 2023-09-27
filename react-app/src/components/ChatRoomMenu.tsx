@@ -1,22 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { UserData } from "../interfaces";
 import {
+  iconType,
+  IconAddUser,
   IconCheckBadge,
   IconCrown,
   IconGear,
   IconMinusCircle,
   IconSearch,
   IconUserGroup,
+  IconPlusCircle,
 } from "./Icons";
 import axios from "axios";
 import { LoadingSpinnerMessage } from "./Loading";
 import { Form } from "react-router-dom";
 import { useState } from "react";
 
+type btnStateType = "USERS" | "SETTINGS" | "ADDUSER" | "UNSET";
+type chatRoomUser = {
+  chatroomId: number;
+  login42: string;
+  role: string;
+};
+
 export default function ChatRoomMenu() {
-  const [buttonState, setButtonState] = useState<
-    "USERS" | "SETTINGS" | "UNSET"
-  >("UNSET");
+  const [buttonState, setButtonState] = useState<btnStateType>("UNSET");
 
   return (
     <div className="px-3 pt-3">
@@ -26,72 +34,80 @@ export default function ChatRoomMenu() {
         </h1>
         <div className="h-4 bg-green-400" />
         <div className="flex gap-2">
-          <div className="flex">
-            <input
-              type="checkbox"
-              checked={buttonState === "USERS"}
-              className="peer hidden"
-            />
-            <button
-              onClick={() =>
-                setButtonState(buttonState === "USERS" ? "UNSET" : "USERS")
-              }
-              className="rounded-full border border-transparent peer-checked:text-rose-500 hover:border hover:border-rose-400 hover:bg-rose-100"
-            >
-              <ManageUserButton />
-            </button>
-            <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
-              <ManageUsersUI />
-            </div>
-          </div>
-          <div className="flex">
-            <input
-              checked={buttonState === "SETTINGS"}
-              type="checkbox"
-              className="peer hidden"
-            />
-            <button
-              onClick={() =>
-                setButtonState(
-                  buttonState === "SETTINGS" ? "UNSET" : "SETTINGS",
-                )
-              }
-              className="rounded-full border border-transparent peer-checked:text-rose-500 hover:border hover:border-rose-400 hover:bg-rose-100"
-            >
-              <SettingsButton />
-            </button>
-            <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
-              <SettingsButtonUI />
-            </div>
-          </div>
+          <ButtonGeneric
+            icon={IconUserGroup}
+            onButtonClick={() =>
+              setButtonState(buttonState === "USERS" ? "UNSET" : "USERS")
+            }
+            buttonState={buttonState}
+            checked="USERS"
+          >
+            <ManageUsersUI channelUsers={fakeChannelUsers} />
+          </ButtonGeneric>
+          <ButtonGeneric
+            icon={IconAddUser}
+            onButtonClick={() =>
+              setButtonState(buttonState === "ADDUSER" ? "UNSET" : "ADDUSER")
+            }
+            buttonState={buttonState}
+            checked="ADDUSER"
+          >
+            <AddUsersUI allUsers={fakeGeneralUsers} />
+          </ButtonGeneric>
+          <ButtonGeneric
+            icon={IconGear}
+            onButtonClick={() =>
+              setButtonState(buttonState === "SETTINGS" ? "UNSET" : "SETTINGS")
+            }
+            buttonState={buttonState}
+            checked="SETTINGS"
+          >
+            <SettingsButtonUI />
+          </ButtonGeneric>
         </div>
       </div>
     </div>
   );
 }
 
-function ManageUserButton() {
+function ButtonGeneric({
+  icon: Icon,
+  onButtonClick,
+  buttonState,
+  checked,
+  children,
+}: {
+  icon: iconType;
+  onButtonClick: () => void;
+  buttonState: btnStateType;
+  checked: btnStateType;
+  children?: JSX.Element[] | JSX.Element;
+}) {
   return (
-    <>
-      <div className="flex h-8 w-8 items-center justify-center">
-        <IconUserGroup />
+    <div className="flex">
+      <input
+        type="checkbox"
+        checked={buttonState === checked}
+        className="peer hidden"
+      />
+      <button
+        onClick={onButtonClick}
+        className="rounded-full border border-transparent hover:border hover:border-rose-400 hover:bg-rose-100 peer-checked:text-rose-500"
+      >
+        <div className="flex h-8 w-8 items-center justify-center">
+          <Icon />
+        </div>
+      </button>
+      <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
+        {children}
       </div>
-    </>
+    </div>
   );
 }
 
-function SettingsButton() {
-  return (
-    <>
-      <div className="flex h-8 w-8 items-center justify-center">
-        <IconGear />
-      </div>
-    </>
-  );
-}
-
-function ManageUsersUI() {
+function ManageUsersUI({ channelUsers }: { channelUsers: chatRoomUser[] }) {
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
+  console.log(channelUsers);
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -100,8 +116,25 @@ function ManageUsersUI() {
             <UserSearch />
           </div>
         </div>
-        {chatroomUsers.map((u) => (
+        {channelUsers.map((u) => (
           <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function AddUsersUI({ allUsers }: { allUsers: string[] }) {
+  return (
+    <>
+      <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
+        <div className="flex justify-center  ">
+          <div className="max-w-md grow ">
+            <UserSearch />
+          </div>
+        </div>
+        {allUsers.map((u) => (
+          <AddUsersCard key={u} login42={u} />
         ))}
       </ul>
     </>
@@ -112,7 +145,7 @@ function SettingsButtonUI() {
   return (
     <>
       <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-        <div className="h-14"></div>
+        <div className="h-14">foobar, some settings and stuff</div>
       </div>
     </>
   );
@@ -139,16 +172,34 @@ function UserSearch() {
   );
 }
 
-<div className="relative rounded-2xl bg-white px-6 pb-8 pt-10 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:px-10">
-  <div className="mx-auto max-w-md">
-    <form action="" className="relative mx-auto w-max">
-      <input
-        type="search"
-        className="peer relative z-10 h-12 w-12 cursor-pointer rounded-full border bg-transparent pl-12 outline-none focus:w-full focus:cursor-text focus:border-lime-300 focus:pl-16 focus:pr-4"
-      />
-    </form>
-  </div>
-</div>;
+function AddUsersCard({ login42 }: { login42: string }) {
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["UserData", login42],
+    queryFn: () => axios.get<UserData>("/user/" + login42).then((r) => r.data),
+  });
+
+  if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
+  if (isError) return <div>error fetching user</div>;
+  return (
+    <>
+      <li className="flex items-center gap-2  px-2 py-1">
+        <img
+          className={
+            "h-5 w-5 rounded-full ring-2" + " " + statusColor(user.status)
+          }
+          src={user.avatar}
+          alt={user.login42 || "undefined" + " profile image"}
+        />
+        <div className="grow ">{user.name}</div>
+        <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+      </li>
+    </>
+  );
+}
 
 // "MEMBER" | "ADMIN" | "OWNER"
 function ManageUserCard({ login42, role }: { login42: string; role: string }) {
@@ -253,7 +304,7 @@ function statusColor(status: UserData["status"]) {
   }
 }
 
-const chatroomUsers = [
+const fakeChannelUsers = [
   {
     chatroomId: 1,
     login42: "default42",
@@ -285,3 +336,5 @@ const chatroomUsers = [
     role: "MEMBER",
   },
 ];
+
+const fakeGeneralUsers = ["test", "default42", "znichola"];

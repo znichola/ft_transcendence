@@ -1,3 +1,11 @@
+export type iconType = ({
+  className,
+  strokeSize,
+}: {
+  className?: string;
+  strokeSize?: number;
+}) => JSX.Element;
+
 // These are all SVG icons !
 
 export const IconNewspaper = ({
@@ -605,6 +613,31 @@ export const IconMinusCircle = ({
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  );
+};
+
+export const IconPlusCircle = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
+  return (
+    <svg
+      className={className}
+      strokeWidth={strokeWidth}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
   );

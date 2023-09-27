@@ -97,7 +97,7 @@ export default function ChatMessages() {
       <div className="flex flex-col w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-6 text lg:text-xl font-light bg-stone-100 ">
         {
           messages.map((element, index) => {
-            return(<Message sender={new FakeUser} text={element} left={index%2==0}/>);
+            return(<Message sender={new FakeUser} text={element} left={index%2==0} key={index}/>);
           })
         }
       </div>
