@@ -2,7 +2,7 @@ import axios from "axios";
 import { UserData } from "./interfaces";
 import { QueryKey } from "@tanstack/react-query";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "/api/";
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
