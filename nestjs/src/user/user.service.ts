@@ -1,5 +1,5 @@
 import { Injectable, UseGuards } from '@nestjs/common';
-import { FriendStatus, UserStatus } from '@prisma/client';
+import { FriendStatus, User, UserStatus } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -56,8 +56,8 @@ export class UserService {
     return usersArray;
   }
 
-  async findUser(login: string): Promise<UserData> {
-    const user = await prisma.user.findFirst({
+  async findUserFromLogin(login: string): Promise<UserData> {
+    const user = await prisma.user.findUnique({
       where: {
         login42: login,
       },
@@ -66,9 +66,19 @@ export class UserService {
   }
 
   async findUserFromId(userId: number): Promise<UserData> {
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
+      },
+    });
+    return user;
+  }
+
+  async findUserFromName(name: string): Promise<UserData>
+  {
+    const user = await prisma.user.findUnique({
+      where: {
+        name: name,
       },
     });
     return user;
@@ -188,22 +198,22 @@ export class UserService {
   //   return [];
   // }
 
-  async registerUser(
-    login: string,
-    displayName: string,
-    avatar: string,
-  ): Promise<UserData> {
-    const user = await prisma.user.upsert({
-      where: { login42: login },
-      create: {
-        login42: login,
-        name: displayName,
-        avatar: avatar,
-      },
-      update: { status: UserStatus.ONLINE },
-    });
-    return user;
-  }
+  // async registerUser(
+  //   login: string,
+  //   displayName: string,
+  //   avatar: string,
+  // ): Promise<UserData> {
+  //   const user = await prisma.user.upsert({
+  //     where: { login42: login },
+  //     create: {
+  //       login42: login,
+  //       name: displayName,
+  //       avatar: avatar,
+  //     },
+  //     update: { status: UserStatus.ONLINE },
+  //   });
+  //   return user;
+  // }
 
   @UseGuards(AuthGuard)
   async createFriend(requesterId: number, receiverId: number) {
