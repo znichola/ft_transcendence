@@ -34,6 +34,9 @@ model User {
 
   messages Message[]
   directMessages DirectMessage[]
+
+  conversation Conversation[] @relation("User1")
+  conversarion Conversation[] @relation("User2")
 }
 
 // model Status {
@@ -99,7 +102,11 @@ model Message {
 model Conversation {
 	id Int	@id @default(autoincrement())
 	user1Id	Int
+	user1	User @relation("User1", fields: [user1Id], references: [id])
+
 	user2Id	Int
+	user2	User @relation("User2", fields: [user2Id], references: [id])
+
 	messages	DirectMessage[]
 	@@unique([user1Id, user2Id])
 }

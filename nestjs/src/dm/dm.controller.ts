@@ -1,31 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { SendDmDto } from './dto/send-dm-dto';
+import { Conversation, DirectMessage } from '@prisma/client';
+import { ConversationEntity } from './entities/conversation.entity';
+import { MessageEntity } from './entities/message.entity';
 
 @Controller('conversations')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
 
 	@Get()
-	findAllConversations()
+	findAllConversations(): Promise<ConversationEntity[]>
 	{
 		return this.dmService.getAllConversations();
 	}
 
 	@Get(':user1')
-	findAllConversationsOfUser(@Param('user1') user1: string)
+	findAllConversationsOfUser(@Param('user1') user1: string): Promise<ConversationEntity[]>
 	{
 		return this.dmService.getAllConversationsOfUser(user1);
 	}
 
 	@Get(':user1/:user2')
-	findOneConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	findOneConversation(@Param('user1') user1: string, @Param('user2') user2: string): Promise<ConversationEntity>
 	{
 		return this.dmService.getOneConversation(user1, user2);
 	}
 
 	@Get(':user1/:user2/messages')
-	getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string): Promise<MessageEntity[]>
 	{
 		return this.dmService.getAllMessagesFromConversation(user1, user2);
 	}
@@ -38,20 +41,20 @@ export class DmController {
 	}
 
 	@Get(':user1/:user2/messages/:msgId')
-	getOneMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number)
+	getOneMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number): Promise<MessageEntity>
 	{
 		return this.dmService.getOneMessage(msgId);
 	}
 
 	@Delete(':user1/:user2/messages/:msgId')
-	deleteMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number)
+	deleteMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number)
 	{
 		return this.dmService.deleteMessage(msgId);
 	}
 
 	@Patch(':user1/:user2/messages/:msgId')
 	@UsePipes(ValidationPipe)
-	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number, @Body() payload: SendDmDto)
+	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: SendDmDto)
 	{
 		return this.dmService.updateMessage(msgId, payload);
 	}
