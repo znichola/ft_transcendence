@@ -97,7 +97,7 @@ export class UserService {
     return user;
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getUserId(login: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { login42: login },
@@ -106,7 +106,7 @@ export class UserService {
     return user.id;
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getFriendData(userId: number): Promise<FriendData> {
     const friend = await prisma.user.findUnique({
       where: { id: userId },
@@ -120,7 +120,7 @@ export class UserService {
     return friend;
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getUserFriends(userId: number): Promise<FriendData[]> {
     const userFriends = await prisma.friend.findMany({
       where: {

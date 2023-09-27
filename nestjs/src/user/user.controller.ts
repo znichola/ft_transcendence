@@ -74,6 +74,25 @@ export class UserController {
     );
   }
 
+  @ApiTags('Friends')
+  @ApiOperation({
+    summary: 'Get all the accepted and pending friend request for the username requested',
+    
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Three different lists with accepted requests, pending requests, and requests waiting for answer from the user',
+    content: {JSON: {
+      schema:
+      {
+        example: {
+          "friends": [],
+          "pending": [],
+          "requests": []
+        }
+      }
+    }}
+  })
   @Get(':username/friends')
   async userFriends(@Param('username') username: string): Promise<UserFriend> {
     const userId = await this.userService.getUserId(username);
@@ -102,23 +121,32 @@ export class UserController {
   @ApiTags('Friends')
   @ApiOperation({
     summary: 'Send a friend request to another user',
-    description: 'the user identified in the URL send a friend request to the user which login is in the body data. There must be a valid JWT token, and the logged in user must be the user in the url.'
+    description: 'the user identified in the URL send a friend request to the user which login is in the body data. There must be a valid JWT token, and the logged in user must be the user in the url.',
+    requestBody: {
+      description: 'Body must include the user to add to friends',
+      required: true,
+      content: {JSON: {
+        schema:
+        {
+          example: {
+            'target': 'default42'
+          }
+        }
+      }}
+      }
   })
   @ApiResponse({
     status: 401,
     description: 'No JTW token found, or the logged in user is not the user in the request url',
-
-    // examples: {
-    //   'application/json': 
-    //   {
-    //     target: 'default42'
-    //   }
-    // }
   })
   @Post(':username/friends')
   async addFriend(@Param('username') username: string, @Body() bodyData) {
-    const userId = await this.userService.getUserId(username);
-    const targetId = await this.userService.getUserId(bodyData.target);
-    await this.userService.createFriend(userId, targetId);
+    console.log('username: ', username);
+    //const userId = await this.userService.getUserId(username);
+    console.log('body: ', bodyData);
+    //const targetId = await this.userService.getUserId(bodyData.target);
+    //console.log(userId, targetId);
+
+    //await this.userService.createFriend(userId, targetId);
   }
 }
