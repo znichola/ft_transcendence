@@ -1,0 +1,15 @@
+server {
+    listen       ${NGINX_PORT};
+    server_name  domain1.com www.domain1.com;
+    location / {
+      proxy_pass http://react:5173;
+    }
+
+    location /api {
+      proxy_pass http://nest:3000;
+    }
+
+    location /prisma {
+      proxy_pass http://nest:5555;
+    }
+}
