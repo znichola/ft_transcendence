@@ -24,10 +24,35 @@ export class DmController {
 		return this.dmService.getOneConversation(user1, user2);
 	}
 
-	@Post(':user1/:user2')
+	@Get(':user1/:user2/messages')
+	getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	{
+		return this.dmService.getAllMessagesFromConversation(user1, user2);
+	}
+
+	@Post(':user1/:user2/messages')
 	@UsePipes(ValidationPipe)
 	sendMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Body() payload: SendDmDto)
 	{
 		return this.dmService.sendMessage(user1, user2, payload);
+	}
+
+	@Get(':user1/:user2/messages/:msgId')
+	getOneMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number)
+	{
+		return this.dmService.getOneMessage(msgId);
+	}
+
+	@Delete(':user1/:user2/messages/:msgId')
+	deleteMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number)
+	{
+		return this.dmService.deleteMessage(msgId);
+	}
+
+	@Patch(':user1/:user2/messages/:msgId')
+	@UsePipes(ValidationPipe)
+	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId') msgId: number, @Body() payload: SendDmDto)
+	{
+		return this.dmService.updateMessage(msgId, payload);
 	}
 }

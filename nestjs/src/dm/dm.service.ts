@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
-import { Conversation } from '@prisma/client';
+import { Conversation, DirectMessage } from '@prisma/client';
 
 @Injectable()
 export class DmService
@@ -49,8 +49,30 @@ export class DmService
 					}
 				]
 			},
-			include: {
-				messages: true
+		});
+	}
+
+	async getAllMessagesFromConversation(user1: string, user2: string): Promise<DirectMessage[]>
+	{
+		const id1 = await this.getUserId(user1);
+		const id2 = await this.getUserId(user2);
+
+		let conversation = await this.getOneConversation(user1, user2);
+		if (conversation == null)
+			conversation = await this.createConversation(id1, id2);
+
+		return await this.prisma.directMessage.findMany({
+			where: {
+				conversationId: +conversation.id,
+			},
+		});
+	}
+
+	async getOneMessage(msgId: number)
+	{
+		return await this.prisma.directMessage.findUnique({
+			where: {
+				id: +msgId,
 			}
 		});
 	}
@@ -64,8 +86,6 @@ export class DmService
 		if (conversation == null)
 			conversation = await this.createConversation(id1, id2);
 
-		console.log(conversation.id);
-
 		const msg = {
 			senderId: +id1,
 			conversationId: +conversation.id,
@@ -75,6 +95,27 @@ export class DmService
 		await this.prisma.directMessage.create({
 			data: msg,
 		})
+	}
+
+	async deleteMessage(msgId: number)
+	{
+		await this.prisma.directMessage.delete({
+			where: {
+				id: +msgId,
+			}
+		});
+	}
+
+	async updateMessage(msgId: number, payload: SendDmDto)
+	{
+		await this.prisma.directMessage.update({
+			where: {
+				id: +msgId,
+			},
+			data: {
+				text: payload.content,
+			}
+		});
 	}
 
 	private async getUserId(login: string): Promise<number>
