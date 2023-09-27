@@ -5,11 +5,22 @@ server {
       proxy_pass http://react:5173;
     }
 
-    location /api {
-      proxy_pass http://nest:3000;
+    location = /prisma {
+    return 302 /prisma/;
     }
 
     location /prisma {
-      proxy_pass http://nest:5555;
+      proxy_pass http://nest:5555/; # note the trailing slash here, it matters!
     }
+
+    location = /api {
+    return 302 /api/;
+    }
+
+    location /api/ {
+        proxy_pass http://nest:3000/;  # note the trailing slash here, it matters!
+    }
+
+    # source for the trailing / and this weird redirection thing 
+    # https://copyprogramming.com/howto/how-to-remove-the-path-with-an-nginx-proxy-pass
 }
