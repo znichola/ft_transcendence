@@ -12,15 +12,15 @@ async function bootstrap() {
     .setTitle('Transcending Backend')
     .setDescription('API for ft_transcendance project')
     .setVersion('1.0')
-    .addServer('http://localhost:3000', 'Local environment')
+    .addServer('/api/', 'Local environment')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('doc', app, document);
   
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:5173', "https://api.intra.42.fr"],
+    origin: ['http://localhost:8080', "https://api.intra.42.fr"],
     credentials: true,
     allowedHeaders: 'Content-Type, Authorization, Cookie',
     methods: 'GET,PUT,POST,DELETE',

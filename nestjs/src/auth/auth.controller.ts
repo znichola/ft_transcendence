@@ -33,7 +33,7 @@ export class AuthController {
         client_id: process.env.API_CLIENT_ID,
         client_secret: process.env.API_CLIENT_SECRET,
         code: code,
-        redirect_uri: 'http://localhost:5173/auth',
+        redirect_uri: 'http://localhost:8080/auth',
         state: 'abc', //Dont be dumb and use the correct state value for real project.
       });
       if (!test) {
@@ -68,7 +68,7 @@ export class AuthController {
       });
 
       const redirect = '/ranking';
-      return res.status(200).send({ user, redirect });
+      return res.status(302).send({ user, redirect });
     } catch (error) {
       console.log(error);
     }

@@ -1,23 +1,28 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserData } from 'src/interfaces';
 import { AuthGuard } from './auth.guard';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserStatus } from '@prisma/client';
 
+const prisma: PrismaService = new PrismaService();
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
   async signInUser(login: string, defaultName: string, avatar: string): Promise<UserData> {
     console.log(`JWT_SECRET: ${process.env.JWT_SECRET}`);
-    const user = await this.userService.registerUser(
-      login,
-      defaultName,
-      avatar,
-    );
+    const user = await prisma.user.upsert({
+      where: { login42: login },
+      create: {
+        login42: login,
+        name: defaultName,
+        avatar: avatar,
+      },
+      update: { status: UserStatus.ONLINE },
+    });
     return user;
   }
 
