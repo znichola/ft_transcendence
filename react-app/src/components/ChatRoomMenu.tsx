@@ -106,18 +106,21 @@ function ButtonGeneric({
 }
 
 function ManageUsersUI({ channelUsers }: { channelUsers: chatRoomUser[] }) {
+
+  const [searchValue, setSearchvalue] = useState("");
+
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
-  console.log(channelUsers);
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
-            <UserSearch />
+            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)}/>
           </div>
         </div>
         {channelUsers.map((u) => (
-          <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
+          u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? //Ajouter la comparaison avec le nom du User
+          <ManageUserCard key={u.login42} login42={u.login42} role={u.role} /> : <></>
         ))}
       </ul>
     </>
@@ -130,7 +133,7 @@ function AddUsersUI({ allUsers }: { allUsers: string[] }) {
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
-            <UserSearch />
+            <UserSearch setSearchValue={(v) => alert("Not implemented: " + v)}/>
           </div>
         </div>
         {allUsers.map((u) => (
@@ -151,7 +154,8 @@ function SettingsButtonUI() {
   );
 }
 
-function UserSearch() {
+// here!
+function UserSearch({ setSearchValue }: { setSearchValue: (v: string) => void}) {
   return (
     <>
       <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
@@ -160,6 +164,7 @@ function UserSearch() {
             className="focus: w-full outline-none  focus:border-none focus:ring-0"
             type="search"
             placeholder="search channel users"
+            onChange={(e) => setSearchValue(e.currentTarget.value)}
           />
           <div className="border-l border-slate-300">
             <button className="flex h-full w-10 items-center justify-center  text-slate-300">
@@ -246,11 +251,10 @@ function AdminButton({
   if (cardRole === "ADMIN") {
     return (
       <IconCheckBadge
-        className={`h-5 w-5 align-middle text-amber-400 ${
-          canModify
-            ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
-            : ""
-        }`}
+        className={`h-5 w-5 align-middle text-amber-400 ${canModify
+          ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
+          : ""
+          }`}
       />
     );
   }
@@ -258,11 +262,10 @@ function AdminButton({
     if (userRole === "MEMBER") return <div className="h-5 w-5 " />;
     return (
       <IconCheckBadge
-        className={`h-5 w-5 align-middle text-slate-200 ${
-          canModify
-            ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
-            : ""
-        }`}
+        className={`h-5 w-5 align-middle text-slate-200 ${canModify
+          ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
+          : ""
+          }`}
       />
     );
   }
