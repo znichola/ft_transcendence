@@ -1,7 +1,7 @@
-import { IsInt } from "class-validator";
+import { IsString } from "class-validator";
 
 export class UpdateOwnerDto
 {
-	@IsInt()
-	ownerId: number;
+	@IsString()
+	ownerUsername: string;
 }

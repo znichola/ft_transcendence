@@ -8,6 +8,9 @@ import { UpdateVisibilityDto } from './dto/update-visibility-dto';
 import { UpdateOwnerDto } from './dto/update-owner-dto';
 import { SendMessageDto } from './dto/send-message-dto';
 import { UpdateMessageDto } from './dto/update-message-dto';
+import { ChatroomEntity } from './entities/chatroom.entity';
+import { MessageEntity } from './entities/message.entity';
+import { MemberEntity } from './entities/member.entity';
 
 @Controller('chat')
 export class ChatController
@@ -15,7 +18,7 @@ export class ChatController
 	constructor(private readonly chatService: ChatService) {}
 
 	@Get()
-	async getAllChatRooms(): Promise<Chatroom[]>
+	async getAllChatRooms(): Promise<ChatroomEntity[]>
 	{
 		return await this.chatService.getAllChatRooms();
 	}
@@ -28,7 +31,7 @@ export class ChatController
 	}
 
 	@Get(':id')
-	async getOneChatRoom(@Param('id') id: number): Promise<Chatroom>
+	async getOneChatRoom(@Param('id') id: number): Promise<ChatroomEntity>
 	{
 		return await this.chatService.getOneChatRoom(id);
 	}
@@ -40,13 +43,13 @@ export class ChatController
 	}
 
 	@Get(':id/messages')
-	async getAllMessages(@Param('id') id: number)
+	async getAllMessages(@Param('id') id: number): Promise<MessageEntity[]>
 	{
 		return await this.chatService.getAllMessagesFromChatroom(id);
 	}
 
 	@Get(':id/messages/:msgId')
-	async getOneMessage(@Param('id') id: number, @Param('msgId') msgId: number)
+	async getOneMessage(@Param('id') id: number, @Param('msgId') msgId: number): Promise<MessageEntity>
 	{
 		return await this.chatService.getOneMessageFromChatroom(id, msgId);
 	}
@@ -55,7 +58,7 @@ export class ChatController
 	@UsePipes(ValidationPipe)
 	async sendMessage(@Param('id') chatroomId: number, @Body() payload: SendMessageDto)
 	{
-		await this.chatService.sendMessageToChatroom(chatroomId, payload.from, payload.content);
+		await this.chatService.sendMessageToChatroom(chatroomId, payload.senderUsername, payload.content);
 	}
 
 	@Put(':id/messages/:msgId')
@@ -86,7 +89,7 @@ export class ChatController
 	}
 
 	@Get(':id/members')
-	async getMembersOfChatRoom(@Param('id') id: number): Promise<ChatroomUser[]>
+	async getMembersOfChatRoom(@Param('id') id: number): Promise<MemberEntity[]>
 	{
 		return await this.chatService.getMembersOfChatRoom(id);
 	}
@@ -98,22 +101,22 @@ export class ChatController
 		await this.chatService.addMemberToChatRoom(id, addMemberDto);
 	}
 
-	@Get(':id/members/:memberId')
-	async getOneMemberFromChatroom(@Param('id') chatroomId: number, @Param('memberId') memberId: number): Promise<ChatroomUser>
+	@Get(':id/members/:username')
+	async getOneMemberFromChatroom(@Param('id') chatroomId: number, @Param('username') username: string): Promise<MemberEntity>
 	{
-		return await this.chatService.getOneMemberFromChatroom(chatroomId, memberId);
+		return await this.chatService.getOneMemberFromChatroom(chatroomId, username);
 	}
 
-	@Delete(':id/members/:memberId')
-	async deleteMemberFromChatRoom(@Param('id') chatroomId: number, @Param('memberId') memberId: number)
+	@Delete(':id/members/:username')
+	async deleteMemberFromChatRoom(@Param('id') chatroomId: number, @Param('username') username: string)
 	{
-		await this.chatService.deleteMemberFromChatRoom(chatroomId, memberId);
+		await this.chatService.deleteMemberFromChatRoom(chatroomId, username);
 	}
 
-	@Patch(':id/members/:memberId/role')
+	@Patch(':id/members/:username/role')
 	@UsePipes(ValidationPipe)
-	async updateMemberFromChatroom(@Param('id') chatroomId: number, @Param('memberId') memberId: number, @Body() patch: UpdateRoleDto)
+	async updateMemberFromChatroom(@Param('id') chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto)
 	{
-		await this.chatService.updateRoleOfMemberFromChatroom(chatroomId, memberId, patch);
+		await this.chatService.updateRoleOfMemberFromChatroom(chatroomId, username, patch);
 	}
 }
