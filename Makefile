@@ -17,7 +17,7 @@ re : fclean up
 ip :
 	@docker ps -q | xargs -I{} docker inspect -f '{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {}
 
-CN = nest react postgress
+CN = nest react postgress nginx
 
 $(CN) :
 	docker exec -it $@ /bin/bash

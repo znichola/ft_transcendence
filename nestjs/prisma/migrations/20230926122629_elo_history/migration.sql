@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "eloHistory" INTEGER[] DEFAULT ARRAY[1500]::INTEGER[];

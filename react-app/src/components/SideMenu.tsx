@@ -4,7 +4,6 @@ import {
   IconDownChevron,
   IconGroupChatBubble,
   IconHomeComputer,
-  IconNewspaper,
   IconPeople,
   IconUser,
   IconAddPulse,
@@ -16,6 +15,7 @@ import {
   IconBrain,
   IconFire,
   IconFingerPrint,
+  IconGit,
 } from "./Icons";
 import axios from "axios";
 import { UserData } from "../interfaces";
@@ -27,13 +27,11 @@ import ProfileElo from "./ProfileElo.tsx";
 import { getCurrentUser } from "../Api-axios.tsx";
 
 export default function SideMenu() {
-  const { data: cu, isError: noUser } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
+    initialData: "default42",
   });
-  let user: string | undefined = "default42";
-  if (!noUser) user = cu;
-  if (user == undefined || user == null) user = "default42";
 
   const {
     data: currentUserData,
@@ -49,63 +47,66 @@ export default function SideMenu() {
   if (isError) return <p>Error fethcing data</p>;
 
   return (
-    <div className="h-screen w-80">
-      <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden rounded-br-lg rounded-tr-lg bg-white pt-5 shadow-md">
-        <CurrentUserStats />
-        <div className="h-8" />
-        <CurrentUserEloStats />
-        <div className="mt-3 flex flex-1 flex-col">
-          <div className="">
-            <Category name="User" />
-            <NavHighlight
-              name="Play a game of Pong"
-              to="/play"
-              icon={IconHomeComputer}
-            />
-            <Nav name="My Profile" to={"/user/" + user} icon={IconUser} />
-            <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
-            <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
-            <Category name="Social" />
-            <NavExpandable name="Messages" icon={IconGroupChatBubble}>
-              <Nav
-                name="Start a new conversation"
-                to="/message"
-                icon={IconAddPulse}
-              />
-              <Nav name="Funky Dude 42" icon={IconUser} />
-              <Nav name="😎 Cool Gal 69" icon={IconUser} />
-            </NavExpandable>
-            <NavExpandable name="Chat Channels" icon={IconUserGroup}>
-              <Nav
-                name="Start and new chatroom"
-                to="/chatroom"
-                icon={IconAddPulse}
-              />
-              <Nav name="Only 1337 pongers" icon={IconBashShell} />
-              <Nav name="Noobish helpdesk" icon={IconBashShell} />
-            </NavExpandable>
-            <NavExpandable name="Friends" icon={IconPeople}>
-              <Nav name="Find new friends" to="friend" icon={IconAddPulse} />
-              <NavFriends currentUser={currentUserData} />
-            </NavExpandable>
-
-            <Category name="Temporay links for dev" />
-            <Nav name="auth" to="/auth" icon={IconFingerPrint} />
-            <Nav name="login" to="/login" icon={IconFire} />
-
-            <Category name="External Links" />
-            <Nav name="Dev log" to="/ttt" icon={IconNewspaper} />
-            <Nav name="Hart on github" icon={IconHeart} />
+    <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden bg-white pt-5 ">
+      <CurrentUserStats />
+      <div className="h-8" />
+      <CurrentUserEloStats user={currentUserData}/>
+      <div className="mt-3 flex flex-1 flex-col">
+        <div className="">
+          <Category name="User" />
+          <NavHighlight
+            name="Play a game of Pong"
+            to="/play"
+            icon={IconHomeComputer}
+          />
+          <Nav name="My Profile" to={"/user/" + user} icon={IconUser} />
+          <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
+          <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
+          <Category name="Social" />
+          <NavExpandable name="Messages" icon={IconGroupChatBubble}>
             <Nav
-              name="Complain about ... the css"
-              to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              icon={IconBolt}
+              name="Start a new conversation"
+              to="/message"
+              icon={IconAddPulse}
             />
-          </div>
+            <Nav name="Funky Dude 42" icon={IconUser} />
+            <Nav name="😎 Cool Gal 69" icon={IconUser} />
+          </NavExpandable>
+          <NavExpandable name="Chat Channels" icon={IconUserGroup}>
+            <Nav
+              name="Start and new chatroom"
+              to="/chatroom"
+              icon={IconAddPulse}
+            />
+            <Nav name="Only 1337 pongers" icon={IconBashShell} />
+            <Nav name="Noobish helpdesk" icon={IconBashShell} />
+          </NavExpandable>
+          <NavExpandable name="Friends" icon={IconPeople}>
+            <Nav name="Find new friends" to="friend" icon={IconAddPulse} />
+            <NavFriends currentUser={currentUserData} />
+          </NavExpandable>
 
-          <TheMasterminds />
-          <div className="h-4" />
+          <Category name="Temporay links for dev" />
+          <Nav name="auth" to="/auth" icon={IconFingerPrint} />
+          <Nav name="login" to="/login" icon={IconFire} />
+          <Nav name="chat test" to="/chat/123" icon={IconGroupChatBubble} />
+
+          <Category name="External Links" />
+          <Nav
+            name="Git repo"
+            to="https://github.com/znichola/ft_transcendence_test"
+            icon={IconGit}
+          />
+          <Nav name="Hart on github" icon={IconHeart} />
+          <Nav
+            name="Complain about ... the css"
+            to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            icon={IconBolt}
+          />
         </div>
+
+        <TheMasterminds />
+        <div className="h-4" />
       </div>
     </div>
   );
@@ -164,7 +165,7 @@ export function NavHighlight({
     <nav className="flex-1 px-1">
       <Link
         to={to || "#"}
-        className="bg-size-200 flex cursor-pointer items-center rounded-md bg-gradient-to-tl from-fuchsia-600 via-orange-500 to-purple-600 px-4 py-2 text-sm font-medium text-slate-100 shadow-md outline-none transition-all duration-100 ease-in-out hover:bg-right-bottom focus:bg-right-bottom"
+        className="flex cursor-pointer items-center rounded-md bg-gradient-to-tl from-fuchsia-600 via-orange-500 to-purple-600 bg-size-200 px-4 py-2 text-sm font-medium text-slate-100 shadow-md outline-none transition-all duration-100 ease-in-out hover:bg-right-bottom focus:bg-right-bottom"
       >
         {Icon && <Icon />}
         <p className="py-1 pl-4">{name}</p>
@@ -214,13 +215,11 @@ function NavExpandable({
 }
 
 function CurrentUserStats() {
-  const { data: cu, isError: noUser } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
+    initialData: "default42",
   });
-  let user: string | undefined = "default42";
-  if (!noUser) user = cu;
-  if (user == undefined || user == null) user = "default42";
 
   const {
     data: currentUserData,
@@ -253,12 +252,12 @@ function CurrentUserStats() {
   );
 }
 
-function CurrentUserEloStats() {
+function CurrentUserEloStats({user} : {user: UserData}) {
   return (
     <>
       <div className="flex justify-center p-2">
         <div className="h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-          <ProfileElo data={[1201, 1190, 991, 1249, 1176, 1298, 1495, 1587]} />
+          <ProfileElo data={user.eloHistory.slice(-20)} />
         </div>
       </div>
     </>

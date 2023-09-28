@@ -1,22 +1,51 @@
 import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
-import {  } from "./AllUsers";
+import {} from "./AllUsers";
 import { UserData } from "../interfaces";
 import { useState } from "react";
 import UserInfoCard from "../components/UserInfoCard";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { LoadingSpinnerMessage } from "../components/Loading";
 
 const FilterMenu = function () {
   const [name_filter, changeNameFilter] = useState("");
   const [state_filter, changeOnlineFilter] = useState("NONE");
 
-  const Filter = ({ user }: { user: UserData }) => {
-    if (state_filter != "NONE" && !(user.status == state_filter)) return <></>;
+  const Filter = ({
+    cardUser,
+    currentUser,
+  }: {
+    cardUser: string;
+    currentUser: string;
+  }) => {
+    console.log(currentUser, "current user filter function");
+    const {
+      data: cardUserData,
+      isLoading,
+      isError,
+    } = useQuery({
+      queryKey: ["UserData", cardUser],
+      queryFn: () =>
+        axios.get<UserData>("/user/" + cardUser).then((res) => res.data),
+    });
+    if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
+    if (isError) return <div>Error loading profile</div>;
+
+    if (state_filter != "NONE" && !(cardUserData.status == state_filter))
+      return <></>;
     if (
-      user.login42.toLowerCase().startsWith(name_filter) ||
-      user.name.toLowerCase().startsWith(name_filter)
+      cardUserData.login42.toLowerCase().startsWith(name_filter) ||
+      cardUserData.name.toLowerCase().startsWith(name_filter)
     )
-      return <UserInfoCard user={user} key={user.login42} />;
+      return (
+        <UserInfoCard
+          cardUser={cardUserData}
+          currentUser={currentUser}
+          key={cardUserData.login42}
+        />
+      );
     return <></>;
   };
 
@@ -25,50 +54,71 @@ const FilterMenu = function () {
   }
 
   function handleOnlineChange() {
-		if (state_filter == "ONLINE") {
-			changeOnlineFilter("NONE");
-		}
-		else {
-			changeOnlineFilter("ONLINE");
-		}
+    if (state_filter == "ONLINE") {
+      changeOnlineFilter("NONE");
+    } else {
+      changeOnlineFilter("ONLINE");
+    }
   }
 
   function handleOfflineChange() {
     if (state_filter == "OFFLINE") {
-			changeOnlineFilter("NONE");
-		}
-		else {
-			changeOnlineFilter("OFFLINE");
-		}
+      changeOnlineFilter("NONE");
+    } else {
+      changeOnlineFilter("OFFLINE");
+    }
   }
 
   function handleInGameChange() {
     if (state_filter == "INGAME") {
-			changeOnlineFilter("NONE");
-		}
-		else {
-			changeOnlineFilter("INGAME");
-		}
+      changeOnlineFilter("NONE");
+    } else {
+      changeOnlineFilter("INGAME");
+    }
   }
 
-	function RadioStateButton({text, handler, state}) {
-		return(
-			<div className="flex min-h-[2rem] items-center gap-1">
-          <input id={text} checked={state_filter == state} type="radio" name="State" className=" hidden peer"/>
-          <label onClick={handler} htmlFor={text} className="flex min-h-full items-center justify-center w-20 bg-slate-50 rounded-md cursor-pointer border peer-checked:border-blue-500">{text}</label>
+  function RadioStateButton({ text, handler, state }) {
+    return (
+      <div className="flex min-h-[2rem] items-center gap-1">
+        <input
+          id={text}
+          checked={state_filter == state}
+          type="radio"
+          name="State"
+          className=" peer hidden"
+        />
+        <label
+          onClick={handler}
+          htmlFor={text}
+          className="flex min-h-full w-20 cursor-pointer items-center justify-center rounded-md border bg-slate-50 peer-checked:border-blue-500"
+        >
+          {text}
+        </label>
       </div>
-		);
-	}
+    );
+  }
 
   const RadioState = () => {
     return (
       <div className="flex max-h-[2rem] gap-2">
-        <RadioStateButton text="online" handler={handleOnlineChange} state={'ONLINE'}/>
-        <RadioStateButton text="offline" handler={handleOfflineChange} state={'OFFLINE'}/>
-        <RadioStateButton text="in-game" handler={handleInGameChange} state={"INGAME"}/>
+        <RadioStateButton
+          text="online"
+          handler={handleOnlineChange}
+          state={"ONLINE"}
+        />
+        <RadioStateButton
+          text="offline"
+          handler={handleOfflineChange}
+          state={"OFFLINE"}
+        />
+        <RadioStateButton
+          text="in-game"
+          handler={handleInGameChange}
+          state={"INGAME"}
+        />
       </div>
     );
-  }
+  };
 
   return {
     Obj: (
@@ -99,10 +149,10 @@ const FilterMenu = function () {
         </label>
         <IconDownChevron className="pointer-events-none h-4 translate-x-[-6rem] translate-y-[-1.22rem] px-1 transition peer-checked:rotate-90" />
         <div className="relative flex max-h-0 min-w-full flex-col overflow-y-auto px-5 peer-checked:max-h-20">
-					<RadioState />
-					<div className="flex items-center gap-1">
-						friend with me
-						<input type="checkbox" />
+          <RadioState />
+          <div className="flex items-center gap-1">
+            friend with me
+            <input type="checkbox" />
           </div>
           <div className="flex min-w-full gap-5">
             <p className="">elo rank range</p>

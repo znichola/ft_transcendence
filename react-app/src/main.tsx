@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = "/api/";
 axios.defaults.withCredentials = true
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
 // axios.defaults.headers.post["Content-Type"] =
@@ -17,7 +17,6 @@ import Root from "./routes/Root.tsx";
 import Contact from "./routes/UserPage.tsx";
 import Test from "./test-files-and-tmp-stuff/Test.tsx";
 import Auth from "./routes/Auth.tsx";
-import AllUsers from "./routes/AllUsers.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
 import PlayPong from "./routes/PlayPong.tsx";
@@ -26,6 +25,9 @@ import AddNewChatRoom from "./routes/AddNewChatRoom.tsx";
 import AddNewChat from "./routes/AddNewChat.tsx";
 import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
+import DirectMessage from "./routes/DirectMessage.tsx";
+import PongDuel from "./routes/PongDuel.tsx";
+import ChatRoom from "./routes/ChatRoom.tsx";
 // import Login from "./routes/Foo.tsx";
 
 const router = createBrowserRouter([
@@ -43,12 +45,12 @@ const router = createBrowserRouter([
         element: <Contact />,
       },
       {
-        path: "/users",
-        element: <AllUsers />,
-      },
-      {
         path: "/pong",
         element: <PongFeed />,
+      },
+      {
+        path: "/pong/:player1_login42/vs/:player2_login42",
+        element: <PongDuel />,
       },
       {
         path: "/ranking",
@@ -59,8 +61,16 @@ const router = createBrowserRouter([
         element: <AddNewChat />,
       },
       {
+        path: "/message/:login42",
+        element: <DirectMessage />,
+      },
+      {
         path: "/chatroom",
         element: <AddNewChatRoom />,
+      },
+      {
+        path: "/chat/:id",
+        element: <ChatRoom />,
       },
       {
         path: "/friend",
@@ -81,8 +91,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <Login />
-      }
+        element: <Login />,
+      },
     ],
   },
 ]);

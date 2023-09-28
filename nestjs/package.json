@@ -29,6 +29,7 @@
     "@nestjs/jwt": "^10.1.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.2.5",
+    "@nestjs/swagger": "^7.1.12",
     "@prisma/client": "^5.3.1",
     "axios": "^1.5.0",
     "cookie-parser": "^1.4.6",
@@ -37,7 +38,8 @@
     "class-validator": "^0.14.0",
     "password-validator": "^5.3.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.1.0",
