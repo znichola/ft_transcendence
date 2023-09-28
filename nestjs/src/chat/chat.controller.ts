@@ -11,12 +11,15 @@ import { UpdateMessageDto } from './dto/update-message-dto';
 import { ChatroomEntity } from './entities/chatroom.entity';
 import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Chatrooms")
 @Controller('chat')
 export class ChatController
 {
 	constructor(private readonly chatService: ChatService) {}
 
+	@ApiTags("Chatrooms")
 	@Get()
 	async getAllChatRooms(): Promise<ChatroomEntity[]>
 	{
@@ -74,14 +77,14 @@ export class ChatController
 		await this.chatService.deleteMessageFromChatroom(msgId);
 	}
 
-	@Patch(':id/visibility')
+	@Put(':id/visibility')
 	@UsePipes(ValidationPipe)
 	async updateChatroomVisibility(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateVisibilityDto)
 	{
 		await this.chatService.updateChatroomVisibility(id, patch);
 	}
 
-	@Patch(":id/owner")
+	@Put(":id/owner")
 	@UsePipes(ValidationPipe)
 	async updateChatroomOwner(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateOwnerDto)
 	{
@@ -113,7 +116,7 @@ export class ChatController
 		await this.chatService.deleteMemberFromChatRoom(chatroomId, username);
 	}
 
-	@Patch(':id/members/:username/role')
+	@Put(':id/members/:username/role')
 	@UsePipes(ValidationPipe)
 	async updateMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto)
 	{

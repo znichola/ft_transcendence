@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity } from './entities/conversation.entity';
 import { MessageEntity } from './entities/message.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Direct Messages")
 @Controller('conversations')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
@@ -52,7 +54,7 @@ export class DmController {
 		return this.dmService.deleteMessage(msgId);
 	}
 
-	@Patch(':user1/:user2/messages/:msgId')
+	@Put(':user1/:user2/messages/:msgId')
 	@UsePipes(ValidationPipe)
 	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: SendDmDto)
 	{
