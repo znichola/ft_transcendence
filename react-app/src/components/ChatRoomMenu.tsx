@@ -14,7 +14,8 @@ import {
 import axios from "axios";
 import { LoadingSpinnerMessage } from "./Loading";
 import { Form } from "react-router-dom";
-import { useState } from "react";
+import { RefObject, useState } from "react";
+import { useRef, useEffect } from "react";
 
 type btnStateType = "USERS" | "SETTINGS" | "ADDUSER" | "UNSET";
 type chatRoomUser = {
@@ -26,8 +27,30 @@ type chatRoomUser = {
 export default function ChatRoomMenu() {
   const [buttonState, setButtonState] = useState<btnStateType>("UNSET");
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOutsideAlerter(wrapperRef);
+
+  function useOutsideAlerter(ref: RefObject<HTMLDivElement>) {
+    useEffect(() => {
+      /**
+       * Alert if clicked on outside of element
+       */
+      function handleClickOutside(event: MouseEvent) {
+        if (ref.current && (!(event.target instanceof Node) || !ref.current.contains(event.target))) {
+            setButtonState("UNSET");
+        }
+      }
+      // Bind the event listener
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        // Unbind the event listener on clean up
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  }
+
   return (
-    <div className="px-3 pt-3">
+    <div ref={wrapperRef} className="px-3 pt-3">
       <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
         <h1 className="text-spate-400 text-4xl font-semibold">
           Noobish Helpdesk

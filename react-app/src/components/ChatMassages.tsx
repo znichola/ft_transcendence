@@ -6,7 +6,7 @@ import { Nav } from "./SideMenu.tsx";
 import { getCurrentUser } from "../Api-axios.tsx";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Component, useState } from "react";
+import { Component, useRef, useState } from "react";
 
 
 const messages = ["Lundi", "Mardi", "Mercredi"];
@@ -28,7 +28,7 @@ function statusColor(status: UserData["status"]) {
 
 function Message({sender, text, left}:{sender: UserData, text: string, left: boolean}) {
   return (
-    <div className={`flex gap-5 ${left ? "text-left" : "flex-row-reverse" }`}>
+    <div className={`flex gap-5 ${left ? "text-left" : "flex-row-reverse" } `}>
       <img
         className={
           "min-w-[5rem] w-20 h-20 rounded-full ring-2" + " " + statusColor(sender.status)
@@ -36,7 +36,7 @@ function Message({sender, text, left}:{sender: UserData, text: string, left: boo
         src={sender.avatar}
         alt={sender.login42 || "undefined" + " profile image"}
       />
-      <p className="break-words shadow-md bg-white rounded-xl p-3 whitespace-pre-line pt-6 px-3 min-w-0">
+      <p className="break-words shadow bg-white rounded-xl p-3 whitespace-pre-line pt-6 px-3 min-w-0">
         {text}
       </p>
     </div>
@@ -102,8 +102,9 @@ export default function ChatMessages() {
         }
       </div>
       <div className="h-32 w-full px-20">
-        <form className="flex justify-center w-full" onSubmit={handleSubmit} onKeyDown={handlerOnEnter}>
-          <textarea className="rounded-lg px-5 h-10 w-full max-w-[50rem]" placeholder="Enter a message..." value={inputValue} onChange={handleChange}/>
+        <form className="flex justify-center h-full w-full" onSubmit={handleSubmit} onKeyDown={handlerOnEnter}>
+          <textarea className={`rounded-full w-full px-5 ${inputValue.length < 85 ? "pt-2" : "pt-3"} transition-all duration-700 resize-none`}
+          style={{maxWidth: inputValue.length < 50 ? "25rem" : "40rem", maxHeight: inputValue.length < 80 ? "2.5rem" : "5rem"}} placeholder="Enter a message..." value={inputValue} onChange={handleChange}/>
         </form>
       </div>
     </div>
