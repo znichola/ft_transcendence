@@ -1,6 +1,6 @@
-import { IconAddUser } from "./Icons";
+import { IconAddUser, IconUser } from "./Icons";
 
-type friendStatus =
+export type friendStatus =
   | "none"
   | "friends"
   | "sent"
@@ -58,20 +58,20 @@ export default function FriendActionsBTN({ status }: { status: friendStatus }) {
 
   switch (status) {
     case "none":
-      return <FB text={friActions[status] as string} onClick={addFriend}/>
+      return <FB status={status} btnClick={addFriend} />;
     case "friends":
-      return <FB text={friActions[status] as string} onClick={unFriend} />;
+      return <FB status={status} btnClick={unFriend} />;
     case "sent":
-      return <FB text={friActions[status] as string} onClick={unFriend} />;
+      return <FB status={status} btnClick={unFriend} />;
     case "pending":
       return (
         <>
-          <FB text={(friActions[status] as action).accept} onClick={accpept} />
-          <FB text={(friActions[status] as action).reject} onClick={reject} />
+          <FB status={status} btnClick={accpept} />
+          <FB status={status} btnClick={reject} />
         </>
       );
     case "blocked":
-      return <FB state={status} onClick={block} />;
+      return <FB status={status} btnClick={block} />;
     case "loading":
       return <div>{friendStatusMessage[status]}</div>;
     case "error":
@@ -81,51 +81,68 @@ export default function FriendActionsBTN({ status }: { status: friendStatus }) {
   }
 }
 
-function FB({state}: {state: string; onClick: () => void }) {
+function FB({
+  status,
+  btnClick,
+}: {
+  status: friendStatus;
+  btnClick: () => void;
+}) {
   return (
     <button
       className="felx-col group relative flex w-12 flex-1 items-center justify-end"
-      onClick={onClick}
+      onClick={btnClick}
     >
       {/* to test lated for removing this div */}
       <div className="absolute h-full grow p-1 pr-2 text-slate-300">
-        {<IconAddUser strokeWidth={2} />}
+        {status == "friends" ? (
+          <IconUser
+            className="h-5 w-5 align-middle text-rose-400"
+            strokeWidth={2}
+          />
+        ) : (
+          <IconAddUser strokeWidth={2} />
+        )}
       </div>
       <div
         className={`duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl  shadow-md transition-all group-hover:w-max group-hover:p-2 ${
-          isFriend
+          status == "friends"
             ? "from-amber-600 to-fuchsia-400"
             : "from-fuchsia-600 to-orange-500"
         } `}
-      ></div>
-      {text}
+      >
+        <span className="text-xs font-bold text-slate-50">
+          {friendStatusMessage[status] as string}
+        </span>
+      </div>
     </button>
   );
 }
 
-
-<button
-  className="felx-col group relative flex w-12 flex-1 items-center justify-end "
-  onClick={handleFriendClick}
->
-  <div className="absolute h-full grow p-1 pr-2 text-slate-300">
-    {<IconAddUser strokeWidth={2} />}
-  </div>
-  <div
-    className={`duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl  shadow-md transition-all group-hover:w-max group-hover:p-2 ${
-      isFriend
-        ? "from-amber-600 to-fuchsia-400"
-        : "from-fuchsia-600 to-orange-500"
-    } `}
-  >
-    <span className="text-xs font-bold text-slate-50">
-      {isFriend
-        ? "already freinds"
-        : isPending
-        ? "accept friend request"
-        : isRequensted
-        ? "already set freind request"
-        : "add freind"}
-    </span>
-  </div>
-</button>;
+//  <button
+//    className="felx-col group relative flex w-12 flex-1 items-center justify-end"
+//    onClick={btnClick}
+//  >
+//    {/* to test lated for removing this div */}
+//    <div className="absolute h-full grow p-1 pr-2 text-slate-300">
+//      {status == "friends" ? (
+//        <IconUser
+//          className="h-5 w-5 align-middle text-rose-400"
+//          strokeWidth={2}
+//        />
+//      ) : (
+//        <IconAddUser strokeWidth={2} />
+//      )}
+//    </div>
+//    <div
+//      className={`duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl  shadow-md transition-all group-hover:w-max group-hover:p-2 ${
+//        status == "friends"
+//          ? "from-amber-600 to-fuchsia-400"
+//          : "from-fuchsia-600 to-orange-500"
+//      } `}
+//    >
+//      <span className="text-xs font-bold text-slate-50">
+//        {friendStatusMessage[status] as string}
+//      </span>
+//    </div>
+//  </button>;

@@ -38,7 +38,7 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
 
   const _posts = data?.pages.flatMap((p) => p);
 
-  const ref = useRef();
+  const ref = useRef(null);
   const inViewport = useIntersection(ref, "0px");
 
   if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
@@ -66,7 +66,7 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
         ))}
       </div>
       <button
-        ref={ref} // no iead why it's giving me this error but still works, for later
+        ref={ref}
         onClick={() => fetchNextPage()}
         disabled={isFetchingNextPage}
       >

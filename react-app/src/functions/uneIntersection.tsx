@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export const useIntersection = (
-  element: React.MutableRefObject<undefined>,
+  element: React.MutableRefObject<null>,
   rootMargin: string,
 ): boolean => {
   const [isVisible, setState] = useState(false);

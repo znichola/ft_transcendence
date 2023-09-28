@@ -2,16 +2,8 @@ import { Link } from "react-router-dom";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
-import FriendActionsBTN from "./TestFriendButton";
+import FriendActionsBTN from "./InfoCardFriends";
 
-type friendStatus =
-  | "none"
-  | "friends"
-  | "sent"
-  | "pending"
-  | "blocked"
-  | "loading"
-  | "error";
 
 export default function UserInfoCard({
   cardUser,
@@ -22,6 +14,14 @@ export default function UserInfoCard({
   currentUser: string;
   userFriends: UserFriends;
 }) {
+  const ff = (f: FriendData) => f.login42 == cardUser.login42;
+  const relationStatus = userFriends.friends.find(ff)
+    ? "friends"
+    : userFriends.pending.find(ff)
+    ? "sent"
+    : userFriends.requests.find(ff)
+    ? "pending"
+    : "none";
   return (
     <div className="m-4 flex h-28 w-[430px] max-w-md justify-between bg-white shadow ">
       <div className="flex">
@@ -45,17 +45,7 @@ export default function UserInfoCard({
           cardUser={cardUser}
           friends={userFriends}
         /> */}
-        <FriendActionsBTN
-          status={
-            userFriends.friends.find((f: FriendData) => f.login42 == cardUser.login42)
-              ? "friends"
-              : userFriends.pending.find((f: FriendData) => f.login42 == cardUser.login42)
-              ? "sent"
-              : userFriends.requests.find((f: FriendData) => f.login42 == cardUser.login42)
-              ? "pending"
-              : "none"
-          }
-        />
+        <FriendActionsBTN status={relationStatus} />
       </div>
     </div>
   );
@@ -129,20 +119,6 @@ function SideButton({
   );
 }
 
-type friendStatusMessage = {
-  [key in friendStatus]: string;
-};
-
-const friendStatusMessage: friendStatusMessage = {
-  none: "No relationship",
-  friends: "You are already friends",
-  sent: "You have sent a friend request",
-  pending: "Accept their freind request",
-  blocked: "This person has blocked you",
-  loading: "Loading ...",
-  error: "Error ...",
-};
-
 function SideButtonFriend({
   currentUser,
   cardUser,
@@ -152,7 +128,6 @@ function SideButtonFriend({
   cardUser: UserData;
   friends: UserFriends;
 }) {
-
   // const [friendStatus, setFriendStatus] = useState<friendStatus>("loading");
 
   // console.log(currentUser, "current user");
@@ -168,7 +143,6 @@ function SideButtonFriend({
 
   function handleFriendClick() {
     console.log("clicked add friend");
-    console.log(friendStatusMessage.friends);
   }
   return (
     <>
@@ -187,7 +161,7 @@ function SideButtonFriend({
           } `}
         >
           <span className="text-xs font-bold text-slate-50">
-            { isFriend
+            {isFriend
               ? "already freinds"
               : isPending
               ? "accept friend request"
@@ -200,18 +174,3 @@ function SideButtonFriend({
     </>
   );
 }
-
-// function FriendClickButton({
-//   currentUser,
-//   cardUser,
-//   friendStatus,
-// }: {
-//   currentUserLogin: string;
-//   cardUserLogin: string;
-// }) {
-//   return (
-//     <>
-//       <div></div>
-//     </>
-//   );
-// }
