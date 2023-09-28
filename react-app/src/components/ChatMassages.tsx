@@ -7,9 +7,7 @@ import { getCurrentUser } from "../Api-axios.tsx";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Component, useRef, useState } from "react";
-
-
-const messages = ["Lundi", "Mardi", "Mercredi"];
+import ChatRoomMenu from "./ChatRoomMenu.tsx";
 
 function statusColor(status: UserData["status"]) {
   switch (status) {
@@ -26,23 +24,36 @@ function statusColor(status: UserData["status"]) {
   }
 }
 
-function Message({sender, text, left}:{sender: UserData, text: string, left: boolean}) {
+function Message({
+  sender,
+  text,
+  left,
+}: {
+  sender: UserData;
+  text: string;
+  left: boolean;
+}) {
   return (
-    <div className={`flex gap-5 ${left ? "text-left" : "flex-row-reverse" } `}>
+    <div
+      className={`flex gap-5 ${
+        left ? "text-left" : "flex-row-reverse"
+      } max-w-prose`}
+    >
       <img
         className={
-          "min-w-[5rem] w-20 h-20 rounded-full ring-2" + " " + statusColor(sender.status)
+          "h-20 w-20 min-w-[5rem] rounded-full ring-2" +
+          " " +
+          statusColor(sender.status)
         }
         src={sender.avatar}
         alt={sender.login42 || "undefined" + " profile image"}
       />
-      <p className="break-words shadow bg-white rounded-xl p-3 whitespace-pre-line pt-6 px-3 min-w-0">
+      <p className="min-w-0 whitespace-pre-line break-words rounded-xl bg-white p-3 px-3 pt-6 shadow">
         {text}
       </p>
     </div>
   );
 }
-
 
 export class FakeUser implements UserData {
   id: number;
@@ -62,17 +73,15 @@ export class FakeUser implements UserData {
     this.login42 = "default42";
     this.name = "Defaultus";
     this.elo = 1500;
-    this.status = 'ONLINE';
+    this.status = "ONLINE";
     this.wins = 0;
     this.losses = 0;
-    this.avatar = "https://i.imgflip.com/2/aeztm.jpg"
-    this.bio = "My bio"
+    this.avatar = "https://i.imgflip.com/2/aeztm.jpg";
+    this.bio = "My bio";
   }
 }
 
-// Image en dehors des messages et glisses quand overflow
-
-export default function ChatMessages() {
+function NewMessageArea({messages, setMessages}) {
 
   const [inputValue, setInputValue] = useState("");
 
@@ -82,31 +91,60 @@ export default function ChatMessages() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    messages.push(inputValue);
+    setMessages([...messages, inputValue]); // Temporaire, uniquement pour les test
     setInputValue("");
   }
 
   function handlerOnEnter(event) {
-    if(event.keyCode == 13 && event.shiftKey == false) {
+    if (event.keyCode == 13 && event.shiftKey == false) {
       handleSubmit(event);
     }
   }
 
-  return(
-    <div className="flex flex-col flex-grow-0 w-full h-[85%] py-5">
-      <div className="flex flex-col w-full h-full text-slate-800 overflow-auto p-3 px-10 gap-6 text lg:text-xl font-light bg-stone-100 ">
-        {
-          messages.map((element, index) => {
-            return(<Message sender={new FakeUser} text={element} left={index%2==0} key={index}/>);
-          })
-        }
+  return (
+      <form
+        className="absolute flex justify-center w-full bottom-20 top-auto px-20"
+        onSubmit={handleSubmit}
+        onKeyDown={handlerOnEnter}
+      >
+        <textarea
+          className={`w-full rounded-full h-32 z-10 shadow-lg border-b-4 px-6 outline-none ${
+            inputValue.length < 85 ? "pt-2" : "pt-3"
+          } resize-none transition-all duration-700`}
+          style={{
+            maxWidth: inputValue.length < 50 ? "25rem" : "40rem",
+            maxHeight: inputValue.length < 80 ? "2.5rem" : "5rem",
+          }}
+          placeholder="Enter a message..."
+          value={inputValue}
+          onChange={handleChange}
+        />
+      </form>
+  );
+}
+
+// Image en dehors des messages et glisses quand overflow
+
+export default function ChatMessages() {
+
+  const [messages, setMessages] = useState(["Lundi", "Mardi", "Mercredi"]);
+
+  return (
+    <div className="relative flex h-full min-h-0 w-full max-h-full items-center flex-grow-0 flex-col">
+      <ChatRoomMenu />
+      <div className="text flex h-full w-full min-h-0 flex-col gap-6 overflow-auto bg-stone-100 p-3 px-10 font-light text-slate-800 lg:text-xl ">
+        {messages.map((element, index) => {
+          return (
+            <Message
+              sender={new FakeUser()}
+              text={element}
+              left={index % 2 == 0}
+              key={index}
+            />
+          );
+        })}
       </div>
-      <div className="h-32 w-full px-20">
-        <form className="flex justify-center h-full w-full" onSubmit={handleSubmit} onKeyDown={handlerOnEnter}>
-          <textarea className={`rounded-full w-full px-5 ${inputValue.length < 85 ? "pt-2" : "pt-3"} transition-all duration-700 resize-none`}
-          style={{maxWidth: inputValue.length < 50 ? "25rem" : "40rem", maxHeight: inputValue.length < 80 ? "2.5rem" : "5rem"}} placeholder="Enter a message..." value={inputValue} onChange={handleChange}/>
-        </form>
-      </div>
+      <NewMessageArea messages={messages} setMessages={setMessages}/>
     </div>
   );
 }

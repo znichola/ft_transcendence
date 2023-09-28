@@ -36,8 +36,12 @@ export default function ChatRoomMenu() {
        * Alert if clicked on outside of element
        */
       function handleClickOutside(event: MouseEvent) {
-        if (ref.current && (!(event.target instanceof Node) || !ref.current.contains(event.target))) {
-            setButtonState("UNSET");
+        if (
+          ref.current &&
+          (!(event.target instanceof Node) ||
+            !ref.current.contains(event.target))
+        ) {
+          setButtonState("UNSET");
         }
       }
       // Bind the event listener
@@ -50,13 +54,13 @@ export default function ChatRoomMenu() {
   }
 
   return (
-    <div ref={wrapperRef} className="px-3 pt-3">
-      <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-200 bg-stone-50 py-2 pt-6 shadow-lg">
-        <h1 className="text-spate-400 text-4xl font-semibold">
+    <div ref={wrapperRef} className="absolute top-0 w-full px-28 py-5">
+      <div className="absolute left-0 top-0 h-[160%] w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
+      <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-300 bg-stone-100 bg-size-200 pt-6 shadow-lg">
+        <h1 className="bg-gradient-to-br text-center from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-semibold text-transparent">
           Noobish Helpdesk
         </h1>
-        <div className="h-4 bg-green-400" />
-        <div className="flex gap-2">
+        <div className="flex h-16 max-h-16 pt-3 pb-2 gap-2 overflow-visible">
           <ButtonGeneric
             icon={IconUserGroup}
             onButtonClick={() =>
@@ -107,7 +111,7 @@ function ButtonGeneric({
   children?: JSX.Element[] | JSX.Element;
 }) {
   return (
-    <div className="flex">
+    <div>
       <input
         type="checkbox"
         checked={buttonState === checked}
@@ -115,7 +119,7 @@ function ButtonGeneric({
       />
       <button
         onClick={onButtonClick}
-        className="rounded-full border border-transparent hover:border hover:border-rose-400 hover:bg-rose-100 peer-checked:text-rose-500"
+        className="flex items-center justify-center rounded-full h-10 w-10 border-b-2 border-slate-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
       >
         <div className="flex h-8 w-8 items-center justify-center">
           <Icon />
@@ -129,7 +133,6 @@ function ButtonGeneric({
 }
 
 function ManageUsersUI({ channelUsers }: { channelUsers: chatRoomUser[] }) {
-
   const [searchValue, setSearchvalue] = useState("");
 
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
@@ -138,13 +141,16 @@ function ManageUsersUI({ channelUsers }: { channelUsers: chatRoomUser[] }) {
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
-            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)}/>
+            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
           </div>
         </div>
-        {channelUsers.map((u) => (
-          u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? //Ajouter la comparaison avec le nom du User
-          <ManageUserCard key={u.login42} login42={u.login42} role={u.role} /> : <></>
-        ))}
+        {channelUsers.map((u) =>
+          u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
+            <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
+          ) : (
+            <></>
+          ),
+        )}
       </ul>
     </>
   );
@@ -156,7 +162,9 @@ function AddUsersUI({ allUsers }: { allUsers: string[] }) {
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
-            <UserSearch setSearchValue={(v) => alert("Not implemented: " + v)}/>
+            <UserSearch
+              setSearchValue={(v) => alert("Not implemented: " + v)}
+            />
           </div>
         </div>
         {allUsers.map((u) => (
@@ -178,7 +186,11 @@ function SettingsButtonUI() {
 }
 
 // here!
-function UserSearch({ setSearchValue }: { setSearchValue: (v: string) => void}) {
+function UserSearch({
+  setSearchValue,
+}: {
+  setSearchValue: (v: string) => void;
+}) {
   return (
     <>
       <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
@@ -274,10 +286,11 @@ function AdminButton({
   if (cardRole === "ADMIN") {
     return (
       <IconCheckBadge
-        className={`h-5 w-5 align-middle text-amber-400 ${canModify
-          ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
-          : ""
-          }`}
+        className={`h-5 w-5 align-middle text-amber-400 ${
+          canModify
+            ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
+            : ""
+        }`}
       />
     );
   }
@@ -285,10 +298,11 @@ function AdminButton({
     if (userRole === "MEMBER") return <div className="h-5 w-5 " />;
     return (
       <IconCheckBadge
-        className={`h-5 w-5 align-middle text-slate-200 ${canModify
-          ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
-          : ""
-          }`}
+        className={`h-5 w-5 align-middle text-slate-200 ${
+          canModify
+            ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
+            : ""
+        }`}
       />
     );
   }
