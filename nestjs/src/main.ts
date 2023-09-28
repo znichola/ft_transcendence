@@ -7,17 +7,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn'],
   });
-  
+
   const options = new DocumentBuilder()
     .setTitle('Transcending Backend')
     .setDescription('API for ft_transcendance project')
     .setVersion('1.0')
-    .addServer('/api/', 'Local environment')
+    .addServer('/', 'Local environment')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('doc', app, document);
-  
+
   app.use(cookieParser());
   app.enableCors({
     origin: ['http://localhost:8080', "https://api.intra.42.fr"],
