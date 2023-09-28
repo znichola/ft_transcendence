@@ -10,6 +10,7 @@ import { UpdateOwnerDto } from './dto/update-owner-dto';
 import { ChatroomEntity } from './entities/chatroom.entity';
 import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChatService
@@ -48,10 +49,24 @@ export class ChatService
 	{
 		const userId: number = await this.getUserId(chatroomDto.ownerUsername);
 
+		this.checkPasswordPresence(chatroomDto);
+
+		let hash = null;
+
+		if (chatroomDto.status == "PROTECTED")
+		{
+			this.validatePassword(chatroomDto.password);
+
+			const saltOrRounds = 10;
+			hash = await bcrypt.hash(chatroomDto.password, saltOrRounds);
+		}
+
 		await this.prisma.chatroom.create({
 			data: {
 				ownerId: +userId,
 				name: chatroomDto.name,
+				status: chatroomDto.status,
+				password: hash,
 			}
 		});
 	}
@@ -189,37 +204,32 @@ export class ChatService
 
 	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto)
 	{
-		/* check that there is a password if visibility is protected */
+		this.checkPasswordPresence(updateChatroomDto);
 
-		if ((updateChatroomDto.status == "PROTECTED" && updateChatroomDto.password == null) ||
-			(updateChatroomDto.status != "PROTECTED" && updateChatroomDto.password != null))
-		{
-			throw new BadRequestException();
-		}
+		let hash = null;
 
 		if (updateChatroomDto.status == "PROTECTED")
 		{
-			/* check that the password is strong */
-			let schema = new PasswordValidator();
-			schema
-				.is().min(8)
-				.is().max(20);
-			if (!schema.validate(updateChatroomDto.password))
-			{
-				throw new BadRequestException("Password validation failed");
-			}
+			this.validatePassword(updateChatroomDto.password);
+
+			const saltOrRounds = 10;
+			hash = await bcrypt.hash(updateChatroomDto.password, saltOrRounds);
 		}
 
 		await this.prisma.chatroom.update({
 			where: {
 				id: +id,
 			},
-			data: updateChatroomDto
+			data: {
+				status: updateChatroomDto.status,
+				password: hash,
+			}
 		});
 	}
 
 	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
 	{
+		//missing "await" here ?!
 		const userId = this.getUserId(patch.ownerUsername);
 
 		/* check if ownerId is a member of the chatroom */
@@ -381,5 +391,26 @@ export class ChatService
 			throw new NotFoundException("This user does not exist");
 
 		return user.id;
+	}
+
+	private checkPasswordPresence(obj: UpdateVisibilityDto | CreateChatroomDto)
+	{
+		if ((obj.status == "PROTECTED" && obj.password == null) ||
+			(obj.status != "PROTECTED" && obj.password != null))
+		{
+			throw new BadRequestException("Password must be provided if and only if visibility is PROTECTED");
+		}
+	}
+
+	private validatePassword(pwd: string)
+	{
+		let schema = new PasswordValidator();
+		schema
+			.is().min(8)
+			.is().max(20);
+		if (!schema.validate(pwd))
+		{
+			throw new BadRequestException("Password validation failed");
+		}
 	}
 }
