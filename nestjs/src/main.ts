@@ -12,7 +12,7 @@ async function bootstrap() {
     .setTitle('Transcending Backend')
     .setDescription('API for ft_transcendance project')
     .setVersion('1.0')
-    .addServer('/', 'Local environment')
+    .addServer('/api/', 'Local environment')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
