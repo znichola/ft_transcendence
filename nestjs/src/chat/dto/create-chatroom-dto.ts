@@ -1,9 +1,10 @@
-import { IsInt } from "class-validator";
+import { IsString } from "class-validator";
 
 export class CreateChatroomDto
 {
-    @IsInt()
-    ownerId: number;
+    @IsString()
+    ownerUsername: string;
 
+	@IsString()
     name: string;
 }

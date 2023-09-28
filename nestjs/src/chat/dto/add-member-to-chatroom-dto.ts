@@ -1,9 +1,11 @@
-import { IsInt } from "class-validator";
+import { IsEnum, IsString } from "class-validator";
 import { ChatroomUserRole } from "@prisma/client";
 
 export class AddMemberToChatroomDto
 {
-    @IsInt()
-    userId: number;
+	@IsString()
+	username: string;
+
+	@IsEnum(ChatroomUserRole)
 	role: ChatroomUserRole;
 }

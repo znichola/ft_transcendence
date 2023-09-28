@@ -1,7 +1,7 @@
 import { IsString } from "class-validator";
 
-export class UpdateOwnerDto
+export class SendDmDto
 {
 	@IsString()
-	ownerUsername: string;
+	content: string;
 }
