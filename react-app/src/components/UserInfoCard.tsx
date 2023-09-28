@@ -1,18 +1,26 @@
 import { Link } from "react-router-dom";
-import { UserData, UserFriends } from "../interfaces";
+import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
-import { useQuery } from "@tanstack/react-query";
-import { getCurrentUser } from "../Api-axios";
-import { LoadingDots } from "./Loading";
-import axios from "axios";
+import FriendActionsBTN from "./TestFriendButton";
+
+type friendStatus =
+  | "none"
+  | "friends"
+  | "sent"
+  | "pending"
+  | "blocked"
+  | "loading"
+  | "error";
 
 export default function UserInfoCard({
   cardUser,
   currentUser,
+  userFriends,
 }: {
   cardUser: UserData;
   currentUser: string;
+  userFriends: UserFriends;
 }) {
   return (
     <div className="m-4 flex h-28 w-[430px] max-w-md justify-between bg-white shadow ">
@@ -32,7 +40,22 @@ export default function UserInfoCard({
           to={"/message/" + cardUser.login42}
           icon={IconChatBubble}
         />
-        <SideButtonFriend currentUser={currentUser} cardUser={cardUser} />
+        {/* <SideButtonFriend
+          currentUser={currentUser}
+          cardUser={cardUser}
+          friends={userFriends}
+        /> */}
+        <FriendActionsBTN
+          status={
+            userFriends.friends.find((f: FriendData) => f.login42 == cardUser.login42)
+              ? "friends"
+              : userFriends.pending.find((f: FriendData) => f.login42 == cardUser.login42)
+              ? "sent"
+              : userFriends.requests.find((f: FriendData) => f.login42 == cardUser.login42)
+              ? "pending"
+              : "none"
+          }
+        />
       </div>
     </div>
   );
@@ -98,7 +121,7 @@ function SideButton({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-inner transition-all group-hover:w-max group-hover:p-2 shadow-md">
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2">
           <div className="text-xs font-bold text-slate-50">{name}</div>
         </div>
       </Link>
@@ -106,30 +129,34 @@ function SideButton({
   );
 }
 
+type friendStatusMessage = {
+  [key in friendStatus]: string;
+};
+
+const friendStatusMessage: friendStatusMessage = {
+  none: "No relationship",
+  friends: "You are already friends",
+  sent: "You have sent a friend request",
+  pending: "Accept their freind request",
+  blocked: "This person has blocked you",
+  loading: "Loading ...",
+  error: "Error ...",
+};
+
 function SideButtonFriend({
   currentUser,
   cardUser,
+  friends,
 }: {
   currentUser: string;
   cardUser: UserData;
+  friends: UserFriends;
 }) {
-  const {
-    data: friends,
-    isLoading,
-    isError,
-    refetch: fetchFriends,
-  } = useQuery({
-    queryKey: ["Friends"],
-    refetchOnWindowFocus: false,
-    enabled: false,
-    queryFn: () =>
-      axios
-        .get<UserFriends>("/user/" + currentUser + "/friends")
-        .then((res) => res.data),
-  });
-  console.log(currentUser, "current user");
 
-  if (isLoading) return <div>loading...</div>;
+  // const [friendStatus, setFriendStatus] = useState<friendStatus>("loading");
+
+  // console.log(currentUser, "current user");
+  // else if {.find((f) => f.login42 === cardUser.login42)
 
   const isFriend = friends?.friends.find((f) => f.login42 === cardUser.login42);
   const isPending = friends?.pending.find(
@@ -141,7 +168,7 @@ function SideButtonFriend({
 
   function handleFriendClick() {
     console.log("clicked add friend");
-    fetchFriends();
+    console.log(friendStatusMessage.friends);
   }
   return (
     <>
@@ -160,11 +187,7 @@ function SideButtonFriend({
           } `}
         >
           <span className="text-xs font-bold text-slate-50">
-            {isError
-              ? "error fetching data"
-              : isLoading
-              ? "loading.."
-              : isFriend
+            { isFriend
               ? "already freinds"
               : isPending
               ? "accept friend request"
@@ -177,3 +200,18 @@ function SideButtonFriend({
     </>
   );
 }
+
+// function FriendClickButton({
+//   currentUser,
+//   cardUser,
+//   friendStatus,
+// }: {
+//   currentUserLogin: string;
+//   cardUserLogin: string;
+// }) {
+//   return (
+//     <>
+//       <div></div>
+//     </>
+//   );
+// }

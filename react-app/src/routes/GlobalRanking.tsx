@@ -2,12 +2,22 @@ import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
 import {} from "./AllUsers";
-import { UserData } from "../interfaces";
+import { UserData, UserFriends } from "../interfaces";
 import { useState } from "react";
 import UserInfoCard from "../components/UserInfoCard";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { LoadingSpinnerMessage } from "../components/Loading";
+
+export type filter = ({
+  cardUser,
+  currentUser,
+  userFriends,
+}: {
+  cardUser: string;
+  currentUser: string;
+  userFriends: UserFriends;
+}) => JSX.Element;
 
 const FilterMenu = function () {
   const [name_filter, changeNameFilter] = useState("");
@@ -16,11 +26,13 @@ const FilterMenu = function () {
   const Filter = ({
     cardUser,
     currentUser,
+    userFriends,
   }: {
     cardUser: string;
     currentUser: string;
+    userFriends: UserFriends;
   }) => {
-    console.log(currentUser, "current user filter function");
+    // console.log(currentUser, "current user filter function");
     const {
       data: cardUserData,
       isLoading,
@@ -43,6 +55,7 @@ const FilterMenu = function () {
         <UserInfoCard
           cardUser={cardUserData}
           currentUser={currentUser}
+          userFriends={userFriends}
           key={cardUserData.login42}
         />
       );
@@ -77,7 +90,15 @@ const FilterMenu = function () {
     }
   }
 
-  function RadioStateButton({ text, handler, state }) {
+  function RadioStateButton({
+    text,
+    handler,
+    state,
+  }: {
+    text: string;
+    handler: () => void;
+    state: string;
+  }) {
     return (
       <div className="flex min-h-[2rem] items-center gap-1">
         <input
@@ -176,7 +197,7 @@ export default function GlobalRanking() {
       {/* this still needs to be implemented, but it should be possible with the query string on the get whoever want's to should give it a crack*/}
       {filter_menu.Obj}
       {/* also pagination should be added for the all users selector, something to get it working properly */}
-      <AllUsers Filter={filter_menu.Filter} />
+      <AllUsers filter={filter_menu.Filter} />
       {/* <PaginatedUsers /> */}
     </div>
   );
