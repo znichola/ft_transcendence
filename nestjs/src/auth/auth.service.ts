@@ -42,4 +42,13 @@ export class AuthService {
     const login: string = decoded['login'];
     return login;
   }
+
+  async verifyUser(username: string, token: string)
+  {
+    const loggedIn: string = await this.getLoginFromToken(token);
+    if (loggedIn != username)
+    {
+      throw new UnauthorizedException();
+    }
+  }
 }

@@ -12,6 +12,7 @@ import {
   NotFoundException,
   HttpException,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriend } from '../interfaces';
@@ -91,11 +92,29 @@ export class UserController {
     return usersInfo;
   }
 
+  // @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Get all the data about a specific user, for profile display',
+    description: 'a valid JWT token is required for this operation.'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'A UserData object with all the data for profile display is returned.'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No JWT token found. (Uncomment UseGuard and remove this text later)'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No user found with the provided login.'
+  })
   @Get(':username')
   async getOne(@Param('username') username: string): Promise<UserData> {
     const userInfo = await this.userService.findUserFromLogin(username);
-    if (!userInfo) {
-      return null;
+    if (!userInfo)
+    {
+      throw new HttpException('User not Found.', HttpStatus.NOT_FOUND);
     }
     return userInfo;
   }
@@ -108,12 +127,8 @@ export class UserController {
     @Body() bodyData: UserData,
     @Req() req: Request,
   ): Promise<UserData> {
-    const loggedUser: string = await this.authService.getLoginFromToken(
-      req.cookies.test.access_token,
-    );
-    if (loggedUser != username) {
-      throw new UnauthorizedException();
-    }
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+
     const user = await this.userService.findUserFromName(bodyData.name);
     if (user) {
       throw new Error('Name already in use.');
@@ -125,6 +140,7 @@ export class UserController {
     );
   }
 
+  // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the accepted and pending friend request for the username requested',
   })
@@ -142,9 +158,23 @@ export class UserController {
       }
     }}
   })
+  @ApiResponse({
+    status: 401,
+    description: 'No JWT token found. (Uncomment UseGuard and remove this text later)'
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No user found with the provided login.'
+  })
   @Get(':username/friends')
   async userFriends(@Param('username') username: string): Promise<UserFriend> {
     const userId = await this.userService.getUserId(username);
+    
+    if (!userId)
+    {
+      throw new HttpException('User not Found.', HttpStatus.NOT_FOUND);
+    }
+
     const approvedFriends: FriendData[] =
       await this.userService.getUserFriends(userId);
     const pendingFriends: FriendData[] =
@@ -194,7 +224,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'You cannot add yourself as a friend.'
+    description: 'Target missing in Body data, or similar to Sender.'
   })
   @ApiResponse({
     status: 401,
@@ -207,32 +237,69 @@ export class UserController {
   @Post(':username/friends')
   async addFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request): Promise<string> 
   {
-    const loggedIn: string = await this.authService.getLoginFromToken(req.cookies.test.access_token);
-    if (loggedIn != username)
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    if (!bodyData.target)
     {
-      throw new UnauthorizedException();
+      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
     }
-
-    const userId: number = await this.userService.getUserId(username);
-    const targetId: number = await this.userService.getUserId(bodyData.target);
     
-    if (!userId || !targetId)
-    {
-      throw new NotFoundException();
-    }
+    const users = await this.userService.getFriendsIds(username, bodyData.target);
 
-    if (userId == targetId)
-    {
-      throw new HttpException('You cannot add yourself as a friend.', HttpStatus.BAD_REQUEST);
-    }
-
-    const friendStatus: string = await this.userService.getFriendStatus(userId, targetId);
+    const friendStatus: string = await this.userService.getFriendStatus(users[0], users[1]);
 
     if (!friendStatus || friendStatus == '')
     {
-      await this.userService.createFriend(userId, targetId);
+      await this.userService.createFriend(users[0], users[1]);
       return ('sent');
     }
     return (friendStatus.toLowerCase());
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Remove a friend.',
+    description: 'the user identified in the URL removes the user which login is in the body data from his friends. There must be a valid JWT token, and the logged in user must be the user in the url.',
+    requestBody: {
+      description: 'Body must include the user to add to friends',
+      required: true,
+      content: {
+        'application/json': {
+          schema:
+          {
+            example: {
+              "target": "default42"
+            }
+          }
+      }}
+      }
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Friend removed. (Or did not exist)',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Target missing in Body data, or similar to Sender.'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No JTW token found, or the logged in user is not the user in the request url',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No user found with corresponding body target data.'
+  })
+  @Delete(':username/friends')
+  async removeFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
+  {
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    if (!bodyData.target)
+    {
+      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
+    }
+
+    const users = await this.userService.getFriendsIds(username, bodyData.target);
+
+    await this.userService.removeFriend(users[0], users[1]);
   }
 }

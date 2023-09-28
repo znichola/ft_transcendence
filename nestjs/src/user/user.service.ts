@@ -1,4 +1,4 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { FriendStatus, User, UserStatus } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
@@ -217,6 +217,23 @@ export class UserService {
   //   return user;
   // }
 
+  async getFriendsIds(user1: string, user2: string): Promise<number[]>
+  {
+    const userId: number = await this.getUserId(user1);
+    const targetId: number = await this.getUserId(user2);
+
+    if (!userId || !targetId)
+    {
+      throw new NotFoundException();
+    }
+
+    if (userId == targetId)
+    {
+      throw new HttpException('sender and target IDs must be differents.', HttpStatus.BAD_REQUEST);
+    }
+    return [userId, targetId];
+  }
+
   async getFriendStatus(requesterId: number, receiverId: number): Promise<string>
   {
     const friendStatus = await prisma.friend.findFirst({
@@ -255,5 +272,28 @@ export class UserService {
         user2Id: receiverId,
       },
     });
+  }
+
+  async removeFriend(user1: number, user2: number)
+  {
+    await prisma.friend.deleteMany({
+      where: {
+        OR: [
+          {
+            user1Id: user1,
+            user2Id: user2,
+          },
+          {
+            user1Id: user2,
+            user2Id: user1,
+          }
+        ],
+        AND: {
+          NOT: {
+            status: FriendStatus.BLOCKED
+          }
+        }
+      }
+    })
   }
 }
