@@ -1,5 +1,6 @@
 import { PrismaClient, UserStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import createFriendship from './seedFriends';
 
 faker.seed(1234);
 
@@ -7,11 +8,11 @@ const prisma = new PrismaClient();
 
 function generateHistory(valuesCount?: number): number[] {
   const length = valuesCount || 10;
-  const history = Array.from({ length }, (_, index) => index + 1)
-  
+  const history = Array.from({ length }, (_, index) => index + 1);
+
   history[0] = 1500;
   for (let index = 1; index < (valuesCount || 10); index++) {
-    const element: number = faker.number.int({min: -20, max: 20});
+    const element: number = faker.number.int({ min: -20, max: 20 });
     const newElement: number = history[index - 1] + element;
     history[index] = newElement;
   }
@@ -212,7 +213,7 @@ async function FakerData() {
       faker.number.int({ min: 0, max: 2800 }),
       faker.number.int({ min: 0, max: 300 }),
       faker.number.int({ min: 0, max: 300 }),
-      generateHistory(faker.number.int({min: 5, max: 150})),
+      generateHistory(faker.number.int({ min: 5, max: 150 })),
       faker.helpers.arrayElement([
         UserStatus.INGAME,
         UserStatus.ONLINE,
@@ -232,7 +233,7 @@ async function main() {
     1612,
     8,
     2,
-    [1500, 1520, 1539, 1564, 1580, 1572, 1560, 1575, 1589, 1600, 1612]
+    [1500, 1520, 1539, 1564, 1580, 1572, 1560, 1575, 1589, 1600, 1612],
   );
   await createUser('test', 'Testus');
 
@@ -240,6 +241,16 @@ async function main() {
 
   await createFunnyUsers();
   await creatDummyData();
+
+  await createFriendship(prisma, 'default42', 'funnyuser2', 'PENDING');
+  await createFriendship(prisma, 'default42', 'funnyuser1', 'BLOCKED');
+  await createFriendship(prisma, 'default42', 'coding_ninja', 'ACCEPTED');
+  await createFriendship(prisma, 'default42', 'funnyuser3', 'ACCEPTED');
+  await createFriendship(prisma, 'user123', 'default42', 'PENDING');
+  await createFriendship(prisma, 'funnyuser5', 'default42', 'ACCEPTED');
+  await createFriendship(prisma, 'funnyuser6', 'default42', 'ACCEPTED');
+  await createFriendship(prisma, 'sportsfan42', 'default42', 'PENDING');
+
   await FakerData();
 }
 main()
