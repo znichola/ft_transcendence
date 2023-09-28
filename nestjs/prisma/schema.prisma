@@ -34,6 +34,10 @@ model User {
   joinedGames  Game[] @relation("Joined")
 
   messages Message[]
+  directMessages DirectMessage[]
+
+  conversation Conversation[] @relation("User1")
+  conversarion Conversation[] @relation("User2")
 }
 
 // model Status {
@@ -94,6 +98,31 @@ model Message {
   chatroom   Chatroom @relation(fields: [chatroomId], references: [id])
 
   sentAt DateTime @default(now())
+}
+
+model Conversation {
+	id Int	@id @default(autoincrement())
+	user1Id	Int
+	user1	User @relation("User1", fields: [user1Id], references: [id])
+
+	user2Id	Int
+	user2	User @relation("User2", fields: [user2Id], references: [id])
+
+	messages	DirectMessage[]
+	@@unique([user1Id, user2Id])
+}
+
+model DirectMessage {
+	id Int	@id @default(autoincrement())
+	text String
+
+	senderId Int
+	sender   User @relation(fields: [senderId], references: [id])
+
+	conversationId Int
+	conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+	sentAt DateTime @default(now())
 }
 
 model Game {

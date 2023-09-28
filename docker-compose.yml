@@ -14,7 +14,7 @@ networks:
 #       type: none
 #       o: bind
 # this is broken for file changes, they don't seem to showup correctly for a modified file
-# no idea why this is the case, new files and deleted files so showup, but a modified file 
+# no idea why this is the case, new files and deleted files so showup, but a modified file
 # always shows the original file
 #    volumes:
 #      - ${PWD}:/web
@@ -27,6 +27,7 @@ services:
       - transnet
     ports:
       - "3000:3000"
+      - "5555:5555" #for prisma studio
     volumes:
       - ${PWD}:/backend
     env_file:
