@@ -167,8 +167,7 @@ export class ChatService
 	{
 		const senderId: number = await this.getUserId(senderUsername);
 
-		//check permissions of chatroomId
-		this.checkIsMember(senderId, chatroomId);
+		await this.checkIsMember(senderId, chatroomId);
 
 		const message = {
 			userId: +senderId,
@@ -229,22 +228,9 @@ export class ChatService
 
 	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
 	{
-		//missing "await" here ?!
-		const userId = this.getUserId(patch.ownerUsername);
+		const userId = await this.getUserId(patch.ownerUsername);
 
-		/* check if ownerId is a member of the chatroom */
-		const user = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +id, userId: +userId},
-			}
-		});
-
-		if (user == null)
-		{
-			throw new BadRequestException("This user is not a member of the chatroom.");
-		}
-
-		/* check if user is not banned etc. */
+		await this.checkIsMember(userId, id);
 
 		await this.prisma.chatroom.update({
 			where: {
@@ -340,18 +326,6 @@ export class ChatService
 			},
 			data: updateRoleDto
 		})
-	}
-
-	private async checkUserExists(userId: number)
-	{
-		const user = await this.prisma.user.findFirst({
-			where:
-			{
-				id: +userId,
-			},
-		});
-		if (user == null)
-			throw new HttpException('This user does not exist', HttpStatus.NOT_FOUND);
 	}
 
 	private async checkIsMember(userId: number, chatroomId: number)
