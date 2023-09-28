@@ -4,16 +4,14 @@ import SideMenu from "../components/SideMenu.tsx";
 // side nav
 export default function Root() {
   return (
-    <>
-      <div className="flex xl:justify-center bg-stone-200">
-        <div id="side-bar" className="h-screen w-80 min-w-[18rem]  shadow-md ">
-          <SideMenu />
-        </div>
-        <div className="flex h-screen w-full flex-col items-center justify-center bg-stone-100 xl:max-w-4xl text-slate-600">
-          <Outlet />
-        </div>
+    <div className="flex xl:justify-center w-screen max-w-full max-h-full overflow-hidden bg-stone-200">
+      <div id="side-bar" className="h-screen w-80 min-w-[18rem] shadow-md ">
+        <SideMenu />
       </div>
-    </>
+      <div className="flex min-w-0 h-screen w-full flex-col items-center justify-center bg-stone-100 xl:max-w-4xl text-slate-600">
+        <Outlet />
+      </div>
+    </div>
   );
 }
 
