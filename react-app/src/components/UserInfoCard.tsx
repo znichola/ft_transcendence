@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
-import FriendActionsBTN from "./InfoCardFriends";
+import RelationActions from "./InfoCardFriends";
 
 
 export default function UserInfoCard({
@@ -45,7 +45,7 @@ export default function UserInfoCard({
           cardUser={cardUser}
           friends={userFriends}
         /> */}
-        <FriendActionsBTN status={relationStatus} />
+        <RelationActions status={relationStatus} />
       </div>
     </div>
   );
