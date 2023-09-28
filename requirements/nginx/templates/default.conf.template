@@ -1,6 +1,9 @@
 server {
+    access_log  off;
+
     listen       ${NGINX_PORT};
     server_name  domain1.com www.domain1.com;
+    
     location / {
       proxy_pass http://react:5173;
     }
@@ -9,7 +12,7 @@ server {
     return 302 /prisma/;
     }
 
-    location /prisma {
+    location /prisma/ { 
       proxy_pass http://nest:5555/; # note the trailing slash here, it matters!
     }
 
