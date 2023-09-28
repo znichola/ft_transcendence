@@ -103,6 +103,8 @@ export class UserService {
       where: { login42: login },
       select: { id: true },
     });
+    if (!user)
+      return null;
     return user.id;
   }
 
@@ -215,7 +217,37 @@ export class UserService {
   //   return user;
   // }
 
-  @UseGuards(AuthGuard)
+  async getFriendStatus(requesterId: number, receiverId: number): Promise<string>
+  {
+    const friendStatus = await prisma.friend.findFirst({
+      where: { 
+        OR: [
+          {
+            user1Id: requesterId,
+            user2Id: receiverId,
+          },
+          {
+            user1Id: receiverId,
+            user2Id: requesterId,
+          },
+        ],
+      },
+      select: {
+        user1Id: true,
+        status: true
+      }
+    });
+    if (!friendStatus)
+    {
+      return '';
+    }
+    if (friendStatus.user1Id == requesterId && friendStatus.status == 'PENDING')
+    {
+      return ('SENT');
+    }
+    return (friendStatus.status);
+  }
+
   async createFriend(requesterId: number, receiverId: number) {
     await prisma.friend.create({
       data: {
