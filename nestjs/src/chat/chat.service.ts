@@ -4,12 +4,12 @@ import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
 import { UpdateRoleDto } from './dto/update-role-dto';
 import { UpdateVisibilityDto } from './dto/update-visibility-dto';
-import { Chatroom, ChatroomUser } from '@prisma/client';
+import { Chatroom, ChatroomUser, ChatroomVisibilityStatus } from '@prisma/client';
 import PasswordValidator = require("password-validator");
 import { UpdateOwnerDto } from './dto/update-owner-dto';
-import { ChatroomEntity } from './entities/chatroom.entity';
-import { MessageEntity } from './entities/message.entity';
-import { MemberEntity } from './entities/member.entity';
+import { ChatroomEntity, ChatroomWithUsername } from './entities/chatroom.entity';
+import { MessageEntity, MessageWithUsername } from './entities/message.entity';
+import { MemberEntity, MemberWithUsername } from './entities/member.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class ChatService
 
 	async getAllChatRooms(): Promise<ChatroomEntity[]>
 	{
-		const chatroomsFromDb = await this.prisma.chatroom.findMany({
+		const chatroomsFromDb: ChatroomWithUsername[] = await this.prisma.chatroom.findMany({
 			select: {
 				id: true,
 				name: true,
@@ -32,16 +32,7 @@ export class ChatService
 			}
 		});
 
-		const chatroomEntities: ChatroomEntity[] = chatroomsFromDb.map((chatroom) => {
-			return {
-				id: chatroom.id,
-				name: chatroom.name,
-				status: chatroom.status,
-				ownerUsername: chatroom.owner.login42,
-			}
-		}
-		);
-
+		const chatroomEntities: ChatroomEntity[] = chatroomsFromDb.map(chatroom => new ChatroomEntity(chatroom));
 		return chatroomEntities;
 	}
 
@@ -86,7 +77,7 @@ export class ChatService
 
 	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>
 	{
-		const chatroomFromDb =  await this.prisma.chatroom.findFirst({
+		const chatroomFromDb: ChatroomWithUsername = await this.prisma.chatroom.findFirst({
 			where: {
 				id: +chatroomId,
 			},
@@ -105,12 +96,7 @@ export class ChatService
 		if (chatroomFromDb == null)
 			throw new NotFoundException("This chatroom does not exist");
 
-		return {
-			id: chatroomFromDb.id,
-			name: chatroomFromDb.name,
-			status: chatroomFromDb.status,
-			ownerUsername: chatroomFromDb.owner.login42
-		}
+		return new ChatroomEntity(chatroomFromDb);
 	}
 
 	async deleteChatroom(id: number)
@@ -142,7 +128,7 @@ export class ChatService
 	{
 		await this.checkChatroomExists(id);
 
-		const msgFromDb = await this.prisma.message.findUnique({
+		const msgFromDb: MessageWithUsername = await this.prisma.message.findUnique({
 			where: {
 				id: +msgId,
 				chatroomId: +id
@@ -159,19 +145,14 @@ export class ChatService
 			}
 		});
 
-		return (msgFromDb == null) ? null : {
-			id: msgFromDb.id,
-			senderUsername: msgFromDb.user.login42,
-			content: msgFromDb.text,
-			sentAt: msgFromDb.sentAt
-		}
+		return new MessageEntity(msgFromDb);
 	}
 
 	async getAllMessagesFromChatroom(id: number): Promise<MessageEntity[]>
 	{
 		await this.checkChatroomExists(id);
 
-		const msgsFromDb =  await this.prisma.message.findMany({
+		const msgsFromDb: MessageWithUsername[] = await this.prisma.message.findMany({
 			where: {
 				chatroomId: +id,
 			},
@@ -187,15 +168,7 @@ export class ChatService
 			}
 		});
 
-		const msgEntities = msgsFromDb.map((msg) => {
-			return {
-				id: msg.id,
-				senderUsername: msg.user.login42,
-				content: msg.text,
-				sentAt: msg.sentAt
-			}
-		});
-
+		const msgEntities: MessageEntity[] = msgsFromDb.map(msg => new MessageEntity(msg));
 		return msgEntities;
 	}
 
@@ -312,7 +285,7 @@ export class ChatService
 
 	async getMembersOfChatRoom(id: number): Promise<MemberEntity[]>
 	{
-		const memberFromDb =  await this.prisma.chatroomUser.findMany({
+		const memberFromDb: MemberWithUsername[] = await this.prisma.chatroomUser.findMany({
 			where: {
 				chatroomId: +id,
 			},
@@ -326,13 +299,7 @@ export class ChatService
 			}
 		});
 
-		const memberEntities =  memberFromDb.map(member => {
-			return {
-				username: member.user.login42,
-				role: member.role,
-			}
-		});
-
+		const memberEntities: MemberEntity[] = memberFromDb.map(member => new MemberEntity(member));
 		return memberEntities;
 	}
 
@@ -342,7 +309,7 @@ export class ChatService
 
 		const userId = await this.getUserId(username);
 
-		const memberFromDb = await this.prisma.chatroomUser.findUnique({
+		const memberFromDb: MemberWithUsername = await this.prisma.chatroomUser.findUnique({
 			where: {
 				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId},
 			},
@@ -359,10 +326,7 @@ export class ChatService
 		if (memberFromDb == null)
 			throw new NotFoundException("This user is not a member of the chatroom");
 
-		return {
-			username: memberFromDb.user.login42,
-			role: memberFromDb.role,
-		}
+		return new MemberEntity(memberFromDb);
 	}
 
 	async addMemberToChatRoom(chatroomId: number, addMemberDto: AddMemberToChatroomDto)

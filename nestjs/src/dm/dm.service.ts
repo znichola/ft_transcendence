@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
-import { ConversationEntity } from './entities/conversation.entity';
-import { MessageEntity } from './entities/message.entity';
+import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
+import { DirectMessageWithUsername, MessageEntity } from './entities/message.entity';
 
 @Injectable()
 export class DmService
@@ -12,7 +12,7 @@ export class DmService
 
 	async getAllConversations(): Promise<ConversationEntity[]>
 	{
-		const conversationsFromDb = await this.prisma.conversation.findMany({
+		const conversationsFromDb: ConversationWithUsername[] = await this.prisma.conversation.findMany({
 			select: {
 				id: true,
 				user1: {
@@ -28,14 +28,7 @@ export class DmService
 			}
 		});
 
-		const conversationEntities = conversationsFromDb.map((conv) => {
-			return {
-				id: conv.id,
-				username1: conv.user1.login42,
-				username2: conv.user2.login42
-			}
-		});
-
+		const conversationEntities: ConversationEntity[] = conversationsFromDb.map(conv => new ConversationEntity(conv));
 		return conversationEntities;
 	}
 
@@ -43,7 +36,7 @@ export class DmService
 	{
 		const userId = await this.getUserId(user);
 
-		const conversationsFromDb = await this.prisma.conversation.findMany({
+		const conversationsFromDb: ConversationWithUsername[] = await this.prisma.conversation.findMany({
 			where: {
 				OR: [
 					{
@@ -69,14 +62,7 @@ export class DmService
 			}
 		});
 
-		const conversationEntities = conversationsFromDb.map((conv) => {
-			return {
-				id: conv.id,
-				username1: conv.user1.login42,
-				username2: conv.user2.login42
-			}
-		});
-
+		const conversationEntities = conversationsFromDb.map(conv => new ConversationEntity(conv));
 		return conversationEntities;
 	}
 
@@ -113,11 +99,7 @@ export class DmService
 			}
 		});
 
-		return (conversationFromDb == null) ? null : {
-			id: conversationFromDb.id,
-			username1: conversationFromDb.user1.login42,
-			username2: conversationFromDb.user2.login42
-		}
+		return new ConversationEntity(conversationFromDb);
 	}
 
 	async getAllMessagesFromConversation(user1: string, user2: string): Promise<MessageEntity[]>
@@ -129,7 +111,7 @@ export class DmService
 		if (convId == null)
 			convId = await this.createConversation(id1, id2).then(res => res?.id);
 
-		const msgsFromDb = await this.prisma.directMessage.findMany({
+		const msgsFromDb: DirectMessageWithUsername[] = await this.prisma.directMessage.findMany({
 			where: {
 				conversationId: +convId,
 			},
@@ -145,21 +127,13 @@ export class DmService
 			}
 		});
 
-		const msgEntities = msgsFromDb.map(msg => {
-			return {
-				id: msg.id,
-				sentAt: msg.sentAt,
-				senderUsername: msg.sender.login42,
-				content: msg.text,
-			}
-		});
-
+		const msgEntities: MessageEntity[] = msgsFromDb.map(msg => new MessageEntity(msg));
 		return msgEntities;
 	}
 
 	async getOneMessage(msgId: number): Promise<MessageEntity>
 	{
-		const msgFromDb = await this.prisma.directMessage.findUnique({
+		const msgFromDb: DirectMessageWithUsername = await this.prisma.directMessage.findUnique({
 			where: {
 				id: +msgId,
 			},
@@ -175,12 +149,7 @@ export class DmService
 			}
 		});
 
-		return (msgFromDb == null) ? null : {
-			id: msgFromDb.id,
-			sentAt: msgFromDb.sentAt,
-			senderUsername: msgFromDb.sender.login42,
-			content: msgFromDb.text,
-		}
+		return new MessageEntity(msgFromDb);
 	}
 
 	async sendMessage(from: string, to: string, payload: SendDmDto)
