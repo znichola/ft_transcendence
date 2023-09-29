@@ -1,15 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { ChatroomVisibilityStatus } from "@prisma/client";
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateChatroomDto
 {
 	@ApiProperty()
     @IsString()
+	@IsNotEmpty()
     ownerUsername: string;
 
 	@ApiProperty()
 	@IsString()
+	@IsNotEmpty()
     name: string;
 
 	@ApiProperty({enum: ChatroomVisibilityStatus})
@@ -19,5 +21,6 @@ export class CreateChatroomDto
 	@ApiPropertyOptional()
 	@IsOptional()
 	@IsString()
+	@IsNotEmpty()
 	password?: string
 }
