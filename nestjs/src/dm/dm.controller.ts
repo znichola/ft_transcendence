@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe, UseFilters } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { SendDmDto } from './dto/send-dm-dto';
-import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity } from './entities/conversation.entity';
 import { MessageEntity } from './entities/message.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';

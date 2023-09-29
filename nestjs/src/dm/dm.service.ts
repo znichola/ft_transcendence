@@ -71,7 +71,7 @@ export class DmService
 		const id1 = await this.getUserId(user1);
 		const id2 = await this.getUserId(user2);
 
-		const conversationFromDb = await this.prisma.conversation.findFirst({
+		const conversationFromDb = await this.prisma.conversation.findFirstOrThrow({
 			where: {
 				OR: [
 					{
@@ -108,8 +108,6 @@ export class DmService
 		const id2 = await this.getUserId(user2);
 
 		let convId = await this.getOneConversation(user1, user2).then(res => res?.id);
-		if (convId == null)
-			convId = await this.createConversation(id1, id2).then(res => res?.id);
 
 		const msgsFromDb: DirectMessageWithUsername[] = await this.prisma.directMessage.findMany({
 			where: {
@@ -133,7 +131,7 @@ export class DmService
 
 	async getOneMessage(msgId: number): Promise<MessageEntity>
 	{
-		const msgFromDb: DirectMessageWithUsername = await this.prisma.directMessage.findUnique({
+		const msgFromDb: DirectMessageWithUsername = await this.prisma.directMessage.findUniqueOrThrow({
 			where: {
 				id: +msgId,
 			},
@@ -157,9 +155,7 @@ export class DmService
 		const id1 = await this.getUserId(from);
 		const id2 = await this.getUserId(to);
 
-		let convId = await this.getOneConversation(from, to).then(res => res?.id);
-		if (convId == null)
-			convId = await this.createConversation(id1, id2).then(res => res?.id);
+		const convId = await this.createConversationIfNotExists(id1, id2).then(res => res?.id);
 
 		const msg = {
 			senderId: +id1,
@@ -206,8 +202,25 @@ export class DmService
 		return user.id;
 	}
 
-	private async createConversation(id1: number, id2: number): Promise<Conversation>
+	private async createConversationIfNotExists(id1: number, id2: number): Promise<Conversation>
 	{
+		const conv = await this.prisma.conversation.findFirst({
+			where: {
+				OR: [
+					{
+						user1Id: +id1,
+						user2Id: +id2,
+					},
+					{
+						user1Id: +id2,
+						user2Id: +id1,
+					}
+				]
+			},
+		});
+		if (conv != null)
+			return conv;
+
 		const newConv = await this.prisma.conversation.create({
 			data: {
 				user1Id: +id1,

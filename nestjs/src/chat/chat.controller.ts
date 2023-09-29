@@ -3,7 +3,6 @@ import { ChatService } from './chat.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
 import { UpdateRoleDto } from './dto/update-role-dto';
-import { Chatroom, ChatroomUser } from '@prisma/client';
 import { UpdateVisibilityDto } from './dto/update-visibility-dto';
 import { UpdateOwnerDto } from './dto/update-owner-dto';
 import { SendMessageDto } from './dto/send-message-dto';

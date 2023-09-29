@@ -4,7 +4,6 @@ import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
 import { UpdateRoleDto } from './dto/update-role-dto';
 import { UpdateVisibilityDto } from './dto/update-visibility-dto';
-import { Chatroom, ChatroomUser, ChatroomVisibilityStatus } from '@prisma/client';
 import PasswordValidator = require("password-validator");
 import { UpdateOwnerDto } from './dto/update-owner-dto';
 import { ChatroomEntity, ChatroomWithUsername } from './entities/chatroom.entity';
@@ -77,7 +76,7 @@ export class ChatService
 
 	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>
 	{
-		const chatroomFromDb: ChatroomWithUsername = await this.prisma.chatroom.findFirst({
+		const chatroomFromDb: ChatroomWithUsername = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {
 				id: +chatroomId,
 			},
@@ -92,9 +91,6 @@ export class ChatService
 				}
 			}
 		});
-
-		if (chatroomFromDb == null)
-			throw new NotFoundException("This chatroom does not exist");
 
 		return new ChatroomEntity(chatroomFromDb);
 	}
@@ -121,14 +117,14 @@ export class ChatService
 			where: {
 				id: +id,
 			},
-		})
+		});
 	}
 
 	async getOneMessageFromChatroom(id: number, msgId: number): Promise<MessageEntity>
 	{
 		await this.checkChatroomExists(id);
 
-		const msgFromDb: MessageWithUsername = await this.prisma.message.findUnique({
+		const msgFromDb: MessageWithUsername = await this.prisma.message.findUniqueOrThrow({
 			where: {
 				id: +msgId,
 				chatroomId: +id
@@ -241,7 +237,7 @@ export class ChatService
 
 		await this.checkIsMember(newOwnerId, id);
 
-		const chatroom = await this.prisma.chatroom.findUnique({
+		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {
 				id: +id
 			},
@@ -309,7 +305,7 @@ export class ChatService
 
 		const userId = await this.getUserId(username);
 
-		const memberFromDb: MemberWithUsername = await this.prisma.chatroomUser.findUnique({
+		const memberFromDb: MemberWithUsername = await this.prisma.chatroomUser.findUniqueOrThrow({
 			where: {
 				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId},
 			},
@@ -322,9 +318,6 @@ export class ChatService
 				}
 			}
 		});
-
-		if (memberFromDb == null)
-			throw new NotFoundException("This user is not a member of the chatroom");
 
 		return new MemberEntity(memberFromDb);
 	}
@@ -353,7 +346,7 @@ export class ChatService
 		await this.checkIsMember(userId, chatroomId);
 
 		//check if user is owner
-		const chatroom = await this.prisma.chatroom.findUnique({where: {id: +chatroomId}});
+		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({where: {id: +chatroomId}});
 		if (chatroom.ownerId == userId)
 		{
 			/* find another member that is admin */
