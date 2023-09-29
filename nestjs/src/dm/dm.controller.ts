@@ -7,6 +7,7 @@ import { MessageEntity } from './entities/message.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags("Direct Messages")
+@UsePipes(new ValidationPipe({whitelist: true}))
 @Controller('conversations')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
@@ -40,7 +41,6 @@ export class DmController {
 	}
 
 	@Post(':user1/:user2/messages')
-	@UsePipes(ValidationPipe)
 	sendMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Body() payload: SendDmDto)
 	{
 		return this.dmService.sendMessage(user1, user2, payload);
@@ -60,7 +60,6 @@ export class DmController {
 	}
 
 	@Put(':user1/:user2/messages/:msgId')
-	@UsePipes(ValidationPipe)
 	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: SendDmDto)
 	{
 		return this.dmService.updateMessage(msgId, payload);

@@ -14,6 +14,7 @@ import { MemberEntity } from './entities/member.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags("Chatrooms")
+@UsePipes(new ValidationPipe({whitelist: true}))
 @Controller('chat')
 export class ChatController
 {
@@ -27,7 +28,6 @@ export class ChatController
 	}
 
 	@Post()
-	@UsePipes(ValidationPipe)
 	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto)
 	{
 		await this.chatService.createNewChatRoom(createChatroomDto);
@@ -61,14 +61,12 @@ export class ChatController
 	}
 
 	@Post(':id/messages')
-	@UsePipes(ValidationPipe)
 	async sendMessage(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: SendMessageDto)
 	{
 		await this.chatService.sendMessageToChatroom(chatroomId, payload.senderUsername, payload.content);
 	}
 
 	@Put(':id/messages/:msgId')
-	@UsePipes(ValidationPipe)
 	async updateMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: UpdateMessageDto)
 	{
 		await this.chatService.updateMessageFromChatroom(msgId, payload.content);
@@ -81,14 +79,12 @@ export class ChatController
 	}
 
 	@Put(':id/visibility')
-	@UsePipes(ValidationPipe)
 	async updateChatroomVisibility(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateVisibilityDto)
 	{
 		await this.chatService.updateChatroomVisibility(id, patch);
 	}
 
 	@Put(":id/owner")
-	@UsePipes(ValidationPipe)
 	async updateChatroomOwner(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateOwnerDto)
 	{
 		await this.chatService.updateChatroomOwner(id, patch);
@@ -102,7 +98,6 @@ export class ChatController
 	}
 
 	@Post(':id/members')
-	@UsePipes(ValidationPipe)
 	async addMemberToChatRoom(@Param('id', ParseIntPipe) id: number, @Body() addMemberDto: AddMemberToChatroomDto)
 	{
 		await this.chatService.addMemberToChatRoom(id, addMemberDto);
@@ -122,7 +117,6 @@ export class ChatController
 	}
 
 	@Put(':id/members/:username/role')
-	@UsePipes(ValidationPipe)
 	async updateMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto)
 	{
 		await this.chatService.updateRoleOfMemberFromChatroom(chatroomId, username, patch);
