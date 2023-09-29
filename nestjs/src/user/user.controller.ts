@@ -30,7 +30,8 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  @UseGuards(AuthGuard)
+  // TODO : UseGuards back
+  // @UseGuards(AuthGuard)
   @ApiQuery({
     name: 'page',
     description: 'set the page to use for the pagination (default 1)',
@@ -92,6 +93,7 @@ export class UserController {
     return usersInfo;
   }
 
+  // TODO : UseGuards back
   // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the data about a specific user, for profile display',
@@ -120,14 +122,19 @@ export class UserController {
   }
 
   // REDO in PUT for real project?
-  @UseGuards(AuthGuard)
+  // TODO : UseGuards back
+  // @UseGuards(AuthGuard)
   @Put(':username')
   async updateUser(
     @Param('username') username: string,
     @Body() bodyData: UserData,
     @Req() req: Request,
   ): Promise<UserData> {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    // TODO : Remove if condition after testing.
+    if (req.cookies.test)
+    {
+      await this.authService.verifyUser(username, req.cookies.test.access_token);
+    }
 
     const user = await this.userService.findUserFromName(bodyData.name);
     if (user) {
@@ -140,6 +147,7 @@ export class UserController {
     );
   }
 
+  // TODO : UseGuards back
   // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the accepted and pending friend request for the username requested',
@@ -197,7 +205,8 @@ export class UserController {
     return friendList;
   }
 
-  @UseGuards(AuthGuard)
+  // TODO : UseGuards back
+  // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Send a friend request to another user',
     description: 'the user identified in the URL send a friend request to the user which login is in the body data. There must be a valid JWT token, and the logged in user must be the user in the url.',
@@ -237,7 +246,11 @@ export class UserController {
   @Post(':username/friends')
   async addFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request): Promise<string> 
   {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    // TODO : Remove if condition after testing.
+    if (req.cookies.test)
+    {
+      await this.authService.verifyUser(username, req.cookies.test.access_token);
+    }
     if (!bodyData.target)
     {
       throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
@@ -255,7 +268,8 @@ export class UserController {
     return (friendStatus.toLowerCase());
   }
 
-  @UseGuards(AuthGuard)
+  // TODO : UseGuards back
+  // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Remove a friend.',
     description: 'the user identified in the URL removes the user which login is in the body data from his friends. There must be a valid JWT token, and the logged in user must be the user in the url.',
@@ -292,7 +306,12 @@ export class UserController {
   @Delete(':username/friends')
   async removeFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
   {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    // TODO : Remove if condition after testing.
+    if (req.cookies.test)
+    {
+      await this.authService.verifyUser(username, req.cookies.test.access_token);
+    }
+
     if (!bodyData.target)
     {
       throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
