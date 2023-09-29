@@ -16,7 +16,6 @@ axios.defaults.withCredentials = true
 import "./index.css";
 import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
-import Contact from "./routes/UserPage.tsx";
 import Test from "./test-files-and-tmp-stuff/Test.tsx";
 import Auth from "./routes/Auth.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
@@ -30,6 +29,7 @@ import Login from "./routes/UserLogin.tsx";
 import DirectMessage from "./routes/DirectMessage.tsx";
 import PongDuel from "./routes/PongDuel.tsx";
 import ChatRoom from "./routes/ChatRoom.tsx";
+import UserPage from "./routes/UserPage.tsx";
 // import Login from "./routes/Foo.tsx";
 
 const router = createBrowserRouter([
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/user/:login42",
-        element: <Contact />,
+        element: <UserPage />,
       },
       {
         path: "/pong",

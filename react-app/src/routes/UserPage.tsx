@@ -1,102 +1,51 @@
-import { UserData } from "../interfaces";
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useCurrentUser, useUserData } from "../functions/customHook";
+import { ErrorMessage } from "../components/ErrorComponents";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import { IconTrophy } from "../components/Icons";
-import { useUserData } from "../functions/customHook";
+import ProfileElo from "../components/ProfileElo";
 
-const bio_test = "Venez vous battre bande de fous !"
+export default function UserPage() {
+  const { login42 } = useParams<"login42">();
+  const { data: cu, isError: noCurrentUser } = useCurrentUser();
+  const { data: user, isLoading, isError } = useUserData(login42);
 
-function HistoryButton({ navigate }: { navigate: NavigateFunction }) {
+  // if (noCurrentUser)
+  //   return <ErrorMessage message="no current user, try loggin in" />;
+  if (isLoading)
+    return (
+      <LoadingSpinnerMessage message={"Loading " + login42 + "'s profile"} />
+    );
+  if (isError)
+    return <ErrorMessage message={"Error loading " + login42 + "'s profile"} />;
   return (
-    <div
-      className="flex h-[100%] grow cursor-pointer items-center justify-center rounded-md bg-gradient-to-tl from-indigo-700 to-purple-500 shadow-md transition-transform hover:scale-105"
-      // You can declair an anon funciton right here are just have a
-      // result which is the function you wanted with a parameter
-      onClick={() => {
-        navigate("/user");
-      }}
-    >
-      <p className="text-center">Match History</p>
-    </div>
-  );
-}
-
-function MessageButton({ navigate }: { navigate: NavigateFunction }) {
-  return (
-    <div
-      className="flex h-[100%] grow cursor-pointer items-center justify-center rounded-md bg-gradient-to-tl from-green-600 to-lime-400 shadow-md transition-transform hover:scale-105"
-      onClick={() => navigate("/user")}
-    >
-      <p>Messages</p>
-    </div>
-  );
-}
-
-function ChallengeButton({ navigate }: { navigate: NavigateFunction }) {
-  return (
-		<div
-			className="flex max-h-[7em] w-[20em] grow cursor-pointer items-center justify-center rounded-md bg-gradient-to-tl from-red-600 to-amber-400 shadow-md transition-transform hover:scale-105"
-			onClick={() => navigate("/user")}
-		>
-			<p className="text-[1.75em]">Challenge</p>
-		</div>
-  );
-}
-
-function UserInfo({ user }: { user: UserData }) {
-  return (
-    <div className="flex max-h-[7em] w-[20em] items-center gap-[1em] rounded-2xl bg-gradient-to-tl from-blue-500 to-sky-300 p-[0.75em] shadow-md">
-			<div className="group relative flex h-[5em] w-[5em] items-center gap-[0.3em]">
-				<img
-					className="h-[5em] w-[5em] z-10 aspect-square rounded-full border-x-4 border-y-4 border-neutral-100 object-cover shadow-md transition-transform duration-700 group-hover:rotate-[360deg] group-hover:scale-110"
-					key={user.id}
-					src={user.avatar}
-					alt={user.login42}
-				/>
-				<div className="z-0 flex h-[7.5em] min-w-[20.25em] translate-x-[-12em] scale-[0.01] items-center overflow-y-auto rounded-xl bg-slate-100 pl-[8em] pt-[2em] pb-[2em] pr-10 shadow transition-all duration-500 group-hover:visible group-hover:translate-x-[-6.2em] group-hover:scale-100">
-					<p className="text-justify text-[0.75em] text-gray-800">{user.bio || bio_test}</p>
-				</div>
-			</div>
-      <div className="flex h-[100%] w-[100%] flex-col items-center justify-center overflow-hidden p-3 pl-5 font-bold text-white">
-        <div className="flex grow items-center text-center">
-          <p>{user.name}</p>
-        </div>
-        <div className="max-h-0 w-[100%] rounded-md border-[0.1em] border-slate-200"></div>
-        <div className="flex grow items-center">
-          <div className="flex h-[100%] w-[100%] items-center justify-center gap-1">
-            <p>{user.elo}</p>
-            <IconTrophy className="h-[0.75em] w-[0.75em]" />
+    <>
+      <div className=" h-full w-full px-28 py-5">
+        <div className="h-40" />
+        <div className="box-theme flex flex-col items-center justify-center">
+          <div className="flex w-full">
+            <div className="w-7 " />
+            <div className="relative w-56 min-w-[10rem]">
+              <div className="absolute -top-24 bottom-auto right-auto aspect-square w-full overflow-hidden rounded-full bg-stone-50 p-4 ">
+                <img
+                  src={user.avatar}
+                  alt={user.login42 + "'s profile image"}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              </div>
+            </div>
+            <div className="grow ">
+              <h1 className="gradient-hightlight min-w-0 pl-4 pt-4 text-5xl font-semibold ">
+                {user.name}
+              </h1>
+              <h2 className="text-2xl pl-4  text-slate-400">{"@" + user.login42}</h2>
+            </div>
           </div>
+          <div className="text-2xl p-5">
+            {user.bio}
+          </div>
+          <ProfileElo data={user.eloHistory} className="p-10"/>
         </div>
       </div>
-    </div>
-  );
-}
-
-export default function Contact() {
-  const { login42 } = useParams<"login42">();
-  const navigate = useNavigate();
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useUserData(login42)
-
-  // see comment below, feel free to remove
-  // my shitty change if you don't like it.
-
-  if (isLoading) return <LoadingSpinnerMessage message="Loading Profile" />;
-  if (isError)
-    return <p className="text-3xl text-red-600">Error when loading page</p>;
-
-  return (
-		<div className="flex justify-center items-center font-bold sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white h-[70em] w-[80%] flex-col gap-5 p-10">
-			<UserInfo user={user} />
-			<div className="flex h-[7em] w-[20em] items-center justify-center gap-7 pt-2">
-				<HistoryButton navigate={navigate} />
-				<MessageButton navigate={navigate} />
-			</div>
-			<ChallengeButton navigate={navigate} />
-		</div>
+    </>
   );
 }

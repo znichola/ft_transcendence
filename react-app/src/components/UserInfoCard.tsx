@@ -46,7 +46,7 @@ export default function UserInfoCard({
   );
 }
 
-function EloWinRate({ user }: { user: UserData }) {
+export function EloWinRate({ user }: { user: UserData }) {
   return (
     <div className="group relative w-20 items-center justify-center overflow-hidden border-r border-slate-200 ">
       <div className="absolute flex h-full w-full grow items-center justify-center overflow-hidden duration-500 group-hover:opacity-0">

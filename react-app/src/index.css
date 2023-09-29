@@ -4,7 +4,10 @@
 
 @layer components {
   .gradient-hightlight {
-    @apply from-fuchsia-600 to-orange-500 bg-gradient-to-br bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-transparent;
+  }
+  .box-theme {
+    @apply rounded-xl border-b-4 border-stone-300 bg-stone-50 shadow-lg;
   }
 }
 
@@ -13,7 +16,7 @@
 /* no scrollbar */
 * {
   scrollbar-width: none;
-	scrollbar-color: red;
+  scrollbar-color: red;
 }
 
 /* this below is fore chrome */
