@@ -8,7 +8,7 @@ export default function PlayPong() {
           Wanna Play Some Pong?
         </h1>
         <div className="h-8"/>
-          <div className="bg-gradient-to-br from-blue-400 to-lime-400  border-2 border-stone-800 shadow-2xl text-sky-200">
+          <div className="bg-gradient-to-br from-blue-400 to-lime-400  border-2 border-stone-600 shadow-2xl text-sky-200 rounded-xl ">
               <PongApp width={858} height={525}/>
           </div>
       </div>
