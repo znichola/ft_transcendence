@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { UserData } from "../interfaces";
 import {
   iconType,
@@ -11,11 +10,11 @@ import {
   IconUserGroup,
   IconPlusCircle,
 } from "./Icons";
-import axios from "axios";
 import { LoadingSpinnerMessage } from "./Loading";
 import { Form } from "react-router-dom";
 import { RefObject, useState } from "react";
 import { useRef, useEffect } from "react";
+import { useUserData } from "../functions/customHook";
 
 type btnStateType = "USERS" | "SETTINGS" | "ADDUSER" | "UNSET";
 type chatRoomUser = {
@@ -54,9 +53,9 @@ export default function ChatRoomMenu() {
   }
 
   return (
-    <div ref={wrapperRef} className="absolute top-0 w-full px-28 py-5">
-      <div className="absolute left-0 top-0 h-[160%] w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
-      <div className="relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-300 bg-stone-100 bg-size-200 pt-6 shadow-lg">
+    <div ref={wrapperRef} className="absolute top-0 w-full px-28 py-5 pointer-events-none bg-clip-content">
+      <div className="absolute left-0 top-0 h-[160%] z-10 w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
+      <div className="relative flex z-20 w-full flex-col items-center justify-between pointer-events-auto rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
         <h1 className="bg-gradient-to-br text-center from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-semibold text-transparent">
           Noobish Helpdesk
         </h1>
@@ -119,7 +118,7 @@ function ButtonGeneric({
       />
       <button
         onClick={onButtonClick}
-        className="flex items-center justify-center rounded-full h-10 w-10 border-b-2 border-slate-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
+        className="flex items-center justify-center rounded-full h-10 w-10 border-b-2 border-stone-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
       >
         <div className="flex h-8 w-8 items-center justify-center">
           <Icon />
@@ -217,10 +216,7 @@ function AddUsersCard({ login42 }: { login42: string }) {
     data: user,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["UserData", login42],
-    queryFn: () => axios.get<UserData>("/user/" + login42).then((r) => r.data),
-  });
+  } = useUserData(login42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
@@ -247,10 +243,7 @@ function ManageUserCard({ login42, role }: { login42: string; role: string }) {
     data: user,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["UserData", login42],
-    queryFn: () => axios.get<UserData>("/user/" + login42).then((r) => r.data),
-  });
+  } = useUserData(login42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;

@@ -2,16 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { UserData } from "../interfaces";
 import axios from "axios";
-import { getCurrentUser } from "../Api-axios";
 import { LoadingSpinnerMessage } from "../components/Loading";
+import { useCurrentUser } from "../functions/customHook";
 
 export default function DirectMessage() {
   const { login42 } = useParams<"login42">();
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-    initialData: "default42",
-  });
+  const { data: user } = useCurrentUser();
 
   const {
     data: messages,

@@ -1,9 +1,8 @@
 import { UserData } from "../interfaces";
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import { useQuery } from "@tanstack/react-query";
 import { IconTrophy } from "../components/Icons";
+import { useUserData } from "../functions/customHook";
 
 const bio_test = "Venez vous battre bande de fous !"
 
@@ -81,11 +80,7 @@ export default function Contact() {
     data: user,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["UserData", login42],
-    queryFn: () =>
-      axios.get<UserData>("/user/" + login42).then((res) => res.data),
-  });
+  } = useUserData(login42)
 
   // see comment below, feel free to remove
   // my shitty change if you don't like it.

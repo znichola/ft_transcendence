@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import {
   IconBashShell,
   IconDownChevron,
@@ -17,30 +16,20 @@ import {
   IconFingerPrint,
   IconGit,
 } from "./Icons";
-import axios from "axios";
 import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
 import ProfileElo from "./ProfileElo.tsx";
-import { getCurrentUser } from "../Api-axios.tsx";
+import { useCurrentUserData } from "../functions/customHook.tsx";
 
 export default function SideMenu() {
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-    initialData: "default42",
-  });
-
   const {
     data: currentUserData,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["UserData", user],
-    queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
-  });
+  } = useCurrentUserData();
 
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;
@@ -59,7 +48,7 @@ export default function SideMenu() {
             to="/play"
             icon={IconHomeComputer}
           />
-          <Nav name="My Profile" to={"/user/" + user} icon={IconUser} />
+          <Nav name="My Profile" to={"/user/" + currentUserData.login42} icon={IconUser} />
           <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
           <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
           <Category name="Social" />
@@ -215,20 +204,11 @@ function NavExpandable({
 }
 
 function CurrentUserStats() {
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-    initialData: "default42",
-  });
-
   const {
     data: currentUserData,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["UserData", user],
-    queryFn: () => axios.get<UserData>("/user/" + user).then((res) => res.data),
-  });
+  } = useCurrentUserData();
 
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;

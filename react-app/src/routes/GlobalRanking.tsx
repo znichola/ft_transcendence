@@ -2,12 +2,11 @@ import { Form } from "react-router-dom";
 import AllUsers from "./AllUsers";
 import { IconDownChevron } from "../components/Icons";
 import {} from "./AllUsers";
-import { UserData, UserFriends } from "../interfaces";
+import { UserFriends } from "../interfaces";
 import { useState } from "react";
 import UserInfoCard from "../components/UserInfoCard";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { LoadingSpinnerMessage } from "../components/Loading";
+import { useUserData } from "../functions/customHook";
 
 export type filter = ({
   cardUser,
@@ -37,11 +36,8 @@ const FilterMenu = function () {
       data: cardUserData,
       isLoading,
       isError,
-    } = useQuery({
-      queryKey: ["UserData", cardUser],
-      queryFn: () =>
-        axios.get<UserData>("/user/" + cardUser).then((res) => res.data),
-    });
+    } = useUserData(cardUser);
+
     if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
     if (isError) return <div>Error loading profile</div>;
 

@@ -1,26 +1,19 @@
 import { UserData } from "../interfaces";
-import Avatar from "./Avatar";
-import { Nav } from "./SideMenu.tsx";
-
-// Temporaire pour le user
-import { getCurrentUser } from "../Api-axios.tsx";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { Component, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ChatRoomMenu from "./ChatRoomMenu.tsx";
 
 function statusColor(status: UserData["status"]) {
   switch (status) {
     case "ONLINE":
-      return "ring-green-600";
+      return "border-green-600";
     case "OFFLINE":
-      return "ring-gray-300";
+      return "border-gray-300";
     case "INGAME":
-      return "ring-blue-400";
+      return "border-blue-400";
     case "UNAVAILABLE":
-      return "ring-red-500";
+      return "border-red-500";
     default:
-      return "ring-ping-700";
+      return "border-ping-700";
   }
 }
 
@@ -34,24 +27,27 @@ function Message({
   left: boolean;
 }) {
   return (
-    <div
-      className={`flex gap-5 ${
-        left ? "text-left" : "flex-row-reverse"
-      } max-w-prose`}
-    >
-      <img
-        className={
-          "h-20 w-20 min-w-[5rem] rounded-full ring-2" +
-          " " +
-          statusColor(sender.status)
-        }
-        src={sender.avatar}
-        alt={sender.login42 || "undefined" + " profile image"}
-      />
-      <p className="min-w-0 whitespace-pre-line break-words rounded-xl bg-white p-3 px-3 pt-6 shadow">
-        {text}
-      </p>
-    </div>
+      <div
+        className={`flex items-center w-fit h-fit rounded-3xl gap-2 ${
+          left ? "text-left" : "flex-row-reverse mr-0 ml-auto"
+        } max-w-prose`}
+      >
+        <img
+          className={
+            `peer h-14 w-14 rounded-full border-b-2 object-cover border-separate self-start m-[1px]` +
+            " " +
+            statusColor(sender.status)
+          }
+          src={sender.avatar}
+          alt={sender.login42 || "undefined" + " profile image"}
+        />
+        <div className="absolute">
+
+        </div>
+        <p className="min-w-0 break-words bg-white border-b-2 py-2 rounded-3xl px-4">
+          {text}
+        </p>
+      </div>
   );
 }
 
@@ -132,7 +128,7 @@ export default function ChatMessages() {
   return (
     <div className="relative flex h-full min-h-0 w-full max-h-full items-center flex-grow-0 flex-col">
       <ChatRoomMenu />
-      <div className="text flex h-full w-full min-h-0 flex-col gap-6 overflow-auto bg-stone-100 p-3 px-10 font-light text-slate-800 lg:text-xl ">
+      <div className="flex h-full w-full min-h-0 pt-56 pb-52 flex-col gap-1 overflow-auto bg-stone-100 p-3 px-10">
         {messages.map((element, index) => {
           return (
             <Message
