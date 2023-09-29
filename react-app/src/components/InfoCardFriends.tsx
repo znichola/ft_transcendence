@@ -47,8 +47,15 @@ export default function RelationActions({
   return (
     <div className="felx-col group relative flex w-12 flex-1 items-center justify-end">
       <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
-        {status == "friends" ? (
+        {status === "friends" ? (
           <IconUser className="h-5 w-5 align-middle text-rose-400" />
+        ) : status === "pending" ? (
+          <div className="relative flex h-5 w-5">
+            <IconAddUser className="h-5 w-5 align-middle text-rose-200" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-300 opacity-40 "></span>
+          </div>
+        ) : status === "sent" ? (
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-b-transparent"></div>
         ) : (
           <IconAddUser />
         )}

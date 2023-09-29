@@ -4,7 +4,6 @@ import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
 import RelationActions from "./InfoCardFriends";
 
-
 export default function UserInfoCard({
   cardUser,
   currentUser,
@@ -23,24 +22,34 @@ export default function UserInfoCard({
     ? "pending"
     : "none";
   return (
-    <div className="m-4 flex h-28 w-[430px] max-w-md justify-between bg-white shadow ">
-      <div className="flex">
-        <EloWinRate user={cardUser} />
-        <AvatarName user={cardUser} />
-      </div>
+    <div className="p-2">
+      <div
+        className={`p-1 ${
+          relationStatus === "friends"
+            ? "bg-gradient-to-br from-fuchsia-600 to-orange-500"
+            : ""
+        }`}
+      >
+        <div className="flex h-28 w-[430px] max-w-md justify-between bg-white shadow ">
+          <div className="flex">
+            <EloWinRate user={cardUser} />
+            <AvatarName user={cardUser} />
+          </div>
 
-      <div className="flex flex-col py-2">
-        <SideButton
-          name={"Duel"}
-          to={"/pong/" + currentUser + "/vs/" + cardUser.login42}
-          icon={IconBolt}
-        />
-        <SideButton
-          name={"Chat"}
-          to={"/message/" + cardUser.login42}
-          icon={IconChatBubble}
-        />
-        <RelationActions status={relationStatus} />
+          <div className="flex flex-col py-2">
+            <SideButton
+              name={"Duel"}
+              to={"/pong/" + currentUser + "/vs/" + cardUser.login42}
+              icon={IconBolt}
+            />
+            <SideButton
+              name={"Chat"}
+              to={"/message/" + cardUser.login42}
+              icon={IconChatBubble}
+            />
+            <RelationActions status={relationStatus} />
+          </div>
+        </div>
       </div>
     </div>
   );
