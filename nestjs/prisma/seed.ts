@@ -251,6 +251,15 @@ async function main() {
   await createFriendship(prisma, 'funnyuser6', 'default42', 'ACCEPTED');
   await createFriendship(prisma, 'sportsfan42', 'default42', 'PENDING');
 
+  await createFriendship(prisma, 'znichola', 'funnyuser2', 'PENDING');
+  await createFriendship(prisma, 'znichola', 'funnyuser1', 'BLOCKED');
+  await createFriendship(prisma, 'znichola', 'coding_ninja', 'ACCEPTED');
+  await createFriendship(prisma, 'znichola', 'funnyuser3', 'ACCEPTED');
+  await createFriendship(prisma, 'user123', 'znichola', 'PENDING');
+  await createFriendship(prisma, 'funnyuser5', 'znichola', 'ACCEPTED');
+  await createFriendship(prisma, 'funnyuser6', 'znichola', 'ACCEPTED');
+  await createFriendship(prisma, 'sportsfan42', 'znichola', 'PENDING');
+
   await FakerData();
 }
 main()

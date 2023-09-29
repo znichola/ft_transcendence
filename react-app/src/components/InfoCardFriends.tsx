@@ -15,24 +15,24 @@ type friendStatusMessage = {
 
 type action = { accept: string; reject: string };
 
-type friActions = {
+type relationActions = {
   [key in relationStatus]: string | action;
 };
 
 const friendStatusMessage: friendStatusMessage = {
-  none: "Add them as freind",
+  none: "Add them as friend",
   friends: "You are already friends",
   sent: "You have sent a friend request",
-  pending: "Accept / reject their freind request",
+  pending: "friend request",
   blocked: "This person has blocked you",
   loading: "Loading ...",
   error: "Error ...",
 };
 
-const friActions: friActions = {
-  none: "Add freind",
-  friends: "Un freind",
-  sent: "You have sent a friend request",
+const friendActions: relationActions = {
+  none: "Add friend",
+  friends: "Remove friend",
+  sent: "Cancel friend request",
   pending: { accept: "accept", reject: "reject" },
   blocked: "This person has blocked you",
   loading: "Loading ...",
@@ -45,7 +45,7 @@ export default function RelationActions({
   status: relationStatus;
 }) {
   return (
-    <div className="felx-col group relative flex w-12 flex-1 items-center justify-end ">
+    <div className="felx-col group relative flex w-12 flex-1 items-center justify-end">
       <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
         {status == "friends" ? (
           <IconUser className="h-5 w-5 align-middle text-rose-400" />
@@ -53,8 +53,8 @@ export default function RelationActions({
           <IconAddUser />
         )}
       </div>
-      <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2">
-        <div className="text-xs font-bold text-slate-50">
+      <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
+        <div className="text-xs font-semibold text-slate-500">
           <ActionsBTN status={status} />
         </div>
       </div>
@@ -67,9 +67,12 @@ export function ActionsBTN({ status }: { status: relationStatus }) {
     console.log("Add friend");
   }
   function unFriend() {
-    console.log("Unfreind");
+    console.log("Unfriend");
   }
-  function accpept() {
+  function cancelRequest() {
+    console.log("Cancled sent requests");
+  }
+  function accept() {
     console.log("Accpeted request");
   }
   function reject() {
@@ -85,13 +88,20 @@ export function ActionsBTN({ status }: { status: relationStatus }) {
     case "friends":
       return <FB status={status} btnClick={unFriend} />;
     case "sent":
-      return <FB status={status} btnClick={unFriend} />;
+      return <FB status={status} btnClick={cancelRequest} />;
     case "pending":
       return (
-        <>
-          <FB status={status} btnClick={accpept} />
-          <FB status={status} btnClick={reject} />
-        </>
+        <div className="flex gap-2">
+          <div className="border-r border-slate-400 pr-2 text-slate-400">
+            {friendStatusMessage[status]}
+          </div>
+          <button className="hover:gradient-hightlight" onClick={accept}>
+            {(friendActions[status] as action).accept}
+          </button>
+          <button className="hover:gradient-hightlight" onClick={reject}>
+            {(friendActions[status] as action).reject}
+          </button>
+        </div>
       );
     case "blocked":
       return <FB status={status} btnClick={block} />;
@@ -111,16 +121,10 @@ function FB({
   status: relationStatus;
   btnClick: () => void;
 }) {
-  if (status == "pending") {
-    return (
-      <button className="text-white" onClick={btnClick}>
-        {(friendStatusMessage[status] as action).accept}
-      </button>
-    );
-  }
+  if (status == "pending") return <></>;
   return (
-    <button className="text-white" onClick={btnClick}>
-      {friendStatusMessage[status] as string}
+    <button className="hover:gradient-hightlight" onClick={btnClick}>
+      {friendActions[status] as string}
     </button>
   );
 }

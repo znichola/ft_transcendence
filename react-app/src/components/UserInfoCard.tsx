@@ -40,11 +40,6 @@ export default function UserInfoCard({
           to={"/message/" + cardUser.login42}
           icon={IconChatBubble}
         />
-        {/* <SideButtonFriend
-          currentUser={currentUser}
-          cardUser={cardUser}
-          friends={userFriends}
-        /> */}
         <RelationActions status={relationStatus} />
       </div>
     </div>
@@ -111,8 +106,10 @@ function SideButton({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2">
-          <div className="text-xs font-bold text-slate-50">{name}</div>
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
+          <div className="group-hover:gradient-hightlight text-xs font-semibold text-slate-500">
+            {name}
+          </div>
         </div>
       </Link>
     </>

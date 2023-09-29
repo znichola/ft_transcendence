@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .gradient-hightlight {
+    @apply from-fuchsia-600 to-orange-500 bg-gradient-to-br bg-clip-text text-transparent;
+  }
+}
+
 /* https://birdeatsbug.com/blog/creating-hover-effects-with-tailwind-css */
 
 /* no scrollbar */
