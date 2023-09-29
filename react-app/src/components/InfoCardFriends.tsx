@@ -111,21 +111,32 @@ function FB({
   status: relationStatus;
   btnClick: () => void;
 }) {
+  if (status == "pending") {
+    return (
+      <button className="text-white" onClick={btnClick}>
+        {(friendStatusMessage[status] as action).accept}
+      </button>
+    );
+  }
   return (
-    <div className="felx-col group relative flex w-12 flex-1 items-center justify-end ">
-      <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
-        {status == "friends" ? (
-          <IconUser className="h-5 w-5 align-middle text-rose-400" />
-        ) : (
-          <IconAddUser />
-        )}
-      </div>
-      <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2">
-        <div className="text-xs font-bold text-slate-50"></div>
-      </div>
-    </div>
+    <button className="text-white" onClick={btnClick}>
+      {friendStatusMessage[status] as string}
+    </button>
   );
 }
+
+// <div className="felx-col group relative flex w-12 flex-1 items-center justify-end ">
+//       <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
+//         {status == "friends" ? (
+//           <IconUser className="h-5 w-5 align-middle text-rose-400" />
+//         ) : (
+//           <IconAddUser />
+//         )}
+//       </div>
+//       <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl from-fuchsia-600 to-orange-500 shadow-md transition-all group-hover:w-max group-hover:p-2">
+//         <div className="text-xs font-bold text-slate-50"></div>
+//       </div>
+//     </div>
 
 //  <button
 //    className="felx-col group relative flex w-12 flex-1 items-center justify-end"

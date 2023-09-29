@@ -1,9 +1,6 @@
 import { UserFriends } from "../interfaces";
 import axios from "axios";
-import {
-  LoadingSpinner,
-  LoadingSpinnerMessage,
-} from "../components/Loading";
+import { LoadingSpinner, LoadingSpinnerMessage } from "../components/Loading";
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useIntersection } from "../functions/uneIntersection";
@@ -43,7 +40,8 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
 
   if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
   if (userError) return <div>Error loading current user, try signing in</div>
-  if (isError ) return <div>Error loading profile</div>;
+  // if (userError) console.log("Error loading current user, try signing in");
+  if (isError) return <div>Error loading profile</div>;
 
   if (
     inViewport &&
