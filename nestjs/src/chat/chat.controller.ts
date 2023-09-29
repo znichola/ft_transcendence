@@ -11,7 +11,7 @@ import { UpdateMessageDto } from './dto/update-message-dto';
 import { ChatroomEntity } from './entities/chatroom.entity';
 import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags("Chatrooms")
 @Controller('chat')
@@ -19,8 +19,8 @@ export class ChatController
 {
 	constructor(private readonly chatService: ChatService) {}
 
-	@ApiTags("Chatrooms")
 	@Get()
+	@ApiOkResponse({type: ChatroomEntity, isArray: true})
 	async getAllChatRooms(): Promise<ChatroomEntity[]>
 	{
 		return await this.chatService.getAllChatRooms();
@@ -34,6 +34,7 @@ export class ChatController
 	}
 
 	@Get(':id')
+	@ApiOkResponse({type: ChatroomEntity})
 	async getOneChatRoom(@Param('id', ParseIntPipe) id: number): Promise<ChatroomEntity>
 	{
 		return await this.chatService.getOneChatRoom(id);
@@ -46,12 +47,14 @@ export class ChatController
 	}
 
 	@Get(':id/messages')
+	@ApiOkResponse({type: MessageEntity, isArray: true})
 	async getAllMessages(@Param('id', ParseIntPipe) id: number): Promise<MessageEntity[]>
 	{
 		return await this.chatService.getAllMessagesFromChatroom(id);
 	}
 
 	@Get(':id/messages/:msgId')
+	@ApiOkResponse({type: MessageEntity})
 	async getOneMessage(@Param('id', ParseIntPipe) id: number, @Param('msgId', ParseIntPipe) msgId: number): Promise<MessageEntity>
 	{
 		return await this.chatService.getOneMessageFromChatroom(id, msgId);
@@ -92,6 +95,7 @@ export class ChatController
 	}
 
 	@Get(':id/members')
+	@ApiOkResponse({type: MemberEntity, isArray: true})
 	async getMembersOfChatRoom(@Param('id', ParseIntPipe) id: number): Promise<MemberEntity[]>
 	{
 		return await this.chatService.getMembersOfChatRoom(id);
@@ -105,6 +109,7 @@ export class ChatController
 	}
 
 	@Get(':id/members/:username')
+	@ApiOkResponse({type: MemberEntity})
 	async getOneMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string): Promise<MemberEntity>
 	{
 		return await this.chatService.getOneMemberFromChatroom(chatroomId, username);
