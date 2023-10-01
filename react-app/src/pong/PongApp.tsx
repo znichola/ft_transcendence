@@ -1,4 +1,4 @@
-import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 
 //const gameStart = { p1y: 0, p2y: 0, ball: {pos: {x: 0, y: 0}, radius: 20, speed: 1, direction: {dx: 0, dy: 0}}, time: Date.now()}
 // const newTime = useRef(0)
@@ -52,7 +52,7 @@ const gameStart: gameState = {
     pos: { x: 200, y: 50 },
     radius: 20,
     speed: 1,
-    direction: { x: 1, y: 1 },
+    direction: { x: 1, y: 0 },
   },
 };
 
@@ -143,12 +143,12 @@ function useCanvas(draw: (ctx:  CanvasRenderingContext2D, gs: gameState) => void
         oldTime.current = 0;
       }
       //norm le vecteur direction afin davoir meme vitesse qu'importe direction
-      setBallPos(gameState.current, now, oldTime.current)
       positionPlayer(gameState.current.p1, context);
       positionPlayer(gameState.current.p2, context);
+      setBallPos(gameState.current, now, oldTime.current)
       bounceWallBall(gameState.current, context);
-      bouncePlayerBall(gameState.current.p1, gameState.current.ball)
-      bouncePlayerBall(gameState.current.p2, gameState.current.ball)
+      gameState.current.ball.pos.x < context.canvas.width / 2 ? bouncePlayerBall(gameState.current.p1, gameState.current.ball): bouncePlayerBall(gameState.current.p2, gameState.current.ball)
+      // bouncePlayerBall(gameState.current.p2, gameState.current.ball)
       scoreBall(gameState.current, context);
       draw(context, gameStart);
       oldTime.current = now;
@@ -162,86 +162,66 @@ function useCanvas(draw: (ctx:  CanvasRenderingContext2D, gs: gameState) => void
   return canvasRef;
 }
 
-function setBallPos(gameState: gameState, now: number, oldTime: number) {
-  const norm = Math.sqrt(Math.pow(gameState.ball.direction.x, 2) + Math.pow(gameState.ball.direction.y, 2));
-  gameState.ball.direction.x /= norm;
-  gameState.ball.direction.y /= norm;
-  gameState.ball.pos.x +=
-      (gameState.ball.direction.x * (now - oldTime)) / 5 * gameState.ball.speed;
-  gameState.ball.pos.y +=
-      (gameState.ball.direction.y * (now - oldTime)) / 5 * gameState.ball.speed;
+function setBallPos(gs: gameState, now: number, oldTime: number) {
+  gs.ball.pos.x +=
+      gs.ball.direction.x * gs.ball.speed * (now - oldTime);
+  gs.ball.pos.y +=
+      gs.ball.direction.y * gs.ball.speed * (now - oldTime);
 }
-function bounceWallBall(gameState: gameState, context: CanvasRenderingContext2D) {
+function bounceWallBall(gs: gameState, ctx: CanvasRenderingContext2D) {
   //TOUCHE BORD HAUT OU BAS
   if (
-      gameState.ball.pos.y - gameState.ball.radius < 0 ||
-      gameState.ball.pos.y + gameState.ball.radius >
-      context.canvas.height
+      gs.ball.pos.y - gs.ball.radius < 0 ||
+      gs.ball.pos.y + gs.ball.radius >
+      ctx.canvas.height
   ) {
-    gameState.ball.direction.y *= -1;
-    if (gameState.ball.pos.y - gameState.ball.radius <= 0)
-      gameState.ball.pos.y = gameState.ball.radius;
+    gs.ball.direction.y *= -1;
+    if (gs.ball.pos.y - gs.ball.radius <= 0)
+      gs.ball.pos.y = gs.ball.radius;
     else
-      gameState.ball.pos.y =
-          context.canvas.height - gameState.ball.radius;
+      gs.ball.pos.y =
+          ctx.canvas.height - gs.ball.radius;
   }
 }
 
 function bouncePlayerBall(p: player, b: ball) {
-  if (b.pos.x + b.radius >= p.pos.x
-      && b.pos.y + b.radius <= p.pos.y + p.dim.h
-      && b.pos.x - b.radius <= p.pos.x + p.dim.w
-      && b.pos.y + b.radius >= p.pos.y)
+  if (b.pos.x + b.radius > p.pos.x
+      && b.pos.y - b.radius < p.pos.y + p.dim.h
+      && b.pos.x - b.radius < p.pos.x + p.dim.w
+      && b.pos.y + b.radius > p.pos.y)
   {
-    b.direction.x *= -1;
-    b.pos.x += b.direction.x * 10;
-    b.pos.y += b.direction.y * 10;
-    b.speed *= 1.2;
+    const contactRatioY = (b.pos.y - (p.pos.y + p.dim.h / 2)) / (p.dim.h / 2);
+    const angle = Math.PI/3 * contactRatioY;
+    const direction = b.direction.x < 0 ? -1: 1;
+    b.direction.x = -direction * Math.cos(angle)
+    b.direction.y = Math.sin(angle)
+     if (direction < 0)
+      b.pos.x = p.pos.x + p.dim.w + b.radius + 1;
+    else
+      b.pos.x = p.pos.x - b.radius - 1;
+    //put lim to Vmax pending on p.w and ball.diam
+    if (b.speed < (p.dim.w + b.radius * 2) / 16)
+    {
+      b.speed *= 1.12;
+      if (b.speed > (p.dim.w + b.radius * 2) / 16)
+        b.speed = (p.dim.w + b.radius * 2) / 16;
+    }
   }
 }
 
-function scoreBall(gameState: gameState, context: CanvasRenderingContext2D) {
+function scoreBall(gs: gameState, ctx: CanvasRenderingContext2D) {
   //TOUCHE BORD GAUCHE OU DROITE
   if (
-      gameState.ball.pos.x - gameState.ball.radius < 0 ||
-      gameState.ball.pos.x + gameState.ball.radius >
-      context.canvas.width
+      gs.ball.pos.x - gs.ball.radius < 0 ||
+      gs.ball.pos.x + gs.ball.radius >
+      ctx.canvas.width
   ) {
-    if (gameState.ball.pos.x - gameState.ball.radius <= 0)
-    {
-      gameState.ball.pos.x = gameState.ball.radius;
-      gameState.p2.score += 1;
-    }
+    if (gs.ball.pos.x - gs.ball.radius <= 0)
+      gs.p2.score += 1;
     else
-    {
-      gameState.ball.pos.x =
-          context.canvas.width - gameState.ball.radius;
-      gameState.p1.score += 1;
-    }
-    gameState.ball.direction.x = 1 - Math.random();
-    gameState.ball.direction.y = 1 - Math.random();
-    let ratio = gameState.ball.direction.x / gameState.ball.direction.y
-    //eviter trajectoire trop horizontal
-
-    if (ratio >= 5)
-      gameState.ball.direction.y *= Math.round(ratio) - 1;
-    //eviter trajectoire trop vertical
-    ratio = gameState.ball.direction.y / gameState.ball.direction.x
-    if (ratio >= 5)
-      gameState.ball.direction.x *=  Math.round(ratio) - 1;
-
-    //randomiser direction balle
-    if (Math.random() >= 0.5)
-      gameState.ball.direction.x *= -1;
-    if (Math.random() <= 0.5)
-      gameState.ball.direction.y *= -1;
-    gameState.ball.pos.x = context.canvas.width / 2;
-    gameState.ball.pos.y = context.canvas.height / 2;
-    //reset player pos
-    gameState.p1.pos.x = Math.round(context.canvas.width / 85);
-    gameState.p2.pos.x = Math.round(context.canvas.width - context.canvas.width / 85 - gameState.p2.dim.w);
-    gameState.p1.pos.y = gameState.p2.pos.y = Math.round(context.canvas.height / 2 - gameState.p1.dim.h / 2);
-    gameState.ball.speed = 1;
+      gs.p1.score += 1;
+    setRandomPosBall(gs.ball)
+    setInitialPosition(gs, ctx)
   }
 }
 
@@ -264,13 +244,31 @@ function setGameState(gs: gameState, ctx: CanvasRenderingContext2D)  {
   //define player dimension proportional to canvas dimension
   gs.p1.dim.w = gs.p2.dim.w = Math.round(ctx.canvas.width / 85);
   gs.p1.dim.h = gs.p2.dim.h = Math.round(ctx.canvas.height / 5);
+  //define ball radius proportional to canvas dimension
+  gs.ball.radius = Math.round(ctx.canvas.height * ctx.canvas.width / 35000);
+  setRandomPosBall(gs.ball)
+  setInitialPosition(gs, ctx)
+}
+
+function setInitialPosition(gs:gameState , ctx: CanvasRenderingContext2D)
+{
   //define player initial pos
   gs.p1.pos.x = Math.round(ctx.canvas.width / 85);
   gs.p2.pos.x = Math.round(ctx.canvas.width - ctx.canvas.width / 85 - gs.p2.dim.w);
   gs.p1.pos.y = gs.p2.pos.y = Math.round(ctx.canvas.height / 2 - gs.p1.dim.h / 2);
   //define ball initial pos
+  gs.ball.speed = Math.sqrt(Math.pow(ctx.canvas.width, 2) + Math.pow(ctx.canvas.height, 2)) / 4000
   gs.ball.pos.x = ctx.canvas.width / 2;
   gs.ball.pos.y = ctx.canvas.height / 2;
-  //define ball radius proportional to canvas dimension
-  gs.ball.radius = Math.round(ctx.canvas.height * ctx.canvas.width / 35000);
+}
+
+function setRandomPosBall(b: ball)
+{
+  let newDirection = Math.random() * 360;
+  if (newDirection >= 80 && newDirection<=100)
+    newDirection < 90 ? newDirection -= 10 : newDirection += 10
+  if (newDirection <= 260 && newDirection <= 280)
+    newDirection < 270 ? newDirection -= 10 : newDirection += 10
+  b.direction.x = Math.cos(newDirection)
+  b.direction.y = Math.sin(newDirection)
 }
