@@ -296,4 +296,14 @@ export class UserService {
       }
     })
   }
+
+  async updateFriend(user1: number, user2: number)
+  {
+ 
+    await prisma.friend.updateMany({
+      where: { user1Id: user2, user2Id: user1 },
+      data: { status: FriendStatus.ACCEPTED },
+    });
+
+  }
 }

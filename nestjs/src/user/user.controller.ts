@@ -124,6 +124,27 @@ export class UserController {
   // REDO in PUT for real project?
   // TODO : UseGuards back
   // @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Update the user profile.',
+    description: 'Update the user profile with the UserData provided. There must be a valid JWT token, and the logged in user must be the user in the url.',
+    requestBody: {
+      description: 'Body must include a UserData object, with name and bio fields.',
+      required: true,
+      content: {
+        'application/json': {
+          schema:
+          {
+            example: {
+              "name": "default42",
+              "bio": 'This example is the bare minimum data required for the update to work 🍕'
+            }
+          }
+      }}
+      }
+  })
+  @ApiResponse({ status: 200, description: 'Profile has been updated. new updated UserData is returned' })
+  @ApiResponse({ status: 400, description: 'UserData missing or imcomplete (implementation missing 👈)'})
+  @ApiResponse({ status: 401, description: 'No JWT token found, or logged in user does not match URL user login.'})
   @Put(':username')
   async updateUser(
     @Param('username') username: string,
@@ -320,5 +341,58 @@ export class UserController {
     const users = await this.userService.getFriendsIds(username, bodyData.target);
 
     await this.userService.removeFriend(users[0], users[1]);
+  }
+
+  // TODO : UseGuards back
+  // @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Accept a friend request.',
+    description: 'the user identified in the URL accept the friend request from the user which login is in the body data from his friends. There must be a valid JWT token, and the logged in user must be the user in the url.',
+    requestBody: {
+      description: 'Body must include the user who sent the friend request.',
+      required: true,
+      content: {
+        'application/json': {
+          schema:
+          {
+            example: {
+              "target": "default42"
+            }
+          }
+      }}
+      }
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Friend request accepted, or no friend request found with this data'
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Target missing in Body data, or similar to Sender.'
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No JTW token found, or the logged in user is not the user in the request url',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No user found with corresponding body target data.'
+  })
+  @Put(':username/friends')
+  async acceptFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
+  {
+    // TODO : Remove if condition after testing.
+    if (req.cookies.test)
+    {
+      await this.authService.verifyUser(username, req.cookies.test.access_token);
+    }
+
+    if (!bodyData.target)
+    {
+      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
+    }
+
+    const users = await this.userService.getFriendsIds(username, bodyData.target);
+    await this.userService.updateFriend(users[0], users[1]);
   }
 }
