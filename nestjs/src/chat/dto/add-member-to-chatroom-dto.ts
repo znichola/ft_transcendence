@@ -1,6 +1,6 @@
-import { IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { ChatroomUserRole } from "@prisma/client";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class AddMemberToChatroomDto
 {
@@ -12,4 +12,10 @@ export class AddMemberToChatroomDto
 	@ApiProperty({enum: ChatroomUserRole})
 	@IsEnum(ChatroomUserRole)
 	role: ChatroomUserRole;
+
+	@ApiPropertyOptional()
+	@IsOptional()
+	@IsString()
+	@IsNotEmpty()
+	password?: string;
 }

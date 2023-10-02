@@ -10,6 +10,7 @@ import { ChatroomEntity, ChatroomWithUsername } from './entities/chatroom.entity
 import { MessageEntity, MessageWithUsername } from './entities/message.entity';
 import { MemberEntity, MemberWithUsername } from './entities/member.entity';
 import * as bcrypt from 'bcrypt';
+import { ChatroomVisibilityStatus } from '@prisma/client';
 
 @Injectable()
 export class ChatService
@@ -329,6 +330,29 @@ export class ChatService
 		await this.checkChatroomExists(chatroomId);
 
 		const userId = await this.getUserId(addMemberDto.username);
+
+		if (addMemberDto.role == "OWNER")
+			throw new ForbiddenException("Cannot set another user as owner of the chatroom");
+
+		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
+			where: {
+				id: +chatroomId,
+			},
+		});
+
+		if (chatroom.status == ChatroomVisibilityStatus.PRIVATE)
+		{
+			throw new ForbiddenException("You haven't been invited to join this chatroom");
+		}
+		else if (chatroom.status == ChatroomVisibilityStatus.PROTECTED)
+		{
+			if (addMemberDto.password == null)
+				throw new ForbiddenException("Password required");
+
+			const pwd_verif: boolean = await bcrypt.compare(addMemberDto.password, chatroom.password);
+			if (!pwd_verif)
+				throw new ForbiddenException("Wrong password");
+		}
 
 		await this.prisma.chatroomUser.create({
 			data: {
