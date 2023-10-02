@@ -122,4 +122,28 @@ export class ChatController
 	{
 		await this.chatService.updateRoleOfMemberFromChatroom(chatroomId, username, patch);
 	}
+
+	@Get(':id/banned')
+	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number)
+	{
+
+	}
+
+	@Post(':id/banned')
+	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number)
+	{
+
+	}
+
+	@Get(':id/banned/:username')
+	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	{
+
+	}
+
+	@Delete(':id/banned/:username')
+	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	{
+
+	}
 }

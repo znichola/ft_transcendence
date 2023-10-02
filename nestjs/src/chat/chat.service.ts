@@ -436,6 +436,30 @@ export class ChatService
 		})
 	}
 
+	async getBannedUsers(chatroomId: number)
+	{
+		await this.checkChatroomExists(chatroomId);
+
+		const banned = await this.prisma.bannedUser.findMany({});
+
+		return banned;
+	}
+
+	async getOneBannedUser(chatroomId: number, username: string)
+	{
+
+	}
+
+	async addBannedUser(chatroomId: number, username: string)
+	{
+
+	}
+
+	async deleteBannedUser(chatroomId: number, username: string)
+	{
+
+	}
+
 	private async isMember(userId: number, chatroomId: number)
 	{
 		const chatroom = await this.prisma.chatroom.findUnique({
