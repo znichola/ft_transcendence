@@ -4,9 +4,11 @@ import { SendDmDto } from './dto/send-dm-dto';
 import { ConversationEntity } from './entities/conversation.entity';
 import { MessageEntity } from './entities/message.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 
 @ApiTags("Direct Messages")
 @UsePipes(new ValidationPipe({whitelist: true}))
+@UseFilters(PrismaClientExceptionFilter)
 @Controller('conversations')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}

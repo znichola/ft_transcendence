@@ -281,6 +281,8 @@ export class ChatService
 
 	async getMembersOfChatRoom(id: number): Promise<MemberEntity[]>
 	{
+		await this.checkChatroomExists(id);
+
 		const memberFromDb: MemberWithUsername[] = await this.prisma.chatroomUser.findMany({
 			where: {
 				chatroomId: +id,

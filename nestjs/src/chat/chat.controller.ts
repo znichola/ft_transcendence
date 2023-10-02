@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe} from '@nestjs/common';
+import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe, UseFilters} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
@@ -11,9 +11,11 @@ import { ChatroomEntity } from './entities/chatroom.entity';
 import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 
 @ApiTags("Chatrooms")
 @UsePipes(new ValidationPipe({whitelist: true}))
+@UseFilters(PrismaClientExceptionFilter)
 @Controller('chat')
 export class ChatController
 {
