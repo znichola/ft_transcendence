@@ -9,10 +9,6 @@ export class AddMemberToChatroomDto
 	@IsNotEmpty()
 	username: string;
 
-	@ApiProperty({enum: ChatroomUserRole})
-	@IsEnum(ChatroomUserRole)
-	role: ChatroomUserRole;
-
 	@ApiPropertyOptional()
 	@IsOptional()
 	@IsString()

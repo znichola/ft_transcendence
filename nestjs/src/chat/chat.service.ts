@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, BadRequestException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
@@ -331,14 +331,14 @@ export class ChatService
 
 		const userId = await this.getUserId(addMemberDto.username);
 
-		if (addMemberDto.role == "OWNER")
-			throw new ForbiddenException("Cannot set another user as owner of the chatroom");
-
 		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {
 				id: +chatroomId,
 			},
 		});
+
+		if (await this.isMember(userId, chatroomId))
+			throw new ConflictException("This user is already a member of the chatroom");
 
 		if (chatroom.status == ChatroomVisibilityStatus.PRIVATE)
 		{
@@ -358,7 +358,7 @@ export class ChatService
 			data: {
 				chatroomId: +chatroomId,
 				userId: +userId,
-				role: addMemberDto.role
+				role: "MEMBER"
 			},
 		});
 	}
@@ -436,30 +436,28 @@ export class ChatService
 		})
 	}
 
-	private async checkIsMember(userId: number, chatroomId: number)
+	private async isMember(userId: number, chatroomId: number)
 	{
 		const chatroom = await this.prisma.chatroom.findUnique({
 			where: {
 				id: +chatroomId
 			},
 		});
-
 		if (chatroom == null)
 			throw new NotFoundException("This chatroom does not exist");
-
-		if (chatroom.ownerId == userId)
-			return true;
 
 		const user = await this.prisma.chatroomUser.findUnique({
 			where: {
 				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId},
 			},
 		});
+		return (user != null);
+	}
 
-		if (user == null)
+	private async checkIsMember(userId: number, chatroomId: number)
+	{
+		if (!this.isMember(userId, chatroomId))
 			throw new NotFoundException('This user is not a member of the chatroom');
-
-		return true;
 	}
 
 	private async getUserId(login: string): Promise<number>
