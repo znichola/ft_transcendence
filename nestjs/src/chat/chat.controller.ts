@@ -12,6 +12,9 @@ import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
+import { BanUserDto } from './dto/ban-user-dto';
+import { BannedUser } from '@prisma/client';
+import { BannedUserEntity } from './entities/banned-user.entity';
 
 @ApiTags("Chatrooms")
 @UsePipes(new ValidationPipe({whitelist: true}))
@@ -124,26 +127,26 @@ export class ChatController
 	}
 
 	@Get(':id/banned')
-	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number)
+	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number): Promise<BannedUserEntity[]>
 	{
-
+		return await this.chatService.getBannedUsers(chatroomId);
 	}
 
 	@Post(':id/banned')
-	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number)
+	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: BanUserDto)
 	{
-
+		await this.chatService.addBannedUser(chatroomId, payload);
 	}
 
 	@Get(':id/banned/:username')
-	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string): Promise<BannedUserEntity>
 	{
-
+		return await this.chatService.getOneBannedUser(chatroomId, username);
 	}
 
 	@Delete(':id/banned/:username')
 	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
 	{
-
+		return await this.chatService.deleteBannedUser(chatroomId, username);
 	}
 }

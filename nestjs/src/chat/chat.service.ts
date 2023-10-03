@@ -10,7 +10,9 @@ import { ChatroomEntity, ChatroomWithUsername } from './entities/chatroom.entity
 import { MessageEntity, MessageWithUsername } from './entities/message.entity';
 import { MemberEntity, MemberWithUsername } from './entities/member.entity';
 import * as bcrypt from 'bcrypt';
-import { ChatroomVisibilityStatus } from '@prisma/client';
+import { BannedUser, ChatroomVisibilityStatus } from '@prisma/client';
+import { BanUserDto } from './dto/ban-user-dto';
+import { BannedUserEntity, BannedUserWithUsername } from './entities/banned-user.entity';
 
 @Injectable()
 export class ChatService
@@ -436,28 +438,64 @@ export class ChatService
 		})
 	}
 
-	async getBannedUsers(chatroomId: number)
+	async getBannedUsers(chatroomId: number): Promise<BannedUserEntity[]>
 	{
 		await this.checkChatroomExists(chatroomId);
 
-		const banned = await this.prisma.bannedUser.findMany({});
+		const banned: BannedUserWithUsername[] = await this.prisma.bannedUser.findMany({
+			select: {
+				user: {
+					select: {
+						login42: true
+					}
+				}
+			}
+		});
 
-		return banned;
+		return banned.map(user => new BannedUserEntity(user));
 	}
 
-	async getOneBannedUser(chatroomId: number, username: string)
+	async getOneBannedUser(chatroomId: number, username: string): Promise<BannedUserEntity>
 	{
+		const userId = await this.getUserId(username);
 
+		const banned: BannedUserWithUsername = await this.prisma.bannedUser.findUniqueOrThrow({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			},
+			select: {
+				user: {
+					select: {
+						login42: true
+					}
+				}
+			}
+		});
+
+		return new BannedUserEntity(banned);
 	}
 
-	async addBannedUser(chatroomId: number, username: string)
+	async addBannedUser(chatroomId: number, payload: BanUserDto)
 	{
+		const userId = await this.getUserId(payload.username);
 
+		await this.prisma.bannedUser.create({
+			data: {
+				chatroomId: +chatroomId,
+				userId: +userId,
+			}
+		});
 	}
 
 	async deleteBannedUser(chatroomId: number, username: string)
 	{
+		const userId = await this.getUserId(username);
 
+		await this.prisma.bannedUser.delete({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
 	}
 
 	private async isMember(userId: number, chatroomId: number)
