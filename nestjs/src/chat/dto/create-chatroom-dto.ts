@@ -7,7 +7,7 @@ export class CreateChatroomDto
 	@ApiProperty()
     @IsString()
 	@IsNotEmpty()
-    ownerUsername: string;
+    ownerLogin42: string;
 
 	@ApiProperty()
 	@IsString()

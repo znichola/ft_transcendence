@@ -7,7 +7,7 @@ export class AddMemberToChatroomDto
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	username: string;
+	login42: string;
 
 	@ApiPropertyOptional()
 	@IsOptional()

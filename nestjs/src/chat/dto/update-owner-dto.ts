@@ -6,5 +6,5 @@ export class UpdateOwnerDto
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	ownerUsername: string;
+	ownerLogin42: string;
 }

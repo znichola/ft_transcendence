@@ -73,7 +73,7 @@ export class ChatController
 	@Post(':id/messages')
 	async sendMessage(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: SendMessageDto)
 	{
-		await this.messageService.sendMessageToChatroom(chatroomId, payload.senderUsername, payload.content);
+		await this.messageService.sendMessageToChatroom(chatroomId, payload.senderLogin42, payload.content);
 	}
 
 	@Put(':id/messages/:msgId')

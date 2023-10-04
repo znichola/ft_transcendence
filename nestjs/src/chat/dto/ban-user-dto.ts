@@ -6,5 +6,5 @@ export class BanUserDto
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	username: string;
+	login42: string;
 }

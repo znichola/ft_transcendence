@@ -35,7 +35,7 @@ export class ChatService
 
 	async createNewChatRoom(chatroomDto: CreateChatroomDto)
 	{
-		const userId: number = await this.utils.getUserId(chatroomDto.ownerUsername);
+		const userId: number = await this.utils.getUserId(chatroomDto.ownerLogin42);
 
 		this.utils.checkPasswordPresence(chatroomDto);
 
@@ -145,7 +145,7 @@ export class ChatService
 
 	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
 	{
-		const newOwnerId = await this.utils.getUserId(patch.ownerUsername);
+		const newOwnerId = await this.utils.getUserId(patch.ownerLogin42);
 
 		await this.utils.checkIsMember(newOwnerId, id);
 

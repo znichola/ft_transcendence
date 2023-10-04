@@ -65,7 +65,7 @@ export class ChatMemberService
 	{
 		await this.utils.checkChatroomExists(chatroomId);
 
-		const userId = await this.utils.getUserId(addMemberDto.username);
+		const userId = await this.utils.getUserId(addMemberDto.login42);
 
 		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {

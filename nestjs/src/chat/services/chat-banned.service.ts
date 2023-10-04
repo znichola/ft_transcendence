@@ -49,7 +49,7 @@ export class ChatBannedService
 
 	async addBannedUser(chatroomId: number, payload: BanUserDto)
 	{
-		const userId = await this.utils.getUserId(payload.username);
+		const userId = await this.utils.getUserId(payload.login42);
 
 		await this.prisma.bannedUser.create({
 			data: {
