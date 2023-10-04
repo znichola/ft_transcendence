@@ -24,16 +24,16 @@ export class ConversationEntity
 	constructor(prismaObject: ConversationWithUsername)
 	{
 		this.id = prismaObject.id;
-		this.username1 = prismaObject.user1.login42;
-		this.username2 = prismaObject.user2.login42;
+		this.user1Login42 = prismaObject.user1.login42;
+		this.user2Login42 = prismaObject.user2.login42;
 	}
 
 	@ApiProperty()
 	id: number;
 
 	@ApiProperty()
-	username1: string;
+	user1Login42: string;
 
 	@ApiProperty()
-	username2: string;
+	user2Login42: string;
 }

@@ -17,9 +17,9 @@ export class BannedUserEntity
 {
 	constructor(prismaObject: BannedUserWithUsername)
 	{
-		this.username = prismaObject.user.login42;
+		this.login42 = prismaObject.user.login42;
 	}
 
 	@ApiProperty()
-	username: string;
+	login42: string;
 }

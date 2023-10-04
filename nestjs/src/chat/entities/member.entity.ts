@@ -18,12 +18,12 @@ export class MemberEntity
 {
 	constructor(prismaObject: MemberWithUsername)
 	{
-		this.username = prismaObject.user.login42;
+		this.login42 = prismaObject.user.login42;
 		this.role = prismaObject.role;
 	}
 
 	@ApiProperty()
-	username: string;
+	login42: string;
 
 	@ApiProperty({enum: ChatroomUserRole})
 	role: ChatroomUserRole;

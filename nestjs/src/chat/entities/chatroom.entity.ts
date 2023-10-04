@@ -23,7 +23,7 @@ export class ChatroomEntity
 	{
 		this.id = prismaObject.id;
 		this.name = prismaObject.name;
-		this.ownerUsername = prismaObject.owner.login42;
+		this.ownerLogin42 = prismaObject.owner.login42;
 		this.status = prismaObject.status;
 	}
 
@@ -34,7 +34,7 @@ export class ChatroomEntity
 	name: string;
 
 	@ApiProperty()
-	ownerUsername: string;
+	ownerLogin42: string;
 
 	@ApiProperty({enum: ChatroomVisibilityStatus})
 	status: ChatroomVisibilityStatus;

@@ -22,7 +22,7 @@ export class MessageEntity
 	{
 		this.id = prismaObject.id;
 		this.content = prismaObject.text;
-		this.senderUsername = prismaObject.user.login42;
+		this.senderLogin42 = prismaObject.user.login42;
 		this.sentAt = prismaObject.sentAt;
 	}
 
@@ -30,7 +30,7 @@ export class MessageEntity
 	id: number;
 
 	@ApiProperty()
-	senderUsername: string;
+	senderLogin42: string;
 
 	@ApiProperty()
 	content: string;

@@ -21,7 +21,7 @@ export class MessageEntity
 	constructor(prismaObject: DirectMessageWithUsername)
 	{
 		this.id = prismaObject.id;
-		this.senderUsername = prismaObject.sender.login42;
+		this.senderLogin42 = prismaObject.sender.login42;
 		this.content = prismaObject.text;
 		this.sentAt = prismaObject.sentAt;
 	}
@@ -30,7 +30,7 @@ export class MessageEntity
 	id: number;
 
 	@ApiProperty()
-	senderUsername: string;
+	senderLogin42: string;
 
 	@ApiProperty()
 	content: string;
