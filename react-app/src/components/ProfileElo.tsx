@@ -10,8 +10,8 @@ export default function ProfileElo({
   h?: number;
   w?: number;
   className?: string;
-  lineWidth: number;
-  fontSize: string;
+  lineWidth?: number;
+  fontSize?: string;
 }) {
   const normalizeData = (data: number[]) => {
     const max = Math.max(...data);
@@ -24,13 +24,14 @@ export default function ProfileElo({
 
   const stepSize = w / (normalizedData.length - 1);
 
-  const points: [number, number][] = normalizedData.map((value, index) =>
-    [index * stepSize, -value],
-  );
+  const points: [number, number][] = normalizedData.map((value, index) => [
+    index * stepSize,
+    -value,
+  ]);
 
-  const pathString: string = points.map((point, index) => 
-    bezierCommand(point, index, points)
-  ).join(' ');
+  const pathString: string = points
+    .map((point, index) => bezierCommand(point, index, points))
+    .join(" ");
 
   return (
     <svg
@@ -54,11 +55,7 @@ export default function ProfileElo({
         className="text-rose-400"
         strokeWidth={lineWidth}
       />
-      <text
-        x={0}
-        y={-5}
-        className={"fill-current font-light text-sky-500 " + fontSize}
-      >
+      <text filter="url(#solid)" x={0} y={-10} className={"fill-current text-sky-500 " + fontSize}>
         {Math.floor(data.reduce((acc, n) => acc + n, 0) / data.length)}
       </text>
     </svg>
@@ -101,7 +98,7 @@ const bezierCommand = (
   a: [number, number][],
 ): string => {
   if (i == 0) {
-    return '';
+    return "";
   }
   // start control point
   const [cpsX, cpsY] = controlPoint(a[i - 1], a[i - 2], point); // end control point

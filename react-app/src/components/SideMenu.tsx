@@ -237,7 +237,7 @@ function CurrentUserEloStats({user} : {user: UserData}) {
     <>
       <div className="flex justify-center p-2">
         <div className="h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-          <ProfileElo data={user.eloHistory.slice(-20)} />
+          <ProfileElo lineWidth={3} data={user.eloHistory.slice(-20)} />
         </div>
       </div>
     </>

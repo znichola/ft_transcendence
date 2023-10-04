@@ -1,18 +1,43 @@
+import Avatar from "../components/Avatar";
+import { ErrorMessage } from "../components/ErrorComponents";
+import { LoadingSpinnerMessage } from "../components/Loading";
+import { useUserData } from "../functions/customHook";
 import PongApp from "../pong/PongApp";
+
+function DisplayPlayer({ name }: { name: string }) {
+  const { data: user, isLoading, isError } = useUserData(name);
+
+  if (isLoading) {
+    return <LoadingSpinnerMessage message={"Loading player : " + name} />;
+  }
+
+  if (isError) {
+    <ErrorMessage message={"Error : cannot load player " + name} />;
+  }
+
+  return <div className="h-10 w-20 rounded-xl bg-green-300"></div>;
+}
 
 export default function PlayPong() {
   return (
-    <>
-      <div>
-        <h1 className="text-rose-50 text-4xl bg-gradient-to-tl from-rose-400 to-sky-400 p-10 rounded-full px-20 shadow-2xl font-bold ">
-          Wanna Play Some Pong?
-        </h1>
-        <div className="h-8"/>
-          <div className="bg-gradient-to-br from-blue-400 to-lime-400  border-2 border-stone-600 shadow-2xl text-sky-200 rounded-xl ">
-              <PongApp width={858} height={525}/>
-          </div>
+    <div className="flex relative h-full w-full flex-col items-center pt-5">
+      <div className="absolute left-[50%] right-[50%] h-full w-0.5 bg-blue-300"></div>
+      <div className="flex w-full">
+        <div className="flex px-10">
+          <DisplayPlayer name="default42" />
+        </div>
+        <div className="grow justify-center bg-blue-300">
+          <p className="text-center">VS</p>
+        </div>
+        <div className="flex px-10">
+          <DisplayPlayer name="default42" />
+        </div>
       </div>
-    </>
+      <div className="h-8 w-5 bg-stone-200"/>
+      <div className="h-min w-min rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
+        <PongApp width={858} height={525} />
+      </div>
+    </div>
   );
 }
 
