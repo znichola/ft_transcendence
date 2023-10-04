@@ -84,7 +84,7 @@ export class UserService {
     return user;
   }
 
-  async updateUserName(login: string, newName: string, newBio: string): Promise<UserData> {
+  async updateUserName(login: string, newName?: string, newBio?: string): Promise<UserData> {
     const user = await prisma.user.update({
       where: {
         login42: login,

@@ -152,14 +152,18 @@ export class UserController {
     @Req() req: Request,
   ): Promise<UserData> {
     // TODO : Remove if condition after testing.
-    if (req.cookies.test)
-    {
-      await this.authService.verifyUser(username, req.cookies.test.access_token);
-    }
+    // if (req.cookies.test)
+    // {
+    //   await this.authService.verifyUser(username, req.cookies.test.access_token);
+    // }
 
-    const user = await this.userService.findUserFromName(bodyData.name);
-    if (user) {
-      throw new Error('Name already in use.');
+    if (bodyData.name)
+    {
+      const user = await this.userService.findUserFromName(bodyData.name);
+      if (user) 
+      {
+        throw new HttpException('Name already in use.', HttpStatus.BAD_REQUEST);
+      }
     }
     return this.userService.updateUserName(
       username,
@@ -382,10 +386,10 @@ export class UserController {
   async acceptFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
   {
     // TODO : Remove if condition after testing.
-    if (req.cookies.test)
-    {
-      await this.authService.verifyUser(username, req.cookies.test.access_token);
-    }
+    // if (req.cookies.test)
+    // {
+    //   await this.authService.verifyUser(username, req.cookies.test.access_token);
+    // }
 
     if (!bodyData.target)
     {

@@ -1,17 +1,30 @@
 import { useParams } from "react-router-dom";
-import { useUserData } from "../functions/customHook";
+import { useCurrentUser, useUserData } from "../functions/customHook";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import ProfileElo from "../components/ProfileElo";
 import { useRef, useState, useEffect } from "react";
 import PongApp from "../pong/PongApp";
+import EditBox from "../components/TextBox";
+import { putUserProfile } from "../Api-axios";
 
-function MatchCell({victory}:{victory: boolean}) {
+const defaultBio =
+  "I am not very inspired today, but i want a bio with at least 2 lines";
+
+function MatchCell({ victory }: { victory: boolean }) {
   return (
-    <div className="h-fit w-fit border-b-2 rounded-xl shadow border-stone-300 bg-stone-50 p-3">
-      <div className={`${victory ? "text-green-500" : "text-red-600"} text-center font-semibold`}>{victory ? "Victory" : "Defeat"}</div>
-      <div className={`h-fit w-fit bg-stone-50 p-2 rounded`}>
-        <span className="w-full font-light ml-1">vs <span className="font-bold">player</span></span>
+    <div className="h-fit w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-3 shadow">
+      <div
+        className={`${
+          victory ? "text-green-500" : "text-red-600"
+        } text-center font-semibold`}
+      >
+        {victory ? "Victory" : "Defeat"}
+      </div>
+      <div className={`h-fit w-fit rounded bg-stone-50 p-2`}>
+        <span className="ml-1 w-full font-light">
+          vs <span className="font-bold">player</span>
+        </span>
         <div className="h-fit w-fit rounded-xl border-4 border-stone-500 bg-stone-700">
           <PongApp width={170} height={104} />
         </div>
@@ -27,6 +40,7 @@ function MatchCell({victory}:{victory: boolean}) {
 
 export default function UserPage() {
   const { login42 } = useParams<"login42">();
+  const { data: currentUser } = useCurrentUser();
   const { data: user, isLoading, isError } = useUserData(login42);
   const [graphWidth, setGraphWidth] = useState(0);
   const elo_graph = useRef(null);
@@ -75,8 +89,20 @@ export default function UserPage() {
               </div>
             </div>
             <div className="grow ">
-              <h1 className="gradient-hightlight min-w-0 pl-4 pt-4 text-5xl font-semibold ">
-                {user.name}
+              <h1 className="min-w-0 pl-4 pt-4 text-5xl font-semibold ">
+                {user.login42 == currentUser ? (
+                  <EditBox
+                    className="gradient-hightlight"
+                    maxChar={20}
+                    rows={1}
+                    startText={user.name}
+                    putUpdate={(e) =>
+                      putUserProfile(user.login42, undefined, e.target.value)
+                    }
+                  />
+                ) : (
+                  <h1 className="gradient-hightlight">{user.name}</h1>
+                )}
               </h1>
               <h2 className="pl-4 text-2xl  text-slate-400">
                 {"@" + user.login42}
@@ -84,14 +110,25 @@ export default function UserPage() {
             </div>
           </div>
           <div className="max-h-32 w-full overflow-auto px-10 py-6 text-left text-2xl">
-            {user.bio ||
-              "I am not very inspired today, but i want a bio with at least 2 lines"}
+            {user.login42 == currentUser ? (
+              <EditBox
+                className=""
+                maxChar={140}
+                rows={2}
+                startText={user.bio || defaultBio}
+                putUpdate={(e) =>
+                  putUserProfile(user.login42, e.target.value, undefined)
+                }
+              />
+            ) : (
+              <h2>{user.bio || defaultBio}</h2>
+            )}
           </div>
         </div>
         <div className="h-12" />
         <div
           ref={elo_graph}
-          className="flex min-h-fit border-b-2 border-stone-300 min-w-fit rounded-xl bg-stone-50 p-4 shadow"
+          className="flex min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
         >
           <ProfileElo
             data={user.eloHistory}
@@ -102,13 +139,13 @@ export default function UserPage() {
           />
         </div>
         <div className="h-5"></div>
-        <div className="flex h-fit py-7 px-3 w-full gap-5 overflow-x-scroll">
-          <MatchCell victory={true}/>
-          <MatchCell victory={false}/>
-          <MatchCell victory={true}/>
-          <MatchCell victory={false}/>
-          <MatchCell victory={true}/>
-          <MatchCell victory={false}/>
+        <div className="flex h-fit w-full gap-5 overflow-x-scroll px-3 py-7">
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
         </div>
       </div>
     </>
