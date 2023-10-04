@@ -30,6 +30,20 @@ async function createUser(
   status?: UserStatus,
   bio?: string,
 ) {
+  let nElo: number;
+  let nWins: number;
+  let nLosses: number;
+
+  if (history) {
+    nWins = 0;
+    nLosses = 0;
+    nElo = history[history.length - 1];
+    for (let i = 1; i < history.length; i++) {
+      if (history[i] - history[i - 1] > 0) nWins++;
+      else nLosses++;
+    }
+  }
+
   await prisma.user
     .upsert({
       where: { login42: login },
@@ -38,9 +52,9 @@ async function createUser(
         login42: login,
         name: username,
         avatar: avatar || 'https://placehold.co/200',
-        elo: elo || 1500,
-        wins: wins || 0,
-        losses: losses || 0,
+        elo: nElo || elo || 1500,
+        wins: nWins || wins || 0,
+        losses: nLosses || losses || 0,
         eloHistory: history,
         status: status,
         bio: bio,
