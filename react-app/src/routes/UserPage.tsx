@@ -3,11 +3,32 @@ import { useCurrentUser, useUserData } from "../functions/customHook";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import ProfileElo from "../components/ProfileElo";
+import { useRef, useState, useEffect } from "react";
 
 export default function UserPage() {
   const { login42 } = useParams<"login42">();
-  const { data: cu, isError: noCurrentUser } = useCurrentUser();
   const { data: user, isLoading, isError } = useUserData(login42);
+  const [ graphWidth, setGraphWidth ] = useState(0);
+  const elo_graph = useRef(null);
+
+  function handleResize() {
+    if (elo_graph.current && (elo_graph.current instanceof Node)) {
+      setGraphWidth(elo_graph.current.offsetWidth * 2);
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+  })
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   // if (noCurrentUser)
   //   return <ErrorMessage message="no current user, try loggin in" />;
@@ -19,7 +40,7 @@ export default function UserPage() {
     return <ErrorMessage message={"Error loading " + login42 + "'s profile"} />;
   return (
     <>
-      <div className=" h-full w-full px-28 py-5">
+      <div className="flex-col h-full w-full px-28 py-5">
         <div className="h-40" />
         <div className="box-theme flex flex-col items-center justify-center">
           <div className="flex w-full">
@@ -40,10 +61,13 @@ export default function UserPage() {
               <h2 className="text-2xl pl-4  text-slate-400">{"@" + user.login42}</h2>
             </div>
           </div>
-          <div className="text-2xl p-5">
-            {user.bio}
+          <div className="text-left w-full overflow-auto max-h-32 text-2xl px-10 py-6">
+            {user.bio || "I am not very inspired today, but i want a bio with at least 2 lines"}
           </div>
-          <ProfileElo data={user.eloHistory} className="p-10"/>
+        </div>
+        <div className="h-7"/>
+        <div ref={elo_graph} className="flex min-h-fit min-w-fit p-4 rounded-xl bg-stone-50 shadow-inner">
+          <ProfileElo data={user.eloHistory} w={graphWidth} lineWidth={7} fontSize="text-3xl" className="max-h-[5rem]"/>
         </div>
       </div>
     </>
