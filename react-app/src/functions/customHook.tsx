@@ -1,5 +1,12 @@
-import { getCurrentUser, getUserConverstaion, getUserConverstaions, getUserConvoMessages, getUserData } from "../Api-axios";
-import { useQuery } from "@tanstack/react-query";
+import {
+  getCurrentUser,
+  getUserConverstaion,
+  getUserConverstaions,
+  getUserConvoMessages,
+  getUserData,
+  postUserConvoMessage,
+} from "../Api-axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useCurrentUser() {
   return useQuery({
@@ -56,5 +63,25 @@ export function useUserConvoMessages(user1: string, user2: string) {
     queryFn: () => getUserConvoMessages(user1, user2),
     // staleTime: 5 * (60 * 1000), // 5 mins
     // cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function usePostUserConvoMessage(user1: string, user2: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      user1,
+      user2,
+      content,
+    }: {
+      user1: string;
+      user2: string;
+      content: string;
+    }) => postUserConvoMessage(user1, user2, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["UserConvoMessages", user1, user2],
+      });
+    },
   });
 }

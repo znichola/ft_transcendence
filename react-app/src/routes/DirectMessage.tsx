@@ -1,5 +1,6 @@
 import {
   useCurrentUser,
+  usePostUserConvoMessage,
   useUserConvoMessages,
   useUserData,
 } from "../functions/customHook";
@@ -10,7 +11,6 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { UserData } from "../interfaces";
 import { useState } from "react";
-import { postUserConvoMessage } from "../Api-axios";
 
 export default function DirectMessage() {
   const { login42: target_string } = useParams<"login42">();
@@ -58,10 +58,15 @@ export default function DirectMessage() {
 
 function MessageInput({ user, target }: { user: UserData; target: UserData }) {
   const [inputValue, setInputValue] = useState("");
+  const addMessage = usePostUserConvoMessage(user.login42, target.login42);
 
   function sendMessage() {
     console.log(user.login42, target.login42, inputValue);
-    postUserConvoMessage(user.login42, target.login42, inputValue);
+    addMessage.mutate({
+      user1: user.login42,
+      user2: target.login42,
+      content: inputValue,
+    });
     setInputValue("");
   }
 
