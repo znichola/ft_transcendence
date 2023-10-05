@@ -47,3 +47,20 @@ export interface GameHistory {
   player_right: number;
   result: number;
 }
+
+export type ConvoMessages = ConvoMessage[];
+
+interface ConvoMessage {
+  id: number;
+  senderLogin42: string;
+  content: string;
+  sentAt: string;
+}
+
+export type Converstaions = Converstaion[];
+
+interface Converstaion {
+  id: number;
+  user1Login42: string;
+  user2Login42: string;
+}

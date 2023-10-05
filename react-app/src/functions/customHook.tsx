@@ -1,4 +1,4 @@
-import { getCurrentUser, getUserData } from "../Api-axios";
+import { getCurrentUser, getUserConverstaions, getUserConvoMessages, getUserData } from "../Api-axios";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCurrentUser() {
@@ -29,5 +29,23 @@ export function useCurrentUserData() {
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: !!currentUser,
+  });
+}
+
+export function useUserConverstaions(user: string) {
+  return useQuery({
+    queryKey: ["UserConversation", user],
+    queryFn: () => getUserConverstaions(user),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useUserConvoMessages(user1: string, user2: string) {
+  return useQuery({
+    queryKey: ["UserConversation", user1, user2],
+    queryFn: () => getUserConvoMessages(user1, user2),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
   });
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { UserData } from "./interfaces";
+import { Converstaions, ConvoMessages, UserData } from "./interfaces";
 
 // const BASE_URL = "/api/";
 const BASE_URL = "http://localhost:8080/api/";
@@ -17,7 +17,7 @@ export const getUserData = async (login42: string | undefined) => {
 };
 
 export const getCurrentUserData = async () => {
-  return () => {
+  return () => { // we loose the type information if we do this I think?
     authApi
       .get<string>("/auth/user")
       .then((res) => res.data)
@@ -34,4 +34,20 @@ export const putUserProfile = async (
   return authApi
     .put<UserData>("/user/" + login42, { name: displayName, bio: bio })
     .then((res) => res.data);
+};
+
+export const getUserConverstaions = async (user: string) => {
+  return authApi
+    .get<Converstaions>("/conversations/" + user)
+    .then((res) => res.data)
+    .then() // what's this then for!?
+    .catch();
+};
+
+export const getUserConvoMessages = async (user1: string, user2: string) => {
+  return authApi
+    .get<ConvoMessages>("/conversations/" + user1 + "/" + user2 + "/messages")
+    .then((res) => res.data)
+    .then() // what's this then for!?
+    .catch();
 };
