@@ -1,10 +1,15 @@
-import { IsInt, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class SendMessageDto
 {
+	@ApiProperty()
 	@IsString()
-	senderUsername: string;
+	@IsNotEmpty()
+	senderLogin42: string;
 
+	@ApiProperty()
 	@IsString()
+	@IsNotEmpty()
 	content: string;
 }
