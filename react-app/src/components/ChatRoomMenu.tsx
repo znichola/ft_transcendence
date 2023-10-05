@@ -9,6 +9,7 @@ import {
   IconSearch,
   IconUserGroup,
   IconPlusCircle,
+  IconBin,
 } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading";
 import { Form } from "react-router-dom";
@@ -23,7 +24,13 @@ type chatRoomUser = {
   role: string;
 };
 
-export default function ChatRoomMenu() {
+export default function ChatRoomMenu({
+  title,
+  type,
+}: {
+  title: string;
+  type: "dm" | "chatroom";
+}) {
   const [buttonState, setButtonState] = useState<btnStateType>("UNSET");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -53,43 +60,69 @@ export default function ChatRoomMenu() {
   }
 
   return (
-    <div ref={wrapperRef} className="absolute top-0 w-full px-28 py-5 pointer-events-none bg-clip-content">
-      <div className="absolute left-0 top-0 h-[160%] z-10 w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
-      <div className="relative flex z-20 w-full flex-col items-center justify-between pointer-events-auto rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
-        <h1 className="bg-gradient-to-br text-center from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-semibold text-transparent">
-          Noobish Helpdesk
+    <div
+      ref={wrapperRef}
+      className="pointer-events-none absolute top-0 w-full bg-clip-content px-28 py-5"
+    >
+      <div className="absolute left-0 top-0 z-10 h-[160%] w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
+      <div className="pointer-events-auto relative z-20 flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
+        <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
+          {title || "Noobish Helpdesk"}
         </h1>
-        <div className="flex h-16 max-h-16 pt-3 pb-2 gap-2 overflow-visible">
-          <ButtonGeneric
-            icon={IconUserGroup}
-            onButtonClick={() =>
-              setButtonState(buttonState === "USERS" ? "UNSET" : "USERS")
-            }
-            buttonState={buttonState}
-            checked="USERS"
-          >
-            <ManageUsersUI channelUsers={fakeChannelUsers} />
-          </ButtonGeneric>
-          <ButtonGeneric
-            icon={IconAddUser}
-            onButtonClick={() =>
-              setButtonState(buttonState === "ADDUSER" ? "UNSET" : "ADDUSER")
-            }
-            buttonState={buttonState}
-            checked="ADDUSER"
-          >
-            <AddUsersUI allUsers={fakeGeneralUsers} />
-          </ButtonGeneric>
-          <ButtonGeneric
-            icon={IconGear}
-            onButtonClick={() =>
-              setButtonState(buttonState === "SETTINGS" ? "UNSET" : "SETTINGS")
-            }
-            buttonState={buttonState}
-            checked="SETTINGS"
-          >
-            <SettingsButtonUI />
-          </ButtonGeneric>
+        <div className="flex h-16 max-h-16 gap-2 overflow-visible pb-2 pt-3">
+          {type == "chatroom" ? (
+            <>
+              <ButtonGeneric
+                icon={IconUserGroup}
+                onButtonClick={() =>
+                  setButtonState(buttonState === "USERS" ? "UNSET" : "USERS")
+                }
+                buttonState={buttonState}
+                checked="USERS"
+              >
+                <ManageUsersUI channelUsers={fakeChannelUsers} />
+              </ButtonGeneric>
+              <ButtonGeneric
+                icon={IconAddUser}
+                onButtonClick={() =>
+                  setButtonState(
+                    buttonState === "ADDUSER" ? "UNSET" : "ADDUSER",
+                  )
+                }
+                buttonState={buttonState}
+                checked="ADDUSER"
+              >
+                <AddUsersUI allUsers={fakeGeneralUsers} />
+              </ButtonGeneric>
+              <ButtonGeneric
+                icon={IconGear}
+                onButtonClick={() =>
+                  setButtonState(
+                    buttonState === "SETTINGS" ? "UNSET" : "SETTINGS",
+                  )
+                }
+                buttonState={buttonState}
+                checked="SETTINGS"
+              >
+                <SettingsButtonUI />
+              </ButtonGeneric>
+            </>
+          ) : (
+            <>
+              <ButtonGeneric
+                icon={IconBin}
+                onButtonClick={() =>
+                  setButtonState(
+                    buttonState === "SETTINGS" ? "UNSET" : "SETTINGS",
+                  )
+                }
+                buttonState={buttonState}
+                checked="SETTINGS"
+              >
+                <LeaveConversationUI />
+              </ButtonGeneric>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -114,11 +147,12 @@ function ButtonGeneric({
       <input
         type="checkbox"
         checked={buttonState === checked}
+        onChange={() => console.log("click")}
         className="peer hidden"
       />
       <button
         onClick={onButtonClick}
-        className="flex items-center justify-center rounded-full h-10 w-10 border-b-2 border-stone-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
+        className="flex h-10 w-10 items-center justify-center rounded-full border-b-2 border-stone-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
       >
         <div className="flex h-8 w-8 items-center justify-center">
           <Icon />
@@ -184,6 +218,25 @@ function SettingsButtonUI() {
   );
 }
 
+function LeaveConversationUI() {
+  return (
+    <>
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 text-center shadow-xl">
+        <p>
+          Leave the conversation and delete all messages for all users, <br />
+          this action is <b>permanent</b>.
+        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-rose-400">Think twice before you click!</p>
+          <button className="h-10 rounded-lg border-b-2 border-stone-300 px-4 text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500">
+            Leave
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // here!
 function UserSearch({
   setSearchValue,
@@ -212,11 +265,7 @@ function UserSearch({
 }
 
 function AddUsersCard({ login42 }: { login42: string }) {
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useUserData(login42);
+  const { data: user, isLoading, isError } = useUserData(login42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
@@ -239,11 +288,7 @@ function AddUsersCard({ login42 }: { login42: string }) {
 
 // "MEMBER" | "ADMIN" | "OWNER"
 function ManageUserCard({ login42, role }: { login42: string; role: string }) {
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useUserData(login42);
+  const { data: user, isLoading, isError } = useUserData(login42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;

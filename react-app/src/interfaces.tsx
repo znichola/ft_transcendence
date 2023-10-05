@@ -50,7 +50,7 @@ export interface GameHistory {
 
 export type ConvoMessages = ConvoMessage[];
 
-interface ConvoMessage {
+export interface ConvoMessage {
   id: number;
   senderLogin42: string;
   content: string;
@@ -59,7 +59,7 @@ interface ConvoMessage {
 
 export type Converstaions = Converstaion[];
 
-interface Converstaion {
+export interface Converstaion {
   id: number;
   user1Login42: string;
   user2Login42: string;
