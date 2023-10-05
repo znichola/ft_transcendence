@@ -44,26 +44,21 @@ export async function createConversation(
 
   const s = new Date('2000-10-05T08:46:31.792Z'); // Replace with your desired start date
 
+  // prettier-ignore
   const dialogue: Dialogue = [
-    { sender: user1.id, time: i(s, 0), text: 'Hello world' },
-    { sender: user2.id, time: i(s, 10), text: 'World says hello back' },
-    { sender: user1.id, time: i(s, 60), text: 'Not interested in a reponse' },
-    { sender: user2.id, time: i(s, 120), text: 'What but why??' },
-    { sender: user2.id, time: i(s, 121), text: 'ur so not fair' },
-    { sender: user2.id, time: i(s, 122), text: 'why you gotta be a kill joy' },
-    { sender: user2.id, time: i(s, 123), text: 'ugh, I hate you, actaully 🤬' },
-    { sender: user1.id, time: i(s, 230), text: 'Yeah, but 😛' },
-    { sender: user2.id, time: i(s, 400), text: "That's great to hear!" },
-    { sender: user2.id, time: i(s, 450), text: 'Your a really a 🤮 ' },
-    { sender: user1.id, time: i(s, 451), text: 'Have any plans?' },
-    { sender: user2.id, time: i(s, 600), text: 'Not sure yet. Maybe a hike.' },
-    { sender: user1.id, time: i(s, 702), text: 'Sounds like a plan! Enjoy!' },
-    { sender: user2.id, time: i(s, 891), text: 'Thanks! You too!' },
-    { sender: user2.id, time: i(s, 1300), text: 'I hope you ☠️ in a 🔥' },
+    { sender: user1.id, time: i(s, 0), text: 'Hey, what\'s up? I heard you found a new pwn binary exploit method.' },
+    { sender: user2.id, time: i(s, 45), text: 'Yeah, that\'s right! It\'s a technique called "ROP chaining." Let me explain.' },
+    { sender: user1.id, time: i(s, 90), text: 'ROP stands for "Return-Oriented Programming." It\'s a way to exploit buffer overflows by chaining together existing code snippets from the program. It\'s like building a puzzle with the program\'s own pieces.' },
+    { sender: user2.id, time: i(s, 150), text: 'Exactly! It involves constructing a series of return addresses that point to gadgets—small code sequences in the program—that perform specific tasks. By chaining these gadgets, we can achieve arbitrary code execution.' },
+    { sender: user1.id, time: i(s, 210), text: 'Got it! So, you craft a sequence of return addresses to execute the actions you want, like gaining control of the program or escalating privileges. Sounds powerful!' },
+    { sender: user2.id, time: i(s, 280), text: 'You got it! But it\'s not always easy. Finding the right gadgets and constructing the chain can be challenging, and it depends on the program\'s memory layout and libraries.' },
+    { sender: user1.id, time: i(s, 360), text: 'I can imagine. It requires a deep understanding of assembly language and the program\'s internals. How did you stumble upon this technique?' },
+    { sender: user2.id, time: i(s, 430), text: 'Well, I was analyzing a vulnerable program, and I noticed that it had some interesting gadgets. I started experimenting, and eventually, I pieced together this method.' },
+    { sender: user1.id, time: i(s, 520), text: 'That\'s impressive! It shows the importance of careful analysis and creativity in the world of cybersecurity. 🌐💻' },
+    { sender: user2.id, time: i(s, 600), text: 'Thanks, buddy! It\'s all about exploring and pushing the boundaries. Let\'s team up and explore more security adventures! 🚀👾' },
   ];
   createDialogue(prisma, user1.id, user2.id, conversation.id, dialogue);
 }
-
 type Dialogue = { sender: number; text: string; time?: string }[];
 
 async function createDialogue(
@@ -73,8 +68,9 @@ async function createDialogue(
   conversationID: number,
   dialogue: Dialogue,
 ) {
-  dialogue.map((m) =>
-    createDM(prisma, m.sender, conversationID, m.text, m.time),
+  dialogue.map(
+    async (m) =>
+      await createDM(prisma, m.sender, conversationID, m.text, m.time),
   );
 }
 
