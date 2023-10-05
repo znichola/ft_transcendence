@@ -1,7 +1,7 @@
 import { FriendStatus, Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 
-export default async function createFriendship(
+export async function createFriendship(
   prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
   userLogin1: string,
   userLogin2: string,
@@ -30,7 +30,9 @@ export default async function createFriendship(
   });
 
   if (friendshipExists) {
-    console.error('Friendship already exists.');
+    console.error(
+      user1.login42 + '+' + user2.login42 + 'Friendship already exists.',
+    );
     return;
   }
 
@@ -44,3 +46,22 @@ export default async function createFriendship(
 }
 
 // thank you chat gpt
+
+export async function friendUser(
+  prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
+  user: string,
+) {
+  const userExists = await prisma.user.findUnique({
+    where: { login42: user },
+  });
+  if (userExists) {
+    await createFriendship(prisma, user, 'funnyuser2', 'PENDING');
+    await createFriendship(prisma, user, 'funnyuser1', 'BLOCKED');
+    await createFriendship(prisma, user, 'coding_ninja', 'ACCEPTED');
+    await createFriendship(prisma, user, 'funnyuser3', 'ACCEPTED');
+    await createFriendship(prisma, 'user123', user, 'PENDING');
+    await createFriendship(prisma, 'funnyuser5', user, 'ACCEPTED');
+    await createFriendship(prisma, 'funnyuser6', user, 'ACCEPTED');
+    await createFriendship(prisma, 'sportsfan42', user, 'PENDING');
+  } else console.log('user:', user, 'does not exist, skipping freindship seed');
+}
