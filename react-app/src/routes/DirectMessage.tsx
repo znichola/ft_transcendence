@@ -10,9 +10,10 @@ import { LoadingSpinnerMessage } from "../components/Loading";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { UserData } from "../interfaces";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function DirectMessage() {
+  const scrollRef = useRef<null | HTMLDivElement>(null);
   const { login42: target_string } = useParams<"login42">();
   const { data: user_string } = useCurrentUser();
   const { data: target, isSuccess: targetSuccess } = useUserData(target_string);
@@ -50,13 +51,22 @@ export default function DirectMessage() {
               />
             );
           })}
+        <div ref={scrollRef} className="h-1" />
       </div>
-      <MessageInput user={user} target={target} />
+      <MessageInput scrollRef={scrollRef} user={user} target={target} />
     </div>
   );
 }
 
-function MessageInput({ user, target }: { user: UserData; target: UserData }) {
+function MessageInput({
+  user,
+  target,
+  scrollRef,
+}: {
+  user: UserData;
+  target: UserData;
+  scrollRef: React.MutableRefObject<HTMLDivElement | null>;
+}) {
   const [inputValue, setInputValue] = useState("");
   const addMessage = usePostUserConvoMessage(user.login42, target.login42);
 
@@ -68,6 +78,7 @@ function MessageInput({ user, target }: { user: UserData; target: UserData }) {
       content: inputValue,
     });
     setInputValue("");
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (

@@ -68,6 +68,8 @@ export function useUserConvoMessages(user1: string, user2: string) {
 
 export function usePostUserConvoMessage(user1: string, user2: string) {
   const queryClient = useQueryClient();
+
+  // https://tkdodo.eu/blog/mastering-mutations-in-react-query
   return useMutation({
     mutationFn: ({
       user1,
