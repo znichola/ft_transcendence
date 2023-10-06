@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
-import RelationActions from "./InfoCardFriends";
+import RelationActions from "./UserInfoCardRelations";
 
 export default function UserInfoCard({
   cardUser,
