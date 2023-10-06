@@ -26,8 +26,8 @@ export class AuthService {
     return user;
   }
 
-  async getUserToken(userId: number, userLogin: string) {
-    const payload = { sub: userId, login: userLogin };
+  async getUserToken(userLogin: string, tfaEnabled = false) {
+    const payload = { login: userLogin, tfa: tfaEnabled };
     return {
       access_token: this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,

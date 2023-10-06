@@ -56,7 +56,7 @@ export class AuthController {
         defaultName,
         image.link,
       );
-      const token = await this.authService.getUserToken(user.id, user.login42); //Use this data to create a cookie with JWT
+      const token = await this.authService.getUserToken(user.login42); //Use this data to create a cookie with JWT
       console.log('------TOKEN------');
       console.log(token);
       res.cookie('test', token, {
