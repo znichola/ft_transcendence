@@ -84,7 +84,7 @@ export class UserService {
     return user;
   }
 
-  async updateUserName(login: string, newName: string, newBio: string): Promise<UserData> {
+  async updateUserName(login: string, newName?: string, newBio?: string): Promise<UserData> {
     const user = await prisma.user.update({
       where: {
         login42: login,
@@ -295,5 +295,15 @@ export class UserService {
         }
       }
     })
+  }
+
+  async updateFriend(user1: number, user2: number)
+  {
+ 
+    await prisma.friend.updateMany({
+      where: { user1Id: user2, user2Id: user1 },
+      data: { status: FriendStatus.ACCEPTED },
+    });
+
   }
 }

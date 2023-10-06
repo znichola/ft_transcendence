@@ -1,12 +1,23 @@
 import { PrismaClient, UserStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import createFriendship from './seedFriends';
+import { friendUser } from './seedFriends';
+import { createDummyData, createFunnyUsers } from './seedFixedUsers';
+import { createConversation } from './seedConversation';
+
+const mvp = [
+  'default42',
+  'mpouce',
+  'hradoux',
+  'bphilago',
+  'skoulen',
+  'znichola',
+];
 
 faker.seed(1234);
 
 const prisma = new PrismaClient();
 
-function generateHistory(valuesCount?: number): number[] {
+export function generateHistory(valuesCount?: number): number[] {
   const length = valuesCount || 10;
   const history = Array.from({ length }, (_, index) => index + 1);
 
@@ -19,7 +30,7 @@ function generateHistory(valuesCount?: number): number[] {
   return history;
 }
 
-async function createUser(
+export async function createUser(
   login: string,
   username: string,
   avatar?: string,
@@ -30,178 +41,70 @@ async function createUser(
   status?: UserStatus,
   bio?: string,
 ) {
-  await prisma.user
-    .upsert({
-      where: { login42: login },
-      update: {},
-      create: {
-        login42: login,
-        name: username,
-        avatar: avatar || 'https://placehold.co/200',
-        elo: elo || 1500,
-        wins: wins || 0,
-        losses: losses || 0,
-        eloHistory: history,
-        status: status,
-        bio: bio,
-      },
-    })
-    .catch(async (e) => {
-      console.error(e);
-    });
-}
+  let nElo: number;
+  let nWins: number;
+  let nLosses: number;
 
-async function createChatroom(owner: number, name: string) {
-  await prisma.chatroom.upsert({
-    where: { id: 0 },
+  if (history) {
+    nWins = 0;
+    nLosses = 0;
+    nElo = history[history.length - 1];
+    for (let i = 1; i < history.length; i++) {
+      if (history[i] - history[i - 1] > 0) nWins++;
+      else nLosses++;
+    }
+  }
+
+  const user = await prisma.user.upsert({
+    where: { login42: login },
     update: {},
     create: {
-      ownerId: 1,
-      name: name,
+      login42: login,
+      name: username,
+      avatar: avatar || 'https://placehold.co/200',
+      elo: nElo || elo || 1500,
+      wins: nWins || wins || 0,
+      losses: nLosses || losses || 0,
+      eloHistory: history,
+      status: status,
+      bio: bio,
+    },
+    select: {
+      id: true,
     },
   });
+
+  return user.id;
 }
 
-async function createFunnyUsers() {
-  await createUser(
-    'funnyuser1',
-    'LaughMaster',
-    'https://picsum.photos/id/31/200',
-    2000,
-    100,
-    10,
-    generateHistory(),
-    UserStatus.ONLINE,
-  );
-  await createUser('funnyuser2', 'Jokester', 'https://picsum.photos/id/40/200');
-  await createUser(
-    'funnyuser3',
-    'Pun Master : Dung Master',
-    'https://picsum.photos/id/21/200',
-    1600,
-    50,
-    30,
-    generateHistory(),
-    UserStatus.ONLINE,
-  );
-  await createUser(
-    'funnyuser4',
-    'Chuckler Crukler Buckler',
-    'https://picsum.photos/id/54/200',
-    1400,
-    25,
-    40,
-    generateHistory(),
-    UserStatus.ONLINE,
-  );
-  await createUser(
-    'funnyuser5',
-    'Giggle Queen',
-    'https://picsum.photos/id/64/200',
-    1200,
-    10,
-    50,
-    generateHistory(),
-    UserStatus.INGAME,
-  );
-  await createUser(
-    'funnyuser6',
-    '🤪 Genius',
-    'https://picsum.photos/id/177/200',
-    1000,
-    5,
-    60,
-    generateHistory(),
-    UserStatus.OFFLINE,
-  );
-  await createUser(
-    'funnyuser7',
-    'Jekerino 🥳',
-    'https://picsum.photos/id/342/200',
-    420,
-    7,
-    20,
-    generateHistory(),
-    UserStatus.OFFLINE,
-  );
-  await createUser(
-    'funnyuser8',
-    'Bare 🐻 Man',
-    'https://picsum.photos/id/443/200',
-    1600,
-    20,
-    33,
-    generateHistory(),
-    UserStatus.OFFLINE,
-  );
-}
+async function createChatroom(
+  chatroomId: number,
+  ownerId: number,
+  name: string,
+) {
+  const chatroom = await prisma.chatroom.upsert({
+    where: { id: chatroomId },
+    update: {},
+    create: {
+      ownerId: ownerId,
+      name: name,
+    },
+    select: {
+      id: true,
+    },
+  });
 
-// please generate some realistic dummy data following this schema
-//   await createUser(
-//     '/*username*/',
-//     '/*Full Display Name*/',
-//     'https://picsum.photos/id//*a number*//200',
-//     /*number 0-3000*/,
-//     /*number 0-100*/,
-//     /*number 0-100*/,
-//     /*number 0-3*/,
-//   );
-
-async function creatDummyData() {
-  await createUser(
-    'user123',
-    'John Doe',
-    'https://picsum.photos/id/101/200',
-    2450,
-    78,
-    93,
-    generateHistory(),
-    UserStatus.OFFLINE,
-  );
-
-  await createUser(
-    'jane.smith',
-    'Jane Smith',
-    'https://picsum.photos/id/205/200',
-    1234,
-    45,
-    62,
-    generateHistory(),
-    UserStatus.ONLINE,
-  );
-
-  await createUser(
-    'rockstar88',
-    'Axl Rose',
-    'https://picsum.photos/id/305/200',
-    1500,
-    90,
-    84,
-    generateHistory(),
-    UserStatus.UNAVAILABLE,
-  );
-
-  await createUser(
-    'coding_ninja',
-    'Alice Johnson',
-    'https://picsum.photos/id/410/200',
-    2875,
-    63,
-    75,
-    generateHistory(),
-    UserStatus.OFFLINE,
-  );
-
-  await createUser(
-    'sportsfan42',
-    'Michael Jordan',
-    'https://picsum.photos/id/512/200',
-    1980,
-    82,
-    96,
-    generateHistory(),
-    UserStatus.INGAME,
-  );
+  await prisma.chatroomUser.upsert({
+    where: {
+      chatroomId_userId: { chatroomId: chatroom.id, userId: ownerId },
+    },
+    update: {},
+    create: {
+      chatroomId: chatroom.id,
+      userId: ownerId,
+      role: 'OWNER',
+    },
+  });
 }
 
 async function FakerData() {
@@ -226,41 +129,36 @@ async function FakerData() {
 }
 
 async function main() {
-  await createUser(
-    'default42',
-    'Defaultus Maximus',
-    'https://i.imgflip.com/2/aeztm.jpg',
-    1612,
-    8,
-    2,
-    [1500, 1520, 1539, 1564, 1580, 1572, 1560, 1575, 1589, 1600, 1612],
-  );
-  await createUser('test', 'Testus');
+  const seeded = await prisma.user.findUnique({
+    where: { login42: 'default42' },
+  });
 
-  createChatroom(1, 'test');
+  if (!seeded) {
+    await createUser(
+      'default42',
+      'Defaultus Maximus',
+      'https://i.imgflip.com/2/aeztm.jpg',
+      1612,
+      8,
+      2,
+      [1500, 1520, 1539, 1564, 1580, 1572, 1560, 1575, 1589, 1600, 1612],
+    );
+    await FakerData();
+    await createFunnyUsers();
+    await createDummyData();
+  } else console.log('already seeded, skipping the bulk user seeding step');
 
-  await createFunnyUsers();
-  await creatDummyData();
+  const id1 = await createUser('test', 'Testus');
+  const id2 = await createUser('puree123', 'Pomme de Terre');
 
-  await createFriendship(prisma, 'default42', 'funnyuser2', 'PENDING');
-  await createFriendship(prisma, 'default42', 'funnyuser1', 'BLOCKED');
-  await createFriendship(prisma, 'default42', 'coding_ninja', 'ACCEPTED');
-  await createFriendship(prisma, 'default42', 'funnyuser3', 'ACCEPTED');
-  await createFriendship(prisma, 'user123', 'default42', 'PENDING');
-  await createFriendship(prisma, 'funnyuser5', 'default42', 'ACCEPTED');
-  await createFriendship(prisma, 'funnyuser6', 'default42', 'ACCEPTED');
-  await createFriendship(prisma, 'sportsfan42', 'default42', 'PENDING');
+  await createChatroom(1, id1, 'test');
+  await createChatroom(2, id1, 'The chads');
+  await createChatroom(3, id2, 'Hackers only');
+  await createChatroom(4, id2, '1337');
 
-  await createFriendship(prisma, 'znichola', 'funnyuser2', 'PENDING');
-  await createFriendship(prisma, 'znichola', 'funnyuser1', 'BLOCKED');
-  await createFriendship(prisma, 'znichola', 'coding_ninja', 'ACCEPTED');
-  await createFriendship(prisma, 'znichola', 'funnyuser3', 'ACCEPTED');
-  await createFriendship(prisma, 'user123', 'znichola', 'PENDING');
-  await createFriendship(prisma, 'funnyuser5', 'znichola', 'ACCEPTED');
-  await createFriendship(prisma, 'funnyuser6', 'znichola', 'ACCEPTED');
-  await createFriendship(prisma, 'sportsfan42', 'znichola', 'PENDING');
+  await createConversation(prisma, 'znichola', 'default42');
 
-  await FakerData();
+  mvp.map((u) => friendUser(prisma, u));
 }
 main()
   .then(async () => {

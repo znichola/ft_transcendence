@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
 import ProfileElo from "./ProfileElo.tsx";
 import { useCurrentUserData } from "../functions/customHook.tsx";
+import NavConvos from "./SideMenuConvos.tsx";
 
 export default function SideMenu() {
   const {
@@ -39,7 +40,7 @@ export default function SideMenu() {
     <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden bg-white pt-5 ">
       <CurrentUserStats />
       <div className="h-8" />
-      <CurrentUserEloStats user={currentUserData}/>
+      <CurrentUserEloStats user={currentUserData} />
       <div className="mt-3 flex flex-1 flex-col">
         <div className="">
           <Category name="User" />
@@ -48,7 +49,11 @@ export default function SideMenu() {
             to="/play"
             icon={IconHomeComputer}
           />
-          <Nav name="My Profile" to={"/user/" + currentUserData.login42} icon={IconUser} />
+          <Nav
+            name="My Profile"
+            to={"/user/" + currentUserData.login42}
+            icon={IconUser}
+          />
           <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
           <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
           <Category name="Social" />
@@ -58,8 +63,7 @@ export default function SideMenu() {
               to="/message"
               icon={IconAddPulse}
             />
-            <Nav name="Funky Dude 42" icon={IconUser} />
-            <Nav name="😎 Cool Gal 69" icon={IconUser} />
+            <NavConvos currentUser={currentUserData} />
           </NavExpandable>
           <NavExpandable name="Chat Channels" icon={IconUserGroup}>
             <Nav
@@ -237,7 +241,7 @@ function CurrentUserEloStats({user} : {user: UserData}) {
     <>
       <div className="flex justify-center p-2">
         <div className="h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-          <ProfileElo data={user.eloHistory.slice(-20)} />
+          <ProfileElo lineWidth={3} data={user.eloHistory.slice(-20)} />
         </div>
       </div>
     </>

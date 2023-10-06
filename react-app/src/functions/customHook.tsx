@@ -1,12 +1,19 @@
-import { getCurrentUser, getUserData } from "../Api-axios";
-import { useQuery } from "@tanstack/react-query";
+import {
+  getCurrentUser,
+  getUserConverstaion,
+  getUserConverstaions,
+  getUserConvoMessages,
+  getUserData,
+  postUserConvoMessage,
+} from "../Api-axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useCurrentUser() {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
-    staleTime: 45 * (60 * 1000), // 45 min
-    cacheTime: 60 * (60 * 1000), // 60 mins
+    // staleTime: 45 * (60 * 1000), // 45 min
+    // cacheTime: 60 * (60 * 1000), // 60 mins
     initialData: "default42", // TODO : Au cas ou on est pas connecté
   });
 }
@@ -29,5 +36,54 @@ export function useCurrentUserData() {
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: !!currentUser,
+  });
+}
+
+export function useUserConverstaions(user: string) {
+  return useQuery({
+    queryKey: ["UserConversations", user],
+    queryFn: () => getUserConverstaions(user),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useUserConversation(user1: string, user2: string) {
+  return useQuery({
+    queryKey: ["UserConversation", user1, user2],
+    queryFn: () => getUserConverstaion(user1, user2),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useUserConvoMessages(user1: string, user2: string) {
+  return useQuery({
+    queryKey: ["UserConvoMessages", user1, user2],
+    queryFn: () => getUserConvoMessages(user1, user2),
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function usePostUserConvoMessage(user1: string, user2: string) {
+  const queryClient = useQueryClient();
+
+  // https://tkdodo.eu/blog/mastering-mutations-in-react-query
+  return useMutation({
+    mutationFn: ({
+      user1,
+      user2,
+      content,
+    }: {
+      user1: string;
+      user2: string;
+      content: string;
+    }) => postUserConvoMessage(user1, user2, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["UserConvoMessages", user1, user2],
+      });
+    },
   });
 }

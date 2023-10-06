@@ -106,7 +106,7 @@ function useCanvas(draw: (ctx:  CanvasRenderingContext2D, gs: gameState) => void
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameState = useRef<gameState>(gameStart);
   const oldTime = useRef<number>(0);
-
+  
   useEffect(() => {
     const canvas: HTMLCanvasElement| null = canvasRef.current;
     const context:CanvasRenderingContext2D | null | undefined = canvas?.getContext("2d");
@@ -114,6 +114,9 @@ function useCanvas(draw: (ctx:  CanvasRenderingContext2D, gs: gameState) => void
 
     if (context === null || context === undefined)
       return ;
+    else {
+      console.log(canvasRef.current);
+    }
     window.addEventListener("keydown", keyDown);
     window.addEventListener("keyup", keyUp);
     function keyDown(event: KeyboardEvent) {

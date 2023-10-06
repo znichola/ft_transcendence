@@ -17,7 +17,7 @@ function statusColor(status: UserData["status"]) {
   }
 }
 
-function Message({
+export function Message({
   sender,
   text,
   left,
