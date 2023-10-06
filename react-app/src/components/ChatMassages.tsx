@@ -87,6 +87,7 @@ function NewMessageArea({messages, setMessages}) {
 
   function handleSubmit(event) {
     event.preventDefault();
+    if (inputValue === "") return;
     setMessages([...messages, inputValue]); // Temporaire, uniquement pour les test
     setInputValue("");
   }
