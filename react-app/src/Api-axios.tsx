@@ -9,7 +9,7 @@ import {
 import { useCurrentUser } from "./functions/customHook";
 
 // const BASE_URL = "/api/";
-const BASE_URL = "http://10.12.2.6:8080/api/";
+const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
