@@ -79,11 +79,11 @@ export default function PongApp({ width, height }: twoDimension) {
       ctx.fillStyle = "rgb(186 230 253)";
       ctx.font = `${Math.round(ctx.canvas.height * ctx.canvas.width / 9400)}px sans-serif`;
       ctx.fillText(`${gs.p1.score}`, ctx.canvas.width / 6, ctx.canvas.height/ 7);
-      ctx.fillText(`${gs.p2.score}`, ctx.canvas.width * 5/ 6, ctx.canvas.height/ 7);
+      ctx.fillText(`${gs.p2.score}`, ctx.canvas.width * 5/ 6 - Math.round(ctx.canvas.height * ctx.canvas.width / 9400) / 3, ctx.canvas.height/ 7);
       //dessine le milieu de terrain
       ctx.fillStyle = "rgb(186 230 253)";
       for(let i = 0; i < ctx.canvas.height; i += 14)
-        ctx.fillRect((ctx.canvas.width - ctx.canvas.width / 170) / 2, i, ctx.canvas.width / 170, ctx.canvas.height / 50)
+        ctx.fillRect((ctx.canvas.width / 2 - ctx.canvas.width / 510), i, ctx.canvas.width / 170, ctx.canvas.height / 50)
     }
   }
   return <Canvas draw={draw} width={width} height={height} />;
@@ -268,13 +268,11 @@ function setInitialPosition(gs:gameState , ctx: CanvasRenderingContext2D)
 function setRandomPosBall(b: ball)
 {
   let newDirection = Math.random() * 2 * Math.PI;
-  console.log(newDirection);
-  if (newDirection >= Math.PI / 2 - 10 && newDirection <= (Math.PI / 2) + 10)
-    newDirection < Math.PI / 2 ? newDirection -= 10 : newDirection += 10
-  if (newDirection <= 3 * Math.PI / 2 - 10 && newDirection <= 3 * Math.PI / 2 + 10)
-    newDirection < 3 * Math.PI / 2 ? newDirection -= 10 : newDirection += 10
+  if (newDirection >= Math.PI / 2 - Math.PI / 6 && newDirection <= Math.PI / 2 + Math.PI / 6)
+    newDirection < Math.PI / 2 ? newDirection -= Math.PI / 6 : newDirection += Math.PI / 6
+  if (newDirection >= 3 * Math.PI / 2 - Math.PI / 6 && newDirection <= 3 * Math.PI / 2 + Math.PI / 6)
+    newDirection < 3 * Math.PI / 2 ? newDirection -= Math.PI / 6 : newDirection += Math.PI / 6
 
   b.direction.x = Math.cos(newDirection)
   b.direction.y = Math.sin(newDirection)
-  console.log(newDirection,b.direction.x, b.direction.y) ;
 }
