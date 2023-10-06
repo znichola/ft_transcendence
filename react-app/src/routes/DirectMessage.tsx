@@ -71,7 +71,8 @@ function MessageInput({
   const addMessage = usePostUserConvoMessage(user.login42, target.login42);
 
   function sendMessage() {
-    console.log(user.login42, target.login42, inputValue);
+    if (inputValue === "") return;
+    console.log(user.login42, target.login42, inputValue.length, inputValue);
     addMessage.mutate({
       user1: user.login42,
       user2: target.login42,
@@ -84,12 +85,15 @@ function MessageInput({
   return (
     <form
       className="absolute bottom-20 top-auto flex w-full justify-center px-20"
-      onKeyDown={(e) => {
-        if (e.key == "Enter" && e.shiftKey == false) sendMessage();
-      }}
       onSubmit={(e) => {
         e.preventDefault();
         sendMessage();
+      }}
+      onKeyDown={(e) => {
+        if (e.key == "Enter" && e.shiftKey == false) {
+          e.preventDefault();
+          sendMessage();
+        }
       }}
     >
       <textarea
