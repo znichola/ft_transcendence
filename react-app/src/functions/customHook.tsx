@@ -4,6 +4,9 @@ import {
   getUserConvoMessages,
   getUserData,
   postUserConvoMessage,
+  postUserFriendRequest,
+  putUserFriendRequest,
+  removeUserFriend,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -85,6 +88,62 @@ export function usePostUserConvoMessage(user1: string, user2: string) {
       });
       queryClient.invalidateQueries({
         queryKey: ["UserConversations", user1],
+      });
+    },
+  });
+}
+
+// ---------- User Relations
+
+export function useMutPostUserFriendRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      current_user,
+      target_user,
+    }: {
+      current_user: string;
+      target_user: string;
+    }) => postUserFriendRequest(current_user, target_user),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["Friends"],
+      });
+    },
+  });
+}
+
+export function useMutPutUserFriendRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      current_user,
+      target_user,
+    }: {
+      current_user: string;
+      target_user: string;
+    }) => putUserFriendRequest(current_user, target_user),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["Friends"],
+      });
+    },
+  });
+}
+
+export function useMutDeleteUserFriendRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      current_user,
+      target_user,
+    }: {
+      current_user: string;
+      target_user: string;
+    }) => removeUserFriend(current_user, target_user),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["Friends"],
       });
     },
   });

@@ -55,7 +55,9 @@ export const postUserFriendRequest = async (current_user: string, login42: strin
 export const removeUserFriend = async (current_user: string, login42: string) => {
 
   return authApi
-    .post<HttpStatusCode>("/user/" + current_user + "/friends", {target: login42})
+    .delete<HttpStatusCode>("/user/" + current_user + "/friends", {data: {
+      target: login42,
+    }})
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 }

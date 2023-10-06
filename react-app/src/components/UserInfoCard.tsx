@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
-import RelationActions from "./UserInfoCardRelations";
+import RelationActions, { FB1, FB2 } from "./UserInfoCardRelations";
 
 export default function UserInfoCard({
   cardUser,
@@ -37,17 +37,25 @@ export default function UserInfoCard({
           </div>
 
           <div className="flex flex-col py-2">
-            <SideButton
-              name={"Duel"}
-              to={"/pong/" + currentUser + "/vs/" + cardUser.login42}
+            <SideButton2
+              message={"Play pong"}
+              a1={"classical"}
+              a2={"special"}
+              to1={"/pong/" + currentUser + "/vs/" + cardUser.login42}
+              to2={"/pong/" + currentUser + "/vs/" + cardUser.login42}
               icon={IconBolt}
             />
             <SideButton
-              name={"Chat"}
+              message={"Private chat"}
+              action={"message"}
               to={"/message/" + cardUser.login42}
               icon={IconChatBubble}
             />
-            <RelationActions status={relationStatus} />
+            <RelationActions
+              currentUser={currentUser}
+              cardUser={cardUser.login42}
+              status={relationStatus}
+            />
           </div>
         </div>
       </div>
@@ -92,11 +100,13 @@ function AvatarName({ user }: { user: UserData }) {
 }
 
 function SideButton({
-  name,
+  message,
+  action,
   to,
   icon: Icon,
 }: {
-  name: string;
+  message: string;
+  action: string;
   to?: string;
   icon: ({
     className,
@@ -106,21 +116,70 @@ function SideButton({
     strokeWidth?: number;
   }) => JSX.Element;
 }) {
+  const navigate = useNavigate();
+
+  const nav = () => navigate(to || "#");
+
   return (
     <>
-      <Link
-        to={to || "#"}
+      <div
+        // to={to || "#"}
         className="felx-col group relative flex w-12 flex-1 items-center justify-end "
       >
         <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
         <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
-          <div className="group-hover:gradient-hightlight text-xs font-semibold text-slate-500">
-            {name}
+          <div className="text-xs font-semibold text-slate-500">
+            <FB1 message={message} a1={action} a1btn={nav} />
           </div>
         </div>
-      </Link>
+      </div>
+    </>
+  );
+}
+
+function SideButton2({
+  message,
+  a1,
+  a2,
+  to1,
+  to2,
+  icon: Icon,
+}: {
+  message: string;
+  a1: string;
+  a2: string;
+  to1?: string;
+  to2?: string;
+  icon: ({
+    className,
+    strokeWidth,
+  }: {
+    className?: string;
+    strokeWidth?: number;
+  }) => JSX.Element;
+}) {
+  const navigate = useNavigate();
+
+  const nav1 = () => navigate(to1 || "#");
+  const nav2 = () => navigate(to2 || "#");
+
+  return (
+    <>
+      <div
+        // to={to || "#"}
+        className="felx-col group relative flex w-12 flex-1 items-center justify-end "
+      >
+        <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
+          {<Icon strokeWidth={2} />}
+        </div>
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
+          <div className="text-xs font-semibold text-slate-500">
+            <FB2 message={message} a1={a1} a1btn={nav1} a2={a2} a2btn={nav2} />
+          </div>
+        </div>
+      </div>
     </>
   );
 }

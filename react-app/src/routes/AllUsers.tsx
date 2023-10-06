@@ -39,8 +39,8 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
   const inViewport = useIntersection(ref, "0px");
 
   if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
-  if (userError) return <div>Error loading current user, try signing in</div>
-  // if (userError) console.log("Error loading current user, try signing in");
+  // if (userError) return <div>Error loading current user, try signing in</div>
+  if (userError) console.log("Error loading current user, try signing in");
   if (isError) return <div>Error loading profile</div>;
 
   if (
