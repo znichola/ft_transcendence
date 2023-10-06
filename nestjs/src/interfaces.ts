@@ -5,7 +5,7 @@ export interface FriendData {
   avatar: string,
 }
 
-export interface UserFriend {
+export interface UserFriends {
   friends: FriendData[];
   pending: FriendData[];
   requests: FriendData[];

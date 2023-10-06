@@ -52,6 +52,7 @@ export default function ProfileElo({
       />
       <path
         d={"M 0 " + points[0][1] + " " + pathString}
+        stroke-linecap="round"
         className="text-rose-400"
         strokeWidth={lineWidth}
       />

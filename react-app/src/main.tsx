@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
 
 // axios.defaults.baseURL = "/api/";
-axios.defaults.baseURL = "http://localhost:8080/api/";
+axios.defaults.baseURL = "http://10.12.2.6:8080/api/";
 
 axios.defaults.withCredentials = true
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;

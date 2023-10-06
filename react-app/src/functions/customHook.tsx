@@ -1,6 +1,5 @@
 import {
   getCurrentUser,
-  getUserConverstaion,
   getUserConverstaions,
   getUserConvoMessages,
   getUserData,
