@@ -83,7 +83,7 @@ export default function PongApp({ width, height }: twoDimension) {
       //dessine le milieu de terrain
       ctx.fillStyle = "rgb(186 230 253)";
       for(let i = 0; i < ctx.canvas.height; i += 14)
-        ctx.fillRect(ctx.canvas.width / 2 - (ctx.canvas.width / 170), i, ctx.canvas.width / 170, ctx.canvas.height / 50)
+        ctx.fillRect((ctx.canvas.width - ctx.canvas.width / 170) / 2, i, ctx.canvas.width / 170, ctx.canvas.height / 50)
     }
   }
   return <Canvas draw={draw} width={width} height={height} />;
@@ -264,11 +264,14 @@ function setInitialPosition(gs:gameState , ctx: CanvasRenderingContext2D)
 
 function setRandomPosBall(b: ball)
 {
-  let newDirection = Math.random() * 360;
-  if (newDirection >= 80 && newDirection<=100)
-    newDirection < 90 ? newDirection -= 10 : newDirection += 10
-  if (newDirection <= 260 && newDirection <= 280)
-    newDirection < 270 ? newDirection -= 10 : newDirection += 10
+  let newDirection = Math.random() * 2 * Math.PI;
+  console.log(newDirection);
+  if (newDirection >= Math.PI / 2 - 10 && newDirection <= (Math.PI / 2) + 10)
+    newDirection < Math.PI / 2 ? newDirection -= 10 : newDirection += 10
+  if (newDirection <= 3 * Math.PI / 2 - 10 && newDirection <= 3 * Math.PI / 2 + 10)
+    newDirection < 3 * Math.PI / 2 ? newDirection -= 10 : newDirection += 10
+
   b.direction.x = Math.cos(newDirection)
   b.direction.y = Math.sin(newDirection)
+  console.log(newDirection,b.direction.x, b.direction.y) ;
 }
