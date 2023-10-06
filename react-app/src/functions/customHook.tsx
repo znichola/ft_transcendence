@@ -84,6 +84,9 @@ export function usePostUserConvoMessage(user1: string, user2: string) {
       queryClient.invalidateQueries({
         queryKey: ["UserConvoMessages", user1, user2],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["UserConversations", user1],
+      });
     },
   });
 }
