@@ -108,5 +108,5 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install swagger
   - npm install @nestjs/swagger swagger-ui-express
   - https://rehmat-sayany.medium.com/integrating-swagger-with-nestjs-a-step-by-step-guide-abd532743c43
-- get current user info
-- somehow using the authentication something or another
+- install class-validator and class-transformer (dto validation)
+- install otplib and qrcode (google authentication setup)
