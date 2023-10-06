@@ -1,13 +1,14 @@
 
 if [[ -e kickstart.env ]]; then
   printf "
-kickstart.env is present, check you correctly set the 42api ID and SECRET
+kickstart.env is present, check you have correctly set the 42api ID and SECRET
 
 "
 else
   printf "\n\33[96m fillout the kickstart.env file with information from the 42 api!\033[0m\n\n"
   {
     printf '
+USE_LOCAL_HOST="false"
 API_CLIENT_ID="_______replace_with_the_API_ID_from_the_42_api____"
 API_CLIENT_SECRET="_____replace_with_the_secret_also_from_42_____"
 ' 
@@ -15,6 +16,7 @@ API_CLIENT_SECRET="_____replace_with_the_secret_also_from_42_____"
   exit 42
 fi
 
+# print warning about not filling in the 
 test -e kickstart.env || (\
 printf "\n\33[96m fillout the kickstart.env file with information from the 42 api!\033[0m\n\n" && printf '
 API_CLIENT_ID="_______replace_with_the_API_ID_from_the_42_api____"\nAPI_CLIENT_SECRET="_____replace_with_the_secret_also_from_42_____"
@@ -30,6 +32,10 @@ DATABASE_PWD="1234"
 JWT_SECRET="lol"
 
 IP_ADDR=$(ipconfig getifaddr en0)
+if [[ $USE_LOCAL_HOST == "true" ]]; then
+  IP_ADDR="localhost"
+fi
+
 PORT=8080
 
 VITE_IP_ADDR=$IP_ADDR
