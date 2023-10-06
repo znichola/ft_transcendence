@@ -2,7 +2,7 @@
 CONTAINERS = $(shell docker ps -a -q)
 TIDY=2>/dev/null ; true
 
-up :
+up : env
 	docker compose -f docker-compose.yml -p mastermind up --build
 
 fclean :
@@ -25,4 +25,7 @@ $(CN) :
 # https://stackoverflow.com/questions/31466428/how-to-restart-a-single-container-with-docker-compose
 # docker-compose up --detach --build $@
 
-.PHONY: up fclean re ip $(CN)
+env :
+	@./gen-env.sh
+
+.PHONY: up fclean re ip $(CN) env

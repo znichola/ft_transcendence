@@ -33,7 +33,7 @@ export class AuthController {
         client_id: process.env.API_CLIENT_ID,
         client_secret: process.env.API_CLIENT_SECRET,
         code: code,
-        redirect_uri: 'http://localhost:8080/auth',
+        redirect_uri: 'http://' + process.env.IP_ADDR + ':8080/auth',
         state: 'abc', //Dont be dumb and use the correct state value for real project.
       });
       if (!test) {
@@ -60,7 +60,7 @@ export class AuthController {
       console.log('------TOKEN------');
       console.log(token);
       res.cookie('test', token, {
-        domain: 'localhost',
+        domain: process.env.IP_ADDR,
         httpOnly: true,
         secure: false,
         sameSite: 'lax',

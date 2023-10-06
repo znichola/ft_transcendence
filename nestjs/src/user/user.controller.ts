@@ -15,7 +15,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { FriendData, UserData, UserFriend } from '../interfaces';
+import { FriendData, UserData, UserFriends } from '../interfaces';
 import { FriendStatus, UserStatus } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthService } from 'src/auth/auth.service';
@@ -200,7 +200,7 @@ export class UserController {
     description: 'No user found with the provided login.'
   })
   @Get(':username/friends')
-  async userFriends(@Param('username') username: string): Promise<UserFriend> {
+  async userFriends(@Param('username') username: string): Promise<UserFriends> {
     const userId = await this.userService.getUserId(username);
     
     if (!userId)
@@ -222,7 +222,7 @@ export class UserController {
         true,
         FriendStatus.PENDING,
       );
-    const friendList: UserFriend = {
+    const friendList: UserFriends = {
       friends: approvedFriends,
       pending: pendingFriends,
       requests: requestsFriends,
