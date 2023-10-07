@@ -1,14 +1,18 @@
 import {
+  getChatrooomList,
   getCurrentUser,
-  getUserConverstaions,
-  getUserConvoMessages,
+  getUserConversation,
+  getUserConverstaionList,
+  getUserConvoMessageList,
   getUserData,
+  postNewChatromm,
   postUserConvoMessage,
   postUserFriendRequest,
   putUserFriendRequest,
   removeUserFriend,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChatroomPost } from "../interfaces";
 
 export function useCurrentUser() {
   return useQuery({
@@ -44,7 +48,7 @@ export function useCurrentUserData() {
 export function useUserConverstaions(user: string) {
   return useQuery({
     queryKey: ["UserConversations", user],
-    queryFn: () => getUserConverstaions(user),
+    queryFn: () => getUserConverstaionList(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
@@ -53,7 +57,7 @@ export function useUserConverstaions(user: string) {
 export function useUserConversation(user1: string, user2: string) {
   return useQuery({
     queryKey: ["UserConversation", user1, user2],
-    queryFn: () => getUserConverstaion(user1, user2),
+    queryFn: () => getUserConversation(user1, user2),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
@@ -62,7 +66,7 @@ export function useUserConversation(user1: string, user2: string) {
 export function useUserConvoMessages(user1: string, user2: string) {
   return useQuery({
     queryKey: ["UserConvoMessages", user1, user2],
-    queryFn: () => getUserConvoMessages(user1, user2),
+    queryFn: () => getUserConvoMessageList(user1, user2),
     // staleTime: 5 * (60 * 1000), // 5 mins
     // cacheTime: 10 * (60 * 1000), // 10 mins
   });
@@ -141,6 +145,29 @@ export function useMutDeleteUserFriendRequest() {
       current_user: string;
       target_user: string;
     }) => removeUserFriend(current_user, target_user),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["Friends"],
+      });
+    },
+  });
+}
+
+// --------- chatrooms / chat
+
+export function useChatroomList() {
+  return useQuery({
+    queryKey: ["ChatroomList"],
+    queryFn: () => getChatrooomList(),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useMutPostNewChatroom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ChatroomPost) => postNewChatromm(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["Friends"],

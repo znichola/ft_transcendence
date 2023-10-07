@@ -22,7 +22,7 @@ import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
 import PlayPong from "./routes/PlayPong.tsx";
 import PongFeed from "./routes/PongFeed.tsx";
-import AddNewChatRoom from "./routes/AddNewChatRoom.tsx";
+import AddOrJoinChatroom from "./routes/AddOrJoinChatroom.tsx";
 import AddNewChat from "./routes/AddNewChat.tsx";
 import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
@@ -68,10 +68,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/chatroom",
-        element: <AddNewChatRoom />,
+        element: <AddOrJoinChatroom />,
       },
       {
-        path: "/chat/:id",
+        path: "/chatroom/:id",
         element: <ChatRoom />,
       },
       {

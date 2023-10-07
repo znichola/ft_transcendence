@@ -1,8 +1,9 @@
 import axios, { HttpStatusCode } from "axios";
 import {
+  Chatroom,
+  ChatroomPost,
   Converstaion,
-  Converstaions,
-  ConvoMessages,
+  ConvoMessage,
   UserData,
   UserFriends,
 } from "./interfaces";
@@ -41,33 +42,45 @@ export const getUserFriends = async (current_user: string) => {
     .get<UserFriends>("/user/" + current_user + "/friends")
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
-}
+};
 
-export const postUserFriendRequest = async (current_user: string, login42: string) => {
-
+export const postUserFriendRequest = async (
+  current_user: string,
+  login42: string,
+) => {
   return authApi
-    .post<HttpStatusCode>("/user/" + current_user + "/friends", {target: login42})
-    .then((res) => res.data)
-    .catch((error) => console.log(error.toJSON));
-}
-
-export const removeUserFriend = async (current_user: string, login42: string) => {
-
-  return authApi
-    .delete<HttpStatusCode>("/user/" + current_user + "/friends", {data: {
+    .post<HttpStatusCode>("/user/" + current_user + "/friends", {
       target: login42,
-    }})
+    })
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
-}
-//TODO : Delete et mettre dans le post
-export const putUserFriendRequest = async (current_user: string, login42: string) => {
+};
 
+export const removeUserFriend = async (
+  current_user: string,
+  login42: string,
+) => {
   return authApi
-    .put<HttpStatusCode>("/user/" + current_user + "/friends", {target: login42})
+    .delete<HttpStatusCode>("/user/" + current_user + "/friends", {
+      data: {
+        target: login42,
+      },
+    })
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
-}
+};
+//TODO : Delete et mettre dans le post
+export const putUserFriendRequest = async (
+  current_user: string,
+  login42: string,
+) => {
+  return authApi
+    .put<HttpStatusCode>("/user/" + current_user + "/friends", {
+      target: login42,
+    })
+    .then((res) => res.data)
+    .catch((error) => console.log(error.toJSON));
+};
 
 //--------------------------------------------Profile----------------------------------------------------//
 
@@ -84,10 +97,9 @@ export const putUserProfile = async (
 
 //------------------------------------------Conversations------------------------------------------------//
 
-
-export const getUserConverstaions = async (user: string) => {
+export const getUserConverstaionList = async (user: string) => {
   return authApi
-    .get<Converstaions>("/conversations/" + user)
+    .get<Converstaion[]>("/conversations/" + user)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
@@ -100,9 +112,9 @@ export const getUserConversation = async (user1: string, user2: string) => {
     .catch((error) => console.log(error.toJSON));
 };
 
-export const getUserConvoMessages = async (user1: string, user2: string) => {
+export const getUserConvoMessageList = async (user1: string, user2: string) => {
   return authApi
-    .get<ConvoMessages>("/conversations/" + user1 + "/" + user2 + "/messages")
+    .get<ConvoMessage[]>("/conversations/" + user1 + "/" + user2 + "/messages")
     .then((res) => {
       if (res.status == 404) {
         console.log("caught the 404 here");
@@ -131,7 +143,26 @@ export const postUserConvoMessage = async (
 
 //------------------------------------------Chat Room----------------------------------------------//
 
-
 // {
 //   "content": "new message foobar"
 // }
+
+export const getChatrooomList = async () => {
+  return authApi
+    .get<Chatroom[]>("/chat/")
+    .then((res) => res.data)
+};
+
+// {
+//   "ownerLogin42": "string",
+//   "name": "string",
+//   "status": "PUBLIC",
+//   "password": "string"
+// }
+
+export const postNewChatromm = async (payload: ChatroomPost) => {
+  return authApi
+    .post<HttpStatusCode>("/chat/", payload)
+    .then((res) => res.data)
+    .catch((error) => console.log(error.toJSON));
+};

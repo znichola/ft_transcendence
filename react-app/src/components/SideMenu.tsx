@@ -67,7 +67,7 @@ export default function SideMenu() {
           </NavExpandable>
           <NavExpandable name="Chat Channels" icon={IconUserGroup}>
             <Nav
-              name="Start and new chatroom"
+              name="Join or create a chatroom"
               to="/chatroom"
               icon={IconAddPulse}
             />
