@@ -1,3 +1,4 @@
+#!/bin/bash
 
 if [[ -e kickstart.env ]]; then
   printf "
