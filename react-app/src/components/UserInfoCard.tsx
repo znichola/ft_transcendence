@@ -129,7 +129,7 @@ function SideButton({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
+        <div className="duration-400 group-hover:order-slate-100 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-white transition-all group-hover:w-max group-hover:border group-hover:p-2">
           <div className="text-xs font-semibold text-slate-500">
             <FB1 message={message} a1={action} a1btn={nav} />
           </div>
@@ -174,7 +174,7 @@ function SideButton2({
         <div className="absolute h-full grow p-1 pr-2 text-slate-300 duration-300">
           {<Icon strokeWidth={2} />}
         </div>
-        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl border border-slate-100 bg-white transition-all group-hover:w-max group-hover:p-2">
+        <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-white transition-all group-hover:w-max group-hover:border group-hover:border-slate-100 group-hover:p-2">
           <div className="text-xs font-semibold text-slate-500">
             <FB2 message={message} a1={a1} a1btn={nav1} a2={a2} a2btn={nav2} />
           </div>

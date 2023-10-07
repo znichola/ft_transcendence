@@ -200,7 +200,7 @@ function NavExpandable({
         </div>
       </label>
       <IconDownChevron className="pointer-events-none absolute right-0 top-4 h-4 -rotate-90 px-5 text-slate-600 transition peer-checked:rotate-90 peer-hover:text-rose-600" />
-      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-rose-50 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
+      <ul className="duration-400 m-2 flex max-h-0 flex-col overflow-y-auto rounded bg-stone-100 font-medium shadow-sm transition-all duration-300 peer-checked:max-h-96">
         {children}
       </ul>
     </div>
