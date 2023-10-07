@@ -6,7 +6,6 @@ import {
   UserData,
   UserFriends,
 } from "./interfaces";
-import { useCurrentUser } from "./functions/customHook";
 
 // const BASE_URL = "/api/";
 const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";

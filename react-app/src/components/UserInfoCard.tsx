@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
-import { IconAddUser, IconBolt, IconChatBubble } from "./Icons";
+import { IconBolt, IconChatBubble } from "./Icons";
 import RelationActions, { FB1, FB2 } from "./UserInfoCardRelations";
 
 export default function UserInfoCard({
@@ -180,62 +180,6 @@ function SideButton2({
           </div>
         </div>
       </div>
-    </>
-  );
-}
-
-function SideButtonFriend({
-  currentUser,
-  cardUser,
-  friends,
-}: {
-  currentUser: string;
-  cardUser: UserData;
-  friends: UserFriends;
-}) {
-  // const [friendStatus, setFriendStatus] = useState<friendStatus>("loading");
-
-  // console.log(currentUser, "current user");
-  // else if {.find((f) => f.login42 === cardUser.login42)
-
-  const isFriend = friends?.friends.find((f) => f.login42 === cardUser.login42);
-  const isPending = friends?.pending.find(
-    (f) => f.login42 === cardUser.login42,
-  );
-  const isRequensted = friends?.requests.find(
-    (f) => f.login42 === cardUser.login42,
-  );
-
-  function handleFriendClick() {
-    console.log("clicked add friend");
-  }
-  return (
-    <>
-      <button
-        className="felx-col group relative flex w-12 flex-1 items-center justify-end "
-        onClick={handleFriendClick}
-      >
-        <div className="absolute h-full grow p-1 pr-2 text-slate-300">
-          {<IconAddUser strokeWidth={2} />}
-        </div>
-        <div
-          className={`duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-gradient-to-tl  shadow-md transition-all group-hover:w-max group-hover:p-2 ${
-            isFriend
-              ? "from-amber-600 to-fuchsia-400"
-              : "from-fuchsia-600 to-orange-500"
-          } `}
-        >
-          <span className="text-xs font-bold text-slate-50">
-            {isFriend
-              ? "already freinds"
-              : isPending
-              ? "accept friend request"
-              : isRequensted
-              ? "already set freind request"
-              : "add freind"}
-          </span>
-        </div>
-      </button>
     </>
   );
 }

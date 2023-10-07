@@ -34,9 +34,9 @@ export default function RelationActions({
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-300 opacity-40 "></span>
           </div>
         ) : status === "sent" ? (
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-b-transparent"></div>
+          // <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-b-transparent"></div>
+          <IconSent />
         ) : (
-          // <IconSent />
           <IconAddUser />
         )}
       </div>
