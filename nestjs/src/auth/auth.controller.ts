@@ -43,16 +43,12 @@ export class AuthController {
       if (!test) {
         throw new Error('Unable to retrieve data from 42 API.');
       }
-      console.log('------------');
-      console.log(test.data.access_token);
       const userInfo = await axios.get('https://api.intra.42.fr/v2/me', {
         headers: {
           Authorization: `Bearer ${test.data.access_token}`,
         },
       });
-      console.log('------------');
       const { first_name, last_name, login, image } = userInfo.data;
-      console.log(first_name, last_name, login, image.link);
 
       const defaultName = first_name + ' ' + last_name;
       const user = await this.authService.signInUser(
@@ -61,8 +57,6 @@ export class AuthController {
         image.link,
       );
       const token = await this.authService.getUserToken(user.login42); //Use this data to create a cookie with JWT
-      console.log('------TOKEN------');
-      console.log(token);
       res.cookie('test', token, {
         domain: process.env.IP_ADDR,
         httpOnly: true,
@@ -71,10 +65,9 @@ export class AuthController {
         maxAge: 3600000,
       });
 
-      const redirect = '/ranking';
-      return res.status(302).send({ user, redirect });
+      return res.status(200).send({ user });
     } catch (error) {
-      console.log(error);
+      console.log('error with 42 login');
     }
   }
 
@@ -105,8 +98,8 @@ export class AuthController {
     summary: 'Login as any user',
     description: 'A JWT token is created and added to the cookies, to pretend you are logged in as any user'
   })
+  @ApiResponse({ status: 200, description: 'Logged in.'})
   @ApiResponse({ status: 404, description: 'User not found.' })
-  @ApiResponse({ status: 302, description: 'Logged in.'})
   @Get('dev')
   async loginDev(@Res() res: Response, @Query('user') user?: string)
   {
@@ -120,7 +113,7 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 3600000,
     });
-    return res.status(302).send('/ranking');
+    return res.status(200).send();
   }
 
   @UseGuards(AuthGuard)
