@@ -2,5 +2,6 @@
 .vscode
 **.DS_Store
 *.env
+*.env.old
 .idea
 
