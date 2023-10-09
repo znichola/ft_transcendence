@@ -49,9 +49,9 @@ services:
     container_name: postgres
     build: requirements/postgres
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=testdb
+      - POSTGRES_USER=${DATABASE_USR}
+      - POSTGRES_PASSWORD=${DATABASE_PWD}
+      - POSTGRES_DB=${DATABASE_NAME}
     networks:
       - transnet
     volumes:

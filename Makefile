@@ -2,7 +2,7 @@
 CONTAINERS = $(shell docker ps -a -q)
 TIDY=2>/dev/null ; true
 
-up : env
+up :
 	docker compose -f docker-compose.yml -p mastermind up --build
 
 fclean :
