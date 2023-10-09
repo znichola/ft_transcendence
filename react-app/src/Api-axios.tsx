@@ -149,7 +149,7 @@ export const postUserConvoMessage = async (
 
 export const getChatrooomList = async () => {
   return authApi
-    .get<Chatroom[]>("/chat/")
+    .get<Chatroom[]>("/chatroom/")
     .then((res) => res.data)
 };
 
@@ -162,7 +162,7 @@ export const getChatrooomList = async () => {
 
 export const postNewChatromm = async (payload: ChatroomPost) => {
   return authApi
-    .post<HttpStatusCode>("/chat/", payload)
+    .post<HttpStatusCode>("/chatroom/", payload)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
