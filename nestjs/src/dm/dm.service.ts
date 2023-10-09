@@ -104,6 +104,39 @@ export class DmService
 		return new ConversationEntity(conversationFromDb);
 	}
 
+	async deleteOneConversation(user1: string, user2: string)
+	{
+		const id1 = await this.getUserId(user1);
+		const id2 = await this.getUserId(user2);
+
+		const conv = await this.prisma.conversation.findFirstOrThrow({
+			where: {
+				OR: [
+					{
+						user1Id: +id1,
+						user2Id: +id2,
+					},
+					{
+						user1Id: +id2,
+						user2Id: +id1,
+					}
+				]
+			}
+		});
+
+		await this.prisma.directMessage.deleteMany({
+			where: {
+				conversationId: +conv.id
+			}
+		});
+
+		await this.prisma.conversation.delete({
+			where: {
+				id: +conv.id
+			}
+		});
+	}
+
 	async getAllMessagesFromConversation(user1: string, user2: string): Promise<MessageEntity[]>
 	{
 		const id1 = await this.getUserId(user1);
