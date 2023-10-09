@@ -2,7 +2,9 @@ import { Body, ClassSerializerInterceptor, Controller, Get, HttpException, HttpS
 import { TfaService } from './tfa.service';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('tfa')
 @UseInterceptors(ClassSerializerInterceptor)
 export class TfaController {

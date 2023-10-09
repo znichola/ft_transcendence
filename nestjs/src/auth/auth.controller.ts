@@ -3,8 +3,10 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -13,7 +15,9 @@ import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import axios from 'axios';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -75,6 +79,57 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Logout',
+    description: 'Logs out from the site, expiring the current cookies for authentication.'
+  })
+  @ApiResponse({ status: 401, description: 'No Logged in user.'})
+  @ApiResponse({ status: 200, description:'Logout successful.'})
+  @Get('logout')
+  async logOutUser(@Req() req: Request, @Res() res: Response)
+  {
+    const userLogin = await this.authService.getLoginFromToken(req.cookies.test.access_token);
+    await this.authService.signOutUser(userLogin);
+    res.cookie('test', '', { expires: new Date() });
+    return res.status(200).send();
+  }
+
+  @ApiQuery({
+    name: 'user',
+    description: 'The user login you want to use (default: default42)',
+    required: false,
+    type: String,
+    example: 'default42'
+  })
+  @ApiOperation({
+    summary: 'Login as any user',
+    description: 'A JWT token is created and added to the cookies, to pretend you are logged in as any user'
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  @ApiResponse({ status: 302, description: 'Logged in.'})
+  @Get('dev')
+  async loginDev(@Res() res: Response, @Query('user') user?: string)
+  {
+    if (!user) user = 'default42';
+    const token = await this.authService.getUserToken(user);
+    if (!token) throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    res.cookie('test', token, {
+      domain: process.env.IP_ADDR,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 3600000,
+    });
+    return res.status(302).send('/ranking');
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Get current user login',
+    description: 'Get the login from the JWT token payload in the browser cookies.'
+  })
+  @ApiResponse({ status: 200, description: 'User Login returned.'})
+  @ApiResponse({ status: 401, description: 'No JWT cookie found.'})
   @Get('user')
   async getLoggedUser(@Req() req: Request): Promise<string> {
     const userLogin: string = await this.authService.getLoginFromToken(

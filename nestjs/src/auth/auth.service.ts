@@ -13,7 +13,6 @@ export class AuthService {
   ) {}
 
   async signInUser(login: string, defaultName: string, avatar: string): Promise<UserData> {
-    console.log(`JWT_SECRET: ${process.env.JWT_SECRET}`);
     const user = await prisma.user.upsert({
       where: { login42: login },
       create: {
@@ -26,7 +25,17 @@ export class AuthService {
     return user;
   }
 
+  async signOutUser(login: string)
+  {
+    await prisma.user.update({
+      where: { login42: login },
+      data: { status: UserStatus.OFFLINE }
+    });
+  }
+
   async getUserToken(userLogin: string, tfaEnabled = false) {
+    const user = await prisma.user.findUnique({where: {login42: userLogin}});
+    if (!user) return null;
     const payload = { login: userLogin, tfa: tfaEnabled };
     return {
       access_token: this.jwtService.sign(payload, {
