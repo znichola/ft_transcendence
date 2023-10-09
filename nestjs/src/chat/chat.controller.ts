@@ -22,7 +22,7 @@ import { ChatBannedService } from './services/chat-banned.service';
 @ApiTags("Chatrooms")
 @UsePipes(new ValidationPipe({whitelist: true}))
 @UseFilters(PrismaClientExceptionFilter)
-@Controller('chat')
+@Controller('chatroom')
 export class ChatController
 {
 	constructor(private readonly chatService: ChatService,

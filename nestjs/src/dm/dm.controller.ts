@@ -9,7 +9,7 @@ import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-
 @ApiTags("Direct Messages")
 @UsePipes(new ValidationPipe({whitelist: true}))
 @UseFilters(PrismaClientExceptionFilter)
-@Controller('conversations')
+@Controller('dm')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
 
@@ -32,6 +32,12 @@ export class DmController {
 	findOneConversation(@Param('user1') user1: string, @Param('user2') user2: string): Promise<ConversationEntity>
 	{
 		return this.dmService.getOneConversation(user1, user2);
+	}
+
+	@Delete(':user1/:user2')
+	deleteOneConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	{
+		return this.dmService.deleteOneConversation(user1, user2);
 	}
 
 	@Get(':user1/:user2/messages')

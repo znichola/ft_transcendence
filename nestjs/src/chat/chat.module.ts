@@ -5,9 +5,10 @@ import { ChatMessageService } from './services/chat-message.service';
 import { ChatMemberService } from './services/chat-member.service';
 import { ChatBannedService } from './services/chat-banned.service';
 import { ChatUtils } from './services/chat-utils.service';
+import { ChatGateway } from './chat.gateway';
 
 @Module({
   controllers: [ChatController],
-  providers: [ChatService, ChatMessageService, ChatMemberService, ChatBannedService, ChatUtils]
+  providers: [ChatService, ChatMessageService, ChatMemberService, ChatBannedService, ChatUtils, ChatGateway]
 })
 export class ChatModule {}

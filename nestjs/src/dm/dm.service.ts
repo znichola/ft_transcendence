@@ -4,11 +4,13 @@ import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
 import { DirectMessageWithUsername, MessageEntity } from './entities/message.entity';
+import { DmGateway } from './dm.gateway';
 
 @Injectable()
 export class DmService
 {
-	constructor(private prisma: PrismaService){}
+	constructor(private prisma: PrismaService,
+		private readonly gateway: DmGateway){}
 
 	async getAllConversations(): Promise<ConversationEntity[]>
 	{
@@ -102,6 +104,39 @@ export class DmService
 		return new ConversationEntity(conversationFromDb);
 	}
 
+	async deleteOneConversation(user1: string, user2: string)
+	{
+		const id1 = await this.getUserId(user1);
+		const id2 = await this.getUserId(user2);
+
+		const conv = await this.prisma.conversation.findFirstOrThrow({
+			where: {
+				OR: [
+					{
+						user1Id: +id1,
+						user2Id: +id2,
+					},
+					{
+						user1Id: +id2,
+						user2Id: +id1,
+					}
+				]
+			}
+		});
+
+		await this.prisma.directMessage.deleteMany({
+			where: {
+				conversationId: +conv.id
+			}
+		});
+
+		await this.prisma.conversation.delete({
+			where: {
+				id: +conv.id
+			}
+		});
+	}
+
 	async getAllMessagesFromConversation(user1: string, user2: string): Promise<MessageEntity[]>
 	{
 		const id1 = await this.getUserId(user1);
@@ -155,17 +190,19 @@ export class DmService
 		const id1 = await this.getUserId(from);
 		const id2 = await this.getUserId(to);
 
-		const convId = await this.createConversationIfNotExists(id1, id2).then(res => res?.id);
+		const conv = await this.createConversationIfNotExists(id1, id2);
 
 		const msg = {
 			senderId: +id1,
-			conversationId: +convId,
+			conversationId: +conv.id,
 			text: payload.content
 		};
 
 		await this.prisma.directMessage.create({
 			data: msg,
-		})
+		});
+
+		this.gateway.push(conv);
 	}
 
 	async deleteMessage(msgId: number)
@@ -202,7 +239,7 @@ export class DmService
 		return user.id;
 	}
 
-	private async createConversationIfNotExists(id1: number, id2: number): Promise<Conversation>
+	private async createConversationIfNotExists(id1: number, id2: number): Promise<ConversationEntity>
 	{
 		const conv = await this.prisma.conversation.findFirst({
 			where: {
@@ -217,16 +254,42 @@ export class DmService
 					}
 				]
 			},
+			select: {
+				id: true,
+				user1: {
+					select: {
+						login42: true
+					}
+				},
+				user2: {
+					select: {
+						login42: true
+					}
+				}
+			}
 		});
 		if (conv != null)
-			return conv;
+			return new ConversationEntity(conv);
 
 		const newConv = await this.prisma.conversation.create({
 			data: {
 				user1Id: +id1,
 				user2Id: +id2,
 			},
+			select: {
+				id: true,
+				user1: {
+					select: {
+						login42: true
+					}
+				},
+				user2: {
+					select: {
+						login42: true
+					}
+				}
+			}
 		});
-		return newConv;
+		return new ConversationEntity(newConv);
 	}
 }
