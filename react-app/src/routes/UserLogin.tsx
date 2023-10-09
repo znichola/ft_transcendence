@@ -1,6 +1,5 @@
-import axios, { HttpStatusCode } from "axios";
+import axios  from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { LoadingSpinner } from "../components/Loading";
 
 export default function Login() {
   // useQuery({
@@ -67,12 +66,7 @@ function QRcode({ img }: { img: string }) {
 }
 
 function DevDefault42Auth() {
-  const {
-    data: da,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
+  const { isError, isLoading, isFetching, refetch } = useQuery({
     enabled: false,
     queryKey: ["auth2"],
     queryFn: () =>
@@ -82,28 +76,30 @@ function DevDefault42Auth() {
         .catch((e) => console.log(e.data)),
   });
 
-  if (isError) return (
-    <div
-      onClick={() => refetch()}
-      className=" w-64 rounded-xl bg-stone-200 px-7 py-5 font-bold text-center text-stone-500 shadow"
-    >
-      error signing is a default42
-    </div>
-  );
+  if (isError)
+    return (
+      <div
+        onClick={() => refetch()}
+        className=" w-64 rounded-xl bg-stone-200 px-7 py-5 text-center font-bold text-stone-500 shadow"
+      >
+        error signing is a default42
+      </div>
+    );
 
-  if (isLoading) return (
-    <div
-      onClick={() => refetch()}
-      className=" w-64 rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow flex justify-center"
-    >
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-700 border-b-transparent"></div>
-    </div>
-  );
+  if (isLoading && isFetching)
+    return (
+      <div
+        onClick={() => refetch()}
+        className=" flex w-64 justify-center rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
+      >
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-700 border-b-transparent"></div>
+      </div>
+    );
 
   return (
     <button
       onClick={() => refetch()}
-      className=" rounded-xl inline-block bg-stone-200 w-64 px-7 py-5 font-bold text-stone-500 shadow"
+      className=" inline-block w-64 rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
     >
       <h1 className="text-3xl ">For dev only</h1>
       <p className="text-lg ">

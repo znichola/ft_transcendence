@@ -9,7 +9,7 @@ import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-
 @ApiTags("Direct Messages")
 @UsePipes(new ValidationPipe({whitelist: true}))
 @UseFilters(PrismaClientExceptionFilter)
-@Controller('conversations')
+@Controller('dm')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
 

@@ -2,12 +2,14 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { MessageEntity, MessageWithUsername } from "../entities/message.entity";
 import { Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
+import { ChatGateway } from "../chat.gateway";
 
 @Injectable()
 export class ChatMessageService
 {
 	constructor(private prisma: PrismaService,
-		private readonly utils: ChatUtils){}
+		private readonly utils: ChatUtils,
+		private readonly gateway: ChatGateway){}
 
 	async getOneMessageFromChatroom(id: number, msgId: number): Promise<MessageEntity>
 	{
@@ -72,6 +74,8 @@ export class ChatMessageService
 		await this.prisma.message.create({
 			data: message,
 		});
+
+		this.gateway.push(chatroomId);
 	}
 
 	async updateMessageFromChatroom(msgId: number, newContent: string)
