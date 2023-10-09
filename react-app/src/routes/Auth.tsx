@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Auth() {
-  let [searchParams, setSearchParams] = useSearchParams()
+  let [searchParams ] = useSearchParams()
   const { data, isLoading, isError } = useQuery({
     queryKey: ["auth"],
     queryFn: () => axios.post("/auth/login", {code: searchParams.get("code"), state: 'state'}, { withCredentials: true }).then((res) => res.data),
   });
+  const navigate = useNavigate();
   if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center ">
@@ -32,5 +34,5 @@ export default function Auth() {
       </div>
     );
   if (isError) return <p>Lol.</p>;
-  
+  navigate("/play")
 }

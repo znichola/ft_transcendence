@@ -1,24 +1,20 @@
-import axios  from "axios";
-import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useState } from "react";
+import { Form, useNavigate } from "react-router-dom";
 
 export default function Login() {
-  // useQuery({
-  //   queryKey: ["auth"],
-  //   queryFn: () =>
-  //     axios
-  //       .get("/auth/user", { withCredentials: true })
-  //       .then((res) => res.data),
-  // });
+  const mvp = ["default42", "test"];
   return (
-    <>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-sky-300">
       <AuthButton />
-      <QRcode
+      <Logout />
+      {/* <QRcode
         img={
           "https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg"
         }
-      />
-      <DevDefault42Auth />
-    </>
+      /> */}
+      <DevLogin />
+    </div>
   );
 }
 
@@ -65,46 +61,54 @@ function QRcode({ img }: { img: string }) {
   );
 }
 
-function DevDefault42Auth() {
-  const { isError, isLoading, isFetching, refetch } = useQuery({
-    enabled: false,
-    queryKey: ["auth2"],
-    queryFn: () =>
-      axios
-        .get<string>("/api/dev-auth-default42")
-        .then((r) => r.data)
-        .catch((e) => console.log(e.data)),
-  });
-
-  if (isError)
-    return (
-      <div
-        onClick={() => refetch()}
-        className=" w-64 rounded-xl bg-stone-200 px-7 py-5 text-center font-bold text-stone-500 shadow"
-      >
-        error signing is a default42
-      </div>
-    );
-
-  if (isLoading && isFetching)
-    return (
-      <div
-        onClick={() => refetch()}
-        className=" flex w-64 justify-center rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
-      >
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-700 border-b-transparent"></div>
-      </div>
-    );
-
+function Logout() {
   return (
     <button
-      onClick={() => refetch()}
-      className=" inline-block w-64 rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
+      onClick={() =>
+        axios
+          .get<string>("/auth/logout")
+          .then((r) => r.data)
+          .catch((e) => console.log(e.data))
+      }
+      className=" w-64 rounded-xl bg-stone-200 px-7 py-5 text-center font-bold text-stone-500 shadow"
     >
-      <h1 className="text-3xl ">For dev only</h1>
-      <p className="text-lg ">
-        sign in as<b className="italic text-sky-400"> default42</b>
-      </p>
+      <h1 className="text-3xl ">Logout</h1>
     </button>
+  );
+}
+
+function DevLogin() {
+  const [login, setLogin] = useState("default42");
+  const [color, setColor] = useState<"bg-rose-500" | "bg-sky-500">(
+    "bg-sky-500",
+  );
+  const navigate = useNavigate();
+  return (
+    <Form
+      onSubmit={() => {
+        console.log("asdlkjas", login);
+        axios
+          .get("/auth/dev/", { params: { user: login } })
+          .then(() => {
+            navigate("/play")
+          })
+          .catch(() => setColor("bg-rose-500"));
+      }}
+      className="flex w-64 flex-col rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
+    >
+      <h1 className="text-3xl ">~dev only</h1>
+      <p className="text-base ">
+        sign in as<b className="italic text-sky-400"> {login}</b>
+      </p>
+      <div className="flex gap-2 pt-2">
+        <input
+          className="w-full rounded px-2 font-medium outline-none"
+          type="text"
+          value={login}
+          onChange={(e) => setLogin(e.target.value)}
+        />
+        <button className={`h-8 w-6 ${color} rounded-full`} />
+      </div>
+    </Form>
   );
 }
