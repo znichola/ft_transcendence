@@ -7,9 +7,7 @@ import {
   Query,
   UseGuards,
   Req,
-  UnauthorizedException,
   Put,
-  NotFoundException,
   HttpException,
   HttpStatus,
   Delete,
@@ -31,8 +29,7 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiQuery({
     name: 'page',
     description: 'set the page to use for the pagination (default 1)',
@@ -95,7 +92,7 @@ export class UserController {
   }
 
   // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the data about a specific user, for profile display',
     description: 'a valid JWT token is required for this operation.'
@@ -113,7 +110,7 @@ export class UserController {
     description: 'No user found with the provided login.'
   })
   @Get(':username')
-  async getOne(@Param('username') username: string): Promise<UserData> {
+  async getUser(@Param('username') username: string): Promise<UserData> {
     const userInfo = await this.userService.findUserFromLogin(username);
     if (!userInfo)
     {
@@ -122,9 +119,7 @@ export class UserController {
     return userInfo;
   }
 
-  // REDO in PUT for real project?
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Update the user profile.',
     description: 'Update the user profile with the UserData provided. There must be a valid JWT token, and the logged in user must be the user in the url.',
@@ -152,11 +147,8 @@ export class UserController {
     @Body() bodyData: UserData,
     @Req() req: Request,
   ): Promise<UserData> {
-    // TODO : Remove if condition after testing.
-    // if (req.cookies.test)
-    // {
-    //   await this.authService.verifyUser(username, req.cookies.test.access_token);
-    // }
+
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
 
     if (bodyData.name)
     {
@@ -173,8 +165,7 @@ export class UserController {
     );
   }
 
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the accepted and pending friend request for the username requested',
   })
@@ -231,24 +222,10 @@ export class UserController {
     return friendList;
   }
 
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Send a friend request to another user',
-    description: 'the user identified in the URL send a friend request to the user which login is in the body data. There must be a valid JWT token, and the logged in user must be the user in the url.',
-    requestBody: {
-      description: 'Body must include the user to add to friends',
-      required: true,
-      content: {
-        'application/json': {
-          schema:
-          {
-            example: {
-              "target": "default42"
-            }
-          }
-      }}
-      }
+    description: 'the first user identified in the URL sends a friend request to the second user. There must be a valid JWT token, and the logged in user must be the first user in the url.',
   })
   @ApiResponse({
     status: 201,
@@ -259,7 +236,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Target missing in Body data, or similar to Sender.'
+    description: 'Target similar to Sender.'
   })
   @ApiResponse({
     status: 401,
@@ -267,22 +244,14 @@ export class UserController {
   })
   @ApiResponse({
     status: 404,
-    description: 'No user found with corresponding body target data.'
+    description: 'No user found with corresponding username or target data.'
   })
-  @Post(':username/friends')
-  async addFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request): Promise<string> 
+  @Post(':username/friends/:target')
+  async addFriend(@Param('username') username: string, @Param('target') target: string, @Req() req: Request): Promise<string> 
   {
-    // TODO : Remove if condition after testing.
-    if (req.cookies.test)
-    {
-      await this.authService.verifyUser(username, req.cookies.test.access_token);
-    }
-    if (!bodyData.target)
-    {
-      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
-    }
-    
-    const users = await this.userService.getFriendsIds(username, bodyData.target);
+
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    const users = await this.userService.getFriendsIds(username, target);
 
     const friendStatus: string = await this.userService.getFriendStatus(users[0], users[1]);
 
@@ -294,11 +263,10 @@ export class UserController {
     return (friendStatus.toLowerCase());
   }
 
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Remove a friend.',
-    description: 'the first user identified in the URL removes the second user which from his friends. There must be a valid JWT token, and the logged in user must be the first user in the url.',
+    description: 'the first user identified in the URL removes the second user from his friends. There must be a valid JWT token, and the logged in user must be the first user in the url.',
   })
   @ApiResponse({
     status: 200,
@@ -314,7 +282,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 404,
-    description: 'No user found with corresponding body target data.'
+    description: 'No user found with corresponding username or target data.'
   })
   @HttpCode(HttpStatus.OK)
   @Delete(':username/friends/:target')
@@ -326,24 +294,10 @@ export class UserController {
     await this.userService.removeFriend(users[0], users[1]);
   }
 
-  // TODO : UseGuards back
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Accept a friend request.',
-    description: 'the user identified in the URL accept the friend request from the user which login is in the body data from his friends. There must be a valid JWT token, and the logged in user must be the user in the url.',
-    requestBody: {
-      description: 'Body must include the user who sent the friend request.',
-      required: true,
-      content: {
-        'application/json': {
-          schema:
-          {
-            example: {
-              "target": "default42"
-            }
-          }
-      }}
-      }
+    description: 'the first user identified in the URL accepts the friend request from the second user. There must be a valid JWT token, and the logged in user must be the first user in the url.',
   })
   @ApiResponse({
     status: 200,
@@ -351,7 +305,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Target missing in Body data, or similar to Sender.'
+    description: 'Target similar to Sender.'
   })
   @ApiResponse({
     status: 401,
@@ -359,23 +313,13 @@ export class UserController {
   })
   @ApiResponse({
     status: 404,
-    description: 'No user found with corresponding body target data.'
+    description: 'No user found with corresponding username or target data.'
   })
-  @Put(':username/friends')
-  async acceptFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
+  @Put(':username/friends/:target')
+  async acceptFriend(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
-    // TODO : Remove if condition after testing.
-    // if (req.cookies.test)
-    // {
-    //   await this.authService.verifyUser(username, req.cookies.test.access_token);
-    // }
-
-    if (!bodyData.target)
-    {
-      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
-    }
-
-    const users = await this.userService.getFriendsIds(username, bodyData.target);
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    const users = await this.userService.getFriendsIds(username, target);
     await this.userService.updateFriend(users[0], users[1]);
   }
 }

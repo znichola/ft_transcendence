@@ -49,9 +49,7 @@ export const postUserFriendRequest = async (
   login42: string,
 ) => {
   return authApi
-    .post<HttpStatusCode>("/user/" + current_user + "/friends", {
-      target: login42,
-    })
+    .post<HttpStatusCode>("/user/" + current_user + "/friends/" + login42)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
@@ -61,11 +59,7 @@ export const removeUserFriend = async (
   login42: string,
 ) => {
   return authApi
-    .delete<HttpStatusCode>("/user/" + current_user + "/friends", {
-      data: {
-        target: login42,
-      },
-    })
+    .delete<HttpStatusCode>("/user/" + current_user + "/friends/" + login42)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
@@ -75,9 +69,7 @@ export const putUserFriendRequest = async (
   login42: string,
 ) => {
   return authApi
-    .put<HttpStatusCode>("/user/" + current_user + "/friends", {
-      target: login42,
-    })
+    .put<HttpStatusCode>("/user/" + current_user + "/friends/" + login42)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
