@@ -12,6 +12,8 @@ else
 USE_LOCAL_HOST="false"
 API_CLIENT_ID="_______replace_with_the_API_ID_from_the_42_api____"
 API_CLIENT_SECRET="_____replace_with_the_secret_also_from_42_____"
+DATABASE_USR="_____replace_with_your_database_user_____"
+DATABASE_NAME="_____replace_with_your_database_name_____"
 ' 
   } > kickstart.env
   exit 42
@@ -28,9 +30,6 @@ source ./kickstart.env
 JWT_SECRET=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 48 | head -n 1)
 DATABASE_PWD=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 
-# delete this when the backend properly reads the env variables
-DATABASE_PWD="1234"
-JWT_SECRET="lol"
 
 IP_ADDR=$(ipconfig getifaddr en0)
 if [[ $USE_LOCAL_HOST == "true" ]]; then
@@ -56,6 +55,10 @@ VITE_IP_ADDR=\"$VITE_IP_ADDR\"
 # This file is auto-generated
 
 IP_ADDR=\"$VITE_IP_ADDR\"
+API_CLIENT_ID=\"$API_CLIENT_ID\"
+API_CLIENT_SECRET=\"$API_CLIENT_SECRET\"
+JWT_SECRET=\"$JWT_SECRET\"
+DATABASE_URL=\"postgresql://postgres:$DATABASE_PWD@postgres:5432/testdb?schema=public\"
 "
 
 } > nestjs/.env
@@ -68,6 +71,8 @@ API_CLIENT_ID=\"$API_CLIENT_ID\"
 API_CLIENT_SECRET=\"$API_CLIENT_SECRET\"
 JWT_SECRET=\"$JWT_SECRET\"
 DATABASE_PWD=\"$DATABASE_PWD\"
-DATABASE_URL=\"postgresql://postgres:$DATABASE_PWD@postgres:5432/testdb?schema=public\"
+DATABASE_URL=\"postgresql://$DATABASE_USR:$DATABASE_PWD@postgres:5432/$DATABASE_NAME?schema=public\"
+DATABASE_USR=\"$DATABASE_USR\"
+DATABASE_NAME=\"$DATABASE_NAME\"
 "
 } > .env

@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { FriendStatus, User, UserStatus } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
@@ -8,19 +14,22 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
-  async findAll(page?: number, searchName?: string, findStatus?: UserStatus): Promise<string[]> {
+  async findAll(
+    page?: number,
+    searchName?: string,
+    findStatus?: UserStatus,
+  ): Promise<string[]> {
     const whereCondition: {
       OR: [
-          {
-            login42: { contains: string };
-          },
-          {
-            name: { contains: string };
-          },
-        ];
-        status?: UserStatus;
-      }
-     = {
+        {
+          login42: { contains: string };
+        },
+        {
+          name: { contains: string };
+        },
+      ];
+      status?: UserStatus;
+    } = {
       OR: [
         {
           login42: { contains: '' },
@@ -33,13 +42,13 @@ export class UserService {
     console.log(searchName, findStatus);
     if (searchName) {
       whereCondition.OR = [
-          {
-            login42: { contains: searchName },
-          },
-          {
-            name: { contains: searchName },
-          },
-        ];
+        {
+          login42: { contains: searchName },
+        },
+        {
+          name: { contains: searchName },
+        },
+      ];
     }
     whereCondition.status = findStatus;
     const allUsers = await prisma.user.findMany({
@@ -52,7 +61,7 @@ export class UserService {
       },
     });
 
-    const usersArray: string[] = allUsers.map(user => user.login42);
+    const usersArray: string[] = allUsers.map((user) => user.login42);
     return usersArray;
   }
 
@@ -74,8 +83,7 @@ export class UserService {
     return user;
   }
 
-  async findUserFromName(name: string): Promise<UserData>
-  {
+  async findUserFromName(name: string): Promise<UserData> {
     const user = await prisma.user.findUnique({
       where: {
         name: name,
@@ -84,7 +92,11 @@ export class UserService {
     return user;
   }
 
-  async updateUserName(login: string, newName?: string, newBio?: string): Promise<UserData> {
+  async updateUserName(
+    login: string,
+    newName: string,
+    newBio: string,
+  ): Promise<UserData> {
     const user = await prisma.user.update({
       where: {
         login42: login,
@@ -103,8 +115,7 @@ export class UserService {
       where: { login42: login },
       select: { id: true },
     });
-    if (!user)
-      return null;
+    if (!user) return null;
     return user.id;
   }
 
@@ -217,27 +228,29 @@ export class UserService {
   //   return user;
   // }
 
-  async getFriendsIds(user1: string, user2: string): Promise<number[]>
-  {
+  async getFriendsIds(user1: string, user2: string): Promise<number[]> {
     const userId: number = await this.getUserId(user1);
     const targetId: number = await this.getUserId(user2);
 
-    if (!userId || !targetId)
-    {
+    if (!userId || !targetId) {
       throw new NotFoundException();
     }
 
-    if (userId == targetId)
-    {
-      throw new HttpException('sender and target IDs must be differents.', HttpStatus.BAD_REQUEST);
+    if (userId == targetId) {
+      throw new HttpException(
+        'sender and target IDs must be differents.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return [userId, targetId];
   }
 
-  async getFriendStatus(requesterId: number, receiverId: number): Promise<string>
-  {
+  async getFriendStatus(
+    requesterId: number,
+    receiverId: number,
+  ): Promise<string> {
     const friendStatus = await prisma.friend.findFirst({
-      where: { 
+      where: {
         OR: [
           {
             user1Id: requesterId,
@@ -251,18 +264,19 @@ export class UserService {
       },
       select: {
         user1Id: true,
-        status: true
-      }
+        status: true,
+      },
     });
-    if (!friendStatus)
-    {
+    if (!friendStatus) {
       return '';
     }
-    if (friendStatus.user1Id == requesterId && friendStatus.status == 'PENDING')
-    {
-      return ('SENT');
+    if (
+      friendStatus.user1Id == requesterId &&
+      friendStatus.status == 'PENDING'
+    ) {
+      return 'SENT';
     }
-    return (friendStatus.status);
+    return friendStatus.status;
   }
 
   async createFriend(requesterId: number, receiverId: number) {
@@ -274,8 +288,7 @@ export class UserService {
     });
   }
 
-  async removeFriend(user1: number, user2: number)
-  {
+  async removeFriend(user1: number, user2: number) {
     await prisma.friend.deleteMany({
       where: {
         OR: [
@@ -286,19 +299,18 @@ export class UserService {
           {
             user1Id: user2,
             user2Id: user1,
-          }
+          },
         ],
         AND: {
           NOT: {
-            status: FriendStatus.BLOCKED
-          }
-        }
-      }
-    })
+            status: FriendStatus.BLOCKED,
+          },
+        },
+      },
+    });
   }
 
-  async updateFriend(user1: number, user2: number)
-  {
+  async updateFriend(user1: number, user2: number) {
     await prisma.friend.updateMany({
       where: { user1Id: user2, user2Id: user1 },
       data: { status: FriendStatus.ACCEPTED },
