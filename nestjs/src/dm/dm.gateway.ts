@@ -3,7 +3,7 @@ import { Server } from 'socket.io'
 import { ConversationEntity } from './entities/conversation.entity';
 
 @WebSocketGateway({
-	namespace: 'conversations',
+	namespace: 'dm',
 	cors: {
 		origin: '*'
 	}

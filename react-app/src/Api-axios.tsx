@@ -99,7 +99,7 @@ export const putUserProfile = async (
 
 export const getUserConverstaionList = async (user: string) => {
   return authApi
-    .get<Converstaion[]>("/conversations/" + user)
+    .get<Converstaion[]>("/dm/" + user)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
@@ -107,14 +107,14 @@ export const getUserConverstaionList = async (user: string) => {
 // as yet it's unused, and maybe useless
 export const getUserConversation = async (user1: string, user2: string) => {
   return authApi
-    .get<Converstaion>("/conversations/" + user1 + "/" + user2)
+    .get<Converstaion>("/dm/" + user1 + "/" + user2)
     .then((res) => res.data)
     .catch((error) => console.log(error.toJSON));
 };
 
 export const getUserConvoMessageList = async (user1: string, user2: string) => {
   return authApi
-    .get<ConvoMessage[]>("/conversations/" + user1 + "/" + user2 + "/messages")
+    .get<ConvoMessage[]>("/dm/" + user1 + "/" + user2 + "/messages")
     .then((res) => {
       if (res.status == 404) {
         console.log("caught the 404 here");
@@ -134,7 +134,7 @@ export const postUserConvoMessage = async (
   message: string,
 ) => {
   return authApi
-    .post<string>("/conversations/" + user1 + "/" + user2 + "/messages", {
+    .post<string>("/dm/" + user1 + "/" + user2 + "/messages", {
       content: message,
     })
     .then()
