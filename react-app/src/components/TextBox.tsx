@@ -18,7 +18,7 @@ export default function EditBox({
   const [charRemainder, setCharRemainder] = useState(maxChar);
   const [isEditable, setEditable] = useState(false);
   return (
-    <div className="grow-wrap relative w-full overflow-auto ">
+    <div className="grow-wrap relative w-full">
       <textarea
         maxLength={maxChar}
         value={text}

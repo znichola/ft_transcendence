@@ -37,7 +37,7 @@ export default function SideMenu() {
   if (isError) return <p>Error fethcing data</p>;
 
   return (
-    <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden bg-white pt-5 ">
+    <div className="flex h-full flex-grow flex-col overflow-y-auto overflow-x-hidden bg-white pt-5">
       <CurrentUserStats />
       <div className="h-8" />
       <CurrentUserEloStats user={currentUserData} />

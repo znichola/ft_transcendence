@@ -74,8 +74,8 @@ export default function UserPage() {
     return <ErrorMessage message={"Error loading " + login42 + "'s profile"} />;
   return (
     <>
-      <div className="flex h-full w-full flex-col px-28 py-5">
-        <div className="h-40" />
+      <div className="flex h-full w-full min-w-[50rem] flex-col px-28 py-5">
+        <div className="grow max-h-32 min-h-[5rem]"/>
         <div className="box-theme flex flex-col items-center justify-center">
           <div className="flex w-full">
             <div className="w-7 " />
@@ -88,11 +88,11 @@ export default function UserPage() {
                 />
               </div>
             </div>
-            <div className="grow ">
-              <h1 className="min-w-0 pl-4 pt-4 text-5xl font-semibold ">
+            <div>
+              <h1 className="pl-4 pt-4 text-5xl font-semibold ">
                 {user.login42 == currentUser ? (
                   <EditBox
-                    className="gradient-hightlight"
+                    className=""
                     maxChar={20}
                     rows={1}
                     startText={user.name}
@@ -104,12 +104,12 @@ export default function UserPage() {
                   <h1 className="gradient-hightlight">{user.name}</h1>
                 )}
               </h1>
-              <h2 className="pl-4 text-2xl  text-slate-400">
+              <h2 className="pl-4 text-2xl text-slate-400">
                 {"@" + user.login42}
               </h2>
             </div>
           </div>
-          <div className="max-h-32 w-full overflow-auto px-10 py-6 text-left text-2xl">
+          <div className="max-h-32 w-full px-10 py-6 text-left text-2xl">
             {user.login42 == currentUser ? (
               <EditBox
                 className=""
@@ -125,21 +125,21 @@ export default function UserPage() {
             )}
           </div>
         </div>
-        <div className="h-12" />
-        <div
-          ref={elo_graph}
-          className="flex min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
-        >
-          <ProfileElo
-            data={user.eloHistory}
-            w={graphWidth}
-            lineWidth={7}
-            fontSize="text-3xl"
-            className="max-h-[5rem]"
-          />
+        <div className="flex items-center grow max-h-72 py-4">
+          <div
+            ref={elo_graph}
+            className="flex min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
+          >
+            <ProfileElo
+              data={user.eloHistory}
+              w={graphWidth}
+              lineWidth={7}
+              fontSize="text-3xl"
+              className="max-h-[10rem] h-40"
+            />
+          </div>
         </div>
-        <div className="h-5"></div>
-        <div className="flex h-fit w-full gap-5 overflow-x-scroll px-3 py-7">
+        <div className="flex h-fit w-full gap-5 overflow-x-scroll pl-1 pb-7">
           <MatchCell victory={true} />
           <MatchCell victory={false} />
           <MatchCell victory={true} />

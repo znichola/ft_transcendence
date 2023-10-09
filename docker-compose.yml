@@ -70,4 +70,6 @@ services:
       - NGINX_PORT=80
     networks:
       - transnet
+    depends_on:
+      - react
       
