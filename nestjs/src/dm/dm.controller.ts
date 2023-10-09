@@ -34,6 +34,12 @@ export class DmController {
 		return this.dmService.getOneConversation(user1, user2);
 	}
 
+	@Delete(':user1/:user2')
+	deleteOneConversation(@Param('user1') user1: string, @Param('user2') user2: string)
+	{
+		return this.dmService.deleteOneConversation(user1, user2);
+	}
+
 	@Get(':user1/:user2/messages')
 	@ApiOkResponse({type: MessageEntity, isArray: true})
 	getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string): Promise<MessageEntity[]>
