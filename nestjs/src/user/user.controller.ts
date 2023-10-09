@@ -13,6 +13,7 @@ import {
   HttpException,
   HttpStatus,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriends } from '../interfaces';
@@ -297,20 +298,7 @@ export class UserController {
   // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Remove a friend.',
-    description: 'the user identified in the URL removes the user which login is in the body data from his friends. There must be a valid JWT token, and the logged in user must be the user in the url.',
-    requestBody: {
-      description: 'Body must include the user to add to friends',
-      required: true,
-      content: {
-        'application/json': {
-          schema:
-          {
-            example: {
-              "target": "default42"
-            }
-          }
-      }}
-      }
+    description: 'the first user identified in the URL removes the second user which from his friends. There must be a valid JWT token, and the logged in user must be the first user in the url.',
   })
   @ApiResponse({
     status: 200,
@@ -328,21 +316,12 @@ export class UserController {
     status: 404,
     description: 'No user found with corresponding body target data.'
   })
-  @Delete(':username/friends')
-  async removeFriend(@Param('username') username: string, @Body() bodyData, @Req() req: Request)
+  @HttpCode(HttpStatus.OK)
+  @Delete(':username/friends/:target')
+  async removeFriend(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
-    // TODO : Remove if condition after testing.
-    if (req.cookies.test)
-    {
-      await this.authService.verifyUser(username, req.cookies.test.access_token);
-    }
-
-    if (!bodyData.target)
-    {
-      throw new HttpException('Missing target in body data.', HttpStatus.BAD_REQUEST);
-    }
-
-    const users = await this.userService.getFriendsIds(username, bodyData.target);
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    const users = await this.userService.getFriendsIds(username, target);
 
     await this.userService.removeFriend(users[0], users[1]);
   }
