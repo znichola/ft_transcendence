@@ -7,6 +7,7 @@ import { ChatUtils } from "./chat-utils.service";
 import { UpdateRoleDto } from "../dto/update-role-dto";
 import * as bcrypt from 'bcrypt';
 import { ChatService } from "./chat.service";
+import { MuteMemberDto } from "../dto/mute-member-dto";
 
 @Injectable()
 export class ChatMemberService
@@ -26,6 +27,7 @@ export class ChatMemberService
 			},
 			select: {
 				role: true,
+				mutedUntil: true,
 				user: {
 					select: {
 						login42: true
@@ -50,6 +52,7 @@ export class ChatMemberService
 			},
 			select: {
 				role: true,
+				mutedUntil: true,
 				user: {
 					select: {
 						login42: true
@@ -175,4 +178,47 @@ export class ChatMemberService
 		})
 	}
 
+	async muteMember(chatroomId: number, payload: MuteMemberDto)
+	{
+		await this.utils.checkChatroomExists(chatroomId);
+		const userId: number = await this.utils.getUserId(payload.login42);
+
+		if (await this.utils.isOwner(userId, chatroomId))
+			throw new ForbiddenException("You cannot mute the owner of the chatroom");
+
+		let until = new Date();
+		until.setSeconds(until.getSeconds() + payload.durationInSeconds);
+
+		await this.prisma.chatroomUser.update({
+			where: {
+				chatroomId_userId: {
+					chatroomId: +chatroomId,
+					userId: +userId
+				}
+			},
+			data: {
+				mutedUntil: until
+			}
+		});
+	}
+
+	async unmuteMember(chatroomId: number, username: string)
+	{
+		await this.utils.checkChatroomExists(chatroomId);
+		const userId: number = await this.utils.getUserId(username);
+
+		const epoch = new Date('1970-01-01T00:00:00.000Z');
+
+		await this.prisma.chatroomUser.update({
+			where: {
+				chatroomId_userId: {
+					chatroomId: +chatroomId,
+					userId: +userId
+				}
+			},
+			data: {
+				mutedUntil: epoch
+			}
+		});
+	}
 }
