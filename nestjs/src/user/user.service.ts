@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { FriendStatus, User, UserStatus } from '@prisma/client';
 import { contains } from 'class-validator';
+import { existsSync } from 'fs';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -256,5 +257,28 @@ export class UserService {
       where: { user1Id: user2, user2Id: user1 },
       data: { status: FriendStatus.ACCEPTED },
     });
+  }
+
+  getAvatar(login: string): string
+  {
+    const validFileExtensions = ['.jpg', '.jpeg', '.png'];
+    let foundPath = null;
+    for(let extension of validFileExtensions) {
+      const imagePath = './avatars/' + login + extension;
+      console.log('checking file ', imagePath);
+      if (existsSync(imagePath)) {
+        foundPath = imagePath;
+        break;
+      }
+    }
+    return foundPath;
+  }
+
+  async updateAvatar(login: string, newAvatar: string)
+  {
+    await prisma.user.update({
+      where: { login42: login },
+      data: { avatar: newAvatar }
+    })
   }
 }
