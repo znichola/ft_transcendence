@@ -6,6 +6,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FriendStatus, User, UserStatus } from '@prisma/client';
+import { contains } from 'class-validator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -14,46 +15,20 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
-  async findAll(
-    page?: number,
-    searchName?: string,
-    findStatus?: UserStatus,
-  ): Promise<string[]> {
-    const whereCondition: {
-      OR: [
-        {
-          login42: { contains: string };
-        },
-        {
-          name: { contains: string };
-        },
-      ];
-      status?: UserStatus;
-    } = {
-      OR: [
-        {
-          login42: { contains: '' },
-        },
-        {
-          name: { contains: '' },
-        },
-      ],
-    };
-    console.log(searchName, findStatus);
-    if (searchName) {
-      whereCondition.OR = [
-        {
-          login42: { contains: searchName },
-        },
-        {
-          name: { contains: searchName },
-        },
-      ];
-    }
-    whereCondition.status = findStatus;
+  async findAll(page?: number, searchName?: string, findStatus?: UserStatus ): Promise<string[]> {
     const allUsers = await prisma.user.findMany({
       select: { login42: true },
-      where: whereCondition,
+      where: {
+        OR: [
+          {
+            login42: {  mode: 'insensitive', contains: searchName || '' },
+          },
+          {
+            name: {  mode: 'insensitive', contains: searchName || '' },
+          },
+        ],
+        status: findStatus
+      },
       skip: (page - 1) * 10 || 0,
       take: 10,
       orderBy: {
@@ -193,40 +168,6 @@ export class UserService {
     const results: FriendData[] = await Promise.all(userPromises);
     return results;
   }
-
-  // async findAllByStatus(
-  //   statusName: string,
-  //   page?: number,
-  // ): Promise<UserData[]> {
-  //   const status = await prisma.status.findFirst({
-  //     where: { name: statusName },
-  //     include: {
-  //       user: { skip: (page - 1) * 10 || 0, take: 10, orderBy: { elo: 'desc' } },
-  //     },
-  //   });
-  //   if (status) {
-  //     const users = status.user;
-  //     return users;
-  //   }
-  //   return [];
-  // }
-
-  // async registerUser(
-  //   login: string,
-  //   displayName: string,
-  //   avatar: string,
-  // ): Promise<UserData> {
-  //   const user = await prisma.user.upsert({
-  //     where: { login42: login },
-  //     create: {
-  //       login42: login,
-  //       name: displayName,
-  //       avatar: avatar,
-  //     },
-  //     update: { status: UserStatus.ONLINE },
-  //   });
-  //   return user;
-  // }
 
   async getFriendsIds(user1: string, user2: string): Promise<number[]> {
     const userId: number = await this.getUserId(user1);
