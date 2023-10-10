@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 
 export default function Login() {
-  const mvp = ["default42", "test"];
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-sky-300">
       <AuthButton />
@@ -62,12 +62,17 @@ function QRcode({ img }: { img: string }) {
 }
 
 function Logout() {
+  const authContext = useAuth();
+
   return (
     <button
       onClick={() =>
         axios
           .get<string>("/auth/logout")
-          .then((r) => r.data)
+          .then((r) => {
+            r.data;
+            authContext?.logOut();
+          })
           .catch((e) => console.log(e.data))
       }
       className=" w-64 rounded-xl bg-stone-200 px-7 py-5 text-center font-bold text-stone-500 shadow"
@@ -82,15 +87,18 @@ function DevLogin() {
   const [color, setColor] = useState<"bg-rose-500" | "bg-sky-500">(
     "bg-sky-500",
   );
+  const authContext = useAuth();
   const navigate = useNavigate();
   return (
     <Form
       onSubmit={() => {
-        console.log("asdlkjas", login);
         axios
           .get("/auth/dev/", { params: { user: login } })
           .then(() => {
-            navigate("/play")
+            authContext?.logIn(login);
+            console.log(authContext);
+            navigate("/play");
+            console.log("signed in!")
           })
           .catch(() => setColor("bg-rose-500"));
       }}
