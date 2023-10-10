@@ -1,6 +1,6 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { MessageEntity, MessageWithUsername } from "../entities/message.entity";
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
 import { ChatGateway } from "../chat.gateway";
 
@@ -64,6 +64,9 @@ export class ChatMessageService
 		const senderId: number = await this.utils.getUserId(senderUsername);
 
 		await this.utils.checkIsMember(senderId, chatroomId);
+
+		if (await this.utils.isMuted(senderId, chatroomId))
+			throw new ForbiddenException("You have been muted");
 
 		const message = {
 			userId: +senderId,

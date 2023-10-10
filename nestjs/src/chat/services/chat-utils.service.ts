@@ -108,4 +108,14 @@ export class ChatUtils
 		});
 		return (bannedUser != null);
 	}
+
+	async isMuted(userId: number, chatroomId: number): Promise<boolean>
+	{
+		const member = await this.prisma.chatroomUser.findUniqueOrThrow({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
+		return (new Date() < member.mutedUntil);
+	}
 }
