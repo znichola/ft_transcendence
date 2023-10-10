@@ -98,4 +98,14 @@ export class ChatUtils
 
 		return (member.role == "OWNER");
 	}
+
+	async isBanned(userId: number, chatroomId: number): Promise<boolean>
+	{
+		const bannedUser = await this.prisma.bannedUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
+		return (bannedUser != null);
+	}
 }

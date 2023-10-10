@@ -1,8 +1,9 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { BannedUserEntity, BannedUserWithUsername } from "../entities/banned-user.entity";
 import { BanUserDto } from "../dto/ban-user-dto";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
+import { ChatroomUserRole } from "@prisma/client";
 
 @Injectable()
 export class ChatBannedService
@@ -49,14 +50,44 @@ export class ChatBannedService
 
 	async addBannedUser(chatroomId: number, payload: BanUserDto)
 	{
-		const userId = await this.utils.getUserId(payload.login42);
+		await this.utils.checkChatroomExists(chatroomId);
 
+		let userId: number;
+		try {
+			userId = await this.utils.getUserId(payload.login42);
+		} catch (e: any)
+		{
+			throw new BadRequestException("This user does not exist");
+		}
+
+		const member = await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
+
+		if (member != null && member.role == ChatroomUserRole.OWNER)
+		{
+			throw new ForbiddenException("You cannot ban the owner of the channel");
+		}
+
+		/* add user to the list of banned members */
 		await this.prisma.bannedUser.create({
 			data: {
 				chatroomId: +chatroomId,
 				userId: +userId,
 			}
 		});
+
+		/* delete user from chatroom if they are in the chatroom */
+		if (member != null)
+		{
+			await this.prisma.chatroomUser.delete({
+				where: {
+					chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+				}
+			});
+		}
 	}
 
 	async deleteBannedUser(chatroomId: number, username: string)
