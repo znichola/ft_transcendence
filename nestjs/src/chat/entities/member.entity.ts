@@ -4,6 +4,7 @@ import { ChatroomUserRole, Prisma } from "@prisma/client";
 const memberWithUsername = Prisma.validator<Prisma.ChatroomUserDefaultArgs>()({
 	select: {
 		role: true,
+		mutedUntil: true,
 		user: {
 			select: {
 				login42: true
@@ -20,6 +21,7 @@ export class MemberEntity
 	{
 		this.login42 = prismaObject.user.login42;
 		this.role = prismaObject.role;
+		this.isMuted = (new Date() < prismaObject.mutedUntil);
 	}
 
 	@ApiProperty()
@@ -27,4 +29,7 @@ export class MemberEntity
 
 	@ApiProperty({enum: ChatroomUserRole})
 	role: ChatroomUserRole;
+
+	@ApiProperty()
+	isMuted: boolean;
 }

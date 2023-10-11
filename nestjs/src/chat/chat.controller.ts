@@ -18,6 +18,7 @@ import { BannedUserEntity } from './entities/banned-user.entity';
 import { ChatMemberService } from './services/chat-member.service';
 import { ChatMessageService } from './services/chat-message.service';
 import { ChatBannedService } from './services/chat-banned.service';
+import { MuteMemberDto } from './dto/mute-member-dto';
 
 @ApiTags("Chatrooms")
 @UsePipes(new ValidationPipe({whitelist: true}))
@@ -154,5 +155,17 @@ export class ChatController
 	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
 	{
 		return await this.bannedService.deleteBannedUser(chatroomId, username);
+	}
+
+	@Post(':id/muted/')
+	async muteMember(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: MuteMemberDto)
+	{
+		await this.memberService.muteMember(chatroomId, payload);
+	}
+
+	@Delete(':id/muted/:username')
+	async unmuteMember(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	{
+		await this.memberService.unmuteMember(chatroomId, username);
 	}
 }
