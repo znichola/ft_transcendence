@@ -30,9 +30,11 @@ import NavChatRooms from "./SideMenuChatRooms.tsx";
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
 export default function SideMenu({
+  reference,
   hide,
   toggleHide,
 }: {
+  reference: React.RefObject<HTMLDivElement>,
   hide: boolean;
   toggleHide: () => void;
 }) {
@@ -45,6 +47,7 @@ export default function SideMenu({
 
   return (
     <div
+      ref={reference}
       className={
         "pointer-events-auto relative flex h-screen flex-grow flex-col rounded-tr-xl bg-white pb-5 pt-1 shadow-md transition-all duration-500 " +
         (hide ? "w-0 min-w-0" : "w-80 min-w-[19rem]")

@@ -26,10 +26,9 @@ export default function Root() {
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-stone-200">
       <div className={"left-0 right-auto absolute z-10 h-screen w-screen transition-all duration-500 " + (hide ? "backdrop-blur-none pointer-events-none" : "backdrop-blur-sm lg:backdrop-blur-none lg:pointer-events-none")}>
-        <input checked={hide} type="checkbox" className="hidden peer"></input>
-          <SideMenu hide={hide} toggleHide={() => {setHide(!hide)}}/>
+        <SideMenu reference={sideMenuRef} hide={hide} toggleHide={() => {setHide(!hide)}}/>
       </div>
-      <div className="lg:min-w-[18rem] peer-checked:min-w-0 transition-all duration-500"></div>
+      <div className={"transition-all duration-500 " + (hide ? " min-w-0 " : " lg:min-w-[18rem] ")}/>
       <div className="flex min-w-0 grow w-full h-screen xl:justify-center">
         <div className="flex min-w-0 h-full w-full flex-col xl:max-w-6xl items-center justify-center bg-stone-100 text-slate-600">
           <Outlet />
