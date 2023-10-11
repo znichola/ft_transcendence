@@ -287,8 +287,10 @@ export class UserService {
       where: { user1Id: user, user2Id: target },
       select: { id: true}
     })
+    let relationId: number;
+    relation ? relationId = relation.id : relationId = 0;
     await prisma.friend.upsert({
-      where: { id: relation.id },
+      where: { id: relationId },
       create: {
         user1Id: user,
         user2Id: target,
