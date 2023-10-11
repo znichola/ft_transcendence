@@ -194,7 +194,7 @@ export function useMutPostNewChatroom() {
     mutationFn: (payload: ChatroomPost) => postNewChatromm(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["Friends"],
+        queryKey: ["ChatroomList"],
       });
     },
   });

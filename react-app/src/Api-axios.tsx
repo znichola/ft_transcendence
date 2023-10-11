@@ -1,6 +1,6 @@
 import axios, { HttpStatusCode } from "axios";
 import {
-  Chatroom,
+  IChatroom,
   ChatroomPost,
   Converstaion,
   ConvoMessage,
@@ -151,7 +151,7 @@ export const deleteDMconversation = async (
 
 export const getChatrooomList = async () => {
   return authApi
-    .get<Chatroom[]>("/chatroom/")
+    .get<IChatroom[]>("/chatroom/")
     .then((res) => res.data)
 };
 

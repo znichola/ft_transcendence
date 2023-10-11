@@ -6,12 +6,12 @@ export default function BoxMenu({
   heading,
   children,
 }: {
-  resetBTN: () => void;
+  resetBTN?: () => void;
   heading: ReactNode;
   children?: ReactNode;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  useOutsideAlerter(wrapperRef, resetBTN);
+  if (resetBTN) useOutsideAlerter(wrapperRef, resetBTN);
 
   return (
     <div
