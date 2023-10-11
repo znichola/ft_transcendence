@@ -69,7 +69,7 @@ IP_ADDR=\"$VITE_IP_ADDR\"
 API_CLIENT_ID=\"$API_CLIENT_ID\"
 API_CLIENT_SECRET=\"$API_CLIENT_SECRET\"
 JWT_SECRET=\"$JWT_SECRET\"
-DATABASE_URL=\"postgresql://postgres:$DATABASE_PWD@postgres:5432/testdb?schema=public\"
+DATABASE_URL=\"postgresql://$DATABASE_USR:$DATABASE_PWD@postgres:5432/$DATABASE_NAME?schema=public\"
 "
 
 } >nestjs/.env
