@@ -265,7 +265,6 @@ export class UserService {
     let foundPath = null;
     for(let extension of validFileExtensions) {
       const imagePath = './avatars/' + login + extension;
-      console.log('checking file ', imagePath);
       if (existsSync(imagePath)) {
         foundPath = imagePath;
         break;
@@ -280,5 +279,38 @@ export class UserService {
       where: { login42: login },
       data: { avatar: newAvatar }
     })
+  }
+
+  async addBlockedUser(user: number, target: number)
+  {
+    const relation = await prisma.friend.findFirst({
+      where: { user1Id: user, user2Id: target },
+      select: { id: true}
+    })
+    let relationId: number;
+    relation ? relationId = relation.id : relationId = 0;
+    await prisma.friend.upsert({
+      where: { id: relationId },
+      create: {
+        user1Id: user,
+        user2Id: target,
+        status: FriendStatus.BLOCKED,
+      },
+      update: { status: FriendStatus.BLOCKED },
+    })
+  }
+
+  async removeBlockedUser(user:number, target: number)
+  {
+    const blocked = await prisma.friend.findFirst({
+      where: { user1Id: user, user2Id: target, AND: { status: FriendStatus.BLOCKED } },
+      select: { id: true}
+    })
+    if (blocked)
+    {
+      await prisma.friend.delete({
+        where: { id: blocked.id }
+      })
+    }
   }
 }

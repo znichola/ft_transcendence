@@ -11,7 +11,6 @@ export class AppController {
   @Get()
   @ApiResponse({status: 200, description:'Replies "Hello World!" if the API is accessible'})
   getHello(): string {
-    console.log(process.env.DATABASE_URL);
     return this.appService.getHello();
   }
 }
