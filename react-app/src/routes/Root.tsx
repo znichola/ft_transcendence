@@ -25,12 +25,9 @@ export default function Root() {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-stone-200">
-      <button className="absolute z-20 text-stone-700 p-2 font-bold cursor-pointer" onClick={(e) => {e.stopPropagation(); setHide(!hide) }}>{hide ? "Show Menu" : "Hide Menu"}</button>
-      <div id="side-bar" className={"ml-0 mr-auto absolute z-10 h-screen w-screen transition-all duration-500 " + (hide ? "backdrop-blur-none pointer-events-none" : "backdrop-blur-sm lg:backdrop-blur-none lg:pointer-events-none")}>
+      <div className={"left-0 right-auto absolute z-10 h-screen w-screen transition-all duration-500 " + (hide ? "backdrop-blur-none pointer-events-none" : "backdrop-blur-sm lg:backdrop-blur-none lg:pointer-events-none")}>
         <input checked={hide} type="checkbox" className="hidden peer"></input>
-        <div ref={sideMenuRef} className={"shadow-md transition-all pointer-events-auto h-screen duration-500 " + (hide ? "min-w-0 w-0" : "w-72 min-w-[18rem]")}>
-          <SideMenu />
-        </div>
+          <SideMenu hide={hide} toggleHide={() => {setHide(!hide)}}/>
       </div>
       <div className="lg:min-w-[18rem] peer-checked:min-w-0 transition-all duration-500"></div>
       <div className="flex min-w-0 grow w-full h-screen xl:justify-center">

@@ -1,5 +1,5 @@
 import { UserData } from "../interfaces";
-import { useUserConverstaions } from "../functions/customHook";
+import { useUserConversations } from "../functions/customHook";
 import { LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
 import { Nav } from "./SideMenu";
@@ -10,12 +10,12 @@ export default function NavConvos({ currentUser }: { currentUser: UserData }) {
     data: convos,
     isLoading,
     isError,
-  } = useUserConverstaions(currentUser.login42);
+  } = useUserConversations(currentUser.login42);
   if (isLoading) return <LoadingSpinnerMessage message="Loading messages..." />;
   if (isError) return <ErrorMessage message="Error loading message history" />;
   return (
     <>
-      {convos.map((c) => {
+      {convos ? convos.map((c) => {
         const target =
           currentUser.login42 === c.user1Login42
             ? c.user2Login42
@@ -28,7 +28,7 @@ export default function NavConvos({ currentUser }: { currentUser: UserData }) {
             icon={() => <UserIcon user={target} />}
           />
         );
-      })}
+      }) : <></>}
     </>
   );
 }

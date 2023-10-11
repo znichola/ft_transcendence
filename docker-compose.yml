@@ -29,7 +29,7 @@ services:
       - "3000:3000"
       - "5555:5555" #for prisma studio
     volumes:
-      - ${PWD}:/backend
+      - ./:/backend
     env_file:
       - .env
     init: true
@@ -42,7 +42,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ${PWD}:/app
+      - ./:/app
     init: true
 
   postgres:
@@ -55,7 +55,7 @@ services:
     networks:
       - transnet
     volumes:
-      - ${PWD}:/database
+      - ./:/database
     init: true
 
   nginx:
