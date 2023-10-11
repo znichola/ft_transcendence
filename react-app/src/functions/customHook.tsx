@@ -45,7 +45,7 @@ export function useCurrentUserData() {
   });
 }
 
-export function useUserConverstaions(user: string) {
+export function useUserConversations(user: string) {
   return useQuery({
     queryKey: ["UserConversations", user],
     queryFn: () => getUserConverstaionList(user),
