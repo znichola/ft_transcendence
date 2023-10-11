@@ -27,6 +27,7 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
           status="pending"
           currentUser={currentUser.login42}
           cardUser={u}
+          key={u.login42+"-pending"}
         />
       ))}
       {friends.pending.map((u) => (
@@ -34,6 +35,7 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
           status="sent"
           currentUser={currentUser.login42}
           cardUser={u}
+          key={u.login42+"-sent"}
         />
       ))}
       {friends.friends.map((u) => (
@@ -41,16 +43,9 @@ export default function NavFriends({ currentUser }: { currentUser: UserData }) {
           status="friends"
           currentUser={currentUser.login42}
           cardUser={u}
+          key={u.login42+"-friends"}
         />
       ))}
-      {/* {friends.friends.map((u) => (
-        <Nav
-          key={u.login42}
-          name={u.name}
-          to={"/user/" + u.login42}
-          icon={() => <UserIcon user={u.login42} />}
-        />
-      ))} */}
     </>
   );
 }

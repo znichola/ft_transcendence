@@ -4,11 +4,10 @@ import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { getCurrentUser } from "../Api-axios";
-import { useCurrentUser } from "../functions/customHook";
 
 export default function Auth() {
   let [searchParams] = useSearchParams();
-  const { data, isLoading, isError } = useQuery({
+  const { isLoading, isError } = useQuery({
     queryKey: ["auth"],
     queryFn: () =>
       axios
@@ -23,7 +22,13 @@ export default function Auth() {
     data: user,
     isError: cuError,
     isLoading: cuLoading,
-  } = useCurrentUser();
+  } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+    initialData: "default42",
+    enabled: !isLoading && !isError,
+  });
+
   const auth = useAuth();
   const navigate = useNavigate();
   if (isLoading || cuLoading)
