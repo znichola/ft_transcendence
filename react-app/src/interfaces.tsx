@@ -53,7 +53,7 @@ export interface Converstaion {
 
 export type ChatroomStaus = "PUBLIC" | "PRIVATE" | "PROTECTED";
 
-export interface Chatroom {
+export interface IChatroom {
   id: number;
   name: string;
   ownerLogin42: string;

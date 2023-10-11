@@ -4,9 +4,9 @@ import { IconCrown, IconDownChevron } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
 import { useChatroomList } from "../functions/customHook";
-import { Chatroom } from "../interfaces";
+import { IChatroom } from "../interfaces";
 
-export default function AddOrJoinChatroom() {
+export default function ChatroomBrowser() {
   const { data: chatrooms, isLoading, isError } = useChatroomList();
 
   if (isLoading)
@@ -39,7 +39,7 @@ export default function AddOrJoinChatroom() {
   );
 }
 
-function RoomCard({ room }: { room: Chatroom }) {
+function RoomCard({ room }: { room: IChatroom }) {
   return (
     <>
       <nav className="hover:gradient-hightlight flex w-96 items-center gap-2 rounded-xl border-b-2 border-stone-300 bg-stone-100 p-5 py-3 text-lg font-semibold hover:border-rose-400">

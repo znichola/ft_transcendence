@@ -23,13 +23,13 @@ import ErrorPage from "./routes/Error-pages.tsx";
 import GlobalRanking from "./routes/GlobalRanking.tsx";
 import PlayPong from "./routes/PlayPong.tsx";
 import PongFeed from "./routes/PongFeed.tsx";
-import AddOrJoinChatroom from "./routes/AddOrJoinChatroom.tsx";
+import AddOrJoinChatroom from "./routes/ChatroomBrowser.tsx";
 import AddNewChat from "./routes/AddNewChat.tsx";
 import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
 import DirectMessage from "./routes/DirectMessage.tsx";
 import PongDuel from "./routes/PongDuel.tsx";
-import ChatRoom from "./routes/ChatRoom.tsx";
+import ChatRoomChat from "./routes/ChatroomChat.tsx";
 import UserPage from "./routes/UserPage.tsx";
 import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 
@@ -89,7 +89,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/chatroom/:id",
-            element: <ChatRoom />,
+            element: <ChatRoomChat />,
           },
           {
             path: "/friend",
