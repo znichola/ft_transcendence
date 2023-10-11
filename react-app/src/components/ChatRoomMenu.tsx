@@ -12,10 +12,10 @@ import {
   IconBin,
 } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading";
-import { Form } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import { RefObject, useState } from "react";
 import { useRef, useEffect } from "react";
-import { useUserData } from "../functions/customHook";
+import { useMutDeleteUserDMs, useUserData } from "../functions/customHook";
 
 type btnStateType = "USERS" | "SETTINGS" | "ADDUSER" | "UNSET";
 type chatRoomUser = {
@@ -219,6 +219,10 @@ function SettingsButtonUI() {
 }
 
 function LeaveConversationUI() {
+  const user1 = "default42";
+  const user2 = "test";
+  const deletConvo = useMutDeleteUserDMs(user1, user2);
+  const navigate = useNavigate();
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 text-center shadow-xl">
@@ -228,7 +232,13 @@ function LeaveConversationUI() {
         </p>
         <div className="flex items-center gap-2">
           <p className="text-rose-400">Think twice before you click!</p>
-          <button className="h-10 rounded-lg border-b-2 border-stone-300 px-4 text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500">
+          <button
+            onClick={() => {
+              deletConvo.mutate({ user1, user2 });
+              navigate("/message");
+            }}
+            className="h-10 rounded-lg border-b-2 border-stone-300 px-4 text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
+          >
             Leave
           </button>
         </div>

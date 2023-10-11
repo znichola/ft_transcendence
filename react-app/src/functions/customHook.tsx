@@ -1,4 +1,5 @@
 import {
+  deleteDMconversation,
   getChatrooomList,
   getCurrentUser,
   getUserConversation,
@@ -88,6 +89,29 @@ export function usePostUserConvoMessage(user1: string, user2: string) {
     }) => postUserConvoMessage(user1, user2, content),
     onSuccess: () => {
       queryClient.invalidateQueries({
+        queryKey: ["UserConvoMessages", user1, user2],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["UserConversations", user1],
+      });
+    },
+  });
+}
+
+export function useMutDeleteUserDMs(user1: string, user2: string) {
+  const queryClient = useQueryClient();
+
+  // https://tkdodo.eu/blog/mastering-mutations-in-react-query
+  return useMutation({
+    mutationFn: ({
+      user1,
+      user2,
+    }: {
+      user1: string;
+      user2: string;
+    }) => deleteDMconversation(user1, user2),
+    onSuccess: () => {
+      queryClient.removeQueries({
         queryKey: ["UserConvoMessages", user1, user2],
       });
       queryClient.invalidateQueries({

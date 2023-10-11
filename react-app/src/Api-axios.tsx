@@ -133,6 +133,16 @@ export const postUserConvoMessage = async (
     .catch((error) => console.log(error.toJSON));
 };
 
+export const deleteDMconversation = async (
+  user1: string,
+  user2: string,
+) => {
+  return authApi
+    .delete<HttpStatusCode>("/dm/" + user1 + "/" + user2)
+    .then()
+    .catch((error) => console.log(error.toJSON));
+};
+
 //------------------------------------------Chat Room----------------------------------------------//
 
 // {
