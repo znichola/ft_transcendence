@@ -46,6 +46,7 @@ model User {
 
 // rename model to relations, to implement blocking people using this one same exact very nice table
 model Friend {
+  id      Int @id @default(autoincrement())
   user1Id Int
   user2Id Int
 
@@ -54,7 +55,7 @@ model Friend {
 
   status FriendStatus @default(PENDING)
 
-  @@id([user1Id, user2Id])
+  //@@id([user1Id, user2Id])
 }
 
 model Chatroom {

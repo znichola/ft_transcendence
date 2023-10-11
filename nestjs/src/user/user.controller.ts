@@ -212,7 +212,6 @@ export class UserController {
     file: Express.Multer.File,
     @Param('username') username: string)
   {
-    console.log('File: ', file);
     const fileName = file?.filename;
     if (!fileName)
       throw new HttpException('Incorrect file type provided.', HttpStatus.BAD_REQUEST);
@@ -401,5 +400,21 @@ export class UserController {
     await this.authService.verifyUser(username, req.cookies.test.access_token);
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.updateFriend(users[0], users[1]);
+  }
+
+  @Post(':username/block/:target')
+  async blockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
+  {
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    const users = await this.userService.getFriendsIds(username, target);
+    await this.userService.addBlockedUser(users[0], users[1]);
+  }
+
+  @Delete(':username/block/:target')
+  async unblockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
+  {
+    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    const users = await this.userService.getFriendsIds(username, target);
+    await this.userService.removeBlockedUser(users[0], users[1]);
   }
 }

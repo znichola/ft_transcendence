@@ -28,7 +28,6 @@ export class AuthController {
     @Body() bodyData: object,
     @Res() res: Response,
   ) {
-    console.log('In Auth Controller');
     const state: string = bodyData['state'];
     const code: string = bodyData['code'];
     try {
