@@ -29,35 +29,35 @@ export default function PongDuel() {
         .then((res) => res.data),
   });
 
-  if (isLoading) {
-    return (
-      <div className="text-center">
-        <h1 className="text-8xl text-fuchsia-300">
-          <b>{p1}</b> vs <b>{p2}</b>
-        </h1>
-        <div className="h-16" />
-        <p className="text-2xl text-slate-500">
-          {p1 == user || p2 == user
-            ? user + " is fighting in the game"
-            : user + " is spectating the game"}
-        </p>
-        <div className="h-16" />
-        <div className="flex justify-center text-slate-500">
-          {<LoadingSpinnerMessage message="fetching game data" />}
-        </div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="text-center">
+  //       <h1 className="text-8xl text-fuchsia-300">
+  //         <b>{p1}</b> vs <b>{p2}</b>
+  //       </h1>
+  //       <div className="h-16" />
+  //       <p className="text-2xl text-slate-500">
+  //         {p1 == user || p2 == user
+  //           ? user + " is fighting in the game"
+  //           : user + " is spectating the game"}
+  //       </p>
+  //       <div className="h-16" />
+  //       <div className="flex justify-center text-slate-500">
+  //         {<LoadingSpinnerMessage message="fetching game data" />}
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (isError || !p1 || !p2) {
-    return(
-      <div className="text-center">
-        <h1 className="text-4xl text-fuchsia-300">
-          <b>An error occured during game loading !<br/>Please retry</b>
-        </h1>
-      </div>
-    );
-  }
+  // if (isError || !p1 || !p2) {
+  //   return(
+  //     <div className="text-center">
+  //       <h1 className="text-4xl text-fuchsia-300">
+  //         <b>An error occured during game loading !<br/>Please retry</b>
+  //       </h1>
+  //     </div>
+  //   );
+  // }
 
   return(
     <PlayPong player1={p1} player2={p2}/>

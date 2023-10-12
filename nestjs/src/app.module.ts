@@ -9,10 +9,12 @@ import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { DmModule } from './dm/dm.module';
 import { TfaModule } from './tfa/tfa.module';
+import { PongGateway } from './pong/pong.gateway';
+import { PongModule } from './pong/pong.module';
 
 @Module({
-  imports: [PrismaModule, PrismaModule, UserModule, AuthModule, ChatModule, DmModule, TfaModule],
+  imports: [PongModule, PrismaModule, UserModule, AuthModule, ChatModule, DmModule, TfaModule],
   controllers: [AppController],
-  providers: [AppService, UserService, PrismaService],
+  providers: [AppService, UserService, PrismaService, PongGateway],
 })
 export class AppModule {}

@@ -110,3 +110,4 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
   - https://rehmat-sayany.medium.com/integrating-swagger-with-nestjs-a-step-by-step-guide-abd532743c43
 - install class-validator and class-transformer (dto validation)
 - install otplib and qrcode (google authentication setup)
+- install socket.io (npm install socket.io)
