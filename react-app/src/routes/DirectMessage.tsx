@@ -120,7 +120,7 @@ function LeaveConversationUI({
   );
 }
 
-function MessageInput({
+export function MessageInput({
   user,
   target,
   scrollRef,

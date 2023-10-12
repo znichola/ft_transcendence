@@ -1,5 +1,5 @@
 import BoxMenu from "../components/BoxMenu";
-import { IChatroom, UserData } from "../interfaces";
+import { IChatroom, IMessage, UserData } from "../interfaces";
 import { ButtonGeneric } from "../components/BoxMenu";
 import {
   IconAddUser,
@@ -11,19 +11,21 @@ import {
   IconSearch,
   IconUserGroup,
 } from "../components/Icons";
-import { useState } from "react";
-import { Form, Link } from "react-router-dom";
-import { useUserData } from "../functions/customHook";
+import { useRef, useState } from "react";
+import { Form, Link, useParams } from "react-router-dom";
+import {
+  useChatroom,
+  useChatroomMemebers,
+  useChatroomMessages,
+  useMutPostChatroomMessage,
+  useUserData,
+} from "../functions/customHook";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
+import { ErrorMessage } from "../components/ErrorComponents";
+import { Message } from "../components/ChatMassages";
+import { useAuth } from "./AuthProvider";
 // import ChatMessages from "../components/ChatMassages";
-
-const fakeChatroom: IChatroom = {
-  id: 1,
-  name: "123",
-  ownerLogin42: "test",
-  status: "PUBLIC",
-};
 
 const fakeChannelUsers = [
   {
@@ -61,24 +63,37 @@ const fakeChannelUsers = [
 const fakeGeneralUsers = ["test", "default42", "znichola"];
 
 export default function ChatroomChat() {
-  // menu buttons
+  const scrollRef = useRef<null | HTMLDivElement>(null);
   const [buttonState, setButtonState] = useState<string>("UNSET");
+
+  const { id } = useParams<"id">();
+  const chatroomID = id || "";
+
+  const { data: chatroom, isError, isLoading } = useChatroom(chatroomID);
+
+  const auAUth = useAuth();
+  const { data: user, isSuccess } = useUserData(auAUth?.user);
+
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Loading chatroom data ..." />;
+  if (!isSuccess || isError)
+    return <ErrorMessage message="error loaidng current uer" />;
 
   const menuBTNs = [
     {
       c: "MANAGE_USERS",
       i: IconUserGroup,
-      f: <ManageUsersUI chatroom={fakeChatroom} />,
+      f: <ManageUsersUI chatroom={chatroom} />,
     },
     {
       c: "ADD_USERS",
       i: IconAddUser,
-      f: <AddUsersUI chatroom={fakeChatroom} />,
+      f: <AddUsersUI chatroom={chatroom} />,
     },
     {
       c: "SETTINGS",
       i: IconGear,
-      f: <SettingsButtonUI chatroom={fakeChatroom} />,
+      f: <SettingsButtonUI chatroom={chatroom} />,
     },
   ];
 
@@ -86,7 +101,7 @@ export default function ChatroomChat() {
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
         resetBTN={() => setButtonState("UNSET")}
-        heading={<ChatroomHeading chatroom={fakeChatroom} />}
+        heading={<ChatroomHeading chatroom={chatroom} />}
       >
         {menuBTNs.map((b) => (
           <ButtonGeneric
@@ -101,9 +116,107 @@ export default function ChatroomChat() {
       </BoxMenu>
 
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent">
-        {/* <Chat */}
+        <MessageList cu={user} chatroomID={chatroomID} />
+        <ChatroomMessageInput
+          scrollRef={scrollRef}
+          user={user}
+          chatroomID={chatroomID}
+        />
       </div>
     </div>
+  );
+}
+
+function MessageList({ cu, chatroomID }: { cu: UserData; chatroomID: string }) {
+  const {
+    data: messages,
+    isLoading,
+    isError,
+  } = useChatroomMessages(chatroomID);
+  const scrollRef = useRef<null | HTMLDivElement>(null);
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Loading chat history ..." />;
+  if (isError) return <ErrorMessage message="Error fetching chat history" />;
+  return (
+    <div className="flex h-full min-h-0 w-full flex-col gap-1 overflow-auto bg-stone-100 p-3 px-10 pb-52 pt-56">
+      {messages
+        .sort(
+          (m1, m2) =>
+            new Date(m1.sentAt).getTime() - new Date(m2.sentAt).getTime(),
+        )
+        .map((m) => (
+          <MessageWrapper m={m} cu={cu} />
+        ))}
+      <div ref={scrollRef} className="h-1" />
+    </div>
+  );
+}
+
+function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
+  const { data: target, isLoading, isError } = useUserData(m.senderLogin42);
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Loading chat history ..." />;
+  if (isError) {
+    console.log("error this that");
+    return <ErrorMessage message="Error fetching chat history" />;
+  }
+
+  const sender = m.senderLogin42 === cu.login42 ? cu : target;
+  const senderSelf = m.senderLogin42 === cu.login42;
+  return (
+    <Message sender={sender} text={m.content} left={senderSelf} key={m.id} />
+  );
+}
+
+export function ChatroomMessageInput({
+  user,
+  chatroomID,
+  scrollRef,
+}: {
+  chatroomID: string;
+  user: UserData;
+  scrollRef: React.MutableRefObject<HTMLDivElement | null>;
+}) {
+  const [inputValue, setInputValue] = useState("");
+  const addMessage = useMutPostChatroomMessage(chatroomID);
+
+  function sendMessage() {
+    if (inputValue === "") return;
+    addMessage.mutate({
+      senderLogin42: user.login42,
+      content: inputValue,
+    });
+    setInputValue("");
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  return (
+    <form
+      className="absolute bottom-20 top-auto flex w-full justify-center px-20"
+      onSubmit={(e) => {
+        e.preventDefault();
+        sendMessage();
+      }}
+      onKeyDown={(e) => {
+        if (e.key == "Enter" && e.shiftKey == false) {
+          e.preventDefault();
+          sendMessage();
+        }
+      }}
+    >
+      <textarea
+        onChange={(e) => setInputValue(e.currentTarget.value)}
+        className={`z-10 h-32 w-full rounded-full border-b-4 px-6 shadow-lg outline-none ${
+          inputValue.length < 85 ? "pt-2" : "pt-3"
+        } resize-none transition-all duration-700`}
+        style={{
+          maxWidth: inputValue.length < 50 ? "25rem" : "40rem",
+          maxHeight: inputValue.length < 80 ? "2.5rem" : "5rem",
+        }}
+        placeholder="Enter a message..."
+        value={inputValue}
+      />
+    </form>
   );
 }
 
@@ -122,8 +235,17 @@ function ChatroomHeading({ chatroom }: { chatroom: IChatroom }) {
 
 function ManageUsersUI({ chatroom }: { chatroom: IChatroom }) {
   const [searchValue, setSearchvalue] = useState("");
-  const channelUsers = fakeChannelUsers;
+  const {
+    data: channelMemebres,
+    isLoading,
+    isError,
+  } = useChatroomMemebers(chatroom.id + "");
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Loading chatroom memebers ..." />;
+  if (isError)
+    return <ErrorMessage message="Error fetching chatroom memebers" />;
   // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
+  console.log(channelMemebres);
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -132,7 +254,7 @@ function ManageUsersUI({ chatroom }: { chatroom: IChatroom }) {
             <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
           </div>
         </div>
-        {channelUsers.map((u) =>
+        {channelMemebres.map((u) =>
           u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
             <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
           ) : (
@@ -210,8 +332,7 @@ function AddUsersCard({ login42 }: { login42: string }) {
     <>
       <li className="flex items-center gap-2  px-2 py-1">
         <Link to={"/user/" + login42}>
-
-        <UserIcon user={login42} />
+          <UserIcon user={login42} />
         </Link>
         <div className="grow ">{user.name}</div>
         <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />

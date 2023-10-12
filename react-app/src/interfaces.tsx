@@ -67,14 +67,22 @@ export interface ChatroomPost {
   password?: string;
 }
 
-export interface Message {
+export interface IMessage {
   id: number;
   senderLogin42: string;
   content: string;
   sentAt: string;
 }
 
-export interface MessagePost {
+export interface IMessagePost {
   senderLogin42: string;
   content: string;
+}
+
+export type TChatroomRole = "MEMEBR" | "ADMIN" | "OWNER";
+
+export interface IMember {
+  login42: string;
+  role: TChatroomRole;
+  isMuted: boolean;
 }

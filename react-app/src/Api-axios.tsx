@@ -6,6 +6,9 @@ import {
   ConvoMessage,
   UserData,
   UserFriends,
+  IMessage,
+  IMessagePost,
+  IMember,
 } from "./interfaces";
 
 // const BASE_URL = "/api/";
@@ -155,16 +158,35 @@ export const getChatrooomList = async () => {
     .then((res) => res.data)
 };
 
-// {
-//   "ownerLogin42": "string",
-//   "name": "string",
-//   "status": "PUBLIC",
-//   "password": "string"
-// }
+export const getChatrooomData = async (id:string) => {
+  return authApi
+    .get<IChatroom>("/chatroom/" + id)
+    .then((res) => res.data)
+};
+
+export const getChatrooomMemebers = async (id:string) => {
+  return authApi
+    .get<IMember[]>("/chatroom/" + id +"/members")
+    .then((res) => res.data)
+};
+
+export const getChatroomMessages = async (id: string) => {
+  return authApi
+    .get<IMessage[]>("/chatroom/"+ id + "/messages")
+    .then((res) => res.data)
+    // .catch((error) => console.log(error.toJSON));
+}
 
 export const postNewChatromm = async (payload: ChatroomPost) => {
   return authApi
     .post<HttpStatusCode>("/chatroom/", payload)
     .then((res) => res.data)
-    .catch((error) => console.log(error.toJSON));
+    // .catch((error) => console.log(error.toJSON));
+};
+
+export const postNewChatrommMessage = async (id: string, payload: IMessagePost) => {
+  return authApi
+    .post<HttpStatusCode>("/chatroom/"+ id + "/messages", payload)
+    .then((res) => res.data)
+    // .catch((error) => console.log(error.toJSON));
 };

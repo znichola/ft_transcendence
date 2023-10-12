@@ -1,19 +1,23 @@
 import {
   deleteDMconversation,
+  getChatroomMessages,
+  getChatrooomData,
   getChatrooomList,
+  getChatrooomMemebers,
   getCurrentUser,
   getUserConversation,
   getUserConverstaionList,
   getUserConvoMessageList,
   getUserData,
   postNewChatromm,
+  postNewChatrommMessage,
   postUserConvoMessage,
   postUserFriendRequest,
   putUserFriendRequest,
   removeUserFriend,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChatroomPost } from "../interfaces";
+import { ChatroomPost, IMessagePost } from "../interfaces";
 
 export function useCurrentUser() {
   return useQuery({
@@ -188,6 +192,34 @@ export function useChatroomList() {
   });
 }
 
+export function useChatroom(id: string) {
+  return useQuery({
+    queryKey: ["Chatroom" , id],
+    queryFn: () => getChatrooomData(id),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useChatroomMemebers(id: string) {
+  return useQuery({
+    queryKey: ["ChatroomMemebers" , id],
+    queryFn: () => getChatrooomMemebers(id),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useChatroomMessages(id: string) {
+  return useQuery({
+    queryKey: ["ChatroomMessages", id],
+    queryFn: () => getChatroomMessages(id),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+
 export function useMutPostNewChatroom() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -195,6 +227,18 @@ export function useMutPostNewChatroom() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomList"],
+      });
+    },
+  });
+}
+
+export function useMutPostChatroomMessage(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: IMessagePost) => postNewChatrommMessage(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMessages", id],
       });
     },
   });
