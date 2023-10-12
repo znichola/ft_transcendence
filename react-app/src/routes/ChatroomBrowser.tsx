@@ -1,18 +1,27 @@
 import { ErrorMessage } from "../components/ErrorComponents";
-import { IconAdd, IconBashShell, IconSearch } from "../components/Icons";
+import {
+  IconAdd,
+  IconBashShell,
+  IconCrown,
+  IconSearch,
+} from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { useChatroomList } from "../functions/customHook";
 import { IChatroom } from "../interfaces";
 import { Form, Link } from "react-router-dom";
 import { useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
+import { UserIcon } from "../components/UserIcon";
 
 export default function ChatroomBrowser() {
   const [buttonState, setButtonState] = useState<string>("UNSET");
 
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
-      <BoxMenu heading={<ChatroomBroserHeading />}>
+      <BoxMenu
+        heading={<ChatroomBroserHeading />}
+        resetBTN={() => setButtonState("UNSET")}
+      >
         <ButtonGeneric
           icon={IconAdd}
           setBTNstate={setButtonState}
@@ -123,11 +132,15 @@ function CreatChatroomUI() {
 
 function Listing() {
   const { data: chatrooms, isLoading, isError } = useChatroomList();
-  const [searchValue, setSearchvalue] = useState("");
-
   if (isLoading)
     return <LoadingSpinnerMessage message="Loading chatrooms ..." />;
   if (isError) return <ErrorMessage message="error loading chatroom" />;
+
+  return <ListingFiltered chatrooms={chatrooms} />;
+}
+
+function ListingFiltered({ chatrooms }: { chatrooms: IChatroom[] }) {
+  const [searchValue, setSearchvalue] = useState("");
 
   return (
     <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -139,7 +152,7 @@ function Listing() {
       </div>
       {chatrooms.map((r) =>
         r.ownerLogin42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
-          <ChatroomCard key={r.ownerLogin42} chatroom={r} />
+          <ChatroomCard key={r.id} chatroom={r} />
         ) : (
           <></>
         ),
@@ -190,24 +203,19 @@ function ChatroomSearch({
 function ChatroomCard({ chatroom }: { chatroom: IChatroom }) {
   return (
     <>
-      <li className="flex items-center gap-2 px-2 py-1">
-        {/* <img
-          className={"h-5 w-5 rounded-full ring-2" + " "}
-          src={chatroom.avatar}
-          alt={chatroom.login42 || "undefined" + " profile image"}
-        /> */}
-        {/* <Link to={}/> */}
-        <IconBashShell />
-        <div className="grow ">{chatroom.name}</div>
-        {/* <AdminButton userRole="ADMIN" cardRole={role} /> */}
-      </li>
+      <nav className="cursor-pointer  border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4">
+        <Link
+          to={"/chatroom/" + chatroom.id}
+          className="flex flex-grow items-center gap-2"
+        >
+          <IconBashShell />
+          <span className="grow"> {chatroom.name}</span>
+          <IconCrown className="h-5 w-5 align-middle text-amber-400" />
+          <UserIcon user={chatroom.ownerLogin42} />
+        </Link>
+      </nav>
     </>
   );
-}
-
-// rabio
-{
-  /* <input checked className="relative w-8 h-4 transition-colors rounded-lg appearance-none cursor-pointer hover:bg-slate-400 after:hover:bg-slate-600 checked:hover:bg-rose-300 checked:after:hover:bg-rose-600 focus:outline-none checked:focus:bg-rose-400 checked:after:focus:bg-rose-700 focus-visible:outline-none peer bg-slate-300 after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full after:bg-slate-500 after:transition-all checked:bg-rose-200 checked:after:left-4 checked:after:bg-rose-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:after:bg-slate-300" type="checkbox" value="" id="id-30a" /> */
 }
 
 function ChatroomCreationDescription({

@@ -12,9 +12,10 @@ import {
   IconUserGroup,
 } from "../components/Icons";
 import { useState } from "react";
-import { Form } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import { useUserData } from "../functions/customHook";
 import { LoadingSpinnerMessage } from "../components/Loading";
+import { UserIcon } from "../components/UserIcon";
 // import ChatMessages from "../components/ChatMassages";
 
 const fakeChatroom: IChatroom = {
@@ -208,13 +209,10 @@ function AddUsersCard({ login42 }: { login42: string }) {
   return (
     <>
       <li className="flex items-center gap-2  px-2 py-1">
-        <img
-          className={
-            "h-5 w-5 rounded-full ring-2" + " " + statusColor(user.status)
-          }
-          src={user.avatar}
-          alt={user.login42 || "undefined" + " profile image"}
-        />
+        <Link to={"/user/" + login42}>
+
+        <UserIcon user={login42} />
+        </Link>
         <div className="grow ">{user.name}</div>
         <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
       </li>
@@ -231,13 +229,7 @@ function ManageUserCard({ login42, role }: { login42: string; role: string }) {
   return (
     <>
       <li className="flex items-center gap-2  px-2 py-1">
-        <img
-          className={
-            "h-5 w-5 rounded-full ring-2" + " " + statusColor(user.status)
-          }
-          src={user.avatar}
-          alt={user.login42 || "undefined" + " profile image"}
-        />
+        <UserIcon user={login42} />
         <div className="grow ">{user.name}</div>
         <AdminButton userRole="ADMIN" cardRole={role} />
         <KickUserButton userRole="ADMIN" cardRole={role} />
