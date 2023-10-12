@@ -41,8 +41,8 @@ export default function UserInfoCard({
               message={"Play pong"}
               a1={"classical"}
               a2={"special"}
-              to1={"/pong/" + currentUser + "/vs/" + cardUser.login42}
-              to2={"/pong/" + currentUser + "/vs/" + cardUser.login42}
+              to1={"/pong/" + currentUser + "/vs/" + cardUser.login42 + "/classical"}
+              to2={"/pong/" + currentUser + "/vs/" + cardUser.login42 + "/special"}
               icon={IconBolt}
             />
             <SideButton

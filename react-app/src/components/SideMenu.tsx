@@ -1,5 +1,4 @@
 import {
-  IconBashShell,
   IconDownChevron,
   IconGroupChatBubble,
   IconHomeComputer,

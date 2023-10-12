@@ -6,12 +6,14 @@ import {
   IconSearch,
 } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import { useChatroomList } from "../functions/customHook";
+import { useChatroomList, useCurrentUser } from "../functions/customHook";
 import { IChatroom } from "../interfaces";
-import { Form, Link } from "react-router-dom";
-import { useState } from "react";
+import { Form, Link, useNavigate } from "react-router-dom";
+import { FormEvent, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { UserIcon } from "../components/UserIcon";
+import axios, { HttpStatusCode } from "axios";
+import { authApi } from "../Api-axios";
 
 export default function ChatroomBrowser() {
   const [buttonState, setButtonState] = useState<string>("UNSET");
@@ -28,7 +30,7 @@ export default function ChatroomBrowser() {
           buttonState={buttonState}
           checked={"NEW_CHAT"}
         >
-          <CreatChatroomUI />
+          <CreateChatroomUI />
         </ButtonGeneric>
       </BoxMenu>
       <div>
@@ -39,17 +41,30 @@ export default function ChatroomBrowser() {
   );
 }
 
-function CreatChatroomUI() {
+function CreateChatroomUI() {
   const [chName, setChName] = useState("");
   const [password, setpassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
+  const {data: currentUser} = useCurrentUser();
+  const navigate = useNavigate();
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    const name = chName;
+    e.preventDefault();
+    if (isPrivate || password == "") {
+      const result = await authApi.post<HttpStatusCode>("/chatroom", {ownerLogin42: currentUser, name:  name, status: isPrivate ? "PRIVATE" : "PUBLIC"}).then();
+    } else {
+      const result = await authApi.post<HttpStatusCode>("/chatroom", {ownerLogin42: currentUser, name:  name, status: "PROTECTED", password: password}).then(); // TODO fusionner avec celui du dessus quand l'api le permet (mot de passe vide pour private et public)
+    }
+    navigate("/chatroom/" + name); // TODO changer name par id quand return par l'api
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 text-slate-600 shadow-xl">
       <h2 className="p-3 text-lg text-slate-500">
         Create a space to discuss pong, spin tactics and smurfing
       </h2>
-      <Form className="flex h-full w-[32rem] flex-col gap-6 pb-4">
+      <form className="flex h-full w-[32rem] flex-col gap-6 pb-4" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="channel-name-input">
             <em className="font-semibold text-rose-600">* </em>
@@ -119,13 +134,13 @@ function CreatChatroomUI() {
             chName={chName}
           />
           <button
-            onClick={() => console.log("Asd")}
+            type="submit"
             className="flex h-12 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
           >
             Submit
           </button>
         </div>
-      </Form>
+      </form>
     </div>
   );
 }

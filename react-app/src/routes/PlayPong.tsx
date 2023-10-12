@@ -44,13 +44,13 @@ function DisplayPlayer({
   );
 }
 
-export default function PlayPong() {
+export default function PlayPong({player1, player2}:{player1: string, player2: string}) {
   return (
     <div className="relative flex h-full w-full flex-col items-center overflow-hidden px-12 pt-5">
       <div className="absolute left-auto right-auto h-full opacity-30 w-0.5 bg-stone-300"></div>
       <div className="flex w-full text-slate-600 font-bold text-xl">
         <div className="flex">
-          <DisplayPlayer name="default42" />
+          <DisplayPlayer name={player1} />
         </div>
         <div className="flex grow justify-center items-end">
           <div className="flex gap-3 text-5xl">
@@ -60,7 +60,7 @@ export default function PlayPong() {
           </div>
         </div>
         <div className="flex">
-          <DisplayPlayer name="default42" right={true} />
+          <DisplayPlayer name={player2} right={true} />
         </div>
       </div>
       <div className="flex justify-center items-center grow pb-14 pt-3">
