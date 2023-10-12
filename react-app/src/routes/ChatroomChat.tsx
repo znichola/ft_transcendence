@@ -145,7 +145,7 @@ function MessageList({ cu, chatroomID }: { cu: UserData; chatroomID: string }) {
             new Date(m1.sentAt).getTime() - new Date(m2.sentAt).getTime(),
         )
         .map((m) => (
-          <MessageWrapper m={m} cu={cu} />
+          <MessageWrapper key={m.id} m={m} cu={cu} />
         ))}
       <div ref={scrollRef} className="h-1" />
     </div>
@@ -164,7 +164,7 @@ function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
   const sender = m.senderLogin42 === cu.login42 ? cu : target;
   const senderSelf = m.senderLogin42 === cu.login42;
   return (
-    <Message sender={sender} text={m.content} left={senderSelf} key={m.id} />
+    <Message sender={sender} text={m.content} left={senderSelf} />
   );
 }
 

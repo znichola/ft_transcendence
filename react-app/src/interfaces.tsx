@@ -31,6 +31,16 @@ export interface GameHistory {
   result: number;
 }
 
+export type UserStatus = "ONLINE" | "OFFLINE" |  "UNAVAILABLE" | "INGAME"
+
+// --------- user 
+export interface IUsersAll {
+  page?: number;
+  status?: UserStatus;
+  name?: string;
+}
+
+
 // I think it's better we use convoMessage[] as the type instead
 // export type ConvoMessages = ConvoMessage[];
 

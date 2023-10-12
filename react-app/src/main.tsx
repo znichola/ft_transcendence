@@ -32,6 +32,7 @@ import PongDuel from "./routes/PongDuel.tsx";
 import ChatRoomChat from "./routes/ChatroomChat.tsx";
 import UserPage from "./routes/UserPage.tsx";
 import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
+import MatchMaker from "./routes/MatchMaker.tsx";
 
 const router = createBrowserRouter([
   {
@@ -57,7 +58,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/play",
-            element: <PlayPong />,
+            element: <MatchMaker />,
           },
           {
             path: "/user/:login42",
