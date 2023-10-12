@@ -1,11 +1,5 @@
 import { ErrorMessage } from "../components/ErrorComponents";
-import {
-  IconAdd,
-  IconAddPulse,
-  IconBashShell,
-  IconPlusCircle,
-  IconSearch,
-} from "../components/Icons";
+import { IconAdd, IconBashShell, IconSearch } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { useChatroomList } from "../functions/customHook";
 import { IChatroom } from "../interfaces";
@@ -55,11 +49,10 @@ function CreatChatroomUI() {
           <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
             <input
               id="channel-name-input"
-              className="focus: w-full outline-none focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
+              className="w-full outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
               type="text"
               autoComplete="off"
-              placeholder="Channel Name"
-              
+              placeholder="Noobish Helpdesk"
               onChange={(e) => setChName(e.currentTarget.value)}
             />
           </div>
@@ -83,13 +76,26 @@ function CreatChatroomUI() {
               </label>
             </div>
             <div className="grow">
-              <label htmlFor="channel-password-input">Optional password</label>
-              <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
+              <label
+                htmlFor="channel-password-input"
+                className={`${isPrivate ? "text-slate-300" : ""}`}
+              >
+                Password, optional
+              </label>
+              <div
+                className={`rounded-xl border p-2 focus-within:border-rose-500 ${
+                  isPrivate ? "border-slate-200" : "border-slate-300"
+                } `}
+              >
                 <input
                   id="channel-password-input"
-                  className="focus: w-full outline-none focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
+                  className={`w-full outline-none focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200  ${
+                    isPrivate
+                      ? "placeholder:text-slate-100"
+                      : "placeholder:text-slate-300"
+                  }`}
                   type="password"
-                  placeholder="Optional password"
+                  placeholder="secure password"
                   disabled={isPrivate}
                   onChange={(e) => setpassword(e.currentTarget.value)}
                 />
@@ -97,26 +103,15 @@ function CreatChatroomUI() {
             </div>
           </div>
         </div>
-        <div className="flex ">
-          <p className="grow">
-            {chName === ""
-              ? "Set a channel name "
-              : "Create a " +
-                  isPrivate
-                    ? "private chatroom called " +
-                      chName +
-                      ", visible to only those you invite, and no password can be set"
-                    : "public chatroom called " +
-                      chName +
-                      ", visible to everyone on the site and with " +
-                      (password == ""
-                        ? "no password set"
-                        : password + " set as a password")
-                + "."}
-          </p>
+        <div className="flex gap-2">
+          <ChatroomCreationDescription
+            isPrivate={isPrivate}
+            password={password}
+            chName={chName}
+          />
           <button
             onClick={() => console.log("Asd")}
-            className="flex w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
+            className="flex h-12 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
           >
             Submit
           </button>
@@ -213,4 +208,39 @@ function ChatroomCard({ chatroom }: { chatroom: IChatroom }) {
 // rabio
 {
   /* <input checked className="relative w-8 h-4 transition-colors rounded-lg appearance-none cursor-pointer hover:bg-slate-400 after:hover:bg-slate-600 checked:hover:bg-rose-300 checked:after:hover:bg-rose-600 focus:outline-none checked:focus:bg-rose-400 checked:after:focus:bg-rose-700 focus-visible:outline-none peer bg-slate-300 after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full after:bg-slate-500 after:transition-all checked:bg-rose-200 checked:after:left-4 checked:after:bg-rose-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:after:bg-slate-300" type="checkbox" value="" id="id-30a" /> */
+}
+
+function ChatroomCreationDescription({
+  isPrivate,
+  password,
+  chName,
+}: {
+  isPrivate: boolean;
+  password: string;
+  chName: string;
+}) {
+  if (chName === "") return <p className="grow">Set a channel name.</p>;
+  if (isPrivate)
+    return (
+      <p className="grow">
+        Create a <b>private</b> channel called{" "}
+        <b className="gradient-hightlight">{chName}</b>, visible to only those
+        you invite, and no password can be set.
+      </p>
+    );
+  if (password === "")
+    return (
+      <p className="grow">
+        Create a <b>public</b> channel called{" "}
+        <b className="gradient-hightlight">{chName}</b>, visible to everyone on
+        the site and with <b>no password</b> set.
+      </p>
+    );
+  return (
+    <p className="grow">
+      Create a <b>public</b> channel called{" "}
+      <b className="gradient-hightlight">{chName}</b>, visible to everyone on
+      the site and with "<b>{password}</b>" set as the password.
+    </p>
+  );
 }
