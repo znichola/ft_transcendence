@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateVisibilityDto } from "../dto/update-visibility-dto";
 import { CreateChatroomDto } from "../dto/create-chatroom-dto";
-import PasswordValidator from "password-validator";
+import PasswordValidator = require("password-validator");
 
 @Injectable()
 export class ChatUtils
