@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useState } from "react";
 import axios from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useCurrentUser } from "../functions/customHook";
 
 type IAuth = {
   isloggedIn: boolean;
@@ -59,12 +60,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const ProtectedRoute = () => {
   const foo = useAuth();
-  console.log("useAuth is here", foo)
   const location = useLocation();
-  if (!foo) return <h1>critical error</h1>;
-  if (!foo.user) {
+  console.log("useAuth is here", foo);
+  const { isLoading, isError } = useCurrentUser();
+
+  if (!foo)
+    return <h1>critical error with auth, this should not be possible</h1>;
+  if (isLoading)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-96 w-96 animate-spin rounded-full border-8 border-slate-300 border-b-transparent" />
+      </div>
+    );
+  if (isError && !foo.user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
     // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
   }
-  return <Outlet/>;
+  return <Outlet />;
 };

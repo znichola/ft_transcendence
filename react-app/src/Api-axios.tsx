@@ -23,7 +23,10 @@ export const authApi = axios.create({
 //-------------------------------------------User-------------------------------------------------------//
 
 export const getCurrentUser = async () =>
-  authApi.get<string>("/auth/user").then((res) => res.data);
+  authApi.get<string>("/auth/user").then((res) => {
+    console.log("Get current user : ", res.data);
+    return res.data;
+  });
 
 export const getUserData = async (login42: string | undefined) => {
   return authApi.get<UserData>("/user/" + login42).then((res) => res.data);

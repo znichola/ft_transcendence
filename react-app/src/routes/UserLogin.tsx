@@ -63,6 +63,10 @@ function QRcode({ img }: { img: string }) {
 
 function Logout() {
   const authContext = useAuth();
+  const [color, setColor] = useState<"text-rose-500" | "text-stone-500">(
+    "text-stone-500",
+  );
+  const [message, setMessage] = useState("");
 
   return (
     <button
@@ -73,11 +77,19 @@ function Logout() {
             r.data;
             authContext?.logOut();
           })
-          .catch((e) => console.log(e.data))
+          .catch((e) => {
+            if (e.response.status == 401) setColor("text-rose-500");
+            setMessage(e.response.status + " " + e.response.statusText);
+            setTimeout(() => {
+              setColor("text-stone-500");
+              setMessage("");
+            }, 2000);
+          })
       }
-      className=" w-64 rounded-xl bg-stone-200 px-7 py-5 text-center font-bold text-stone-500 shadow"
+      className={`relative py-5 w-64 rounded-xl bg-stone-200 px-3 text-center font-bold shadow ${color}`}
     >
       <h1 className="text-3xl ">Logout</h1>
+      <label className="absolute w-full start-0 font-base text-xs text-stone-400">{message}</label>
     </button>
   );
 }
@@ -98,7 +110,7 @@ function DevLogin() {
             authContext?.logIn(login);
             console.log(authContext);
             navigate("/play");
-            console.log("signed in!")
+            console.log("signed in!");
           })
           .catch(() => setColor("bg-rose-500"));
       }}
@@ -113,7 +125,10 @@ function DevLogin() {
           className="w-full rounded px-2 font-medium outline-none"
           type="text"
           value={login}
-          onChange={(e) => setLogin(e.target.value)}
+          onChange={(e) => {
+            setLogin(e.target.value);
+            setColor("bg-sky-500");
+          }}
         />
         <button className={`h-8 w-6 ${color} rounded-full`} />
       </div>
