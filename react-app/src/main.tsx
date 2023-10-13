@@ -115,7 +115,13 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  logger: {
+    log: () => {},
+    warn: () => {},
+    error: () => {},
+  },
+}); // remove the annoying error logs for failed requests, but it might bight up later ?! who knows.
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
