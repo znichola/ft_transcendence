@@ -50,17 +50,27 @@ export class ChatService
 		}
 
 		/* create new chatroom and return new chatroom id */
-		const newChatroom = await this.prisma.chatroom.create({
-			data: {
-				ownerId: +userId,
-				name: chatroomDto.name,
-				status: chatroomDto.status,
-				password: hash,
-			},
-			select: {
-				id: true
-			}
-		});
+		let newChatroom;
+		try {
+			newChatroom = await this.prisma.chatroom.create({
+				data: {
+					ownerId: +userId,
+					name: chatroomDto.name,
+					status: chatroomDto.status,
+					password: hash,
+				},
+				select: {
+					id: true
+				}
+			});
+		}
+		catch (e: any)
+		{
+			if (e.code == 'P2002')
+				throw new ConflictException("A chatroom with the same name already exists");
+			else
+				throw e;
+		}
 
 		/* owner becomes member of chatroom */
 		await this.prisma.chatroomUser.create({

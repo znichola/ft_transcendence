@@ -64,7 +64,7 @@ model Chatroom {
   ownerId Int
   owner   User @relation("Owner", fields: [ownerId], references: [id])
 
-  name String
+  name String @unique
 
   status ChatroomVisibilityStatus @default(PUBLIC)
 
