@@ -58,6 +58,12 @@ export class ChatService
 					name: chatroomDto.name,
 					status: chatroomDto.status,
 					password: hash,
+					chatroomUsers: {
+						create: {
+							userId: +userId,
+							role: "OWNER"
+						}
+					}
 				},
 				select: {
 					id: true
@@ -71,15 +77,6 @@ export class ChatService
 			else
 				throw e;
 		}
-
-		/* owner becomes member of chatroom */
-		await this.prisma.chatroomUser.create({
-			data: {
-				chatroomId: +newChatroom.id,
-				userId: +userId,
-				role: "OWNER"
-			}
-		});
 	}
 
 	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>
