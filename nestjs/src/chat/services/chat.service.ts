@@ -104,20 +104,6 @@ export class ChatService
 	{
 		await this.utils.checkChatroomExists(id);
 
-		/* first we must delete all messages of chatroom */
-		await this.prisma.message.deleteMany({
-			where: {
-				chatroomId: +id,
-			}
-		});
-
-		/* then all members from chatroom */
-		await this.prisma.chatroomUser.deleteMany({
-			where: {
-				chatroomId: +id,
-			}
-		});
-
 		await this.prisma.chatroom.delete({
 			where: {
 				id: +id,

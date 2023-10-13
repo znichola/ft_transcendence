@@ -79,7 +79,7 @@ model ChatroomUser {
   chatroomId Int
   userId     Int
 
-  chatroom Chatroom @relation(fields: [chatroomId], references: [id])
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   user     User     @relation("Member", fields: [userId], references: [id])
 
   role ChatroomUserRole @default(MEMBER)
@@ -93,7 +93,7 @@ model BannedUser {
   chatroomId Int
   userId     Int
 
-  chatroom Chatroom @relation(fields: [chatroomId], references: [id])
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id])
 
   @@id([chatroomId, userId])
@@ -107,7 +107,7 @@ model Message {
   user   User @relation(fields: [userId], references: [id])
 
   chatroomId Int
-  chatroom   Chatroom @relation(fields: [chatroomId], references: [id])
+  chatroom   Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
 
   sentAt DateTime @default(now())
 }
@@ -132,7 +132,7 @@ model DirectMessage {
 	sender   User @relation(fields: [senderId], references: [id])
 
 	conversationId Int
-	conversation   Conversation @relation(fields: [conversationId], references: [id])
+	conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
 	sentAt DateTime @default(now())
 }

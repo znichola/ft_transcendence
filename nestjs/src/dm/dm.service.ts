@@ -124,12 +124,6 @@ export class DmService
 			}
 		});
 
-		await this.prisma.directMessage.deleteMany({
-			where: {
-				conversationId: +conv.id
-			}
-		});
-
 		await this.prisma.conversation.delete({
 			where: {
 				id: +conv.id
