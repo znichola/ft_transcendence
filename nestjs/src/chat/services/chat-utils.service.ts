@@ -48,10 +48,9 @@ export class ChatUtils
 
 	checkPasswordPresence(obj: UpdateVisibilityDto | CreateChatroomDto)
 	{
-		if ((obj.status == "PROTECTED" && obj.password == null) ||
-			(obj.status != "PROTECTED" && obj.password != null))
+		if (obj.status == "PROTECTED" && (obj.password == null || obj.password == ""))
 		{
-			throw new BadRequestException("Password must be provided if and only if visibility is PROTECTED");
+			throw new BadRequestException("Non-empty password must be provided");
 		}
 	}
 

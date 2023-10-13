@@ -88,7 +88,7 @@ export class ChatMemberService
 		}
 		else if (chatroom.status == ChatroomVisibilityStatus.PROTECTED)
 		{
-			if (addMemberDto.password == null)
+			if (addMemberDto.password == null || addMemberDto.password == "")
 				throw new ForbiddenException("Password required");
 
 			const pwd_verif: boolean = await bcrypt.compare(addMemberDto.password, chatroom.password);

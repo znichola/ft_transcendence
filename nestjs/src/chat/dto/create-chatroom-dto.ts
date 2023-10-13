@@ -21,6 +21,5 @@ export class CreateChatroomDto
 	@ApiPropertyOptional()
 	@IsOptional()
 	@IsString()
-	@IsNotEmpty()
 	password?: string
 }
