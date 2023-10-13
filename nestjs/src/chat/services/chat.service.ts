@@ -33,7 +33,7 @@ export class ChatService
 		return chatroomEntities;
 	}
 
-	async createNewChatRoom(chatroomDto: CreateChatroomDto)
+	async createNewChatRoom(chatroomDto: CreateChatroomDto): Promise<ChatroomEntity>
 	{
 		const userId: number = await this.utils.getUserId(chatroomDto.ownerLogin42);
 
@@ -50,7 +50,7 @@ export class ChatService
 		}
 
 		/* create new chatroom and return new chatroom id */
-		let newChatroom;
+		let newChatroom: ChatroomWithUsername;
 		try {
 			newChatroom = await this.prisma.chatroom.create({
 				data: {
@@ -66,7 +66,14 @@ export class ChatService
 					}
 				},
 				select: {
-					id: true
+					id: true,
+					name: true,
+					status: true,
+					owner: {
+						select: {
+							login42: true
+						}
+					}
 				}
 			});
 		}
@@ -77,6 +84,8 @@ export class ChatService
 			else
 				throw e;
 		}
+		
+		return new ChatroomEntity(newChatroom);
 	}
 
 	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>

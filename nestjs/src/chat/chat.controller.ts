@@ -10,7 +10,7 @@ import { UpdateMessageDto } from './dto/update-message-dto';
 import { ChatroomEntity } from './entities/chatroom.entity';
 import { MessageEntity } from './entities/message.entity';
 import { MemberEntity } from './entities/member.entity';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 import { BanUserDto } from './dto/ban-user-dto';
 import { BannedUser } from '@prisma/client';
@@ -39,9 +39,10 @@ export class ChatController
 	}
 
 	@Post()
-	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto)
+	@ApiCreatedResponse({type: ChatroomEntity})
+	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto): Promise<ChatroomEntity>
 	{
-		await this.chatService.createNewChatRoom(createChatroomDto);
+		return await this.chatService.createNewChatRoom(createChatroomDto);
 	}
 
 	@Get(':id')
