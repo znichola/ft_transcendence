@@ -19,11 +19,14 @@ else
     printf "# This is the setup for generating the .env files for the nest and react containers
 
 # if present, these value are ported over from the kickstart.env.old
+APP_NAME=\"${APP_NAME:="Transcendance"}\"
 USE_LOCAL_HOST=\"${USE_LOCAL_HOST:="false"}\"
 API_CLIENT_ID=\"${API_CLIENT_ID:="_________replace_with_the_API_ID_from_the_42_api_____"}\"
 API_CLIENT_SECRET=\"${API_CLIENT_SECRET:="_____replace_with_the_secret_also_from_42________"}\"
 DATABASE_USR=\"${DATABASE_USR:="__________replace_with_your_database_user_____________"}\"
 DATABASE_NAME=\"${DATABASE_NAME:="__________replace_with_your_database_user___________"}\"
+COOKIE_USR=\"${COOKIE_USR:="userSession"}\"
+COOKIE_TMP=\"${COOKIE_TMP:="userTemp"}\"
 
 # auto generated on each re gen of this file
 JWT_SECRET=\"$JWT_SECRET_KICKSTART\"
@@ -69,6 +72,9 @@ IP_ADDR=\"$VITE_IP_ADDR\"
 API_CLIENT_ID=\"$API_CLIENT_ID\"
 API_CLIENT_SECRET=\"$API_CLIENT_SECRET\"
 JWT_SECRET=\"$JWT_SECRET\"
+COOKIE_USR=\"$COOKIE_USR\"
+COOKIE_TMP=\"$COOKIE_TMP\"
+APP_NAME=\"$APP_NAME\"
 DATABASE_URL=\"postgresql://$DATABASE_USR:$DATABASE_PWD@postgres:5432/$DATABASE_NAME?schema=public\"
 "
 
@@ -81,6 +87,9 @@ DATABASE_URL=\"postgresql://$DATABASE_USR:$DATABASE_PWD@postgres:5432/$DATABASE_
 API_CLIENT_ID=\"$API_CLIENT_ID\"
 API_CLIENT_SECRET=\"$API_CLIENT_SECRET\"
 JWT_SECRET=\"$JWT_SECRET\"
+COOKIE_USR=\"$COOKIE_USR\"
+COOKIE_TMP=\"$COOKIE_TMP\"
+APP_NAME=\"$APP_NAME\"
 DATABASE_PWD=\"$DATABASE_PWD\"
 DATABASE_URL=\"postgresql://$DATABASE_USR:$DATABASE_PWD@postgres:5432/$DATABASE_NAME?schema=public\"
 DATABASE_USR=\"$DATABASE_USR\"
