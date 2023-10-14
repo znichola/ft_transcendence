@@ -9,6 +9,7 @@ import {
   getUserConverstaionList,
   getUserConvoMessageList,
   getUserData,
+  getUserFriends,
   postNewChatromm,
   postNewChatrommMessage,
   postUserConvoMessage,
@@ -127,6 +128,15 @@ export function useMutDeleteUserDMs(user1: string, user2: string) {
 }
 
 // ---------- User Relations
+
+export function useUserFriends(user: string) {
+  return useQuery({
+    queryKey: ["Friends"],
+    queryFn: () => getUserFriends(user),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
 
 export function useMutPostUserFriendRequest() {
   const queryClient = useQueryClient();

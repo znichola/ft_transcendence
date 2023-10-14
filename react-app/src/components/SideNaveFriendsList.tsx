@@ -1,23 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
-import { FriendData, UserData, UserFriends } from "../interfaces";
-import axios from "axios";
+import { FriendData, UserData } from "../interfaces";
 import { LoadingDots } from "./Loading";
 import { UserIcon } from "./UserIcon";
 import { Link } from "react-router-dom";
 import RelationActions, { relationStatus } from "./UserInfoCardRelations";
+import { useUserFriends } from "../functions/customHook";
 
 export default function NavFriends({ currentUser }: { currentUser: UserData }) {
   const {
     data: friends,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["Friends"],
-    queryFn: () =>
-      axios
-        .get<UserFriends>("/user/" + currentUser.login42 + "/friends")
-        .then((res) => res.data),
-  });
+  } = useUserFriends(currentUser.login42);
   if (isLoading) return <LoadingDots />;
   if (isError) return <p>Error fetching freinds</p>;
   return (
