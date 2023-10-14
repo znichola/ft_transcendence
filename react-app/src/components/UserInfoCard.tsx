@@ -24,7 +24,7 @@ export default function UserInfoCard({
 
   const isCU = currentUser === cardUser.login42;
   return (
-    <div className="p-2">
+    <div className="relative p-2">
       <div
         className={`p-1 ${
           relationStatus === "friends" || isCU
@@ -38,28 +38,16 @@ export default function UserInfoCard({
             <AvatarName user={cardUser} />
           </div>
 
-          {isCU ? (
-            <></>
+          {isCU ? ( 
+            <span className="gradient-hightlight absolute right-5 top-4">Look, it's you!</span>
           ) : (
             <div className="flex flex-col py-2">
               <SideButton2
                 message={"Play pong"}
                 a1={"classical"}
                 a2={"special"}
-                to1={
-                  "/pong/" +
-                  currentUser +
-                  "/vs/" +
-                  cardUser.login42 +
-                  "/classical"
-                }
-                to2={
-                  "/pong/" +
-                  currentUser +
-                  "/vs/" +
-                  cardUser.login42 +
-                  "/special"
-                }
+                to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
+                to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
                 icon={IconBolt}
               />
               <SideButton
