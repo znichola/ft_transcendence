@@ -169,7 +169,7 @@ export class UserController {
     @Body() bodyData: UserData,
     @Req() req: Request,
   ): Promise<UserData> {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
 
     if (bodyData.name) {
       const user = await this.userService.findUserFromName(bodyData.name);
@@ -316,7 +316,7 @@ export class UserController {
     @Param('target') target: string,
     @Req() req: Request,
   ): Promise<string> {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const users = await this.userService.getFriendsIds(username, target);
 
     const friendStatus: string = await this.userService.getFriendStatus(
@@ -361,7 +361,7 @@ export class UserController {
     @Param('target') target: string,
     @Req() req: Request,
   ) {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const users = await this.userService.getFriendsIds(username, target);
 
     await this.userService.removeFriend(users[0], users[1]);
@@ -397,7 +397,7 @@ export class UserController {
     @Param('target') target: string,
     @Req() req: Request,
   ) {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.updateFriend(users[0], users[1]);
   }
@@ -429,7 +429,7 @@ export class UserController {
   @Post(':username/block/:target')
   async blockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.addBlockedUser(users[0], users[1]);
   }
@@ -461,7 +461,7 @@ export class UserController {
   @Delete(':username/block/:target')
   async unblockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
-    await this.authService.verifyUser(username, req.cookies.test.access_token);
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.removeBlockedUser(users[0], users[1]);
   }

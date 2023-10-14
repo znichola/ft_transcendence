@@ -19,8 +19,7 @@ export class TfaService {
     async generateTfaSecret(userLogin: string)
     {
         const secret = authenticator.generateSecret();
-        console.log("Generated secret : ", secret);
-        const otpauthUrl = authenticator.keyuri(userLogin, "2FA TEST", secret);
+        const otpauthUrl = authenticator.keyuri(userLogin, process.env.APP_NAME, secret);
 
         await this.setTfaSecret(userLogin, secret);
 

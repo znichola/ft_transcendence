@@ -31,7 +31,7 @@ export class AuthController {
     const state: string = bodyData['state'];
     const code: string = bodyData['code'];
     try {
-      const test = await axios.post('https://api.intra.42.fr/oauth/token', {
+      const token42 = await axios.post('https://api.intra.42.fr/oauth/token', {
         grant_type: 'authorization_code',
         client_id: process.env.API_CLIENT_ID,
         client_secret: process.env.API_CLIENT_SECRET,
@@ -39,12 +39,12 @@ export class AuthController {
         redirect_uri: 'http://' + process.env.IP_ADDR + ':8080/auth',
         state: 'abc', //Dont be dumb and use the correct state value for real project.
       });
-      if (!test) {
+      if (!token42) {
         throw new Error('Unable to retrieve data from 42 API.');
       }
       const userInfo = await axios.get('https://api.intra.42.fr/v2/me', {
         headers: {
-          Authorization: `Bearer ${test.data.access_token}`,
+          Authorization: `Bearer ${token42.data.access_token}`,
         },
       });
       const { first_name, last_name, login, image } = userInfo.data;
@@ -55,17 +55,22 @@ export class AuthController {
         defaultName,
         image.link,
       );
+
+      const cookieName: string = user.tfaStatus ? process.env.COOKIE_TMP : process.env.COOKIE_USR;
+      const cookieMaxAge: number = user.tfaStatus ? 300000 : 3600000;
       const token = await this.authService.getUserToken(user.login42); //Use this data to create a cookie with JWT
-      res.cookie('test', token, {
+      res.cookie(cookieName, token, {
         domain: process.env.IP_ADDR,
         httpOnly: true,
         secure: false,
         sameSite: 'lax',
-        maxAge: 3600000,
+        maxAge: cookieMaxAge,
       });
 
-      return res.status(200).send({ user });
-    } catch (error) {
+      return res.status(200).send({ login: user.login42, tfa: user.tfaStatus });
+    } 
+    catch (error) 
+    {
       console.log('error with 42 login');
     }
   }
@@ -80,9 +85,9 @@ export class AuthController {
   @Get('logout')
   async logOutUser(@Req() req: Request, @Res() res: Response)
   {
-    const userLogin = await this.authService.getLoginFromToken(req.cookies.test.access_token);
+    const userLogin = await this.authService.getLoginFromToken(req.cookies[process.env.COOKIE_USR].access_token);
     await this.authService.signOutUser(userLogin);
-    res.cookie('test', '', { expires: new Date() });
+    res.cookie(process.env.COOKIE_USR, '', { expires: new Date() });
     return res.status(200).send();
   }
 
@@ -105,7 +110,7 @@ export class AuthController {
     if (!user) user = 'default42';
     const token = await this.authService.getUserToken(user);
     if (!token) throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
-    res.cookie('test', token, {
+    res.cookie(process.env.COOKIE_USR, token, {
       domain: process.env.IP_ADDR,
       httpOnly: true,
       secure: false,
@@ -125,7 +130,7 @@ export class AuthController {
   @Get('user')
   async getLoggedUser(@Req() req: Request): Promise<string> {
     const userLogin: string = await this.authService.getLoginFromToken(
-      req.cookies.test.access_token,
+      req.cookies[process.env.COOKIE_USR].access_token,
     );
     return userLogin;
   }
