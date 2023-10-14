@@ -11,6 +11,7 @@ import {
   IMember,
   IUsersAll,
 } from "./interfaces";
+import { AuthContext, useAuth } from "./routes/AuthProvider";
 
 // const BASE_URL = "/api/";
 const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";
@@ -19,6 +20,28 @@ export const authApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
+
+authApi.interceptors.response.use(
+  function (response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response;
+  },
+  function (error) {
+    // const foo = useAuth();
+
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+    if (error.response.status) {
+      console.log(401, "error found baby!");
+      // user?.logOut();
+      // foo?.logOut()
+      console.log(AuthContext);
+    }
+    return Promise.reject(error);
+    // https://stackoverflow.com/questions/62888255/how-to-use-react-usecontext-in-a-function-that-does-not-render-any-components
+  },
+);
 
 //-------------------------------------------User-------------------------------------------------------//
 

@@ -17,7 +17,7 @@ type IAuth = {
 //   logOut: () => void;
 // }
 
-const AuthContext = createContext<IAuth | null>(null);
+export const AuthContext = createContext<IAuth | null>(null);
 
 export const useAuth = () => {
   return useContext(AuthContext);
@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
+  const { data: currentUser, isLoading, isError } = useCurrentUser();
   console.log("useAuth is here", foo);
-  const { isLoading, isError } = useCurrentUser();
 
   if (!foo)
     return <h1>critical error with auth, this should not be possible</h1>;
@@ -75,6 +75,10 @@ export const ProtectedRoute = () => {
   if (isError && !foo.user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
     // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
+  }
+  if (!isError && currentUser !== foo.user) {
+    console.log("cu:", currentUser, "foo:", foo.user);
+    // return <Navigate to="/login" replace state={{ from: location }} />;
   }
   return <Outlet />;
 };

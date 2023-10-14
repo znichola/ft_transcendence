@@ -105,6 +105,7 @@ export default function ChatroomChat() {
       >
         {menuBTNs.map((b) => (
           <ButtonGeneric
+            key={b.c}
             icon={b.i}
             setBTNstate={setButtonState}
             buttonState={buttonState}
@@ -163,9 +164,7 @@ function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
 
   const sender = m.senderLogin42 === cu.login42 ? cu : target;
   const senderSelf = m.senderLogin42 === cu.login42;
-  return (
-    <Message sender={sender} text={m.content} left={senderSelf} />
-  );
+  return <Message sender={sender} text={m.content} left={senderSelf} />;
 }
 
 export function ChatroomMessageInput({
