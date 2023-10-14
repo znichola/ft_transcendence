@@ -24,8 +24,9 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
-    staleTime: 45 * (60 * 1000), // 45 min
-    cacheTime: 60 * (60 * 1000), // 60 mins
+    // staleTime: 45 * (60 * 1000), // 45 min
+    // cacheTime: 60 * (60 * 1000), // 60 mins 
+    // we switch this off the keep checking if we're still logged in, keeps the current user login state fresh!
     // useErrorBoundary: true,
     retry: false,
   });
