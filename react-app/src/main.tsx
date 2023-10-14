@@ -33,6 +33,7 @@ import ChatRoomChat from "./routes/ChatroomChat.tsx";
 import UserPage from "./routes/UserPage.tsx";
 import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 import MatchMaker from "./routes/MatchMaker.tsx";
+import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,8 +45,8 @@ const router = createBrowserRouter([
     element: <Auth />,
   },
   {
-    path: "/test",
-    element: <Test />,
+    path: "/tfa",
+    element: <AuthLoginTFA />,
   },
   {
     path: "/",

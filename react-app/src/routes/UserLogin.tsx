@@ -8,11 +8,6 @@ export default function Login() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-sky-300">
       <AuthButton />
       <Logout />
-      {/* <QRcode
-        img={
-          "https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg"
-        }
-      /> */}
       <DevLogin />
     </div>
   );
@@ -43,23 +38,6 @@ const AuthButton = () => {
     </button>
   );
 };
-
-function QRcode({ img }: { img: string }) {
-  return (
-    <div className="w-64">
-      <div className="overflow-hidden rounded-xl bg-stone-200 p-7 text-stone-800 shadow">
-        <img className="aspect-square w-full" src={img} alt="qrcode" />
-        <p className="pt-3 text-center ">
-          Open the google
-          <br />
-          <b className="italic text-sky-400">authentication app</b>
-          <br />
-          and scan this QRcode
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function Logout() {
   const authContext = useAuth();
