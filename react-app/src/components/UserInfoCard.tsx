@@ -21,11 +21,13 @@ export default function UserInfoCard({
     : userFriends.requests.find(ff)
     ? "pending"
     : "none";
+
+  const isCU = currentUser === cardUser.login42;
   return (
     <div className="p-2">
       <div
         className={`p-1 ${
-          relationStatus === "friends"
+          relationStatus === "friends" || isCU
             ? "bg-gradient-to-br from-fuchsia-600 to-orange-500"
             : ""
         }`}
@@ -36,27 +38,43 @@ export default function UserInfoCard({
             <AvatarName user={cardUser} />
           </div>
 
-          <div className="flex flex-col py-2">
-            <SideButton2
-              message={"Play pong"}
-              a1={"classical"}
-              a2={"special"}
-              to1={"/pong/" + currentUser + "/vs/" + cardUser.login42 + "/classical"}
-              to2={"/pong/" + currentUser + "/vs/" + cardUser.login42 + "/special"}
-              icon={IconBolt}
-            />
-            <SideButton
-              message={"Private chat"}
-              action={"message"}
-              to={"/message/" + cardUser.login42}
-              icon={IconChatBubble}
-            />
-            <RelationActions
-              currentUser={currentUser}
-              cardUser={cardUser.login42}
-              status={relationStatus}
-            />
-          </div>
+          {isCU ? (
+            <></>
+          ) : (
+            <div className="flex flex-col py-2">
+              <SideButton2
+                message={"Play pong"}
+                a1={"classical"}
+                a2={"special"}
+                to1={
+                  "/pong/" +
+                  currentUser +
+                  "/vs/" +
+                  cardUser.login42 +
+                  "/classical"
+                }
+                to2={
+                  "/pong/" +
+                  currentUser +
+                  "/vs/" +
+                  cardUser.login42 +
+                  "/special"
+                }
+                icon={IconBolt}
+              />
+              <SideButton
+                message={"Private chat"}
+                action={"message"}
+                to={"/message/" + cardUser.login42}
+                icon={IconChatBubble}
+              />
+              <RelationActions
+                currentUser={currentUser}
+                cardUser={cardUser.login42}
+                status={relationStatus}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
