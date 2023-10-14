@@ -76,9 +76,9 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace state={{ from: location }} />;
     // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
   }
-  if (!isError && currentUser !== foo.user) {
-    console.log("cu:", currentUser, "foo:", foo.user);
-    // return <Navigate to="/login" replace state={{ from: location }} />;
-  }
+  // if (!isError && currentUser !== foo.user) {
+  //   console.log("cu:", currentUser, "foo:", foo.user);
+  //   // return <Navigate to="/login" replace state={{ from: location }} />;
+  // }
   return <Outlet />;
 };
