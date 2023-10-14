@@ -25,6 +25,7 @@ export interface UserData {
   // game_ids: [number];
   avatar: string;
   bio?: string;
+  tfaStatus: boolean;
 }
 
 // /game/id
