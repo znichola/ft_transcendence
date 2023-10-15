@@ -12,7 +12,7 @@ import {
   IUsersAll,
   IPutUserProfile,
 } from "./interfaces";
-import { AuthContext, useAuth } from "./routes/AuthProvider";
+import { AuthContext } from "./routes/AuthProvider";
 
 // const BASE_URL = "/api/";
 const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";

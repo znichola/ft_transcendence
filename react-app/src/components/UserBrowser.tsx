@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "./BoxMenu";
 import { IconFunnel } from "./Icons";
 import {
@@ -8,6 +8,15 @@ import {
   PreHeading,
   SubmitBTN,
 } from "./FormComponents";
+import { authApi } from "../Api-axios";
+import { IUsersAll, UserFriends } from "../interfaces";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useUserData, useUserFriends } from "../functions/customHook";
+import { useAuth } from "../routes/AuthProvider";
+import { LoadingSpinner, LoadingSpinnerMessage } from "./Loading";
+import { ErrorMessage } from "./ErrorComponents";
+import { useIntersection } from "../functions/uneIntersection";
+import UserInfoCard from "./UserInfoCard";
 
 interface ISettings {
   isFriend: boolean;
@@ -17,8 +26,10 @@ interface ISettings {
 }
 
 export default function UserBrowser({ title }: { title: string }) {
-  // react states
+  // open/close menu state
   const [buttonState, setButtonState] = useState("UNSET");
+
+  // search states
   const [searchValue, setSearchValue] = useState("");
   const [settings, setSettings] = useState<ISettings>({
     isFriend: false,
@@ -27,13 +38,57 @@ export default function UserBrowser({ title }: { title: string }) {
     isInGame: false,
   });
 
-  // const { data: users, isError, isLoading } =
+  const searchParams: IUsersAll = {
+    status: findStatus(settings),
+    name: searchValue != "" ? searchValue : undefined,
+  };
+
+  // api calls
+  const currentUser = useAuth()?.user || "";
+  const {
+    data: relations,
+    isLoading: isFriLoading,
+    isError: isFriError,
+  } = useUserFriends(currentUser);
+
+  // infinate scroll TODO: not implemented to scroll
+  const fetchPage = async ({ pageParam = 1 }) =>
+    authApi
+      .get<string[]>("/user/", { params: { ...searchParams, page: pageParam } })
+      .then((res) => res.data);
+  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ["UserList", searchParams],
+    queryFn: fetchPage,
+    getNextPageParam: (_, pages) => pages.length + 1,
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+  const _posts = data?.pages.flatMap((p) => p);
+  const ref = useRef(null);
+  const inViewport = useIntersection(ref, "0px");
 
   console.log("-------------");
 
+  if (isFriLoading)
+    return <LoadingSpinnerMessage message="fetching friends ..." />;
+  if (isFriError) return <ErrorMessage message="error fetching friends" />;
+
+  if (
+    inViewport &&
+    _posts &&
+    _posts.length > 5 &&
+    (data?.pages[data?.pageParams.length - 1].length ?? 0) > 0
+  ) {
+    console.log("posts len", _posts.length);
+    fetchNextPage();
+  }
+
   return (
-    <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
-      <BoxMenu heading={<HeadingFoo title={title} settings={settings} />}>
+    <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center ">
+      <BoxMenu
+        resetBTN={() => setButtonState("UNSET")}
+        heading={<HeadingFoo title={title} settings={settings} />}
+      >
         <div className="flex flex-col">
           <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
           <div className="flex items-end pb-8 pr-6">
@@ -50,12 +105,79 @@ export default function UserBrowser({ title }: { title: string }) {
           </div>
         </div>
       </BoxMenu>
-      {}
+      <h1 className="" />
+      <div className="flex w-full flex-col items-center overflow-scroll pt-80">
+        {_posts?.map((u) => (
+          <FilterInfoCard
+            cardLogin42={u}
+            settings={settings}
+            currentLogin42={currentUser}
+            userRelations={relations}
+            searchValue={searchValue}
+          />
+        ))}
+        <button
+          ref={ref}
+          onClick={() => fetchNextPage()}
+          disabled={isFetchingNextPage}
+        >
+          {isFetchingNextPage ? (
+            <LoadingSpinner />
+          ) : (data?.pages[data?.pageParams.length - 1].length ?? 0) > 0 ? (
+            "Load more?"
+          ) : (
+            "Nothing more to load"
+          )}
+        </button>
+      </div>
     </div>
   );
 }
 
-function HeadingFoo({ title, settings }: { title: string; settings: ISettings }) {
+interface IFilterInfoCard {
+  cardLogin42: string;
+  currentLogin42: string;
+  userRelations: UserFriends;
+  settings: ISettings;
+  searchValue: string;
+}
+
+function FilterInfoCard({
+  // settings,
+  cardLogin42,
+  currentLogin42,
+  userRelations,
+  // searchValue,
+}: IFilterInfoCard) {
+  const { data: cu, isLoading, isError } = useUserData(cardLogin42);
+
+  if (isLoading) return <LoadingSpinnerMessage message="loading profile ..." />;
+  if (isError) return <ErrorMessage message="Error loading profile" />;
+  // if (
+  //   cu.status !== findStatus(settings) ||
+  //   (searchValue !== "" &&
+  //     (cu.login42.toLowerCase().includes(searchValue) ||
+  //       cu.name.toLowerCase().includes(searchValue)))
+  // ) {
+  //   return <></>;
+  // }
+  return (
+    <UserInfoCard
+      cardUser={cu}
+      currentUser={currentLogin42}
+      userFriends={userRelations}
+      key={cardLogin42}
+    />
+  );
+}
+
+function HeadingFoo({
+  title,
+  settings,
+}: {
+  title: string;
+  settings: ISettings;
+}) {
   return (
     <div>
       <PreHeading text={generateUserStatusMessage(settings)} />
@@ -146,6 +268,13 @@ function FilterSettings({
       />
     </div>
   );
+}
+
+function findStatus(settings: ISettings) {
+  if (settings.isOnline) return "ONLINE";
+  if (settings.isOffline) return "OFFLINE";
+  if (settings.isInGame) return "INGAME";
+  return undefined;
 }
 
 function generateUserStatusMessage(settings: ISettings) {

@@ -42,6 +42,16 @@ export function useUserData(login42?: string) {
   });
 }
 
+// export function useInfiniUserData(params: IUsersAll) {
+//   const { page, ...everythingExceptPage } = params;
+//   const b = everythingExceptPage;
+//   return useInfiniteQuery({
+//     queryKey: ["UserList", b],
+//     queryFn: getUsersAll,
+//     getNextPageParam: (_, pages) => pages.length + 1,
+//   });
+// }
+
 export function useCurrentUserData() {
   const { data: currentUser } = useCurrentUser();
 

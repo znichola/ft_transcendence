@@ -12,7 +12,7 @@ import { Form, Link, useNavigate } from "react-router-dom";
 import { FormEvent, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { UserIcon } from "../components/UserIcon";
-import axios, { HttpStatusCode } from "axios";
+import { HttpStatusCode } from "axios";
 import { authApi } from "../Api-axios";
 import { Heading, PreHeading } from "../components/FormComponents";
 
