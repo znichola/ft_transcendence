@@ -54,17 +54,17 @@ export default function SideMenu({
     >
       <button
         className={
-          "absolute left-auto right-0 z-20 flex h-14 w-8 cursor-pointer rounded-xl border-slate-600 bg-white font-bold text-slate-700 transition-all duration-500 " +
-          (hide ? " translate-x-10" : "")
+          "absolute left-auto right-3 top-5 z-20 flex h-14 w-8 cursor-pointer rounded-xl border-slate-600 font-bold text-slate-700 transition-all duration-500 " +
+          (hide ? " translate-x-14" : "")
         }
         onClick={toggleHide}
       >
         <IconDownChevron
           className={
-            "pointer-events-none h-full w-full scale-125 transition-all" +
-            (hide ? " " : " rotate-180 ")
+            "pointer-events-none h-full w-full scale-125 transition-all duration-700 " +
+            (hide ? "text-slate-500 " : " rotate-180 text-slate-200 ")
           }
-          strokeWidth={1}
+          strokeWidth={2}
         />
       </button>
       <div className="flex h-full w-full overflow-hidden">
