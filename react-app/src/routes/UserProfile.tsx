@@ -50,7 +50,7 @@ export default function UserProfile() {
 
 function UserProfileHeading({ user }: { user: UserData }) {
   return (
-    <div className="flex flex-row">
+    <div className="flex w-full flex-row pl-24 pt-8">
       <div
         className={
           "mr-6 h-32 border-r-4 pr-6 " + `border-${statusColor(user.status)}`

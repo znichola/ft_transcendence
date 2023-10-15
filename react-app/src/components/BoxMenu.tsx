@@ -35,12 +35,14 @@ export function ButtonGeneric({
   buttonState,
   checked,
   children,
+  filledIn,
 }: {
   icon: iconType;
   setBTNstate: (value: React.SetStateAction<string>) => void;
   buttonState: string;
   checked: string;
   children?: JSX.Element[] | JSX.Element;
+  filledIn?: boolean
 }) {
   return (
     <div>
@@ -52,7 +54,7 @@ export function ButtonGeneric({
       />
       <button
         onClick={() => setBTNstate(buttonState === checked ? "UNSET" : checked)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border-b-2 border-stone-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500"
+        className={`flex h-10 w-10 items-center justify-center rounded-full border-b-2 border-stone-300 text-slate-500 transition-all duration-100 hover:border-b-4 peer-checked:border-rose-400 peer-checked:text-rose-500  ${filledIn ? "bg-stone-200" : ""}`}
       >
         <div className="flex h-8 w-8 items-center justify-center">
           <Icon />
