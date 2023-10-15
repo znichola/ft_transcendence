@@ -13,6 +13,7 @@ import {
   InputToggle,
   SubmitBTN,
 } from "../components/FormComponents";
+import { statusColor } from "../functions/utils";
 
 export default function UserProfile() {
   // react states
@@ -49,14 +50,24 @@ export default function UserProfile() {
 
 function UserProfileHeading({ user }: { user: UserData }) {
   return (
-    <div className="felx flex-row ">
-      <img></img>
-      <div>
+    <div className="flex flex-row">
+      <div
+        className={
+          "mr-6 h-32 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
+        }
+      >
+        <img
+          className="h-32 shadow"
+          src={user.avatar}
+          alt={user.login42 + " profile image"}
+        />
+      </div>
+      <div className="">
         <p className="text-left font-semibold">{"@" + user.login42}</p>
         <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
           {user.name}
         </h1>
-        <p>{user.bio}</p>
+        <p className="pt-2">{user.bio}</p>
       </div>
     </div>
   );

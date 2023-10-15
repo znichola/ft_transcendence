@@ -17,7 +17,7 @@ export interface UserData {
   login42: string;
   elo: number;
   eloHistory: number[];
-  status?: string;
+  status?: TUserStatus;
   wins: number;
   losses: number;
   avatar: string;
@@ -31,12 +31,12 @@ export interface GameHistory {
   result: number;
 }
 
-export type UserStatus = "ONLINE" | "OFFLINE" | "UNAVAILABLE" | "INGAME";
+export type TUserStatus = "ONLINE" | "OFFLINE" | "UNAVAILABLE" | "INGAME" | undefined;
 
 // --------- user
 export interface IUsersAll {
   page?: number;
-  status?: UserStatus;
+  status?: TUserStatus;
   name?: string;
 }
 
