@@ -14,6 +14,7 @@ import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { UserIcon } from "../components/UserIcon";
 import axios, { HttpStatusCode } from "axios";
 import { authApi } from "../Api-axios";
+import { Heading, PreHeading } from "../components/FormComponents";
 
 export default function ChatroomBrowser() {
   const [buttonState, setButtonState] = useState<string>("UNSET");
@@ -45,16 +46,29 @@ function CreateChatroomUI() {
   const [chName, setChName] = useState("");
   const [password, setpassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
-  const {data: currentUser} = useCurrentUser();
+  const { data: currentUser } = useCurrentUser();
   const navigate = useNavigate();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     const name = chName;
     e.preventDefault();
     if (isPrivate || password == "") {
-      const result = await authApi.post<HttpStatusCode>("/chatroom", {ownerLogin42: currentUser, name:  name, status: isPrivate ? "PRIVATE" : "PUBLIC"}).then();
+      const result = await authApi
+        .post<HttpStatusCode>("/chatroom", {
+          ownerLogin42: currentUser,
+          name: name,
+          status: isPrivate ? "PRIVATE" : "PUBLIC",
+        })
+        .then();
     } else {
-      const result = await authApi.post<HttpStatusCode>("/chatroom", {ownerLogin42: currentUser, name:  name, status: "PROTECTED", password: password}).then(); // TODO fusionner avec celui du dessus quand l'api le permet (mot de passe vide pour private et public)
+      const result = await authApi
+        .post<HttpStatusCode>("/chatroom", {
+          ownerLogin42: currentUser,
+          name: name,
+          status: "PROTECTED",
+          password: password,
+        })
+        .then(); // TODO fusionner avec celui du dessus quand l'api le permet (mot de passe vide pour private et public)
     }
     navigate("/chatroom/" + name); // TODO changer name par id quand return par l'api
   }
@@ -64,7 +78,10 @@ function CreateChatroomUI() {
       <h2 className="p-3 text-lg text-slate-500">
         Create a space to discuss pong, spin tactics and smurfing
       </h2>
-      <form className="flex h-full w-[32rem] flex-col gap-6 pb-4" onSubmit={handleSubmit}>
+      <form
+        className="flex h-full w-[32rem] flex-col gap-6 pb-4"
+        onSubmit={handleSubmit}
+      >
         <div>
           <label htmlFor="channel-name-input">
             <em className="font-semibold text-rose-600">* </em>
@@ -179,12 +196,8 @@ function ListingFiltered({ chatrooms }: { chatrooms: IChatroom[] }) {
 function ChatroomBroserHeading() {
   return (
     <div>
-      <h1 className=" text-center text-2xl font-semibold text-slate-500 ">
-        Public, Private & Secret <br />{" "}
-        <b className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl text-transparent">
-          Chatrooms
-        </b>
-      </h1>
+      <PreHeading text="Public, Private & Secret" />
+      <Heading title="Chatrooms" />
     </div>
   );
 }

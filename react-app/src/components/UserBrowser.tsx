@@ -1,29 +1,39 @@
 import { useState } from "react";
 import BoxMenu, { ButtonGeneric } from "./BoxMenu";
 import { IconFunnel } from "./Icons";
-import { InputField, InputToggle, SubmitBTN } from "./FormComponents";
+import {
+  Heading,
+  InputField,
+  InputToggle,
+  PreHeading,
+  SubmitBTN,
+} from "./FormComponents";
+
+interface ISettings {
+  isFriend: boolean;
+  isOnline: boolean;
+  isOffline: boolean;
+  isInGame: boolean;
+}
 
 export default function UserBrowser({ title }: { title: string }) {
   // react states
   const [buttonState, setButtonState] = useState("UNSET");
   const [searchValue, setSearchValue] = useState("");
-  const [isFriend, setFriends] = useState(false);
-  const [isOnline, setOnline] = useState(false);
-  const [isInGame, setInGame] = useState(false);
-  const [isOffline, setOffline] = useState(false);
+  const [settings, setSettings] = useState<ISettings>({
+    isFriend: false,
+    isOnline: false,
+    isOffline: false,
+    isInGame: false,
+  });
 
-  const settings = {
-    isFriend,
-    isOnline,
-    isOffline,
-    isInGame,
-  };
+  // const { data: users, isError, isLoading } =
 
   console.log("-------------");
 
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
-      <BoxMenu heading={<Heading title={title} settings={settings} />}>
+      <BoxMenu heading={<HeadingFoo title={title} settings={settings} />}>
         <div className="flex flex-col">
           <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
           <div className="flex items-end pb-8 pr-6">
@@ -35,40 +45,21 @@ export default function UserBrowser({ title }: { title: string }) {
               checked="filter-settings"
               filledIn={true}
             >
-              <FilterSettings
-                isFriend={isFriend}
-                toggleIsFriend={() => setFriends(isFriend ? false : true)}
-                isOnline={isOnline}
-                toggleIsOnline={() => setOnline(isOnline ? false : true)}
-                isOffline={isOffline}
-                toggleIsOffline={() => setOffline(isOffline ? false : true)}
-                isInGame={isInGame}
-                toggleIsInGame={() => setInGame(isInGame ? false : true)}
-              />
+              <FilterSettings settings={settings} setSettings={setSettings} />
             </ButtonGeneric>
           </div>
         </div>
       </BoxMenu>
-      ;
+      {}
     </div>
   );
 }
 
-function Heading({
-  title,
-  settings,
-}: {
-  title: string;
-  settings: IFilterSettings;
-}) {
+function HeadingFoo({ title, settings }: { title: string; settings: ISettings }) {
   return (
     <div>
-      <p className="text-left font-semibold">
-        {generateUserStatusMessage(settings)}{" "}
-      </p>
-      <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
-        {title}
-      </h1>
+      <PreHeading text={generateUserStatusMessage(settings)} />
+      <Heading title={title} />
     </div>
   );
 }
@@ -103,64 +94,61 @@ function Searchbar({ value, setValue }: ISearchbar) {
   );
 }
 
-interface IFilterSettings {
-  isFriend: boolean;
-  toggleIsFriend: () => void;
-  isOnline: boolean;
-  toggleIsOnline: () => void;
-  isOffline: boolean;
-  toggleIsOffline: () => void;
-  isInGame: boolean;
-  toggleIsInGame: () => void;
-}
-
 function FilterSettings({
-  isFriend,
-  toggleIsFriend,
-  isOnline,
-  toggleIsOnline,
-  isOffline,
-  toggleIsOffline,
-  isInGame,
-  toggleIsInGame,
-}: IFilterSettings) {
-
-  // if (isOffline) {
-    if (isOnline) toggleIsOnline();
-    if (isInGame) toggleIsInGame();
-  // }
+  settings: s,
+  setSettings,
+}: {
+  settings: ISettings;
+  setSettings: (s: ISettings) => void;
+}) {
+  function toggleOffline() {
+    if (!s.isOffline) {
+      setSettings({
+        ...s,
+        isOffline: true,
+        isOnline: false,
+        isInGame: false,
+      });
+    } else setSettings({ ...s, isOffline: false });
+  }
 
   return (
     <div className="flex items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 py-8 shadow-xl">
       <InputToggle
         onLable="Friend"
         offLable="Friend"
-        value={isFriend}
-        onToggle={toggleIsFriend}
+        value={s.isFriend}
+        onToggle={() =>
+          setSettings({ ...s, isFriend: s.isFriend ? false : true })
+        }
       />
       <InputToggle
         onLable="Online"
         offLable="Online"
-        value={isOnline}
-        onToggle={toggleIsOnline}
+        value={s.isOnline}
+        onToggle={() =>
+          setSettings({ ...s, isOnline: s.isOnline ? false : true })
+        }
       />
       <InputToggle
         onLable="Offline"
         offLable="Offline"
-        value={isOffline}
-        onToggle={toggleIsOffline}
+        value={s.isOffline}
+        onToggle={() => toggleOffline()}
       />
       <InputToggle
         onLable="In game"
         offLable="In game"
-        value={isInGame}
-        onToggle={toggleIsInGame}
+        value={s.isInGame}
+        onToggle={() =>
+          setSettings({ ...s, isInGame: s.isInGame ? false : true })
+        }
       />
     </div>
   );
 }
 
-function generateUserStatusMessage(settings: IFilterSettings): string {
+function generateUserStatusMessage(settings: ISettings) {
   const statusPhrases = [];
 
   if (settings.isOnline) {

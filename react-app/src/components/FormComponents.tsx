@@ -8,6 +8,18 @@ interface IInputField {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+export function Heading({ title }: { title: string }) {
+  return (
+    <h1 className=" gradient-hightlight text-center text-5xl font-bold ">
+      {title}
+    </h1>
+  );
+}
+
+export function PreHeading({ text }: { text: string }) {
+  return <p className="text-left font-semibold">{text}</p>;
+}
+
 export function InputField({
   lable,
   max,

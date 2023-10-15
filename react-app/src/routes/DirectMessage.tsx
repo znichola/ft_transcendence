@@ -79,7 +79,7 @@ function LeaveConversationHeading({ user }: { user: UserData }) {
   return (
     <div>
       <p className="text-left font-semibold">Converstaion with</p>
-      <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
+      <h1 className=" gradient-hightlight text-center text-5xl font-bold ">
         {user.name}
       </h1>
     </div>

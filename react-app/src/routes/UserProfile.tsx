@@ -8,9 +8,11 @@ import { useState } from "react";
 import { UserData } from "../interfaces";
 import { IconGear } from "../components/Icons";
 import {
+  Heading,
   InputField,
   InputFile,
   InputToggle,
+  PreHeading,
   SubmitBTN,
 } from "../components/FormComponents";
 import { statusColor } from "../functions/utils";
@@ -63,10 +65,8 @@ function UserProfileHeading({ user }: { user: UserData }) {
         />
       </div>
       <div className="">
-        <p className="text-left font-semibold">{"@" + user.login42}</p>
-        <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
-          {user.name}
-        </h1>
+        <PreHeading text={"@" + user.login42} />
+        <Heading title={user.name} />
         <p className="pt-2">{user.bio}</p>
       </div>
     </div>

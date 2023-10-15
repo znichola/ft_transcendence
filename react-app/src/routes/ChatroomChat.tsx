@@ -25,6 +25,7 @@ import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "./AuthProvider";
+import { Heading, PreHeading } from "../components/FormComponents";
 // import ChatMessages from "../components/ChatMassages";
 
 const fakeChannelUsers = [
@@ -222,12 +223,8 @@ export function ChatroomMessageInput({
 function ChatroomHeading({ chatroom }: { chatroom: IChatroom }) {
   return (
     <div>
-      <p className="text-left font-semibold">
-        {chatroom.status + " chatroom"}{" "}
-      </p>
-      <h1 className="bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-center text-5xl font-semibold text-transparent">
-        {chatroom.name}
-      </h1>
+      <PreHeading text={chatroom.status.toLocaleLowerCase() + " chatroom"} />
+      <Heading title={chatroom.name} />
     </div>
   );
 }
