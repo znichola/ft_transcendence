@@ -34,6 +34,7 @@ import UserPage from "./routes/UserPage.tsx";
 import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 import MatchMaker from "./routes/MatchMaker.tsx";
 import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
+import UserProfile from "./routes/UserProfile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -63,7 +64,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/user/:login42",
-            element: <UserPage />,
+            element: <UserProfile />,
           },
           {
             path: "/pong",

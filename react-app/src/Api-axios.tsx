@@ -10,6 +10,7 @@ import {
   IMessagePost,
   IMember,
   IUsersAll,
+  IPutUserProfile,
 } from "./interfaces";
 import { AuthContext, useAuth } from "./routes/AuthProvider";
 
@@ -110,11 +111,10 @@ export const putUserFriendRequest = async (
 
 export const putUserProfile = async (
   login42: string | undefined,
-  bio?: string,
-  displayName?: string,
+  payload : IPutUserProfile
 ) => {
   return authApi
-    .put<UserData>("/user/" + login42, { name: displayName, bio: bio })
+    .put<UserData>("/user/" + login42, payload)
     .then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
 };

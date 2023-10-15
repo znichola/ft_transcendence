@@ -15,17 +15,18 @@ import {
   postUserConvoMessage,
   postUserFriendRequest,
   putUserFriendRequest,
+  putUserProfile,
   removeUserFriend,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChatroomPost, IMessagePost } from "../interfaces";
+import { ChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
 
 export function useCurrentUser() {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
     // staleTime: 45 * (60 * 1000), // 45 min
-    // cacheTime: 60 * (60 * 1000), // 60 mins 
+    // cacheTime: 60 * (60 * 1000), // 60 mins
     // we switch this off the keep checking if we're still logged in, keeps the current user login state fresh!
     // useErrorBoundary: true,
     retry: false,
@@ -110,19 +111,27 @@ export function useMutDeleteUserDMs(user1: string, user2: string) {
 
   // https://tkdodo.eu/blog/mastering-mutations-in-react-query
   return useMutation({
-    mutationFn: ({
-      user1,
-      user2,
-    }: {
-      user1: string;
-      user2: string;
-    }) => deleteDMconversation(user1, user2),
+    mutationFn: ({ user1, user2 }: { user1: string; user2: string }) =>
+      deleteDMconversation(user1, user2),
     onSuccess: () => {
       queryClient.removeQueries({
         queryKey: ["UserConvoMessages", user1, user2],
       });
       queryClient.invalidateQueries({
         queryKey: ["UserConversations", user1],
+      });
+    },
+  });
+}
+
+export function useMutUserProfile(user: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    retry: false,
+    mutationFn: (paylaod: IPutUserProfile) => putUserProfile(user, paylaod),
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: ["UserData", user],
       });
     },
   });
@@ -206,7 +215,7 @@ export function useChatroomList() {
 
 export function useChatroom(id: string) {
   return useQuery({
-    queryKey: ["Chatroom" , id],
+    queryKey: ["Chatroom", id],
     queryFn: () => getChatrooomData(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
@@ -215,7 +224,7 @@ export function useChatroom(id: string) {
 
 export function useChatroomMemebers(id: string) {
   return useQuery({
-    queryKey: ["ChatroomMemebers" , id],
+    queryKey: ["ChatroomMemebers", id],
     queryFn: () => getChatrooomMemebers(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
@@ -230,7 +239,6 @@ export function useChatroomMessages(id: string) {
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
 }
-
 
 export function useMutPostNewChatroom() {
   const queryClient = useQueryClient();

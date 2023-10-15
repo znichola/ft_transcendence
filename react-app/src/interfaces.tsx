@@ -31,15 +31,14 @@ export interface GameHistory {
   result: number;
 }
 
-export type UserStatus = "ONLINE" | "OFFLINE" |  "UNAVAILABLE" | "INGAME"
+export type UserStatus = "ONLINE" | "OFFLINE" | "UNAVAILABLE" | "INGAME";
 
-// --------- user 
+// --------- user
 export interface IUsersAll {
   page?: number;
   status?: UserStatus;
   name?: string;
 }
-
 
 // I think it's better we use convoMessage[] as the type instead
 // export type ConvoMessages = ConvoMessage[];
@@ -95,4 +94,9 @@ export interface IMember {
   login42: string;
   role: TChatroomRole;
   isMuted: boolean;
+}
+
+export interface IPutUserProfile {
+  bio?: string;
+  displayName?: string;
 }
