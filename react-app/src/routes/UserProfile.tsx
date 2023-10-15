@@ -88,7 +88,6 @@ function CurrentUserSettings({ user }: { user: UserData }) {
         setBio={setBio}
         user={user}
       />
-      <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
       <form
         className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"
         onSubmit={(e) => {
@@ -106,13 +105,13 @@ function CurrentUserSettings({ user }: { user: UserData }) {
       <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
       <div className="flex flex-row justify-center pb-10">
         <InputToggle
-          onLable="Disable 2FA"
-          offLable="Enable 2FA"
+          onLable="2FA Enabled"
+          offLable="2FA Disabled"
           value={tfa}
           onToggle={() => setTFA(tfa ? false : true)}
         />
-        <div className="ml-6 flex-grow border-l-2 border-rose-400 pl-6 ">
-          <p className="w-80 pb-3 text-slate-400">
+        <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
+          <p className="w-72 pb-3 text-slate-400">
             Once enabled, scan the code to link your google 2FA app.
           </p>
         </div>
