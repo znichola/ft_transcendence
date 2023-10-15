@@ -19,7 +19,6 @@ import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
 import Auth from "./routes/Auth.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
-import GlobalRanking from "./routes/GlobalRanking.tsx";
 import PongFeed from "./routes/PongFeed.tsx";
 import AddOrJoinChatroom from "./routes/ChatroomBrowser.tsx";
 import AddNewChat from "./routes/AddNewChat.tsx";
@@ -32,6 +31,7 @@ import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 import MatchMaker from "./routes/MatchMaker.tsx";
 import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
 import UserProfile from "./routes/UserProfile.tsx";
+import NewGloblaRanking from "./routes/NewGlobalRanking.tsx";
 
 const router = createBrowserRouter([
   {
@@ -73,7 +73,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/ranking",
-            element: <GlobalRanking />,
+            element: <NewGloblaRanking />,
           },
           {
             path: "/message",
