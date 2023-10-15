@@ -18,7 +18,7 @@ export type filter = ({
   userFriends: UserFriends;
 }) => JSX.Element;
 
-const FilterMenu = function () {
+export const FilterMenu = function () {
   const [name_filter, changeNameFilter] = useState("");
   const [state_filter, changeOnlineFilter] = useState("NONE");
 

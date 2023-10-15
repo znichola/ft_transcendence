@@ -21,7 +21,7 @@ export default function BoxMenu({
       <div className="absolute left-0 top-0 z-0 h-[140%] w-full bg-gradient-to-b from-stone-50 to-transparent"></div>
       <div className="pointer-events-auto relative z-0 flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
         {heading}
-        <div className="flex h-16 max-h-16 gap-2 overflow-visible pb-2 pt-3">
+        <div className="flex min-h-16 gap-2 overflow-visible pb-2 pt-3">
           {children}
         </div>
       </div>

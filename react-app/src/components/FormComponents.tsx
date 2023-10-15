@@ -37,7 +37,7 @@ export function InputField({
       >
         <input
           id="channel-name-input"
-          className="w-full  outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
+          className="w-full bg-transparent outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
           type="text"
           autoComplete="off"
           max={max}
