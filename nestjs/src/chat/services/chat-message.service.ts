@@ -35,9 +35,14 @@ export class ChatMessageService
 		return new MessageEntity(msgFromDb);
 	}
 
-	async getAllMessagesFromChatroom(id: number): Promise<MessageEntity[]>
+	async getAllMessagesFromChatroom(id: number, identity: string): Promise<MessageEntity[]>
 	{
 		await this.utils.checkChatroomExists(id);
+
+		const userId = await this.utils.getUserId(identity);
+		const access: boolean = await this.utils.isMember(userId, id);
+		if (!access)
+			throw new ForbiddenException();
 
 		const msgsFromDb: MessageWithUsername[] = await this.prisma.message.findMany({
 			where: {

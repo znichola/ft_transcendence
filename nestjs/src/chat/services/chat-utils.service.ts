@@ -29,7 +29,7 @@ export class ChatUtils
 
 	async checkIsMember(userId: number, chatroomId: number)
 	{
-		if (!this.isMember(userId, chatroomId))
+		if (!await this.isMember(userId, chatroomId))
 			throw new NotFoundException('This user is not a member of the chatroom');
 	}
 

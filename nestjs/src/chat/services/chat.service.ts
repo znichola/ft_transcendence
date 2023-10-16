@@ -14,9 +14,19 @@ export class ChatService
 	constructor(private prisma: PrismaService,
 		private readonly utils: ChatUtils){}
 
-	async getAllChatRooms(): Promise<ChatroomEntity[]>
+	async getAllVisibleChatRooms(): Promise<ChatroomEntity[]>
 	{
 		const chatroomsFromDb: ChatroomWithUsername[] = await this.prisma.chatroom.findMany({
+			where: {
+				OR: [
+					{
+						status: "PUBLIC"
+					},
+					{
+						status: "PROTECTED"
+					}
+				]
+			},
 			select: {
 				id: true,
 				name: true,
@@ -84,11 +94,11 @@ export class ChatService
 			else
 				throw e;
 		}
-		
+
 		return new ChatroomEntity(newChatroom);
 	}
 
-	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>
+	async getOneChatRoom(chatroomId: number, identity: string): Promise<ChatroomEntity>
 	{
 		const chatroomFromDb: ChatroomWithUsername = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {
@@ -106,12 +116,33 @@ export class ChatService
 			}
 		});
 
+		if (chatroomFromDb.status == "PRIVATE")
+		{
+			const userId = await this.utils.getUserId(identity);
+			if (!await this.utils.isMember(userId, chatroomId))
+				throw new ForbiddenException();
+		}
+
 		return new ChatroomEntity(chatroomFromDb);
 	}
 
-	async deleteChatroom(id: number)
+	async deleteChatroom(id: number, identity: string)
 	{
-		await this.utils.checkChatroomExists(id);
+		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
+			where: {
+				id: +id,
+			},
+			select: {
+				owner: {
+					select: {
+						login42: true
+					}
+				}
+			}
+		});
+
+		if (chatroom.owner.login42 != identity)
+			throw new ForbiddenException();
 
 		await this.prisma.chatroom.delete({
 			where: {
