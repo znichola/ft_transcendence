@@ -63,5 +63,8 @@ export const ProtectedRoute = () => {
     console.log("cu:", currentUser, "foo:", foo.user);
     foo.logIn(currentUser);
   }
+  if (isError)
+    return <Navigate to="/login" replace state={{ from: location }} />;  
+    // this is here for when the cookie expiers it should kick the user back to the login page 
   return <Outlet />;
 };
