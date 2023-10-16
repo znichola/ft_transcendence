@@ -10,7 +10,7 @@ interface IInputField {
 
 export function Heading({ title }: { title: string }) {
   return (
-    <h1 className=" gradient-hightlight text-center text-5xl font-bold ">
+    <h1 className=" gradient-hightlight text-center text-5xl py-2 font-bold ">
       {title}
     </h1>
   );

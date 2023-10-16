@@ -25,34 +25,45 @@ function DisplayPlayer({
   return (
     <div
       className={
-        "h-30 flex w-80 rounded-full border-b-4 bg-stone-50 py-1 px-2 shadow-md " + (right ? " flex-row-reverse " : "")
+        "h-30 flex w-80 rounded-full border-b-4 bg-stone-50 px-2 py-1 shadow-md " +
+        (right ? " flex-row-reverse " : "")
       }
     >
       <img
         src={user?.avatar}
         alt={user?.login42}
-        className={"h-20 w-20 rounded-full self-center" + (right ? " " : "")}
+        className={"h-20 w-20 self-center rounded-full" + (right ? " " : "")}
       />
-      <div className={"flex justify-center flex-col p-5 grow" + (right ? " items-end " : "")}>
+      <div
+        className={
+          "flex grow flex-col justify-center p-5" + (right ? " items-end " : "")
+        }
+      >
         <p className="">{user?.name}</p>
         <div className="flex items-center">
           <p className="">{user?.elo}</p>
-          <IconTrophy/>
+          <IconTrophy />
         </div>
       </div>
     </div>
   );
 }
 
-export default function PlayPong({player1, player2}:{player1: string, player2: string}) {
+export default function PlayPong({
+  player1,
+  player2,
+}: {
+  player1: string;
+  player2: string;
+}) {
   return (
     <div className="relative flex h-full w-full flex-col items-center overflow-hidden px-12 pt-5">
-      <div className="absolute left-auto right-auto h-full opacity-30 w-0.5 bg-stone-300"></div>
-      <div className="flex w-full text-slate-600 font-bold text-xl">
+      <div className="absolute left-auto right-auto h-full w-0.5 bg-stone-300 opacity-30"></div>
+      <div className="flex w-full text-xl font-bold text-slate-600">
         <div className="flex">
           <DisplayPlayer name={player1} />
         </div>
-        <div className="flex grow justify-center items-end">
+        <div className="flex grow items-end justify-center">
           <div className="flex gap-3 text-5xl">
             <p className="">10</p>
             <div className="w-1 bg-slate-600"></div>
@@ -63,7 +74,7 @@ export default function PlayPong({player1, player2}:{player1: string, player2: s
           <DisplayPlayer name={player2} right={true} />
         </div>
       </div>
-      <div className="flex justify-center items-center grow pb-14 pt-3">
+      <div className="flex grow items-center justify-center pb-14 pt-3">
         <div className="h-fit w-fit rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
           <PongApp width={858} height={525} />
         </div>
