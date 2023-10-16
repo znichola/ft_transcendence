@@ -199,20 +199,26 @@ export class DmService
 		this.gateway.push(conv);
 	}
 
-	async deleteMessage(msgId: number)
+	async deleteMessage(msgId: number, username: string)
 	{
 		await this.prisma.directMessage.delete({
 			where: {
 				id: +msgId,
+				sender: {
+					login42: username
+				}
 			}
 		});
 	}
 
-	async updateMessage(msgId: number, payload: SendDmDto)
+	async updateMessage(msgId: number, payload: SendDmDto, username: string)
 	{
 		await this.prisma.directMessage.update({
 			where: {
 				id: +msgId,
+				sender: {
+					login42: username
+				}
 			},
 			data: {
 				text: payload.content,
