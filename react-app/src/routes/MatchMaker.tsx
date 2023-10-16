@@ -56,10 +56,10 @@ export default function MatchMaker() {
           to="/play/special"
         >
           <div className="relative transition-all flex items-center justify-center overflow-hidden w-full h-full pb-7 px-3 text-white text-[19rem] font-bold">
-            <h2 className="absolute transition-all duration-[1500ms] group-hover:opacity-0">
+            <h2 className="absolute transition-all duration-[1200ms] group-hover:opacity-0">
               ?
             </h2>
-            <h2 className="absolute transition-all duration-[1500ms] opacity-0 group-hover:opacity-100">
+            <h2 className="absolute transition-all duration-[1200ms] opacity-0 group-hover:opacity-100">
               !
             </h2>
           </div>
