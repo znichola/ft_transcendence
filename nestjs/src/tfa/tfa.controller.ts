@@ -48,8 +48,8 @@ export class TfaController {
         const userSecret = await this.tfaService.getTfaSecret(username);
         const isValid = this.tfaService.isTfaCodeValid(bodyData.tfaCode, userSecret);
         if (!isValid) throw new HttpException("Invalid Authentication code.", HttpStatus.UNAUTHORIZED);
-
         const accessTokenCookie = this.authService.getUserToken(username, true);
+        res.cookie(process.env.COOKIE_TMP, '', { expires: new Date() });
         res.cookie(process.env.COOKIE_USR, accessTokenCookie, {
             domain: 'localhost',
             httpOnly: true,
@@ -58,7 +58,6 @@ export class TfaController {
             maxAge: 3600000,
           });
 
-          res.status(201);
-          return ("OK");
+          return res.status(200).send({ login: username });
     }
 }
