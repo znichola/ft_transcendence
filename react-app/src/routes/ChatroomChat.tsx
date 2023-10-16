@@ -24,7 +24,7 @@ import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../functions/useAuth";
 import { Heading, PreHeading } from "../components/FormComponents";
 // import ChatMessages from "../components/ChatMassages";
 

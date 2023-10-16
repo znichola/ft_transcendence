@@ -1,7 +1,7 @@
 import { Form, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../functions/useAuth";
 import { useMemo, useState } from "react";
-import { authApi } from "../Api-axios";
+// import { authApi } from "../Api-axios";
 
 export default function AuthLoginTFA() {
   const u = useQueryParam().get("user");

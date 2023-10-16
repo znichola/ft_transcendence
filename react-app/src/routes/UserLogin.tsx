@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../functions/useAuth";
 
 export default function Login() {
   return (

@@ -12,7 +12,7 @@ import { authApi } from "../Api-axios";
 import { IUsersAll, UserFriends } from "../interfaces";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserData, useUserFriends } from "../functions/customHook";
-import { useAuth } from "../routes/AuthProvider";
+import { useAuth } from "../functions/useAuth";
 import { LoadingSpinner, LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
 import { useIntersection } from "../functions/uneIntersection";

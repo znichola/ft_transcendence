@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { useMutUserProfile, useUserData } from "../functions/customHook";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../functions/useAuth";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { useState } from "react";

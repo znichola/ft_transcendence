@@ -1,27 +1,17 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useState } from "react";
 import axios from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../functions/customHook";
+import { useAuth } from "../functions/useAuth";
 
-type IAuth = {
+export type IAuth = {
   isloggedIn: boolean;
   user: string;
   logIn: (user: string) => void;
   logOut: () => void;
 };
 
-// export interface IAuth {
-//   loggedIn: boolean;
-//   role: string;
-//   logIn: () => void;
-//   logOut: () => void;
-// }
-
 export const AuthContext = createContext<IAuth | null>(null);
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setToken] = useState({ isloggedIn: false, user: "" });
@@ -39,16 +29,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     axios
       .get<string>("/auth/logout")
       .then((r) => r.data)
-      .catch((e) => console.log(e.data));
+      .catch((e) => console.log("Auth logout: ", e.data));
     setToken({ isloggedIn: false, user: "" });
   };
-
-  // const contextValue: IAuth = {
-  //   loggedIn: false,
-  //   token,
-  //   onLogin: handleLogin,
-  //   onLogout: handleLogout,
-  // };
 
   return (
     // spread operator to use contruct a new type by combining these elements
@@ -76,9 +59,9 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace state={{ from: location }} />;
     // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
   }
-  // if (!isError && currentUser !== foo.user) {
-  //   console.log("cu:", currentUser, "foo:", foo.user);
-  //   // return <Navigate to="/login" replace state={{ from: location }} />;
-  // }
+  if (!isError && currentUser !== "" && !foo.isloggedIn) {
+    console.log("cu:", currentUser, "foo:", foo.user);
+    foo.logIn(currentUser);
+  }
   return <Outlet />;
 };
