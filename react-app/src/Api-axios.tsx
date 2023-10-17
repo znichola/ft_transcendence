@@ -212,3 +212,22 @@ export const postNewChatrommMessage = async (
     .then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
 };
+
+// insanity, totall insanity
+
+// POST /chatroom/{id}/members
+export const postNewChatroomMember = async (
+  id: string,
+  payload: { login42: string },
+) => {
+  return authApi
+    .post<HttpStatusCode>("/chatroom/" + id + "/members", payload)
+    .then((res) => res.data);
+};
+
+// DELETE /chatroom/{id}/members/{username}
+export const deleteChatroomMember = async (id: string, login42: string) => {
+  return authApi
+    .delete<HttpStatusCode>("/chatroom/" + id + "/members/" + login42)
+    .then((res) => res.data);
+};

@@ -1,5 +1,11 @@
 import BoxMenu from "../components/BoxMenu";
-import { IChatroom, IMessage, UserData } from "../interfaces";
+import {
+  IChatroom,
+  IMember,
+  IMessage,
+  TChatroomRole,
+  UserData,
+} from "../interfaces";
 import { ButtonGeneric } from "../components/BoxMenu";
 import {
   IconAddUser,
@@ -10,13 +16,16 @@ import {
   IconPlusCircle,
   IconSearch,
   IconUserGroup,
+  iconType,
 } from "../components/Icons";
-import { useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Form, Link, useParams } from "react-router-dom";
 import {
   useChatroom,
   useChatroomMemebers,
   useChatroomMessages,
+  useMutDeleteChatroomMember,
+  useMutPostChatroomMember,
   useMutPostChatroomMessage,
   useUserData,
 } from "../functions/customHook";
@@ -26,40 +35,10 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/useAuth";
 import { Heading, PreHeading } from "../components/FormComponents";
+import { useQuery } from "@tanstack/react-query";
+import { authApi } from "../Api-axios";
+import { GenericActionBTN } from "../components/ChatroomChatBTNs";
 // import ChatMessages from "../components/ChatMassages";
-
-const fakeChannelUsers = [
-  {
-    chatroomId: 1,
-    login42: "default42",
-    role: "OWNER",
-  },
-  {
-    chatroomId: 1,
-    login42: "funnyuser6",
-    role: "ADMIN",
-  },
-  {
-    chatroomId: 1,
-    login42: "funnyuser5",
-    role: "ADMIN",
-  },
-  {
-    chatroomId: 1,
-    login42: "funnyuser3",
-    role: "MEMBER",
-  },
-  {
-    chatroomId: 1,
-    login42: "test",
-    role: "MEMBER",
-  },
-  {
-    chatroomId: 1,
-    login42: "rockstar88",
-    role: "MEMBER",
-  },
-];
 
 const fakeGeneralUsers = ["test", "default42", "znichola"];
 
@@ -71,30 +50,39 @@ export default function ChatroomChat() {
   const chatroomID = id || "";
 
   const { data: chatroom, isError, isLoading } = useChatroom(chatroomID);
+  const {
+    data: chatroomMembers,
+    isLoading: isMemLoading,
+    isError: isMemError,
+  } = useChatroomMemebers(chatroomID);
 
   const auAUth = useAuth();
   const { data: user, isSuccess } = useUserData(auAUth?.user);
 
-  if (isLoading)
+  if (isLoading || isMemLoading)
     return <LoadingSpinnerMessage message="Loading chatroom data ..." />;
-  if (!isSuccess || isError)
+  if (!isSuccess || isError || isMemError)
     return <ErrorMessage message="error loaidng current uer" />;
-
+  const btnProps: IButtonsUI = {
+    chatroom: chatroom,
+    cuMember: chatroomMembers.find((u) => u.login42 == user.login42),
+    chatroomMembers: chatroomMembers,
+  };
   const menuBTNs = [
     {
       c: "MANAGE_USERS",
       i: IconUserGroup,
-      f: <ManageUsersUI chatroom={chatroom} />,
+      f: <ManageUsersUI {...btnProps} />,
     },
     {
       c: "ADD_USERS",
       i: IconAddUser,
-      f: <AddUsersUI chatroom={chatroom} />,
+      f: <AddUsersUI {...btnProps} />,
     },
     {
       c: "SETTINGS",
       i: IconGear,
-      f: <SettingsButtonUI chatroom={chatroom} />,
+      f: <SettingsButtonUI {...btnProps} />,
     },
   ];
 
@@ -229,19 +217,16 @@ function ChatroomHeading({ chatroom }: { chatroom: IChatroom }) {
   );
 }
 
-function ManageUsersUI({ chatroom }: { chatroom: IChatroom }) {
+interface IButtonsUI {
+  chatroom: IChatroom;
+  cuMember: IMember | undefined;
+  chatroomMembers: IMember[];
+}
+
+function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
   const [searchValue, setSearchvalue] = useState("");
-  const {
-    data: channelMemebres,
-    isLoading,
-    isError,
-  } = useChatroomMemebers(chatroom.id + "");
-  if (isLoading)
-    return <LoadingSpinnerMessage message="Loading chatroom memebers ..." />;
-  if (isError)
-    return <ErrorMessage message="Error fetching chatroom memebers" />;
-  // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
-  console.log(channelMemebres);
+
+  console.log(chatroomMembers);
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -250,9 +235,20 @@ function ManageUsersUI({ chatroom }: { chatroom: IChatroom }) {
             <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
           </div>
         </div>
-        {channelMemebres.map((u) =>
+        {chatroomMembers.map((u) =>
           u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
-            <ManageUserCard key={u.login42} login42={u.login42} role={u.role} />
+            <ManageUserCard
+              key={u.login42}
+              login42={u.login42}
+              cardRole={u.role}
+              userRole={cuMember?.role}
+              isMember={
+                chatroomMembers.find((m) => m.login42 === cuMember?.login42)
+                  ? true
+                  : false
+              }
+              id={chatroom.id + ""}
+            />
           ) : (
             <></>
           ),
@@ -262,27 +258,57 @@ function ManageUsersUI({ chatroom }: { chatroom: IChatroom }) {
   );
 }
 
-function AddUsersUI({ chatroom }: { chatroom: IChatroom }) {
-  const allUsers = fakeGeneralUsers;
+function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
+  const [searchValue, setSearchvalue] = useState("");
+  const searchParams = {
+    name: searchValue != "" ? searchValue : undefined,
+  };
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["UserList", searchParams],
+    queryFn: () =>
+      authApi
+        .get<string[]>("/user/", {
+          params: { ...searchParams, page: 1 },
+        })
+        .then((res) => res.data),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
         <div className="flex justify-center  ">
           <div className="max-w-md grow ">
-            <UserSearch
-              setSearchValue={(v) => alert("Not implemented: " + v)}
-            />
+            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
           </div>
         </div>
-        {allUsers.map((u) => (
-          <AddUsersCard key={u} login42={u} />
-        ))}
+        {isLoading ? (
+          <LoadingSpinnerMessage message="fetching users.." />
+        ) : isError ? (
+          <ErrorMessage message="error fething loading" />
+        ) : (
+          users.map((u) => (
+            <AddUsersCard
+              isMember={
+                chatroomMembers.find((m) => m.login42 === u) ? true : false
+              }
+              key={u}
+              login42={u}
+              cardRole={cuMember?.role}
+              id={chatroom.id + ""}
+            />
+          ))
+        )}
       </ul>
     </>
   );
 }
 
-function SettingsButtonUI({ chatroom }: { chatroom: IChatroom }) {
+function SettingsButtonUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
   return (
     <>
       <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -319,8 +345,22 @@ function UserSearch({
   );
 }
 
-function AddUsersCard({ login42 }: { login42: string }) {
+function AddUsersCard({
+  login42,
+  id,
+  isMember,
+  userRole,
+  cardRole,
+}: {
+  login42: string;
+  id: string;
+  isMember: boolean;
+  userRole?: TChatroomRole;
+  cardRole?: TChatroomRole;
+}) {
   const { data: user, isLoading, isError } = useUserData(login42);
+  const mutMembers = useMutPostChatroomMember(id);
+  const deleteMembers = useMutDeleteChatroomMember(id);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
@@ -331,15 +371,53 @@ function AddUsersCard({ login42 }: { login42: string }) {
           <UserIcon user={login42} />
         </Link>
         <div className="grow ">{user.name}</div>
-        <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+        {/* {isMember ? (
+          <RemoveUserButton
+            userRole={userRole || "MEMBER"}
+            cardRole={cardRole || "MEMBER"}
+            onClick={() => deleteMembers.mutate(login42)}
+          />
+        ) : (
+          <button onClick={() => mutMembers.mutate(login42)}>
+            <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+          </button>
+        )} */}
+        <GenericActionBTN
+          onChecked={() => deleteMembers.mutate(login42)}
+          onUnChecked={() => mutMembers.mutate(login42)}
+          value={isMember}
+          actionPerms="MEMBER"
+          viewPerms="MEMBER"
+          cardRole={cardRole}
+          checked={
+            <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+          }
+          unChecked={
+            <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+          }
+        />
       </li>
     </>
   );
 }
 
 // "MEMBER" | "ADMIN" | "OWNER"
-function ManageUserCard({ login42, role }: { login42: string; role: string }) {
+function ManageUserCard({
+  login42,
+  id,
+  isMember,
+  userRole,
+  cardRole,
+}: {
+  login42: string;
+  id: string;
+  isMember: boolean;
+  userRole?: TChatroomRole;
+  cardRole?: TChatroomRole;
+}) {
   const { data: user, isLoading, isError } = useUserData(login42);
+
+  const deleteMembers = useMutDeleteChatroomMember(id);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
@@ -348,8 +426,26 @@ function ManageUserCard({ login42, role }: { login42: string; role: string }) {
       <li className="flex items-center gap-2  px-2 py-1">
         <UserIcon user={login42} />
         <div className="grow ">{user.name}</div>
-        <AdminButton userRole="ADMIN" cardRole={role} />
-        <KickUserButton userRole="ADMIN" cardRole={role} />
+        {/* <AdminButton userRole="ADMIN" cardRole={cardRole} /> */}
+        <GenericActionBTN
+          onChecked={() => () => console.log("admin checked")}
+          onUnChecked={() => console.log("admin unchecked")}
+          value={isMember}
+          actionPerms="MEMBER"
+          viewPerms="MEMBER"
+          cardRole={cardRole}
+          checked={
+            <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+          }
+          unChecked={
+            <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+          }
+        />
+        {/* <RemoveUserButton
+          userRole={cuMember?.role || "MEMBER"}
+          cardRole={role}
+          onClick={() => deleteMembers.mutate(login42)}
+        /> */}
       </li>
     </>
   );
@@ -391,12 +487,14 @@ function AdminButton({
   }
 }
 
-function KickUserButton({
+function RemoveUserButton({
   userRole,
   cardRole,
+  onClick,
 }: {
   userRole: string;
   cardRole: string;
+  onClick: () => void;
 }) {
   if (userRole === "MEMBER") {
     return <></>;
@@ -406,11 +504,45 @@ function KickUserButton({
   }
   if (userRole == "ADMIN" || userRole === "OWNER") {
     return (
-      <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+      <button onClick={onClick}>
+        <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+      </button>
     );
   }
   return <IconMinusCircle className="h-5 w-5 align-middle text-slate-200" />;
 }
+
+
+// function AddRemoveUserButton({
+//   userRole,
+//   cardRole,
+//   cardLogin42,
+//   id,
+// }: {
+//   userRole: string;
+//   cardRole: string;
+//   cardLogin42: string;
+//   id: string;
+// }) {
+//   // mutations
+//   const deleteMembers = useMutDeleteChatroomMember(id);
+//   const addMembers = useMutPostChatroomMember(id);
+
+//   if (userRole === "MEMBER") {
+//     return <></>;
+//   }
+//   if (cardRole === "OWNER") {
+//     return <div className="h-5 w-5 " />;
+//   }
+//   if (userRole == "ADMIN" || userRole === "OWNER") {
+//     return (
+//       <button onClick={() => deleteMembers.mutate(cardLogin42)}>
+//         <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+//       </button>
+//     );
+//   }
+//   return <IconMinusCircle className="h-5 w-5 align-middle text-slate-200" />;
+// }
 
 function statusColor(status: UserData["status"]) {
   switch (status) {
