@@ -142,7 +142,7 @@ export function InputToggle({
       <input
         className="peer relative h-10 w-5 cursor-pointer appearance-none rounded-full bg-stone-200 transition-colors after:absolute after:left-0 after:top-0 after:h-5 after:w-5 after:rounded-full after:bg-stone-400 after:transition-all checked:bg-rose-200 checked:after:top-5 checked:after:bg-rose-500 hover:bg-stone-300 after:hover:bg-stone-400 checked:hover:bg-rose-300 checked:after:hover:bg-rose-500 focus:outline-none focus-visible:outline-none"
         type="checkbox"
-        defaultChecked={value}
+        checked={value}
         onChange={onToggle}
         id={tag}
       />

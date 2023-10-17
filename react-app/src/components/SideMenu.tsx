@@ -25,6 +25,8 @@ import { useCurrentUserData } from "../functions/customHook.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
+import axios from "axios";
+import { useAuth } from "../functions/useAuth.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
@@ -33,10 +35,11 @@ export default function SideMenu({
   hide,
   toggleHide,
 }: {
-  reference: React.RefObject<HTMLDivElement>,
+  reference: React.RefObject<HTMLDivElement>;
   hide: boolean;
   toggleHide: () => void;
 }) {
+  const authContext = useAuth();
   const { data: currentUserData, isLoading, isError } = useCurrentUserData();
   const [expended, setExpended] = useState<ExpendedLabel>(null);
 
@@ -84,7 +87,6 @@ export default function SideMenu({
               to={"/user/" + currentUserData.login42}
               icon={IconUser}
             />
-            <Nav name="Issue a new pong" to="/pong" icon={IconMegaphone} />
             <Nav name="Global Ranking" to="/ranking" icon={IconWorld} />
             <Category name="Social" />
             <NavExpandable
@@ -123,9 +125,24 @@ export default function SideMenu({
               <NavFriends currentUser={currentUserData} />
             </NavExpandable>
 
-            <Category name="Temporay links for dev" />
-            <Nav name="auth" to="/auth" icon={IconFingerPrint} />
-            <Nav name="login" to="/login" icon={IconFire} />
+            <Category name="Session Management" />
+            <Nav
+              name="Logout"
+              to="/login"
+              onClick={() => {
+                  axios
+                    .get<string>("/auth/logout")
+                    .then((r) => {
+                      r.data;
+                      authContext?.logOut();
+                    })
+                    .catch(() => {
+                      console.log("Cannot logout !")
+                    })
+                }
+              }
+              icon={IconFire}
+            />
 
             <Category name="External Links" />
             <Nav
@@ -134,11 +151,6 @@ export default function SideMenu({
               icon={IconGit}
             />
             <Nav name="Hart on github" icon={IconHeart} />
-            <Nav
-              name="Complain about ... the css"
-              to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              icon={IconBolt}
-            />
             <Category name="" />
             <TheMasterminds />
           </div>
@@ -160,6 +172,7 @@ export function Nav({
   name,
   to,
   icon: Icon,
+  onClick
 }: {
   name: string;
   to?: string;
@@ -170,11 +183,13 @@ export function Nav({
     className?: string;
     strokeSize?: number;
   }) => JSX.Element;
+  onClick?: () => void
 }) {
   return (
     <Link
       to={to || "#"}
       className="flex cursor-pointer items-center border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4"
+      onClick={onClick}
     >
       {Icon && <Icon />}
       <p className="pl-4">{name}</p>
@@ -240,7 +255,10 @@ function NavExpandable({
   return (
     <div className="relative text-sm font-medium text-slate-600 transition">
       <button
-        className={"relative flex w-full cursor-pointer items-center border-l-rose-600 transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 " + (isExpended ? " border-l-4 " : "")}
+        className={
+          "relative flex w-full cursor-pointer items-center border-l-rose-600 transition-all duration-100 ease-in-out hover:border-l-4 hover:text-rose-600 " +
+          (isExpended ? " border-l-4 " : "")
+        }
         onClick={() => setExpended(isExpended ? null : name)}
       >
         <div className="item-center flex h-8 border-l-rose-600 px-4 py-2">
@@ -257,7 +275,7 @@ function NavExpandable({
       <ul
         ref={elementNumber}
         className={
-          "m-2 flex flex-col overflow-y-auto rounded-xl shadow-inner bg-stone-50 font-medium transition-all duration-300"
+          "m-2 flex flex-col overflow-y-auto rounded-xl bg-stone-50 font-medium shadow-inner transition-all duration-300"
         }
         style={{
           maxHeight:

@@ -147,8 +147,8 @@ function FilterInfoCard({
   cardLogin42,
   currentLogin42,
   userRelations,
-  // searchValue,
-}: IFilterInfoCard) {
+} // searchValue,
+: IFilterInfoCard) {
   const { data: cu, isLoading, isError } = useUserData(cardLogin42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading profile ..." />;
@@ -223,47 +223,36 @@ function FilterSettings({
   settings: ISettings;
   setSettings: (s: ISettings) => void;
 }) {
-  function toggleOffline() {
-    if (!s.isOffline) {
-      setSettings({
-        ...s,
-        isOffline: true,
-        isOnline: false,
-        isInGame: false,
-      });
-    } else setSettings({ ...s, isOffline: false });
-  }
-
   return (
     <div className="flex items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 py-8 shadow-xl">
       <InputToggle
         onLable="Friend"
         offLable="Friend"
         value={s.isFriend}
-        onToggle={() =>
-          setSettings({ ...s, isFriend: s.isFriend ? false : true })
-        }
+        onToggle={() => setSettings({ ...s, isFriend: !s.isFriend })}
       />
       <InputToggle
         onLable="Online"
         offLable="Online"
         value={s.isOnline}
         onToggle={() =>
-          setSettings({ ...s, isOnline: s.isOnline ? false : true })
+          setSettings({ ...s, isOnline: !s.isOnline, isOffline: false, isInGame: false })
         }
       />
       <InputToggle
         onLable="Offline"
         offLable="Offline"
         value={s.isOffline}
-        onToggle={() => toggleOffline()}
+        onToggle={() =>
+          setSettings({ ...s, isOffline: !s.isOffline, isOnline: false, isInGame: false })
+        }
       />
       <InputToggle
         onLable="In game"
         offLable="In game"
         value={s.isInGame}
         onToggle={() =>
-          setSettings({ ...s, isInGame: s.isInGame ? false : true })
+          setSettings({ ...s, isInGame: !s.isInGame, isOffline: false, isOnline: false })
         }
       />
     </div>

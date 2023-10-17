@@ -31,7 +31,7 @@ import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 import MatchMaker from "./routes/MatchMaker.tsx";
 import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
 import UserProfile from "./routes/UserProfile.tsx";
-import NewGloblaRanking from "./routes/NewGlobalRanking.tsx";
+import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
 
 const router = createBrowserRouter([
   {
@@ -73,7 +73,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/ranking",
-            element: <NewGloblaRanking />,
+            element: <NewGlobalRanking />,
           },
           {
             path: "/message",
