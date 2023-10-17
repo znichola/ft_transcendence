@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe, UseFilters, UseGuards, Request} from '@nestjs/common';
+import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe, UseFilters, UseGuards, Request, Req} from '@nestjs/common';
 import { ChatService } from './services/chat.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
@@ -76,128 +76,144 @@ export class ChatController
 		return await this.messageService.getAllMessagesFromChatroom(id, identity);
 	}
 
-	/* only members of the chatroom can see the messages */
+	/* SECURITY: only members of the chatroom can see the messages */
 	@Get(':id/messages/:msgId')
 	@ApiOkResponse({type: MessageEntity})
-	async getOneMessage(@Param('id', ParseIntPipe) id: number, @Param('msgId', ParseIntPipe) msgId: number): Promise<MessageEntity>
+	async getOneMessage(@Param('id', ParseIntPipe) id: number, @Param('msgId', ParseIntPipe) msgId: number, @Request() req): Promise<MessageEntity>
 	{
-		return await this.messageService.getOneMessageFromChatroom(id, msgId);
+		const identity: string = req.user.login;
+		return await this.messageService.getOneMessageFromChatroom(id, msgId, identity);
 	}
 
-	/* only members of the chatroom */
+	/* SECURITY: only members of the chatroom */
 	@Post(':id/messages')
-	async sendMessage(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: SendMessageDto)
+	async sendMessage(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: SendMessageDto, @Request() req)
 	{
-		await this.messageService.sendMessageToChatroom(chatroomId, payload.senderLogin42, payload.content);
+		const identity: string = req.user.login;
+		await this.messageService.sendMessageToChatroom(chatroomId, payload.content, identity);
 	}
 
-	/* only sender of the message */
+	/* SECURITY: only sender of the message */
 	@Put(':id/messages/:msgId')
-	async updateMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: UpdateMessageDto)
+	async updateMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: UpdateMessageDto, @Request() req)
 	{
-		await this.messageService.updateMessageFromChatroom(msgId, payload.content);
+		const identity: string = req.user.login;
+		await this.messageService.updateMessageFromChatroom(msgId, payload.content, identity);
 	}
 
-	/* only sender of the message */
+	/* SECURITY: only sender of the message */
 	@Delete(':id/messages/:msgId')
-	async deleteMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number)
+	async deleteMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Request() req)
 	{
-		await this.messageService.deleteMessageFromChatroom(msgId);
+		const identity: string = req.user.login;
+		await this.messageService.deleteMessageFromChatroom(msgId, identity);
 	}
 
-	/* only owner can change visibility */
+	/* SECURITY: only owner can change visibility */
 	@Put(':id/visibility')
-	async updateChatroomVisibility(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateVisibilityDto)
+	async updateChatroomVisibility(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateVisibilityDto, @Request() req)
 	{
-		await this.chatService.updateChatroomVisibility(id, patch);
+		const identity: string = req.user.login;
+		await this.chatService.updateChatroomVisibility(id, patch, identity);
 	}
 
-	/* only owner can change owner */
+	/* SECURITY: only owner can change owner */
 	@Put(":id/owner")
-	async updateChatroomOwner(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateOwnerDto)
+	async updateChatroomOwner(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateOwnerDto, @Request() req)
 	{
-		await this.chatService.updateChatroomOwner(id, patch);
+		const identity: string = req.user.login;
+		await this.chatService.updateChatroomOwner(id, patch, identity);
 	}
 
-	/* only members */
+	/* SECURITY: only members */
 	@Get(':id/members')
 	@ApiOkResponse({type: MemberEntity, isArray: true})
-	async getMembersOfChatRoom(@Param('id', ParseIntPipe) id: number): Promise<MemberEntity[]>
+	async getMembersOfChatRoom(@Param('id', ParseIntPipe) id: number, @Request() req): Promise<MemberEntity[]>
 	{
-		return await this.memberService.getMembersOfChatRoom(id);
+		const identity: string = req.user.login;
+		return await this.memberService.getMembersOfChatRoom(id, identity);
 	}
 
 	/* OWNER and ADMINs can add anyone they like */
 	/* non members can attempt to add themselves */
 	@Post(':id/members')
-	async addMemberToChatRoom(@Param('id', ParseIntPipe) id: number, @Body() addMemberDto: AddMemberToChatroomDto)
+	async addMemberToChatRoom(@Param('id', ParseIntPipe) id: number, @Body() addMemberDto: AddMemberToChatroomDto, @Request() req)
 	{
-		await this.memberService.addMemberToChatRoom(id, addMemberDto);
+		const identity: string = req.user.login;
+		await this.memberService.addMemberToChatRoom(id, addMemberDto, identity);
 	}
 
 	/* members only */
 	@Get(':id/members/:username')
 	@ApiOkResponse({type: MemberEntity})
-	async getOneMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string): Promise<MemberEntity>
+	async getOneMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req): Promise<MemberEntity>
 	{
-		return await this.memberService.getOneMemberFromChatroom(chatroomId, username);
+		const identity: string = req.user.login;
+		return await this.memberService.getOneMemberFromChatroom(chatroomId, username, identity);
 	}
 
 	/* OWNER and ADMINs only */
+	/* Any member can delete themselves */
 	@Delete(':id/members/:username')
-	async deleteMemberFromChatRoom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	async deleteMemberFromChatRoom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
-		await this.memberService.deleteMemberFromChatRoom(chatroomId, username);
+		const identity: string = req.user.login;
+		await this.memberService.deleteMemberFromChatRoom(chatroomId, username, identity);
 	}
 
 	/* OWNER only */
 	@Put(':id/members/:username/role')
-	async updateMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto)
+	async updateMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto, @Request() req)
 	{
-		await this.memberService.updateRoleOfMemberFromChatroom(chatroomId, username, patch);
+		const identity: string = req.user.login;
+		await this.memberService.updateRoleOfMemberFromChatroom(chatroomId, username, patch, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Get(':id/banned')
-	@ApiOkResponse({type: 'string', isArray: true})
-	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number): Promise<string[]>
+	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number, @Request() req): Promise<string[]>
 	{
-		return await this.bannedService.getBannedUsers(chatroomId);
+		const identity: string = req.user.login;
+		return await this.bannedService.getBannedUsers(chatroomId, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Post(':id/banned')
-	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: BanUserDto)
+	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: BanUserDto, @Request() req)
 	{
-		await this.bannedService.addBannedUser(chatroomId, payload);
+		const identity: string = req.user.login;
+		await this.bannedService.addBannedUser(chatroomId, payload, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Get(':id/banned/:username')
-	@ApiOkResponse({type: BannedUserEntity})
-	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string): Promise<BannedUserEntity>
+	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req): Promise<BannedUserEntity>
 	{
-		return await this.bannedService.getOneBannedUser(chatroomId, username);
+		const identity: string = req.user.login;
+		return await this.bannedService.getOneBannedUser(chatroomId, username, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Delete(':id/banned/:username')
-	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
-		await this.bannedService.deleteBannedUser(chatroomId, username);
+		const identity: string = req.user.login;
+		return await this.bannedService.deleteBannedUser(chatroomId, username, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Post(':id/muted/')
-	async muteMember(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: MuteMemberDto)
+	async muteMember(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: MuteMemberDto, @Request() req)
 	{
-		await this.memberService.muteMember(chatroomId, payload);
+		const identity: string = req.user.login;
+		await this.memberService.muteMember(chatroomId, payload, identity);
 	}
 
 	/* OWNER and ADMINs only */
 	@Delete(':id/muted/:username')
-	async unmuteMember(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
+	async unmuteMember(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
-		await this.memberService.unmuteMember(chatroomId, username);
+		const identity: string = req.user.login;
+		await this.memberService.unmuteMember(chatroomId, username, identity);
 	}
 }

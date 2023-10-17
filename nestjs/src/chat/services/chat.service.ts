@@ -151,8 +151,12 @@ export class ChatService
 		});
 	}
 
-	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto)
+	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto, identity: string)
 	{
+		const userId = await this.utils.getUserId(identity);
+		if (!await this.utils.isOwner(userId, id))
+			throw new ForbiddenException();
+
 		this.utils.checkPasswordPresence(updateChatroomDto);
 
 		let hash = null;
@@ -176,8 +180,12 @@ export class ChatService
 		});
 	}
 
-	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
+	async updateChatroomOwner(id: number, patch: UpdateOwnerDto, identity: string)
 	{
+		const userId = await this.utils.getUserId(identity);
+		if (!await this.utils.isOwner(userId, id))
+			throw new ForbiddenException();
+
 		const newOwnerId = await this.utils.getUserId(patch.ownerLogin42);
 
 		await this.utils.checkIsMember(newOwnerId, id);

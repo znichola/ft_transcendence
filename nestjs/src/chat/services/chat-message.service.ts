@@ -11,9 +11,14 @@ export class ChatMessageService
 		private readonly utils: ChatUtils,
 		private readonly gateway: ChatGateway){}
 
-	async getOneMessageFromChatroom(id: number, msgId: number): Promise<MessageEntity>
+	async getOneMessageFromChatroom(id: number, msgId: number, identity: string): Promise<MessageEntity>
 	{
 		await this.utils.checkChatroomExists(id);
+
+		const userId = await this.utils.getUserId(identity);
+		const access: boolean = await this.utils.isMember(userId, id);
+		if (!access)
+			throw new ForbiddenException();
 
 		const msgFromDb: MessageWithUsername = await this.prisma.message.findUniqueOrThrow({
 			where: {
@@ -64,11 +69,11 @@ export class ChatMessageService
 		return msgEntities;
 	}
 
-	async sendMessageToChatroom(chatroomId: number, senderUsername: string, content: string)
+	async sendMessageToChatroom(chatroomId: number, content: string, identity: string)
 	{
-		const senderId: number = await this.utils.getUserId(senderUsername);
-
-		await this.utils.checkIsMember(senderId, chatroomId);
+		const senderId: number = await this.utils.getUserId(identity);
+		if (!await this.utils.isMember(senderId, chatroomId))
+			throw new ForbiddenException();
 
 		if (await this.utils.isMuted(senderId, chatroomId))
 			throw new ForbiddenException("You have been muted");
@@ -86,8 +91,18 @@ export class ChatMessageService
 		this.gateway.push(chatroomId);
 	}
 
-	async updateMessageFromChatroom(msgId: number, newContent: string)
+	async updateMessageFromChatroom(msgId: number, newContent: string, identity: string)
 	{
+		const msg = await this.prisma.message.findUniqueOrThrow({
+			where: {
+				id: +msgId
+			}
+		});
+
+		const userId = await this.utils.getUserId(identity);
+		if (msg.userId != userId)
+			throw new ForbiddenException();
+
 		await this.prisma.message.update({
 			where: {
 				id: +msgId,
@@ -98,13 +113,22 @@ export class ChatMessageService
 		});
 	}
 
-	async deleteMessageFromChatroom(msgId: number)
+	async deleteMessageFromChatroom(msgId: number, identity: string)
 	{
+		const msg = await this.prisma.message.findUniqueOrThrow({
+			where: {
+				id: +msgId
+			}
+		});
+
+		const userId = await this.utils.getUserId(identity);
+		if (msg.userId != userId)
+			throw new ForbiddenException();
+
 		await this.prisma.message.delete({
 			where: {
 				id: +msgId,
 			}
 		});
 	}
-
 }

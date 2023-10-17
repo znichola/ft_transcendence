@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateVisibilityDto } from "../dto/update-visibility-dto";
 import { CreateChatroomDto } from "../dto/create-chatroom-dto";
@@ -116,5 +116,18 @@ export class ChatUtils
 			}
 		});
 		return (new Date() < member.mutedUntil);
+	}
+
+	async requireAdminRights(userId: number, chatroomId: number)
+	{
+		const issuerMember = await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
+		if (issuerMember == null)
+			throw new ForbiddenException("You are not a member of this chatroom");
+		if (issuerMember.role == "MEMBER")
+			throw new ForbiddenException("You do not have the rights to update someone's role in this chatroom");
 	}
 }
