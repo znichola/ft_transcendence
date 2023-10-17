@@ -88,7 +88,7 @@ export interface IMessagePost {
   content: string;
 }
 
-export type TChatroomRole = "MEMEBR" | "ADMIN" | "OWNER";
+export type TChatroomRole = "MEMBER" | "ADMIN" | "OWNER";
 
 export interface IMember {
   login42: string;

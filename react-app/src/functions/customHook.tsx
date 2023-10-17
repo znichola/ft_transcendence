@@ -1,4 +1,5 @@
 import {
+  deleteChatroomMember,
   deleteDMconversation,
   getChatroomMessages,
   getChatrooomData,
@@ -12,6 +13,7 @@ import {
   getUserFriends,
   postNewChatromm,
   postNewChatrommMessage,
+  postNewChatroomMember,
   postUserConvoMessage,
   postUserFriendRequest,
   putUserFriendRequest,
@@ -269,6 +271,36 @@ export function useMutPostChatroomMessage(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomMessages", id],
+      });
+    },
+  });
+}
+
+// this is just intaine!
+
+// POST /chatroom/{id}/members
+export function useMutPostChatroomMember(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (login42: string) =>
+      postNewChatroomMember(id, { login42: login42 }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
+      });
+    },
+  });
+}
+
+// DELETE /chatroom/{id}/members/{username}
+export function useMutDeleteChatroomMember(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (login42: string) =>
+      deleteChatroomMember(id, login42),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
       });
     },
   });
