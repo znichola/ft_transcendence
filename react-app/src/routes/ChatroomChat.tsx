@@ -13,12 +13,15 @@ import {
   IconCrown,
   IconGear,
   IconMinusCircle,
+  IconMute,
   IconPlusCircle,
   IconSearch,
+  IconStop,
+  IconStopCircle,
   IconUserGroup,
   iconType,
 } from "../components/Icons";
-import { ReactNode, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Form, Link, useParams } from "react-router-dom";
 import {
   useChatroom,
@@ -37,10 +40,14 @@ import { useAuth } from "../functions/useAuth";
 import { Heading, PreHeading } from "../components/FormComponents";
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "../Api-axios";
-import { GenericActionBTN } from "../components/ChatroomChatBTNs";
+import {
+  GenericActionBTN,
+  IChatroomManageBTN,
+  IGenericActionBTN,
+  Pop,
+  convertPerms,
+} from "../components/ChatroomChatBTNs";
 // import ChatMessages from "../components/ChatMassages";
-
-const fakeGeneralUsers = ["test", "default42", "znichola"];
 
 export default function ChatroomChat() {
   const scrollRef = useRef<null | HTMLDivElement>(null);
@@ -239,9 +246,9 @@ function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
           u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
             <ManageUserCard
               key={u.login42}
-              login42={u.login42}
-              cardRole={u.role}
-              userRole={cuMember?.role}
+              cardLogin42={u.login42}
+              cardMember={u}
+              userMember={cuMember}
               isMember={
                 chatroomMembers.find((m) => m.login42 === cuMember?.login42)
                   ? true
@@ -298,7 +305,7 @@ function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
               }
               key={u}
               login42={u}
-              cardRole={cuMember?.role}
+              userRole={cuMember?.role}
               id={chatroom.id + ""}
             />
           ))
@@ -308,7 +315,8 @@ function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
   );
 }
 
-function SettingsButtonUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
+// function SettingsButtonUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
+function SettingsButtonUI({}: IButtonsUI) {
   return (
     <>
       <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -371,31 +379,13 @@ function AddUsersCard({
           <UserIcon user={login42} />
         </Link>
         <div className="grow ">{user.name}</div>
-        {/* {isMember ? (
-          <RemoveUserButton
-            userRole={userRole || "MEMBER"}
-            cardRole={cardRole || "MEMBER"}
-            onClick={() => deleteMembers.mutate(login42)}
-          />
+        {isMember || userRole === undefined ? (
+          <></>
         ) : (
           <button onClick={() => mutMembers.mutate(login42)}>
             <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
           </button>
-        )} */}
-        <GenericActionBTN
-          onChecked={() => deleteMembers.mutate(login42)}
-          onUnChecked={() => mutMembers.mutate(login42)}
-          value={isMember}
-          actionPerms="MEMBER"
-          viewPerms="MEMBER"
-          cardRole={cardRole}
-          checked={
-            <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-          }
-          unChecked={
-            <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
-          }
-        />
+        )}
       </li>
     </>
   );
@@ -403,158 +393,244 @@ function AddUsersCard({
 
 // "MEMBER" | "ADMIN" | "OWNER"
 function ManageUserCard({
-  login42,
+  cardLogin42,
   id,
+  cardMember,
+  userMember,
   isMember,
-  userRole,
-  cardRole,
 }: {
-  login42: string;
+  cardLogin42: string;
   id: string;
   isMember: boolean;
-  userRole?: TChatroomRole;
-  cardRole?: TChatroomRole;
+  userMember?: IMember;
+  cardMember?: IMember;
 }) {
-  const { data: user, isLoading, isError } = useUserData(login42);
-
-  const deleteMembers = useMutDeleteChatroomMember(id);
+  const { data: user, isLoading, isError } = useUserData(cardLogin42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
   return (
-    <>
-      <li className="flex items-center gap-2  px-2 py-1">
-        <UserIcon user={login42} />
-        <div className="grow ">{user.name}</div>
-        {/* <AdminButton userRole="ADMIN" cardRole={cardRole} /> */}
-        <GenericActionBTN
-          onChecked={() => () => console.log("admin checked")}
-          onUnChecked={() => console.log("admin unchecked")}
-          value={isMember}
-          actionPerms="MEMBER"
-          viewPerms="MEMBER"
-          cardRole={cardRole}
-          checked={
-            <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-          }
-          unChecked={
-            <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
-          }
-        />
-        {/* <RemoveUserButton
-          userRole={cuMember?.role || "MEMBER"}
-          cardRole={role}
-          onClick={() => deleteMembers.mutate(login42)}
-        /> */}
-      </li>
-    </>
+    <li className="flex items-center gap-2 px-2 py-1">
+      <UserIcon user={cardLogin42} />
+      <div className="grow ">{user.name}</div>
+      {/* <AdminButton userRole="ADMIN" cardRole={cardRole} /> */}
+      <BanUserBTN
+        id={id}
+        cardMember={cardMember}
+        userMember={userMember}
+        userLogin42={cardLogin42}
+        isMember={isMember}
+      />
+      <AddRemoveUserBTN
+        id={id}
+        cardMember={cardMember}
+        userMember={userMember}
+        userLogin42={cardLogin42}
+        isMember={isMember}
+      />
+      <MuteUserBTN
+        id={id}
+        cardMember={cardMember}
+        userMember={userMember}
+        userLogin42={cardLogin42}
+        isMember={isMember}
+      />
+      <ManageAdminsBTN
+        id={id}
+        cardMember={cardMember}
+        userMember={userMember}
+        userLogin42={cardLogin42}
+        isMember={isMember}
+      />
+      <BlockUserBTN
+        id={id}
+        cardMember={cardMember}
+        userMember={userMember}
+        userLogin42={cardLogin42}
+        isMember={isMember}
+      />
+    </li>
   );
 }
 
-function AdminButton({
-  userRole,
-  cardRole,
-}: {
-  userRole: string;
-  cardRole: string;
-}) {
-  const canModify = userRole == "ADMIN" || userRole === "OWNER";
-  if (cardRole === "OWNER") {
-    return <IconCrown className="h-5 w-5 align-middle text-amber-400" />;
-  }
-  if (cardRole === "ADMIN") {
-    return (
-      <IconCheckBadge
-        className={`h-5 w-5 align-middle text-amber-400 ${
-          canModify
-            ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
-            : ""
-        }`}
-      />
-    );
-  }
-  if (cardRole === "MEMBER") {
-    if (userRole === "MEMBER") return <div className="h-5 w-5 " />;
-    return (
-      <IconCheckBadge
-        className={`h-5 w-5 align-middle text-slate-200 ${
-          canModify
-            ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
-            : ""
-        }`}
-      />
-    );
-  }
-}
+function AddRemoveUserBTN({
+  cardMember,
+  userMember,
+  userLogin42,
+  isMember,
+  id,
+}: IChatroomManageBTN) {
+  const mutMembers = useMutPostChatroomMember(id);
+  const deleteMembers = useMutDeleteChatroomMember(id);
 
-function RemoveUserButton({
-  userRole,
-  cardRole,
-  onClick,
-}: {
-  userRole: string;
-  cardRole: string;
-  onClick: () => void;
-}) {
-  if (userRole === "MEMBER") {
-    return <></>;
-  }
-  if (cardRole === "OWNER") {
-    return <div className="h-5 w-5 " />;
-  }
-  if (userRole == "ADMIN" || userRole === "OWNER") {
-    return (
-      <button onClick={onClick}>
+  return (
+    <GenericActionBTN
+      onChecked={() => deleteMembers.mutate(userLogin42)}
+      onUnChecked={() => mutMembers.mutate(userLogin42)}
+      value={isMember}
+      actionPerms="ADMIN"
+      viewPerms="MEMBER"
+      checkedMessage="Kick"
+      unCheckedMessage="Add user"
+      cardRole={cardMember?.role}
+      userRole={userMember?.role}
+      checked={
         <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-      </button>
-    );
-  }
-  return <IconMinusCircle className="h-5 w-5 align-middle text-slate-200" />;
+      }
+      unChecked={
+        <IconPlusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+      }
+    />
+  );
 }
 
+function BanUserBTN({
+  cardMember,
+  userMember,
+  userLogin42,
+  isMember,
+  id,
+}: IChatroomManageBTN) {
+  const mutMembers = useMutPostChatroomMember(id);
+  const deleteMembers = useMutDeleteChatroomMember(id);
 
-// function AddRemoveUserButton({
-//   userRole,
-//   cardRole,
-//   cardLogin42,
-//   id,
-// }: {
-//   userRole: string;
-//   cardRole: string;
-//   cardLogin42: string;
-//   id: string;
-// }) {
-//   // mutations
-//   const deleteMembers = useMutDeleteChatroomMember(id);
-//   const addMembers = useMutPostChatroomMember(id);
+  return (
+    <GenericActionBTN
+      onChecked={() => console.log("user banned", userLogin42)}
+      onUnChecked={() => {}}
+      value={isMember}
+      actionPerms="ADMIN"
+      viewPerms="MEMBER"
+      checkedMessage="Ban"
+      unCheckedMessage="Un ban"
+      cardRole={cardMember?.role}
+      userRole={userMember?.role}
+      checked={
+        <IconStop className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+      }
+      unChecked={
+        <IconStop className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+      }
+    />
+  );
+}
 
-//   if (userRole === "MEMBER") {
-//     return <></>;
-//   }
-//   if (cardRole === "OWNER") {
-//     return <div className="h-5 w-5 " />;
-//   }
-//   if (userRole == "ADMIN" || userRole === "OWNER") {
-//     return (
-//       <button onClick={() => deleteMembers.mutate(cardLogin42)}>
-//         <IconMinusCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-//       </button>
-//     );
-//   }
-//   return <IconMinusCircle className="h-5 w-5 align-middle text-slate-200" />;
-// }
+function MuteUserBTN({
+  cardMember,
+  userMember,
+  userLogin42,
+  isMember,
+  id,
+}: IChatroomManageBTN) {
+  const mutMembers = useMutPostChatroomMember(id);
+  const deleteMembers = useMutDeleteChatroomMember(id);
 
-function statusColor(status: UserData["status"]) {
-  switch (status) {
-    case "ONLINE":
-      return "ring-green-600";
-    case "OFFLINE":
-      return "ring-gray-300";
-    case "INGAME":
-      return "ring-blue-400";
-    case "UNAVAILABLE":
-      return "ring-red-500";
-    default:
-      return "ring-ping-700";
+  return (
+    <GenericActionBTN
+      onChecked={() => console.log("user muted", userLogin42)}
+      onUnChecked={() => console.log("user unmuted", userLogin42)}
+      value={isMember}
+      actionPerms="ADMIN"
+      viewPerms="MEMBER"
+      checkedMessage="Mute"
+      unCheckedMessage="Un muted"
+      cardRole={cardMember?.role}
+      userRole={userMember?.role}
+      checked={
+        <IconMute className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+      }
+      unChecked={
+        <IconMute className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+      }
+      fixedChecked={
+        <IconMute className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
+      }
+    />
+  );
+}
+
+function BlockUserBTN({
+  cardMember,
+  userMember,
+  userLogin42,
+  isMember,
+  id,
+}: IChatroomManageBTN) {
+  const mutMembers = useMutPostChatroomMember(id);
+  const deleteMembers = useMutDeleteChatroomMember(id);
+
+  if (cardMember?.login42 == userMember?.login42)
+    return <div className="h-5 w-5 " />;
+
+  return (
+    <GenericActionBTN
+      onChecked={() => console.log("user blocked", userLogin42)}
+      onUnChecked={() => console.log("user blocked", userLogin42)}
+      value={isMember}
+      actionPerms="MEMBER"
+      viewPerms="MEMBER"
+      checkedMessage="Block"
+      unCheckedMessage="Blocked"
+      cardRole={cardMember?.role}
+      userRole={userMember?.role}
+      checked={
+        <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+      }
+      unChecked={
+        <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+      }
+      fixedChecked={
+        <IconStopCircle className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
+      }
+    />
+  );
+}
+
+function ManageAdminsBTN({
+  cardMember,
+  userMember,
+  userLogin42,
+  isMember,
+  id,
+}: IChatroomManageBTN) {
+  // const canModify =
+  if (cardMember?.role === "OWNER") {
+    return (
+      <Pop message="Owner">
+        <IconCrown className="h-5 w-5 align-middle text-amber-400" />
+      </Pop>
+    );
   }
+  const canModify = convertPerms(userMember?.role) >= 2;
+  return (
+    <GenericActionBTN
+      onChecked={() => console.log("remove admin")}
+      onUnChecked={() => console.log("add admin")}
+      value={isMember}
+      actionPerms="ADMIN"
+      viewPerms="MEMBER"
+      checkedMessage="Admin"
+      unCheckedMessage="Remove admin"
+      cardRole={cardMember?.role}
+      userRole={userMember?.role}
+      checked={
+        <IconCheckBadge
+          className={`h-5 w-5 align-middle text-amber-400 ${
+            canModify
+              ? " hover:rounded-full hover:bg-amber-300 hover:text-amber-100"
+              : ""
+          }`}
+        />
+      }
+      unChecked={
+        <IconCheckBadge
+          className={`h-5 w-5 align-middle text-slate-200 ${
+            canModify
+              ? " hover:rounded-full  hover:bg-amber-200 hover:text-amber-400"
+              : ""
+          }`}
+        />
+      }
+    />
+  );
 }
