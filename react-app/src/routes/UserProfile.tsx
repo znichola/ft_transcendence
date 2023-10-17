@@ -1,12 +1,16 @@
 import { useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import { useMutUserProfile, useUserData } from "../functions/customHook";
+import {
+  useMutUserProfile,
+  useUserData,
+  useUserFriends,
+} from "../functions/customHook";
 import { useAuth } from "../functions/useAuth";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { useState } from "react";
-import { UserData } from "../interfaces";
-import { IconGear } from "../components/Icons";
+import { FriendData, UserData, UserFriends } from "../interfaces";
+import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
 import {
   Heading,
   InputField,
@@ -16,6 +20,8 @@ import {
   SubmitBTN,
 } from "../components/FormComponents";
 import { statusColor } from "../functions/utils";
+import { SideButton, SideButton2 } from "../components/UserInfoCard";
+import RelationActions from "../components/UserInfoCardRelations";
 
 export default function UserProfile() {
   // react states
@@ -25,24 +31,39 @@ export default function UserProfile() {
   const { login42 } = useParams<"login42">();
   const cu = useAuth();
   const curretUser = cu?.user || "";
+  const {
+    data: curretUserFriends,
+    isLoading: isFriLoading,
+    isError: isFriError,
+  } = useUserFriends(curretUser);
   const { data: profileUser, isLoading, isError } = useUserData(login42 || "");
 
-  if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
-  if (isError) return <ErrorMessage message="error laoding profile" />;
+  if (isLoading || isFriLoading)
+    return <LoadingSpinnerMessage message="loading profile" />;
+  if (isError || isFriError)
+    return <ErrorMessage message="error laoding profile" />;
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
         resetBTN={() => setButtonState("UNSET")}
         heading={<UserProfileHeading user={profileUser} />}
       >
-        <ButtonGeneric
-          icon={IconGear}
-          setBTNstate={setButtonState}
-          buttonState={buttonState}
-          checked="user-settings"
-        >
-          <CurrentUserSettings user={profileUser} />
-        </ButtonGeneric>
+        {curretUser === login42 ? (
+          <ButtonGeneric
+            icon={IconGear}
+            setBTNstate={setButtonState}
+            buttonState={buttonState}
+            checked="user-settings"
+          >
+            <CurrentUserSettings user={profileUser} />
+          </ButtonGeneric>
+        ) : (
+          <UserInteractions
+            cardUser={profileUser}
+            userFriends={curretUserFriends}
+            currentUser={curretUser}
+          />
+        )}
       </BoxMenu>
 
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
@@ -69,6 +90,48 @@ function UserProfileHeading({ user }: { user: UserData }) {
         <Heading title={user.name} />
         <p className="pt-2">{user.bio}</p>
       </div>
+    </div>
+  );
+}
+
+function UserInteractions({
+  cardUser,
+  userFriends,
+  currentUser,
+}: {
+  cardUser: UserData;
+  userFriends: UserFriends;
+  currentUser: string;
+}) {
+  const ff = (f: FriendData) => f.login42 == cardUser.login42;
+  const relationStatus = userFriends.friends.find(ff)
+    ? "friends"
+    : userFriends.pending.find(ff)
+    ? "sent"
+    : userFriends.requests.find(ff)
+    ? "pending"
+    : "none";
+  return (
+    <div className="flex py-2 h-12 gap-12 ">
+      <SideButton2
+        message={"Play pong"}
+        a1={"classical"}
+        a2={"special"}
+        to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
+        to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
+        icon={IconBolt}
+      />
+      <SideButton
+        message={"Private chat"}
+        action={"message"}
+        to={"/message/" + cardUser.login42}
+        icon={IconChatBubble}
+      />
+      <RelationActions
+        currentUser={currentUser}
+        cardUser={cardUser.login42}
+        status={relationStatus}
+      />
     </div>
   );
 }

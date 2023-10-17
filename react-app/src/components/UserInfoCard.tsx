@@ -105,7 +105,7 @@ function AvatarName({ user }: { user: UserData }) {
   );
 }
 
-function SideButton({
+export function SideButton({
   message,
   action,
   to,
@@ -145,7 +145,7 @@ function SideButton({
   );
 }
 
-function SideButton2({
+export function SideButton2({
   message,
   a1,
   a2,

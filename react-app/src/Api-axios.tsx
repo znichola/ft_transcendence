@@ -34,10 +34,11 @@ authApi.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if (error.response.status) {
-      console.log(401, "error found baby!");
+      // console.log(401, "error found baby!");
       // user?.logOut();
       // foo?.logOut()
-      console.log(AuthContext);
+      // console.log(AuthContext);
+      console.log("Error intercepted:", error.response.status);
     }
     return Promise.reject(error);
     // https://stackoverflow.com/questions/62888255/how-to-use-react-usecontext-in-a-function-that-does-not-render-any-components
@@ -111,7 +112,7 @@ export const putUserFriendRequest = async (
 
 export const putUserProfile = async (
   login42: string | undefined,
-  payload : IPutUserProfile
+  payload: IPutUserProfile,
 ) => {
   return authApi
     .put<UserData>("/user/" + login42, payload)
