@@ -14,8 +14,9 @@ export function MatchCell({ victory }: { victory: boolean }) {
         <span className="ml-1 w-full font-light">
           vs <span className="font-bold">player</span>
         </span>
-        <div className="h-fit w-fit rounded-xl border-4 border-stone-500 bg-stone-700">
-          <PongApp width={170} height={104} />
+        <div className="h-fit w-fit rounded-xl  border-4 border-stone-500 bg-stone-700">
+          <div className="min-h-[104px] min-w-[170px] TODO:SupprimerCeDiv"></div>
+          {/* <PongApp width={170} height={104} /> TODO: ajouter mini pong */}
         </div>
         <div className="flex gap-1">
           <span className="w-full text-right font-bold">7</span>

@@ -108,7 +108,7 @@ export default function UserPage() {
               w={graphWidth}
               lineWidth={7}
               fontSize="text-3xl"
-              className="max-h-[10rem] h-40"
+              className="max-h-[10rem] h-40 "
             />
           </div>
         </div>

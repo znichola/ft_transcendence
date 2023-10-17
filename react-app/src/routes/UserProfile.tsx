@@ -8,7 +8,7 @@ import {
 import { useAuth } from "../functions/useAuth";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
 import {
@@ -22,6 +22,8 @@ import {
 import { statusColor } from "../functions/utils";
 import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions from "../components/UserInfoCardRelations";
+import { MatchCell } from "../components/MatchCell";
+import ProfileElo from "../components/ProfileElo";
 
 export default function UserProfile() {
   // react states
@@ -37,6 +39,29 @@ export default function UserProfile() {
     isError: isFriError,
   } = useUserFriends(curretUser);
   const { data: profileUser, isLoading, isError } = useUserData(login42 || "");
+
+  //EloRanking size update
+  const [graphWidth, setGraphWidth] = useState(0);
+  const elo_graph = useRef<HTMLDivElement>(null);
+
+  function handleResize() {
+    if (elo_graph.current) {
+      setGraphWidth(elo_graph.current.offsetWidth * 2);
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+  });
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   if (isLoading || isFriLoading)
     return <LoadingSpinnerMessage message="loading profile" />;
@@ -65,8 +90,31 @@ export default function UserProfile() {
           />
         )}
       </BoxMenu>
-
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
+      <div className="flex flex-col w-full h-full px-28 pt-64">
+        <div className="flex max-h-72 w-full grow items-center py-4">
+          <div
+            ref={elo_graph}
+            className="flex min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
+          >
+            <ProfileElo
+              data={profileUser.eloHistory}
+              w={graphWidth}
+              lineWidth={7}
+              fontSize="text-3xl"
+              className="h-40 max-h-[10rem]"
+            />
+          </div>
+        </div>
+        <div className="flex h-fit w-full gap-5 overflow-x-scroll pb-7 pl-1">
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
+          <MatchCell victory={true} />
+          <MatchCell victory={false} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -112,7 +160,7 @@ function UserInteractions({
     ? "pending"
     : "none";
   return (
-    <div className="flex py-2 h-12 gap-12 ">
+    <div className="flex h-12 gap-12 py-2 ">
       <SideButton2
         message={"Play pong"}
         a1={"classical"}
