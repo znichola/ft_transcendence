@@ -130,19 +130,20 @@ export default function SideMenu({
               name="Logout"
               to="/login"
               onClick={() => {
-                  axios
-                    .get<string>("/auth/logout")
-                    .then((r) => {
-                      r.data;
-                      authContext?.logOut();
-                    })
-                    .catch(() => {
-                      console.log("Cannot logout !")
-                    })
-                }
-              }
+                axios
+                  .get<string>("/auth/logout")
+                  .then((r) => {
+                    r.data;
+                    authContext?.logOut();
+                  })
+                  .catch(() => {
+                    console.log("Cannot logout !");
+                  });
+              }}
               icon={IconFire}
             />
+            <Category name="dev stuff" />
+            <Nav name="socket tests" to="/socket" icon={IconBolt} />
 
             <Category name="External Links" />
             <Nav
@@ -172,7 +173,7 @@ export function Nav({
   name,
   to,
   icon: Icon,
-  onClick
+  onClick,
 }: {
   name: string;
   to?: string;
@@ -183,7 +184,7 @@ export function Nav({
     className?: string;
     strokeSize?: number;
   }) => JSX.Element;
-  onClick?: () => void
+  onClick?: () => void;
 }) {
   return (
     <Link

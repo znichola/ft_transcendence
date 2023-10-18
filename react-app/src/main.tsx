@@ -32,6 +32,7 @@ import MatchMaker from "./routes/MatchMaker.tsx";
 import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
 import UserProfile from "./routes/UserProfile.tsx";
 import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
+import SocketTest from "./routes/SocketTest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -99,6 +100,10 @@ const router = createBrowserRouter([
           {
             path: "/ttt",
             element: <Board />,
+          },
+          {
+            path: "/socket",
+            element: <SocketTest />,
           },
           // {
           //   path: "/test",
