@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
@@ -183,6 +183,17 @@ export class DmService
 	{
 		const id1 = await this.getUserId(from);
 		const id2 = await this.getUserId(to);
+
+		/* check if id1 has not been blocked by user 2 */
+		const relationship = await this.prisma.friend.findFirst({
+			where: {
+				user1Id: +id1,
+				user2Id: +id2
+			}
+		});
+		if (relationship != null && relationship.status == "BLOCKED")
+			throw new ForbiddenException(`You have been blocked by ${to}`);
+
 
 		const conv = await this.createConversationIfNotExists(id1, id2);
 
