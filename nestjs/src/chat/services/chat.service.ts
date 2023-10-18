@@ -14,16 +14,25 @@ export class ChatService
 	constructor(private prisma: PrismaService,
 		private readonly utils: ChatUtils){}
 
-	async getAllVisibleChatRooms(): Promise<ChatroomEntity[]>
+	async getAllVisibleChatRooms(identity: string): Promise<ChatroomEntity[]>
 	{
 		const chatroomsFromDb: ChatroomWithUsername[] = await this.prisma.chatroom.findMany({
 			where: {
-				OR: [
+				OR:[
 					{
 						status: "PUBLIC"
 					},
 					{
 						status: "PROTECTED"
+					},
+					{
+						chatroomUsers: {
+							some: {
+								user: {
+									login42: identity
+								}
+							}
+						}
 					}
 				]
 			},
