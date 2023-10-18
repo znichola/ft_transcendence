@@ -11,7 +11,7 @@ export class ChatBannedService
 	constructor(private prisma: PrismaService,
 		private readonly utils: ChatUtils){}
 
-	async getBannedUsers(chatroomId: number): Promise<BannedUserEntity[]>
+	async getBannedUsers(chatroomId: number): Promise<string[]>
 	{
 		await this.utils.checkChatroomExists(chatroomId);
 
@@ -25,7 +25,7 @@ export class ChatBannedService
 			}
 		});
 
-		return banned.map(user => new BannedUserEntity(user));
+		return banned.map(user => user.user.login42);
 	}
 
 	async getOneBannedUser(chatroomId: number, username: string): Promise<BannedUserEntity>

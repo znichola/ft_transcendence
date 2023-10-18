@@ -135,7 +135,8 @@ export class ChatController
 	}
 
 	@Get(':id/banned')
-	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number): Promise<BannedUserEntity[]>
+	@ApiOkResponse({type: 'string', isArray: true})
+	async getBannedUsers(@Param('id', ParseIntPipe) chatroomId: number): Promise<string[]>
 	{
 		return await this.bannedService.getBannedUsers(chatroomId);
 	}
@@ -147,6 +148,7 @@ export class ChatController
 	}
 
 	@Get(':id/banned/:username')
+	@ApiOkResponse({type: BannedUserEntity})
 	async getOneBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string): Promise<BannedUserEntity>
 	{
 		return await this.bannedService.getOneBannedUser(chatroomId, username);
@@ -155,7 +157,7 @@ export class ChatController
 	@Delete(':id/banned/:username')
 	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string)
 	{
-		return await this.bannedService.deleteBannedUser(chatroomId, username);
+		await this.bannedService.deleteBannedUser(chatroomId, username);
 	}
 
 	@Post(':id/muted/')
