@@ -6,24 +6,22 @@ import { BannedUser, ChatroomVisibilityStatus } from "@prisma/client";
 import { ChatUtils } from "./chat-utils.service";
 import { UpdateRoleDto } from "../dto/update-role-dto";
 import * as bcrypt from 'bcrypt';
-import { ChatService } from "./chat.service";
 import { MuteMemberDto } from "../dto/mute-member-dto";
 
 @Injectable()
 export class ChatMemberService
 {
 	constructor(private prisma: PrismaService,
-		private readonly utils: ChatUtils,
-		private readonly chatService: ChatService){}
+		private readonly utils: ChatUtils){}
 
 
 	async getMembersOfChatRoom(id: number, identity: string): Promise<MemberEntity[]>
 	{
 		await this.utils.checkChatroomExists(id);
 
-		const userId = await this.utils.getUserId(identity);
-		if (!await this.utils.isMember(userId, id))
-			throw new ForbiddenException();
+		const issuerId = await this.utils.getUserId(identity);
+		if (!await this.utils.isMember(issuerId, id))
+			throw new ForbiddenException("You are not a member of this chatroom");
 
 		const memberFromDb: MemberWithUsername[] = await this.prisma.chatroomUser.findMany({
 			where: {
@@ -50,7 +48,7 @@ export class ChatMemberService
 
 		const issuerId = await this.utils.getUserId(identity);
 		if (!await this.utils.isMember(issuerId, chatroomId))
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not a member of this chatroom");
 
 		const userId = await this.utils.getUserId(username);
 
@@ -92,13 +90,7 @@ export class ChatMemberService
 
 		if (chatroom.status == ChatroomVisibilityStatus.PRIVATE)
 		{
-			const member = await this.prisma.chatroomUser.findUnique({
-				where: {
-					chatroomId_userId: {chatroomId: +chatroomId, userId: issuerId}
-				}
-			});
-			if (member == null || member.role == "MEMBER")
-				throw new ForbiddenException("You are not permitted to add members to this chatroom");
+			await this.utils.requireAdminRights(issuerId, chatroomId);
 		}
 		else
 		{
@@ -179,15 +171,7 @@ export class ChatMemberService
 		}
 		else if (userId != issuerId)
 		{
-			const issuerMember = await this.prisma.chatroomUser.findUnique({
-				where: {
-					chatroomId_userId: {chatroomId: +chatroomId, userId: issuerId}
-				}
-			});
-			if (issuerMember == null)
-				throw new ForbiddenException("You are not a member of this chatroom");
-			if (issuerMember.role == "MEMBER")
-				throw new ForbiddenException("You do not have the right to kick people from this chatroom");
+			await this.utils.requireAdminRights(issuerId, chatroomId);
 		}
 
 		await this.prisma.chatroomUser.delete({
@@ -203,22 +187,14 @@ export class ChatMemberService
 		const userId = await this.utils.getUserId(member);
 		await this.utils.checkIsMember(userId, chatroomId);
 
-		if (this.utils.isOwner(userId, chatroomId))
+		if (await this.utils.isOwner(userId, chatroomId))
 			throw new ForbiddenException("Cannot change role of owner");
 
 		if (updateRoleDto.role == "OWNER")
 			throw new ForbiddenException("Role of member cannot be set to owner");
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have the rights to update someone's role in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		await this.prisma.chatroomUser.update({
 			where: {
@@ -237,15 +213,7 @@ export class ChatMemberService
 			throw new ForbiddenException("You cannot mute the owner of the chatroom");
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have the rights to update someone's role in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		let until = new Date();
 		until.setSeconds(until.getSeconds() + payload.durationInSeconds);
@@ -269,15 +237,7 @@ export class ChatMemberService
 		const userId: number = await this.utils.getUserId(username);
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have the rights to update someone's role in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		const epoch = new Date('1970-01-01T00:00:00.000Z');
 

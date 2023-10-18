@@ -16,15 +16,7 @@ export class ChatBannedService
 		await this.utils.checkChatroomExists(chatroomId);
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have admin rights in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		const banned: BannedUserWithUsername[] = await this.prisma.bannedUser.findMany({
 			where: {
@@ -47,15 +39,7 @@ export class ChatBannedService
 		const userId = await this.utils.getUserId(username);
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have admin rights in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		const banned: BannedUserWithUsername = await this.prisma.bannedUser.findUniqueOrThrow({
 			where: {
@@ -86,26 +70,10 @@ export class ChatBannedService
 		}
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have admin rights in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
-		const member = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
-			}
-		});
-
-		if (member != null && member.role == ChatroomUserRole.OWNER)
-		{
+		if (await this.utils.isOwner(userId, chatroomId))
 			throw new ForbiddenException("You cannot ban the owner of the channel");
-		}
 
 		/* add user to the list of banned members */
 		await this.prisma.bannedUser.create({
@@ -116,14 +84,12 @@ export class ChatBannedService
 		});
 
 		/* delete user from chatroom if they are in the chatroom */
-		if (member != null)
-		{
-			await this.prisma.chatroomUser.delete({
-				where: {
-					chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
-				}
-			});
-		}
+		await this.prisma.chatroomUser.deleteMany({
+			where: {
+				chatroomId: +chatroomId,
+				userId: +userId
+			}
+		});
 	}
 
 	async deleteBannedUser(chatroomId: number, username: string, identity: string)
@@ -131,15 +97,7 @@ export class ChatBannedService
 		const userId = await this.utils.getUserId(username);
 
 		const issuerId = await this.utils.getUserId(identity);
-		const issuerMember = await this.prisma.chatroomUser.findUnique({
-			where: {
-				chatroomId_userId: {chatroomId: +chatroomId, userId: +issuerId}
-			}
-		});
-		if (issuerMember == null)
-			throw new ForbiddenException("You are not a member of this chatroom");
-		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have admin rights in this chatroom");
+		await this.utils.requireAdminRights(issuerId, chatroomId);
 
 		await this.prisma.bannedUser.delete({
 			where: {
@@ -147,5 +105,4 @@ export class ChatBannedService
 			}
 		});
 	}
-
 }

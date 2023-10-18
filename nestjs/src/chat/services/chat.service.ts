@@ -120,7 +120,7 @@ export class ChatService
 		{
 			const userId = await this.utils.getUserId(identity);
 			if (!await this.utils.isMember(userId, chatroomId))
-				throw new ForbiddenException();
+				throw new ForbiddenException("You are not a member of this chatroom");
 		}
 
 		return new ChatroomEntity(chatroomFromDb);
@@ -142,7 +142,7 @@ export class ChatService
 		});
 
 		if (chatroom.owner.login42 != identity)
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not the owner of this chatroom");
 
 		await this.prisma.chatroom.delete({
 			where: {
@@ -155,7 +155,7 @@ export class ChatService
 	{
 		const userId = await this.utils.getUserId(identity);
 		if (!await this.utils.isOwner(userId, id))
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not the owner of this chatroom");
 
 		this.utils.checkPasswordPresence(updateChatroomDto);
 
@@ -184,7 +184,7 @@ export class ChatService
 	{
 		const userId = await this.utils.getUserId(identity);
 		if (!await this.utils.isOwner(userId, id))
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not the owner of this chatroom");
 
 		const newOwnerId = await this.utils.getUserId(patch.ownerLogin42);
 
@@ -208,26 +208,26 @@ export class ChatService
 			},
 			data: {
 				ownerId: +newOwnerId,
-			}
-		});
-
-		/* set the new owner as OWNER */
-		await this.prisma.chatroomUser.update({
-			where: {
-				chatroomId_userId: {chatroomId: +id, userId: newOwnerId}
-			},
-			data: {
-				role: "OWNER",
-			}
-		});
-
-		/* set the old owner of the chatroom as ADMIN */
-		await this.prisma.chatroomUser.update({
-			where: {
-				chatroomId_userId: {chatroomId: +id, userId: +oldOwnerId},
-			},
-			data: {
-				role: "ADMIN"
+				chatroomUsers: {
+					update: [
+						{
+							where: {
+								chatroomId_userId: {chatroomId: +id, userId: newOwnerId}
+							},
+							data: {
+								role: "OWNER"
+							}
+						},
+						{
+							where: {
+								chatroomId_userId: {chatroomId: +id, userId: +oldOwnerId},
+							},
+							data: {
+								role: "ADMIN"
+							}
+						}
+					]
+				}
 			}
 		});
 	}

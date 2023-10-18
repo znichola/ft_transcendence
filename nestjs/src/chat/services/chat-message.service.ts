@@ -18,7 +18,7 @@ export class ChatMessageService
 		const userId = await this.utils.getUserId(identity);
 		const access: boolean = await this.utils.isMember(userId, id);
 		if (!access)
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not a member of this chatroom");
 
 		const msgFromDb: MessageWithUsername = await this.prisma.message.findUniqueOrThrow({
 			where: {
@@ -47,7 +47,7 @@ export class ChatMessageService
 		const userId = await this.utils.getUserId(identity);
 		const access: boolean = await this.utils.isMember(userId, id);
 		if (!access)
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not a member of this chatroom");
 
 		const msgsFromDb: MessageWithUsername[] = await this.prisma.message.findMany({
 			where: {
@@ -99,9 +99,9 @@ export class ChatMessageService
 			}
 		});
 
-		const userId = await this.utils.getUserId(identity);
-		if (msg.userId != userId)
-			throw new ForbiddenException();
+		const issuerId = await this.utils.getUserId(identity);
+		if (msg.userId != issuerId)
+			throw new ForbiddenException("You are not the author of this message");
 
 		await this.prisma.message.update({
 			where: {
@@ -121,9 +121,9 @@ export class ChatMessageService
 			}
 		});
 
-		const userId = await this.utils.getUserId(identity);
-		if (msg.userId != userId)
-			throw new ForbiddenException();
+		const issuerId = await this.utils.getUserId(identity);
+		if (msg.userId != issuerId)
+			throw new ForbiddenException("You are not the author of this message");
 
 		await this.prisma.message.delete({
 			where: {

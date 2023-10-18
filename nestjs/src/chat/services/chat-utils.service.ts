@@ -93,9 +93,9 @@ export class ChatUtils
 		});
 
 		if (member == null)
-			throw new NotFoundException("This user is not a member of the chatroom");
-
-		return (member.role == "OWNER");
+			return false;
+		else
+			return member.role == "OWNER";
 	}
 
 	async isBanned(userId: number, chatroomId: number): Promise<boolean>
@@ -128,6 +128,6 @@ export class ChatUtils
 		if (issuerMember == null)
 			throw new ForbiddenException("You are not a member of this chatroom");
 		if (issuerMember.role == "MEMBER")
-			throw new ForbiddenException("You do not have the rights to update someone's role in this chatroom");
+			throw new ForbiddenException("You do not have admin rights in this chatroom");
 	}
 }
