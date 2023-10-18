@@ -46,13 +46,19 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     async handleConnection(client: Socket)
     {
         const userLogin: string = client.handshake.headers.user.toString();
-        console.log('User connected : ', userLogin);
-        console.log(this.userList);
+        console.log('User connected : ', userLogin, ' with id ', client.id);
+        //console.log(this.userList);
         client.emit("connection", this.userList);
         this.broadcast("addUser", userLogin);
         const user: UserEntity = new UserEntity(userLogin, client.id) ;
         this.userList.push(user);
-
+        // Attempt at a way to send message to selected users (works fine)
+        // if (this.userList[0] && this.userList[1] && ! this.userList[2])
+        // {
+        //     console.log('sending to ', this.userList[0].client_id, ' and ', this.userList[1].client_id);
+        //     this.server.to(this.userList[0].client_id).emit('test', this.userList[0].client_id);
+        //     this.server.to(this.userList[1].client_id).emit('test', this.userList[1].client_id);
+        // }
         await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
     }
 

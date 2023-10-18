@@ -82,6 +82,11 @@ export default function SideMenu({
       console.log("user logged out : ", arg);
     });
 
+    socket.on("test", (arg: string) =>
+    {
+      console.log("test received : ", arg);
+    })
+
   }
   return (
     <div
