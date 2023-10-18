@@ -27,6 +27,7 @@ import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
 import axios from "axios";
 import { useAuth } from "../functions/useAuth.tsx";
+import { io } from "socket.io-client";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
@@ -40,13 +41,48 @@ export default function SideMenu({
   toggleHide: () => void;
 }) {
   const authContext = useAuth();
+
   const { data: currentUserData, isLoading, isError } = useCurrentUserData();
   const [expended, setExpended] = useState<ExpendedLabel>(null);
 
   if (isLoading)
     return <LoadingSpinnerMessage message="Fetching user profile" />;
-  if (isError) return <p>Error fetching data</p>;
+  else if (isError) return <p>Error fetching data</p>;
+  else
+  {
+    const socketOptions = {
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            User: currentUserData.login42,
+          }
+        }
+      }
+    };
+    const socket = new io('http://localhost:3000/user', socketOptions);
+    
+    socket.on("connection", (arg: string[]) =>
+    {
+      console.log("current user list :");
+      console.log(arg);
+    })
 
+    socket.on("updateUser", (arg: string) =>
+    {
+      console.log("user updated : ", arg);
+    });
+
+    socket.on("addUser", (arg: string) => 
+    {
+      console.log("new user logged in : ", arg);
+    });
+
+    socket.on("removeUser", (arg: string) =>
+    {
+      console.log("user logged out : ", arg);
+    });
+
+  }
   return (
     <div
       ref={reference}
