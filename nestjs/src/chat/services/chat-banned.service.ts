@@ -16,6 +16,9 @@ export class ChatBannedService
 		await this.utils.checkChatroomExists(chatroomId);
 
 		const banned: BannedUserWithUsername[] = await this.prisma.bannedUser.findMany({
+			where: {
+				chatroomId: +chatroomId
+			},
 			select: {
 				user: {
 					select: {
