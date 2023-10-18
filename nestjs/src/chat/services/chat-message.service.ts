@@ -73,7 +73,7 @@ export class ChatMessageService
 	{
 		const senderId: number = await this.utils.getUserId(identity);
 		if (!await this.utils.isMember(senderId, chatroomId))
-			throw new ForbiddenException();
+			throw new ForbiddenException("You are not a member of this chatroom");
 
 		if (await this.utils.isMuted(senderId, chatroomId))
 			throw new ForbiddenException("You have been muted");
