@@ -5,14 +5,9 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 export class CreateChatroomDto
 {
 	@ApiProperty()
-    @IsString()
-	@IsNotEmpty()
-    ownerLogin42: string;
-
-	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-    name: string;
+	name: string;
 
 	@ApiProperty({enum: ChatroomVisibilityStatus})
 	@IsEnum(ChatroomVisibilityStatus)

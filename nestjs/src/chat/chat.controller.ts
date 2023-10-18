@@ -43,9 +43,10 @@ export class ChatController
 
 	@Post()
 	@ApiCreatedResponse({type: ChatroomEntity})
-	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto): Promise<ChatroomEntity>
+	async createNewChatRoom(@Body() createChatroomDto: CreateChatroomDto, @Request() req): Promise<ChatroomEntity>
 	{
-		return await this.chatService.createNewChatRoom(createChatroomDto);
+		const identity: string = req.user.login;
+		return await this.chatService.createNewChatRoom(createChatroomDto, identity);
 	}
 
 	@Get(':id')

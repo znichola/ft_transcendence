@@ -52,9 +52,9 @@ export class ChatService
 		return chatroomEntities;
 	}
 
-	async createNewChatRoom(chatroomDto: CreateChatroomDto): Promise<ChatroomEntity>
+	async createNewChatRoom(chatroomDto: CreateChatroomDto, identity: string): Promise<ChatroomEntity>
 	{
-		const userId: number = await this.utils.getUserId(chatroomDto.ownerLogin42);
+		const userId: number = await this.utils.getUserId(identity);
 
 		this.utils.checkPasswordPresence(chatroomDto);
 
@@ -68,7 +68,6 @@ export class ChatService
 			hash = await bcrypt.hash(chatroomDto.password, saltOrRounds);
 		}
 
-		/* create new chatroom and return new chatroom id */
 		let newChatroom: ChatroomWithUsername;
 		try {
 			newChatroom = await this.prisma.chatroom.create({
