@@ -1,6 +1,7 @@
 import {
   deleteChatroomBan,
   deleteChatroomMember,
+  deleteChatroomMute,
   deleteDMconversation,
   getChatroomBanded,
   getChatroomMessages,
@@ -14,6 +15,7 @@ import {
   getUserData,
   getUserFriends,
   postChatroomBan,
+  postChatroomMute,
   postNewChatromm,
   postNewChatrommMessage,
   postNewChatroomMember,
@@ -354,6 +356,29 @@ export function useMutDeleteChatroomBan(id: string, login42: string) {
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: ["chatroomBannedUsers", id],
+      }),
+  });
+}
+
+export function useMutChatroomMute(id: string, login42: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (duration: number) => postChatroomMute(id, login42, duration),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
+      });
+    },
+  });
+}
+
+export function useMutDeleteChatroomMute(id: string, login42: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteChatroomMute(id, login42),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
       }),
   });
 }

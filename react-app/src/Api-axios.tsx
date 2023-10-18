@@ -263,3 +263,22 @@ export const deleteChatroomBan = async (id: string, login42: string) => {
     .delete<HttpStatusCode>(`/chatroom/${id}/banned/${login42}`)
     .then((res) => res.data);
 };
+
+export const postChatroomMute = async (
+  id: string,
+  login42: string,
+  duration: number,
+) => {
+  return authApi
+    .post<HttpStatusCode>(`/chatroom/${id}/muted`, {
+      login42: login42,
+      durationInSeconds: duration,
+    })
+    .then((res) => res.data);
+};
+
+export const deleteChatroomMute = async (id: string, login42: string) => {
+  return authApi
+    .delete<HttpStatusCode>(`/chatroom/${id}/muted/${login42}`)
+    .then((res) => res.data);
+};

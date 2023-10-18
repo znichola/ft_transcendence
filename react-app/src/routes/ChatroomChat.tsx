@@ -17,9 +17,7 @@ import {
   IconPlusCircle,
   IconSearch,
   IconStop,
-  IconStopCircle,
   IconUserGroup,
-  iconType,
 } from "../components/Icons";
 import { useRef, useState } from "react";
 import { Form, Link, useParams } from "react-router-dom";
@@ -35,6 +33,8 @@ import {
   useMutPostChatroomMessage,
   useMutPutChatroomRole,
   useUserData,
+  useMutChatroomMute,
+  useMutDeleteChatroomMute,
 } from "../functions/customHook";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
@@ -47,7 +47,6 @@ import { authApi } from "../Api-axios";
 import {
   GenericActionBTN,
   IChatroomManageBTN,
-  IGenericActionBTN,
   Pop,
   convertPerms,
 } from "../components/ChatroomChatBTNs";
@@ -417,7 +416,6 @@ function AddUsersCard({
   id,
   isMember,
   userRole,
-  cardRole,
 }: {
   login42: string;
   id: string;
@@ -427,7 +425,6 @@ function AddUsersCard({
 }) {
   const { data: user, isLoading, isError } = useUserData(login42);
   const mutMembers = useMutPostChatroomMember(id);
-  const deleteMembers = useMutDeleteChatroomMember(id);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
@@ -505,13 +502,13 @@ function ManageUserCard({
         cardLogin42={cardLogin42}
         isMember={isMember}
       />
-      <BlockUserBTN
+      {/* <BlockUserBTN
         id={id}
         cardMember={cardMember}
         userMember={userMember}
         cardLogin42={cardLogin42}
         isMember={isMember}
-      />
+      /> */}
     </li>
   );
 }
@@ -600,72 +597,88 @@ function MuteUserBTN({
   cardMember,
   userMember,
   cardLogin42,
-  isMember,
   id,
 }: IChatroomManageBTN) {
-  const mutMembers = useMutPostChatroomMember(id);
-  const deleteMembers = useMutDeleteChatroomMember(id);
+  const mute = useMutChatroomMute(id, cardLogin42);
+  const unMute = useMutDeleteChatroomMute(id, cardLogin42);
+
+  console.log("mute:", cardMember);
+  const canModify = convertPerms(userMember?.role) >= 2;
 
   return (
     <GenericActionBTN
-      onChecked={() => console.log("user muted", cardLogin42)}
-      onUnChecked={() => console.log("user unmuted", cardLogin42)}
-      value={isMember}
+      onChecked={() => unMute.mutate()}
+      onUnChecked={() => mute.mutate(360)}
+      value={cardMember?.isMuted || false}
       actionPerms="ADMIN"
       viewPerms="MEMBER"
-      checkedMessage="Mute"
-      unCheckedMessage="Un muted"
+      checkedMessage="Un-mute"
+      unCheckedMessage="Mute"
+      // fixedUnCheckedMessage="Muted"
+      fixedCheckedMessage="Muted"
       cardRole={cardMember?.role}
       userRole={userMember?.role}
       checked={
-        <IconMute className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+        <IconMute
+          className={`h-5 w-5 align-middle text-rose-400 ${
+            canModify
+              ? " hover:rounded-full hover:bg-rose-300 hover:text-rose-100"
+              : ""
+          }`}
+        />
       }
       unChecked={
-        <IconMute className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+        <IconMute
+          className={`h-5 w-5 align-middle text-slate-200 ${
+            canModify
+              ? " hover:rounded-full  hover:bg-rose-200 hover:text-rose-400"
+              : ""
+          }`}
+        />
       }
       fixedChecked={
-        <IconMute className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
+        <IconMute className="h-5 w-5 rounded-full align-middle text-rose-400" />
       }
     />
   );
 }
 
-function BlockUserBTN({
-  cardMember,
-  userMember,
-  cardLogin42,
-  isMember,
-  id,
-}: IChatroomManageBTN) {
-  const mutMembers = useMutPostChatroomMember(id);
-  const deleteMembers = useMutDeleteChatroomMember(id);
+// function BlockUserBTN({
+//   cardMember,
+//   userMember,
+//   cardLogin42,
+//   isMember,
+//   id,
+// }: IChatroomManageBTN) {
+//   const mutMembers = useMutPostChatroomMember(id);
+//   const deleteMembers = useMutDeleteChatroomMember(id);
 
-  if (cardMember?.login42 == userMember?.login42)
-    return <div className="h-5 w-5 " />;
+//   if (cardMember?.login42 == userMember?.login42)
+//     return <div className="h-5 w-5 " />;
 
-  return (
-    <GenericActionBTN
-      onChecked={() => console.log("user blocked", cardLogin42)}
-      onUnChecked={() => console.log("user blocked", cardLogin42)}
-      value={isMember}
-      actionPerms="MEMBER"
-      viewPerms="MEMBER"
-      checkedMessage="Block"
-      unCheckedMessage="Blocked"
-      cardRole={cardMember?.role}
-      userRole={userMember?.role}
-      checked={
-        <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-      }
-      unChecked={
-        <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
-      }
-      fixedChecked={
-        <IconStopCircle className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
-      }
-    />
-  );
-}
+//   return (
+//     <GenericActionBTN
+//       onChecked={() => console.log("user blocked", cardLogin42)}
+//       onUnChecked={() => console.log("user blocked", cardLogin42)}
+//       value={isMember}
+//       actionPerms="MEMBER"
+//       viewPerms="MEMBER"
+//       checkedMessage="Block"
+//       unCheckedMessage="Blocked"
+//       cardRole={cardMember?.role}
+//       userRole={userMember?.role}
+//       checked={
+//         <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+//       }
+//       unChecked={
+//         <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+//       }
+//       fixedChecked={
+//         <IconStopCircle className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
+//       }
+//     />
+//   );
+// }
 
 function ManageAdminsBTN({
   cardMember,
