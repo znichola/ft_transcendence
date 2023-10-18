@@ -14,3 +14,11 @@ export function statusColor(status: TUserStatus) {
       return "ping-700";
   }
 }
+export function isMatch(login42: string, search: string, name?: string) {
+  const s = search.toLowerCase();
+  return (
+    search === "" ||
+    login42.toLowerCase().includes(s) ||
+    name?.toLocaleLowerCase()?.includes(s)
+  );
+}

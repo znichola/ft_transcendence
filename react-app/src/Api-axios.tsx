@@ -231,3 +231,35 @@ export const deleteChatroomMember = async (id: string, login42: string) => {
     .delete<HttpStatusCode>("/chatroom/" + id + "/members/" + login42)
     .then((res) => res.data);
 };
+
+export const putChatroomRole = async (
+  id: string,
+  login42: string,
+  role: "MEMBER" | "ADMIN",
+) => {
+  return authApi
+    .put<HttpStatusCode>("/chatroom/" + id + "/members/" + login42 + "/role", {
+      role: role,
+    })
+    .then((res) => res.data);
+};
+
+export const getChatroomBanded = async (id: string) => {
+  return authApi
+    .get<string[]>(`/chatroom/${id}/banned`)
+    .then((res) => res.data);
+};
+
+export const postChatroomBan = async (id: string, login42: string) => {
+  return authApi
+    .post<HttpStatusCode>(`/chatroom/${id}/banned`, {
+      login42: login42,
+    })
+    .then((rest) => rest.data);
+};
+
+export const deleteChatroomBan = async (id: string, login42: string) => {
+  return authApi
+    .delete<HttpStatusCode>(`/chatroom/${id}/banned/${login42}`)
+    .then((res) => res.data);
+};

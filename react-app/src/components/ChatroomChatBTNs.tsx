@@ -4,7 +4,7 @@ import { IMember, TChatroomRole } from "../interfaces";
 export interface IChatroomManageBTN {
   cardMember?: IMember;
   userMember?: IMember;
-  userLogin42: string;
+  cardLogin42: string;
   isMember: boolean;
   id: string;
 }
@@ -18,10 +18,13 @@ export interface IGenericActionBTN {
   cardRole: TChatroomRole | undefined;
   userRole: TChatroomRole | undefined;
   fixedChecked?: ReactNode;
+  fixedUnChecked?: ReactNode;
   checked: ReactNode;
   unChecked: ReactNode;
   checkedMessage: string;
   unCheckedMessage: string;
+  fixedCheckedMessage?: string;
+  fixedUnCheckedMessage?: string;
 }
 
 export function convertPerms(perms: TChatroomRole | undefined) {
@@ -44,18 +47,23 @@ export function GenericActionBTN({
   userRole,
   checked,
   fixedChecked: fc,
+  fixedUnChecked: fuc,
   unChecked,
   checkedMessage: cm,
   unCheckedMessage: ucm,
+  fixedCheckedMessage: fcm,
+  fixedUnCheckedMessage: fucm,
 }: IGenericActionBTN) {
   const v = convertPerms(viewPerms);
   const a = convertPerms(actionPerms);
   const u = convertPerms(userRole);
   const c = convertPerms(cardRole);
-  // console.log("view:", v, "action", a, "user:", u, "card:", c, cardRole);
+  // prettier-ignore
+  // console.log("view:", v, "action", a, "user:", u, "card:", c, cardRole, "value:", value);
   if (u < v) return <Empty />;
-  if (u < a)
-    return value ? fc ? <Pop message={cm}>{fc}</Pop> : <Empty /> : <Empty />;
+  // prettier-ignore
+  if (u < a) // deal with the fixed case!
+    return value ? fc ? <Pop message={fcm}>{fc}</Pop> : <Empty /> : fuc ? <Pop message={fucm}>{fuc}</Pop> : <Empty />;
   if (u < c) return <Empty />;
   return value ? (
     <button onClick={onChecked}>{<Pop message={cm}>{checked}</Pop>}</button>
@@ -66,12 +74,19 @@ export function GenericActionBTN({
   );
 }
 
-export function Pop({ message, children }: { message: string; children: ReactNode }) {
+export function Pop({
+  message,
+  children,
+}: {
+  message?: string;
+  children: ReactNode;
+}) {
   console.log;
+  if (!message) return <></>;
   return (
     <div className="group relative">
       {children}
-      <span className="pointer-events-none absolute left-1/2 z-10 hidden -translate-y-10 translate-x-2 rounded-md border border-slate-100 bg-slate-50 p-1 px-2 text-sm capitalize text-slate-400 opacity-0 shadow-sm transition-opacity group-hover:flex group-hover:opacity-100">
+      <span className="pointer-events-none absolute left-1/2 z-10 hidden -translate-y-10 translate-x-2 whitespace-nowrap rounded-md border border-slate-100 bg-slate-50 p-1 px-2 text-sm text-slate-400 opacity-0 shadow-sm transition-opacity group-hover:flex group-hover:opacity-100">
         {message}
       </span>
     </div>

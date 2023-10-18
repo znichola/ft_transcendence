@@ -1,6 +1,8 @@
 import {
+  deleteChatroomBan,
   deleteChatroomMember,
   deleteDMconversation,
+  getChatroomBanded,
   getChatroomMessages,
   getChatrooomData,
   getChatrooomList,
@@ -11,11 +13,13 @@ import {
   getUserConvoMessageList,
   getUserData,
   getUserFriends,
+  postChatroomBan,
   postNewChatromm,
   postNewChatrommMessage,
   postNewChatroomMember,
   postUserConvoMessage,
   postUserFriendRequest,
+  putChatroomRole,
   putUserFriendRequest,
   putUserProfile,
   removeUserFriend,
@@ -296,12 +300,60 @@ export function useMutPostChatroomMember(id: string) {
 export function useMutDeleteChatroomMember(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (login42: string) =>
-      deleteChatroomMember(id, login42),
+    mutationFn: (login42: string) => deleteChatroomMember(id, login42),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomMemebers", id],
       });
     },
+  });
+}
+
+// PUT /chatroom/{id}/members/{username}/role
+export function useMutPutChatroomRole(id: string, login42: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      role: "MEMBER" | "ADMIN", // can only have one argument
+    ) => putChatroomRole(id, login42, role),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
+      }),
+  });
+}
+
+export function useChatroomBanned(id: string) {
+  return useQuery({
+    queryKey: ["chatroomBannedUsers", id],
+    queryFn: () => getChatroomBanded(id),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+  });
+}
+
+export function useMutPostChatroomBan(id: string, login42: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => postChatroomBan(id, login42),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chatroomBannedUsers", id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["ChatroomMemebers", id],
+      });
+    },
+  });
+}
+
+export function useMutDeleteChatroomBan(id: string, login42: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteChatroomBan(id, login42),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["chatroomBannedUsers", id],
+      }),
   });
 }

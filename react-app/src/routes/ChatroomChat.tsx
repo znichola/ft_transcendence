@@ -27,9 +27,13 @@ import {
   useChatroom,
   useChatroomMemebers,
   useChatroomMessages,
+  useChatroomBanned,
+  useMutDeleteChatroomBan,
   useMutDeleteChatroomMember,
+  useMutPostChatroomBan,
   useMutPostChatroomMember,
   useMutPostChatroomMessage,
+  useMutPutChatroomRole,
   useUserData,
 } from "../functions/customHook";
 import { LoadingSpinnerMessage } from "../components/Loading";
@@ -47,6 +51,7 @@ import {
   Pop,
   convertPerms,
 } from "../components/ChatroomChatBTNs";
+import { isMatch } from "../functions/utils";
 // import ChatMessages from "../components/ChatMassages";
 
 export default function ChatroomChat() {
@@ -62,18 +67,24 @@ export default function ChatroomChat() {
     isLoading: isMemLoading,
     isError: isMemError,
   } = useChatroomMemebers(chatroomID);
+  const {
+    data: banned,
+    isError: isBaErro,
+    isLoading: isBaLoading,
+  } = useChatroomBanned(chatroomID);
 
   const auAUth = useAuth();
   const { data: user, isSuccess } = useUserData(auAUth?.user);
 
-  if (isLoading || isMemLoading)
+  if (isLoading || isMemLoading || isBaLoading)
     return <LoadingSpinnerMessage message="Loading chatroom data ..." />;
-  if (!isSuccess || isError || isMemError)
+  if (!isSuccess || isError || isMemError || isBaErro)
     return <ErrorMessage message="error loaidng current uer" />;
   const btnProps: IButtonsUI = {
     chatroom: chatroom,
     cuMember: chatroomMembers.find((u) => u.login42 == user.login42),
     chatroomMembers: chatroomMembers,
+    bannedUsers: banned,
   };
   const menuBTNs = [
     {
@@ -227,45 +238,44 @@ function ChatroomHeading({ chatroom }: { chatroom: IChatroom }) {
 interface IButtonsUI {
   chatroom: IChatroom;
   cuMember: IMember | undefined;
+  bannedUsers: string[];
   chatroomMembers: IMember[];
 }
 
 function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
   const [searchValue, setSearchvalue] = useState("");
-
-  console.log(chatroomMembers);
   return (
-    <>
-      <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-        <div className="flex justify-center  ">
-          <div className="max-w-md grow ">
-            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
-          </div>
+    <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
+      <div className="flex justify-center  ">
+        <div className="max-w-md grow ">
+          <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
         </div>
-        {chatroomMembers.map((u) =>
-          u.login42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
-            <ManageUserCard
-              key={u.login42}
-              cardLogin42={u.login42}
-              cardMember={u}
-              userMember={cuMember}
-              isMember={
-                chatroomMembers.find((m) => m.login42 === cuMember?.login42)
-                  ? true
-                  : false
-              }
-              id={chatroom.id + ""}
-            />
-          ) : (
-            <></>
-          ),
-        )}
-      </ul>
-    </>
+      </div>
+      {chatroomMembers.map((u) => (
+        <ManageUserCard
+          searchValue={searchValue}
+          key={u.login42}
+          cardLogin42={u.login42}
+          cardMember={u}
+          userMember={cuMember}
+          isMember={
+            chatroomMembers.find((m) => m.login42 === cuMember?.login42)
+              ? true
+              : false
+          }
+          id={chatroom.id + ""}
+        />
+      ))}
+    </ul>
   );
 }
 
-function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
+function AddUsersUI({
+  chatroom,
+  chatroomMembers,
+  cuMember,
+  bannedUsers,
+}: IButtonsUI) {
   const [searchValue, setSearchvalue] = useState("");
   const searchParams = {
     name: searchValue != "" ? searchValue : undefined,
@@ -286,19 +296,27 @@ function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
   return (
-    <>
-      <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-        <div className="flex justify-center  ">
-          <div className="max-w-md grow ">
-            <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
-          </div>
+    <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
+      <div className="flex justify-center  ">
+        <div className="max-w-md grow ">
+          <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
         </div>
-        {isLoading ? (
-          <LoadingSpinnerMessage message="fetching users.." />
-        ) : isError ? (
-          <ErrorMessage message="error fething loading" />
-        ) : (
-          users.map((u) => (
+      </div>
+      {isLoading ? (
+        <LoadingSpinnerMessage message="fetching users.." />
+      ) : isError ? (
+        <ErrorMessage message="error fething loading" />
+      ) : (
+        users.map((u) =>
+          bannedUsers.find((b) => b === u) ? (
+            <ManageBannedUsersCard
+              searchValue={searchValue}
+              key={u}
+              cardLogin42={u}
+              userMember={cuMember}
+              id={chatroom.id + ""}
+            />
+          ) : (
             <AddUsersCard
               isMember={
                 chatroomMembers.find((m) => m.login42 === u) ? true : false
@@ -308,48 +326,89 @@ function AddUsersUI({ chatroom, chatroomMembers, cuMember }: IButtonsUI) {
               userRole={cuMember?.role}
               id={chatroom.id + ""}
             />
-          ))
-        )}
-      </ul>
-    </>
+          ),
+        )
+      )}
+    </ul>
   );
 }
 
-// function SettingsButtonUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
-function SettingsButtonUI({}: IButtonsUI) {
+function SettingsButtonUI({ chatroom, cuMember, bannedUsers }: IButtonsUI) {
+  const [searchValue, setSearchvalue] = useState("");
+
+  console.log(bannedUsers);
   return (
-    <>
-      <div className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-        <div className="h-14">foobar, some settings and stuff</div>
+    <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
+      <div className="flex justify-center  ">
+        <div className="max-w-md grow ">
+          <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
+        </div>
       </div>
-    </>
+      <p className="text-center">All the banned user</p>
+      {bannedUsers.map((u) => (
+        <ManageBannedUsersCard
+          searchValue={searchValue}
+          key={u}
+          cardLogin42={u}
+          userMember={cuMember}
+          id={chatroom.id + ""}
+        />
+      ))}
+    </ul>
   );
 }
 
-// here!
+function ManageBannedUsersCard({
+  id,
+  cardLogin42,
+  userMember,
+  searchValue,
+}: {
+  id: string;
+  cardLogin42: string;
+  userMember?: IMember;
+  searchValue: string;
+}) {
+  const { data: user, isLoading, isError } = useUserData(cardLogin42);
+  if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
+  if (isError) return <LoadingSpinnerMessage message="error fetching user" />;
+  if (!isMatch(cardLogin42, searchValue, user.name)) return <></>;
+  return (
+    <li className="flex items-center gap-2 px-2 py-1">
+      <UserIcon user={cardLogin42} />
+      <div className="grow ">{user.name}</div>
+      <BanUserBTN
+        id={id}
+        cardMember={undefined}
+        userMember={userMember}
+        cardLogin42={cardLogin42}
+        isMember={false}
+      />
+    </li>
+  );
+}
+
 function UserSearch({
   setSearchValue,
 }: {
   setSearchValue: (v: string) => void;
 }) {
   return (
-    <>
-      <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
-        <Form className="flex h-full w-full pl-3 ">
-          <input
-            className="focus: w-full outline-none  focus:border-none focus:ring-0"
-            type="search"
-            placeholder="search channel users"
-            onChange={(e) => setSearchValue(e.currentTarget.value)}
-          />
-          <div className="border-l border-slate-300">
-            <button className="flex h-full w-10 items-center justify-center  text-slate-300">
-              <IconSearch />
-            </button>
-          </div>
-        </Form>
-      </div>
-    </>
+    <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
+      <Form className="flex h-full w-full pl-3 ">
+        <input
+          className="focus: w-full outline-none  focus:border-none focus:ring-0"
+          type="search"
+          placeholder="search channel users"
+          onChange={(e) => setSearchValue(e.currentTarget.value)}
+        />
+        <div className="border-l border-slate-300">
+          <button className="flex h-full w-10 items-center justify-center  text-slate-300">
+            <IconSearch />
+          </button>
+        </div>
+      </Form>
+    </div>
   );
 }
 
@@ -398,17 +457,21 @@ function ManageUserCard({
   cardMember,
   userMember,
   isMember,
+  searchValue,
 }: {
   cardLogin42: string;
   id: string;
   isMember: boolean;
   userMember?: IMember;
   cardMember?: IMember;
+  searchValue: string;
 }) {
   const { data: user, isLoading, isError } = useUserData(cardLogin42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading user data" />;
   if (isError) return <div>error fetching user</div>;
+  if (!isMatch(cardLogin42, searchValue, user.name)) return <></>;
+
   return (
     <li className="flex items-center gap-2 px-2 py-1">
       <UserIcon user={cardLogin42} />
@@ -418,35 +481,35 @@ function ManageUserCard({
         id={id}
         cardMember={cardMember}
         userMember={userMember}
-        userLogin42={cardLogin42}
+        cardLogin42={cardLogin42}
         isMember={isMember}
       />
       <AddRemoveUserBTN
         id={id}
         cardMember={cardMember}
         userMember={userMember}
-        userLogin42={cardLogin42}
+        cardLogin42={cardLogin42}
         isMember={isMember}
       />
       <MuteUserBTN
         id={id}
         cardMember={cardMember}
         userMember={userMember}
-        userLogin42={cardLogin42}
+        cardLogin42={cardLogin42}
         isMember={isMember}
       />
       <ManageAdminsBTN
         id={id}
         cardMember={cardMember}
         userMember={userMember}
-        userLogin42={cardLogin42}
+        cardLogin42={cardLogin42}
         isMember={isMember}
       />
       <BlockUserBTN
         id={id}
         cardMember={cardMember}
         userMember={userMember}
-        userLogin42={cardLogin42}
+        cardLogin42={cardLogin42}
         isMember={isMember}
       />
     </li>
@@ -456,21 +519,23 @@ function ManageUserCard({
 function AddRemoveUserBTN({
   cardMember,
   userMember,
-  userLogin42,
+  cardLogin42,
   isMember,
   id,
 }: IChatroomManageBTN) {
   const mutMembers = useMutPostChatroomMember(id);
   const deleteMembers = useMutDeleteChatroomMember(id);
 
+  const message = cardMember?.login42 == userMember?.login42 ? "Leave" : "Kick";
+
   return (
     <GenericActionBTN
-      onChecked={() => deleteMembers.mutate(userLogin42)}
-      onUnChecked={() => mutMembers.mutate(userLogin42)}
+      onChecked={() => deleteMembers.mutate(cardLogin42)}
+      onUnChecked={() => mutMembers.mutate(cardLogin42)}
       value={isMember}
       actionPerms="ADMIN"
       viewPerms="MEMBER"
-      checkedMessage="Kick"
+      checkedMessage={message}
       unCheckedMessage="Add user"
       cardRole={cardMember?.role}
       userRole={userMember?.role}
@@ -487,29 +552,45 @@ function AddRemoveUserBTN({
 function BanUserBTN({
   cardMember,
   userMember,
-  userLogin42,
+  cardLogin42,
   isMember,
   id,
 }: IChatroomManageBTN) {
-  const mutMembers = useMutPostChatroomMember(id);
-  const deleteMembers = useMutDeleteChatroomMember(id);
-
+  const ban = useMutPostChatroomBan(id, cardLogin42);
+  const unBan = useMutDeleteChatroomBan(id, cardLogin42);
+  const canModify = convertPerms(userMember?.role) >= 2;
   return (
     <GenericActionBTN
-      onChecked={() => console.log("user banned", userLogin42)}
-      onUnChecked={() => {}}
+      onChecked={() => ban.mutate()}
+      onUnChecked={() => unBan.mutate()}
       value={isMember}
       actionPerms="ADMIN"
       viewPerms="MEMBER"
       checkedMessage="Ban"
+      fixedUnCheckedMessage="Banned"
       unCheckedMessage="Un ban"
       cardRole={cardMember?.role}
       userRole={userMember?.role}
       checked={
-        <IconStop className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
+        <IconStop
+          className={`h-5 w-5 align-middle text-slate-200 ${
+            canModify
+              ? " hover:rounded-full  hover:bg-rose-200 hover:text-rose-400"
+              : ""
+          }`}
+        />
       }
       unChecked={
-        <IconStop className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
+        <IconStop
+          className={`h-5 w-5 align-middle text-rose-400 ${
+            canModify
+              ? " hover:rounded-full hover:bg-rose-300 hover:text-rose-100"
+              : ""
+          }`}
+        />
+      }
+      fixedUnChecked={
+        <IconStop className="h-5 w-5 align-middle text-rose-400" />
       }
     />
   );
@@ -518,7 +599,7 @@ function BanUserBTN({
 function MuteUserBTN({
   cardMember,
   userMember,
-  userLogin42,
+  cardLogin42,
   isMember,
   id,
 }: IChatroomManageBTN) {
@@ -527,8 +608,8 @@ function MuteUserBTN({
 
   return (
     <GenericActionBTN
-      onChecked={() => console.log("user muted", userLogin42)}
-      onUnChecked={() => console.log("user unmuted", userLogin42)}
+      onChecked={() => console.log("user muted", cardLogin42)}
+      onUnChecked={() => console.log("user unmuted", cardLogin42)}
       value={isMember}
       actionPerms="ADMIN"
       viewPerms="MEMBER"
@@ -552,7 +633,7 @@ function MuteUserBTN({
 function BlockUserBTN({
   cardMember,
   userMember,
-  userLogin42,
+  cardLogin42,
   isMember,
   id,
 }: IChatroomManageBTN) {
@@ -564,8 +645,8 @@ function BlockUserBTN({
 
   return (
     <GenericActionBTN
-      onChecked={() => console.log("user blocked", userLogin42)}
-      onUnChecked={() => console.log("user blocked", userLogin42)}
+      onChecked={() => console.log("user blocked", cardLogin42)}
+      onUnChecked={() => console.log("user blocked", cardLogin42)}
       value={isMember}
       actionPerms="MEMBER"
       viewPerms="MEMBER"
@@ -589,11 +670,12 @@ function BlockUserBTN({
 function ManageAdminsBTN({
   cardMember,
   userMember,
-  userLogin42,
+  cardLogin42,
   isMember,
   id,
 }: IChatroomManageBTN) {
-  // const canModify =
+  const mutRole = useMutPutChatroomRole(id, cardLogin42);
+
   if (cardMember?.role === "OWNER") {
     return (
       <Pop message="Owner">
@@ -604,8 +686,14 @@ function ManageAdminsBTN({
   const canModify = convertPerms(userMember?.role) >= 2;
   return (
     <GenericActionBTN
-      onChecked={() => console.log("remove admin")}
-      onUnChecked={() => console.log("add admin")}
+      onChecked={() => {
+        mutRole.mutate("ADMIN");
+        console.log("set as admin");
+      }}
+      onUnChecked={() => {
+        mutRole.mutate("MEMBER");
+        console.log("set as member");
+      }}
       value={isMember}
       actionPerms="ADMIN"
       viewPerms="MEMBER"
