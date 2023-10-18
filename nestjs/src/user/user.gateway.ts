@@ -34,7 +34,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     {
         const userLogin: string = client.handshake.headers.user.toString();
         console.log('User disconnected : ', userLogin);
-        let index = this.userList.findIndex(user => user.client_id === client.id);
+        let index = this.userList.findIndex(user => user.client.id === client.id);
         this.userList.splice(index, 1);
         this.broadcast("removeUser", userLogin);
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
@@ -47,17 +47,17 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     {
         const userLogin: string = client.handshake.headers.user.toString();
         console.log('User connected : ', userLogin, ' with id ', client.id);
-        //console.log(this.userList);
-        client.emit("connection", this.userList);
         this.broadcast("addUser", userLogin);
-        const user: UserEntity = new UserEntity(userLogin, client.id) ;
+        const user: UserEntity = new UserEntity(userLogin, client);
         this.userList.push(user);
-        // Attempt at a way to send message to selected users (works fine)
-        // if (this.userList[0] && this.userList[1] && ! this.userList[2])
+        // Attempt 2 at a way to send message to selected users
+        // if (this.userList[0] && this.userList[1])
         // {
-        //     console.log('sending to ', this.userList[0].client_id, ' and ', this.userList[1].client_id);
-        //     this.server.to(this.userList[0].client_id).emit('test', this.userList[0].client_id);
-        //     this.server.to(this.userList[1].client_id).emit('test', this.userList[1].client_id);
+        //     console.log('sending to ', this.userList[0].client.id, ' and ', this.userList[1].client.id);
+        //     this.userList[0].client.join("game1");
+        //     this.userList[1].client.join("game1");
+        //     const message = "hello this is a test with ids " + this.userList[0].client.id + ' and ' + this.userList[1].client.id;
+        //     this.broadcastTo("game1", "test", message);
         // }
         await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
     }
@@ -65,5 +65,10 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     broadcast(event: string, user: string)
     {
         this.server.emit(event, user);
+    }
+
+    broadcastTo(room: string, event: string, message: string)
+    {
+        this.server.to(room).emit(event, message);
     }
 }

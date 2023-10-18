@@ -1,11 +1,13 @@
+import { Socket } from "socket.io";
+
 export class UserEntity
 {
-    constructor(login: string, id: string)
+    constructor(login: string, client: Socket)
     {
         this.login = login;
-        this.client_id = id;
+        this.client = client;
     }
 
     login:      string;
-    client_id:  string;
+    client:     Socket;
 }
