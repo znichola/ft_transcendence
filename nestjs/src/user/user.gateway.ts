@@ -6,6 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 import { UserStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
 
 @WebSocketGateway({
     namespace: 'user',
@@ -23,11 +24,13 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
         private readonly userService: UserService,
         ){}
     private userList: UserEntity[] = [];
+    private matchmakingList: UserEntity[] = [];
     
 
     afterInit(server: Server): void 
     {
         console.log('Init');
+        // this.startMatchmaking();
     }
 
     async handleDisconnect(client: Socket)
@@ -50,6 +53,10 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
         this.broadcast("addUser", userLogin);
         const user: UserEntity = new UserEntity(userLogin, client);
         this.userList.push(user);
+        if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
+        {
+            this.matchmakingList.push(user)
+        }
         // Attempt 2 at a way to send message to selected users
         // if (this.userList[0] && this.userList[1])
         // {
@@ -71,4 +78,24 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     {
         this.server.to(room).emit(event, message);
     }
+
+    @Cron('*/5 * * * * *')
+    findMatches()
+    {
+        console.log('finding matches');
+        this.matchmakingList.forEach(user => { console.log(user.login )});
+        if (this.matchmakingList.length > 1)
+        {
+            const roomName: string = 'game1';
+            const user1: UserEntity = this.matchmakingList.shift();
+            const user2: UserEntity = this.matchmakingList.shift();
+            const message: string = 'A game between ' + user1.login + ' and ' + user2.login + ' is about to start';
+            user1.client.join(roomName);
+            user2.client.join(roomName);
+            console.log('making a match. Players are : ', user1.login, ' and ', user2.login);
+            this.broadcastTo(roomName, "test", message);
+        }
+        else console.log('Not enough players in matchmaking');
+    }
+
 }
