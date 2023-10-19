@@ -187,8 +187,8 @@ export class DmService
 		/* check if id1 has not been blocked by user 2 */
 		const relationship = await this.prisma.friend.findFirst({
 			where: {
-				user1Id: +id1,
-				user2Id: +id2
+				user1Id: +id2,
+				user2Id: +id1
 			}
 		});
 		if (relationship != null && relationship.status == "BLOCKED")
