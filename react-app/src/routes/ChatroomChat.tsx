@@ -51,7 +51,6 @@ import {
   convertPerms,
 } from "../components/ChatroomChatBTNs";
 import { isMatch } from "../functions/utils";
-// import ChatMessages from "../components/ChatMassages";
 
 export default function ChatroomChat() {
   const scrollRef = useRef<null | HTMLDivElement>(null);
@@ -162,10 +161,10 @@ function MessageList({ cu, chatroomID }: { cu: UserData; chatroomID: string }) {
 function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
   const { data: target, isLoading, isError } = useUserData(m.senderLogin42);
   if (isLoading)
-    return <LoadingSpinnerMessage message="Loading chat history ..." />;
+    return <LoadingSpinnerMessage message="Loading user ..." />;
   if (isError) {
     console.log("error this that");
-    return <ErrorMessage message="Error fetching chat history" />;
+    return <ErrorMessage message="Error fetching user" />;
   }
 
   const sender = m.senderLogin42 === cu.login42 ? cu : target;
@@ -305,6 +304,8 @@ function AddUsersUI({
         <LoadingSpinnerMessage message="fetching users.." />
       ) : isError ? (
         <ErrorMessage message="error fething loading" />
+      ) : users.length == 0 ? (
+        <p>there are no users</p>
       ) : (
         users.map((u) =>
           bannedUsers.find((b) => b === u) ? (
@@ -502,13 +503,6 @@ function ManageUserCard({
         cardLogin42={cardLogin42}
         isMember={isMember}
       />
-      {/* <BlockUserBTN
-        id={id}
-        cardMember={cardMember}
-        userMember={userMember}
-        cardLogin42={cardLogin42}
-        isMember={isMember}
-      /> */}
     </li>
   );
 }
@@ -643,42 +637,6 @@ function MuteUserBTN({
   );
 }
 
-// function BlockUserBTN({
-//   cardMember,
-//   userMember,
-//   cardLogin42,
-//   isMember,
-//   id,
-// }: IChatroomManageBTN) {
-//   const mutMembers = useMutPostChatroomMember(id);
-//   const deleteMembers = useMutDeleteChatroomMember(id);
-
-//   if (cardMember?.login42 == userMember?.login42)
-//     return <div className="h-5 w-5 " />;
-
-//   return (
-//     <GenericActionBTN
-//       onChecked={() => console.log("user blocked", cardLogin42)}
-//       onUnChecked={() => console.log("user blocked", cardLogin42)}
-//       value={isMember}
-//       actionPerms="MEMBER"
-//       viewPerms="MEMBER"
-//       checkedMessage="Block"
-//       unCheckedMessage="Blocked"
-//       cardRole={cardMember?.role}
-//       userRole={userMember?.role}
-//       checked={
-//         <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-rose-100 hover:text-rose-300" />
-//       }
-//       unChecked={
-//         <IconStopCircle className="h-5 w-5 align-middle text-slate-200 hover:rounded-full hover:bg-green-100 hover:text-green-300" />
-//       }
-//       fixedChecked={
-//         <IconStopCircle className="h-5 w-5 bg-rose-100 align-middle text-rose-300" />
-//       }
-//     />
-//   );
-// }
 
 function ManageAdminsBTN({
   cardMember,

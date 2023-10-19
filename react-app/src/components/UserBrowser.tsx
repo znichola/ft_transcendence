@@ -63,7 +63,6 @@ export default function UserBrowser({ title }: { title: string }) {
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
-  const _posts = data?.pages.flatMap((p) => p);
   const ref = useRef(null);
   const inViewport = useIntersection(ref, "0px");
 
@@ -72,6 +71,10 @@ export default function UserBrowser({ title }: { title: string }) {
   if (isFriLoading)
     return <LoadingSpinnerMessage message="fetching friends ..." />;
   if (isFriError) return <ErrorMessage message="error fetching friends" />;
+  if (isFetchingNextPage)
+    return <LoadingSpinnerMessage message="fetching pages ..." />;
+
+  const _posts = data?.pages.flatMap((p) => p);
 
   if (
     inViewport &&
@@ -146,9 +149,8 @@ function FilterInfoCard({
   // settings,
   cardLogin42,
   currentLogin42,
-  userRelations,
-} // searchValue,
-: IFilterInfoCard) {
+  userRelations, // searchValue,
+}: IFilterInfoCard) {
   const { data: cu, isLoading, isError } = useUserData(cardLogin42);
 
   if (isLoading) return <LoadingSpinnerMessage message="loading profile ..." />;
@@ -236,7 +238,12 @@ function FilterSettings({
         offLable="Online"
         value={s.isOnline}
         onToggle={() =>
-          setSettings({ ...s, isOnline: !s.isOnline, isOffline: false, isInGame: false })
+          setSettings({
+            ...s,
+            isOnline: !s.isOnline,
+            isOffline: false,
+            isInGame: false,
+          })
         }
       />
       <InputToggle
@@ -244,7 +251,12 @@ function FilterSettings({
         offLable="Offline"
         value={s.isOffline}
         onToggle={() =>
-          setSettings({ ...s, isOffline: !s.isOffline, isOnline: false, isInGame: false })
+          setSettings({
+            ...s,
+            isOffline: !s.isOffline,
+            isOnline: false,
+            isInGame: false,
+          })
         }
       />
       <InputToggle
@@ -252,7 +264,12 @@ function FilterSettings({
         offLable="In game"
         value={s.isInGame}
         onToggle={() =>
-          setSettings({ ...s, isInGame: !s.isInGame, isOffline: false, isOnline: false })
+          setSettings({
+            ...s,
+            isInGame: !s.isInGame,
+            isOffline: false,
+            isOnline: false,
+          })
         }
       />
     </div>
