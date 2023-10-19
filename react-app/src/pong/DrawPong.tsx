@@ -1,37 +1,5 @@
 import {useEffect, useRef} from "react";
-
-type twoDimension = { width: number; height: number };
-interface gameState {
-    p1: player;
-    p2: player;
-    ball: ball;
-    timerAfk: number;
-}
-interface ball {
-    pos: pos;
-    radius: number;
-    speed: number;
-    direction: pos;
-}
-interface pos {
-    x: number;
-    y: number;
-}
-
-interface dim {
-    w: number;
-    h: number;
-}
-
-interface player {
-    pos: pos;
-    dim: dim;
-    score: number;
-    moveUp: boolean;
-    moveDown: boolean;
-    id: string;
-    afk: boolean;
-}
+import { twoDimension, gameState, dim, ball, pos, player } from "../interfaces.tsx";
 
 export default function DrawPong({ width, height }: twoDimension, gs: gameState) {
     const canvasRef = useCanvas(gs);
@@ -70,7 +38,6 @@ function draw(ctx: CanvasRenderingContext2D | null | undefined, gs: gameState) {
         //     ctx.beginPath();
         //     ctx.arc(b.pos.x, b.pos.y, b. radius, 0, 2 * Math.PI);
         //     ctx.fill();
-        //     console.log(b.speed);
         // });
 
         //dessine les joueurs
