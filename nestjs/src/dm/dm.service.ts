@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
-import { DirectMessageWithUsername, MessageEntity } from './entities/message.entity';
+import { DirectMessageWithUsername, DirectMessageEntity } from './entities/direct-message.entity';
 import { DmGateway } from './dm.gateway';
 
 @Injectable()
@@ -131,7 +131,7 @@ export class DmService
 		});
 	}
 
-	async getAllMessagesFromConversation(user1: string, user2: string): Promise<MessageEntity[]>
+	async getAllMessagesFromConversation(user1: string, user2: string): Promise<DirectMessageEntity[]>
 	{
 		const id1 = await this.getUserId(user1);
 		const id2 = await this.getUserId(user2);
@@ -154,11 +154,11 @@ export class DmService
 			}
 		});
 
-		const msgEntities: MessageEntity[] = msgsFromDb.map(msg => new MessageEntity(msg));
+		const msgEntities: DirectMessageEntity[] = msgsFromDb.map(msg => new DirectMessageEntity(msg));
 		return msgEntities;
 	}
 
-	async getOneMessage(msgId: number): Promise<MessageEntity>
+	async getOneMessage(msgId: number): Promise<DirectMessageEntity>
 	{
 		const msgFromDb: DirectMessageWithUsername = await this.prisma.directMessage.findUniqueOrThrow({
 			where: {
@@ -176,13 +176,24 @@ export class DmService
 			}
 		});
 
-		return new MessageEntity(msgFromDb);
+		return new DirectMessageEntity(msgFromDb);
 	}
 
 	async sendMessage(from: string, to: string, payload: SendDmDto)
 	{
 		const id1 = await this.getUserId(from);
 		const id2 = await this.getUserId(to);
+
+		/* check if id1 has not been blocked by user 2 */
+		const relationship = await this.prisma.friend.findFirst({
+			where: {
+				user1Id: +id2,
+				user2Id: +id1
+			}
+		});
+		if (relationship != null && relationship.status == "BLOCKED")
+			throw new ForbiddenException(`You have been blocked by ${to}`);
+
 
 		const conv = await this.createConversationIfNotExists(id1, id2);
 

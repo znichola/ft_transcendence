@@ -6,10 +6,5 @@ export class SendMessageDto
 	@ApiProperty()
 	@IsString()
 	@IsNotEmpty()
-	senderLogin42: string;
-
-	@ApiProperty()
-	@IsString()
-	@IsNotEmpty()
 	content: string;
 }

@@ -57,7 +57,7 @@ const router = createBrowserRouter([
         element: <Root />,
         children: [
           {
-            path: "/play",
+            path: "/play/:game_mode?",
             element: <MatchMaker />,
           },
           {
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
             element: <PongFeed />,
           },
           {
-            path: "/pong/:player1_login42/vs/:player2_login42/:game_mode",
+            path: "/pong/:player1_login42/vs/:player2_login42/:game_mode?",
             element: <PongDuel />,
           },
           {

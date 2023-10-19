@@ -5,7 +5,7 @@ import { LoadingSpinnerMessage } from "../components/Loading";
 import { useUserData } from "../functions/customHook";
 import PongApp from "../pong/PongApp";
 
-function DisplayPlayer({
+export function DisplayPlayer({
   name,
   right = false,
 }: {
@@ -25,22 +25,22 @@ function DisplayPlayer({
   return (
     <div
       className={
-        "h-30 flex w-80 rounded-full border-b-4 bg-stone-50 px-2 py-1 shadow-md " +
+        "h-30 flex w-72 rounded-full border-b-4 bg-stone-50 px-0.5 py-1 shadow-md font-extrabold" +
         (right ? " flex-row-reverse " : "")
       }
     >
       <img
         src={user?.avatar}
         alt={user?.login42}
-        className={"h-20 w-20 self-center rounded-full" + (right ? " " : "")}
+        className={"h-20 w-20 self-center mx-2 rounded-full" + (right ? " " : "")}
       />
       <div
         className={
-          "flex grow flex-col justify-center p-5" + (right ? " items-end " : "")
+          "flex flex-col justify-center p-2" + (right ? " items-end " : "")
         }
       >
         <p className="">{user?.name}</p>
-        <div className="flex items-center">
+        <div className="flex items-center text-2xl">
           <p className="">{user?.elo}</p>
           <IconTrophy />
         </div>

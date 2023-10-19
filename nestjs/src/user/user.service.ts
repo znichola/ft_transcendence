@@ -286,6 +286,23 @@ export class UserService {
     })
   }
 
+  async getBlockedUsers(user: number): Promise<String[]>
+  {
+    const blockedUsers = await prisma.friend.findMany({
+      where: { user1Id: user, status: FriendStatus.BLOCKED }
+    });
+
+    const blockedPromises = blockedUsers.map(async (value) => 
+    {
+      let user: FriendData;
+      user = await this.getFriendData(value.user2Id);
+      return user.login42;
+    });
+
+    const results: string[] = await Promise.all(blockedPromises);
+    return results;
+  }
+
   async addBlockedUser(user: number, target: number)
   {
     const relation = await prisma.friend.findFirst({

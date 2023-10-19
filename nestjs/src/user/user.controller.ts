@@ -404,6 +404,30 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @ApiOperation({
+    summary: 'View all users blocked by someone',
+    description:
+      'This endpoint will provide the login list of all users blocked by the user named in the URL'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'A list of all blocked users'
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      'No JTW token found, or the logged in user is not the user in the request url',
+  })
+  @Get(':username/block')
+  async getAllBlocked(@Param('username') username: string, @Req() req: Request): Promise<String[]>
+  {
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+    const userId = await this.userService.getUserId(username);
+    const result = await this.userService.getBlockedUsers(userId);
+    return (result);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({
     summary: 'Block another user.',
     description:
       'the first user identified in the URL blocks the second user. There must be a valid JWT token, and the logged in user must be the first user in the url.',
