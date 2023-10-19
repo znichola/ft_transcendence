@@ -14,6 +14,3 @@ WORKDIR /app
 
 ENTRYPOINT ["/script/config.sh"]
 CMD [ "npm", "run", "dev" ]
-# docker build -t react-server .
-# docker run --init --name react-server -p 3000:3000 react-server
-# docker exec -it react-server zsh

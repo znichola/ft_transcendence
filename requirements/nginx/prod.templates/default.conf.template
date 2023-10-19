@@ -1,0 +1,19 @@
+server {
+    access_log  off;
+
+    listen       ${NGINX_PORT};
+    root         /var/www/html;
+    server_name  domain1.com www.domain1.com;
+
+    location / {
+
+    }
+
+    location = /api {
+      return 302 /api/;
+    }
+
+    location /api/ {
+        proxy_pass http://nest:3000/;
+    }
+}
