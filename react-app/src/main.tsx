@@ -56,7 +56,7 @@ const router = createBrowserRouter([
         element: <Root />,
         children: [
           {
-            path: "/play",
+            path: "/play/:game_mode?",
             element: <MatchMaker />,
           },
           {
