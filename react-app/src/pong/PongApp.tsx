@@ -33,6 +33,7 @@ interface player {
   id: string;
   afk: boolean;
 }
+
 const gameStart: gameState = {
   p1: {
     pos: {x: 0, y: 0},
