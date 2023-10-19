@@ -1,10 +1,11 @@
 import {useEffect, useRef} from "react";
-import { twoDimension, gameState, dim, ball, pos, player } from "../interfaces.tsx";
+import { gameState } from "../interfaces.tsx";
 
-export default function DrawPong({ width, height }: twoDimension, gs: gameState) {
+export default function DrawPong({ width, height, gs }:{width: number, height: number, gs: gameState}) {
     const canvasRef = useCanvas(gs);
     return <canvas ref={canvasRef} width={width} height={height}/>;
 }
+
 function useCanvas(gs: gameState)
 {
     const canvasRef = useRef<HTMLCanvasElement>(null);

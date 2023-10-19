@@ -8,6 +8,7 @@ import PongApp from "../pong/PongApp";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
+import { useState } from "react";
 
 function GameMode({
   className,
@@ -77,10 +78,12 @@ function GameAlert({
   class_name,
   player1,
   player2,
+  setMatchFound,
 }: {
   class_name: string;
   player1: string;
   player2: string;
+  setMatchFound: (v: boolean) => void,
 }) {
   return (
     <div
@@ -100,9 +103,18 @@ function GameAlert({
           </h1>
           <DisplayPlayer name={player2} right={true} />
         </div>
-        <div className="flex grow items-center justify-center">
-          <button className="flex h-14 w-full grow items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-600 to-orange-500 px-3 text-4xl font-bold text-white">
+        <div className="flex gap-5 grow items-center justify-center">
+          <Link
+            className="flex h-14 w-full grow items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-600 to-orange-500 px-3 text-4xl font-bold text-white"
+            to={"/pong/default42/vs/default42/"}
+          >
             Fight !
+          </Link>
+          <button
+            className="flex h-14 w-full grow items-center justify-center rounded-xl px-3 text-4xl font-semibold text-slate-600"
+            onClick={() => setMatchFound(false)}
+          >
+            Refuse
           </button>
         </div>
       </div>
@@ -112,16 +124,19 @@ function GameAlert({
 
 //TODO : invalidate wrong gmae_mode request
 function WaitingForGame({ game_mode }: { game_mode: string }) {
+
+  const [ matchFound, setMatchFound ] = useState(false);
+
   return (
     <div className="flex h-fit w-fit flex-col gap-5 p-10">
       <h2>{"Waiting for a " + game_mode + " Game ..."}</h2>
-      <GameAlert class_name="" player1="default42" player2="default42" />
-      <Link
+      <GameAlert class_name={matchFound ? "" : "hidden"} player1="default42" player2="default42" setMatchFound={setMatchFound}/>
+      <button
         className="rounded-xl border-4 border-stone-200 p-3 hover:cursor-pointer"
-        to={"/play/" + game_mode + "/game_id"}
+        onClick={() => setMatchFound(true)}
       >
         Magic button : Find a game
-      </Link>
+      </button>
     </div>
   );
 }

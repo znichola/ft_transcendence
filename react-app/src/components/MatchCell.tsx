@@ -1,4 +1,33 @@
-import PongApp from "../pong/PongApp";
+import { gameState } from "../interfaces";
+import DrawPong from "../pong/DrawPong";
+
+const gameStart: gameState = {
+  p1: {
+    pos: {x: 0, y: 52},
+    dim: {w: 2, h: 20},
+    score: 0,
+    moveUp: false,
+    moveDown: false,
+    id: '',
+    afk: true,
+  },
+  p2: {
+    pos: {x: 166, y: 52},
+    dim: {w: 2, h: 20},
+    score: 0,
+    moveUp: false,
+    moveDown: false,
+    id: '',
+    afk: true,
+  },
+  ball: {
+    pos: { x: 50, y: 50 },
+    radius: 3,
+    speed: 1,
+    direction: { x: 1, y: 0 },
+  },
+  timerAfk: 0,
+};
 
 export function MatchCell({ victory }: { victory: boolean }) {
   return (
@@ -15,8 +44,7 @@ export function MatchCell({ victory }: { victory: boolean }) {
           vs <span className="font-bold">player</span>
         </span>
         <div className="h-fit w-fit rounded-xl  border-4 border-stone-500 bg-stone-700">
-          <div className="min-h-[104px] min-w-[170px] TODO:SupprimerCeDiv"></div>
-          {/* <PongApp width={170} height={104} /> TODO: ajouter mini pong */}
+            <DrawPong height={104} width={170} gs={gameStart}/>
         </div>
         <div className="flex gap-1">
           <span className="w-full text-right font-bold">7</span>
