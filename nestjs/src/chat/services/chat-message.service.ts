@@ -16,8 +16,8 @@ export class ChatMessageService
 	{
 		await this.utils.checkChatroomExists(id);
 
-		const userId = await this.utils.getUserId(identity);
-		const access: boolean = await this.utils.isMember(userId, id);
+		const issuerId = await this.utils.getUserId(identity);
+		const access: boolean = await this.utils.isMember(issuerId, id);
 		if (!access)
 			throw new ForbiddenException("You are not a member of this chatroom");
 
@@ -38,7 +38,31 @@ export class ChatMessageService
 			}
 		});
 
-		return new MessageEntity(msgFromDb);
+		const blockedUsers = await this.prisma.friend.findMany({
+			where: {
+				user1Id: issuerId,
+				status: "BLOCKED"
+			},
+			select: {
+				user2: {
+					select: {
+						login42: true
+					}
+				},
+				since: true
+			}
+		});
+
+		let isBlocked = false;
+		for (const blocked of blockedUsers)
+		{
+			if (msgFromDb.user.login42 == blocked.user2.login42 && blocked.since <= msgFromDb.sentAt)
+			{
+				isBlocked = true;
+				msgFromDb.text = "[You have blocked this user]";
+			}
+		}
+		return new MessageEntity(msgFromDb, isBlocked);
 	}
 
 	async getAllMessagesFromChatroom(id: number, identity: string): Promise<MessageEntity[]>
@@ -81,15 +105,18 @@ export class ChatMessageService
 			}
 		});
 
-		msgsFromDb.forEach(msg => {
+		const msgEntities: MessageEntity[] = msgsFromDb.map(msg => {
+			let isBlocked = false;
 			for (const blocked of blockedUsers)
 			{
 				if (msg.user.login42 == blocked.user2.login42 && blocked.since <= msg.sentAt)
-					msg.text = "[You have blocked this user]"
+				{
+					isBlocked = true;
+					msg.text = "[You have blocked this user]";
+				}
 			}
+			return new MessageEntity(msg, isBlocked)
 		});
-
-		const msgEntities: MessageEntity[] = msgsFromDb.map(msg => new MessageEntity(msg));
 		return msgEntities;
 	}
 
