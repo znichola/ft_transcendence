@@ -3,6 +3,7 @@ import { MessageEntity, MessageWithUsername } from "../entities/message.entity";
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
 import { ChatGateway } from "../chat.gateway";
+import { Friend } from "@prisma/client";
 
 @Injectable()
 export class ChatMessageService
@@ -44,12 +45,12 @@ export class ChatMessageService
 	{
 		await this.utils.checkChatroomExists(id);
 
-		const userId = await this.utils.getUserId(identity);
-		const access: boolean = await this.utils.isMember(userId, id);
+		const issuerId = await this.utils.getUserId(identity);
+		const access: boolean = await this.utils.isMember(issuerId, id);
 		if (!access)
 			throw new ForbiddenException("You are not a member of this chatroom");
 
-		const msgsFromDb: MessageWithUsername[] = await this.prisma.message.findMany({
+		let msgsFromDb: MessageWithUsername[] = await this.prisma.message.findMany({
 			where: {
 				chatroomId: +id,
 			},
@@ -62,6 +63,29 @@ export class ChatMessageService
 						login42: true
 					}
 				}
+			}
+		});
+
+		const blockedUsers = await this.prisma.friend.findMany({
+			where: {
+				user1Id: issuerId,
+				status: "BLOCKED"
+			},
+			select: {
+				user2: {
+					select: {
+						login42: true
+					}
+				},
+				since: true
+			}
+		});
+
+		msgsFromDb.forEach(msg => {
+			for (const blocked of blockedUsers)
+			{
+				if (msg.user.login42 == blocked.user2.login42 && blocked.since <= msg.sentAt)
+					msg.text = "[You have blocked this user]"
 			}
 		});
 
