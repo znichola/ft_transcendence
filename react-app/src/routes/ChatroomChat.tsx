@@ -120,15 +120,12 @@ export default function ChatroomChat() {
           </ButtonGeneric>
         ))}
       </BoxMenu>
-
-      <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent">
-        <MessageList cu={user} chatroomID={chatroomID} />
-        <ChatroomMessageInput
-          scrollRef={scrollRef}
-          user={user}
-          chatroomID={chatroomID}
-        />
-      </div>
+      <MessageList cu={user} chatroomID={chatroomID} />
+      <ChatroomMessageInput
+        scrollRef={scrollRef}
+        user={user}
+        chatroomID={chatroomID}
+      />
     </div>
   );
 }
@@ -160,12 +157,8 @@ function MessageList({ cu, chatroomID }: { cu: UserData; chatroomID: string }) {
 
 function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
   const { data: target, isLoading, isError } = useUserData(m.senderLogin42);
-  if (isLoading)
-    return <LoadingSpinnerMessage message="Loading user ..." />;
-  if (isError) {
-    console.log("error this that");
-    return <ErrorMessage message="Error fetching user" />;
-  }
+  if (isLoading) return <LoadingSpinnerMessage message="Loading user ..." />;
+  if (isError) return <ErrorMessage message="Error fetching user" />;
 
   const sender = m.senderLogin42 === cu.login42 ? cu : target;
   const senderSelf = m.senderLogin42 === cu.login42;
@@ -336,7 +329,6 @@ function AddUsersUI({
 function SettingsButtonUI({ chatroom, cuMember, bannedUsers }: IButtonsUI) {
   const [searchValue, setSearchvalue] = useState("");
 
-  console.log(bannedUsers);
   return (
     <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
       <div className="flex justify-center  ">
@@ -344,7 +336,7 @@ function SettingsButtonUI({ chatroom, cuMember, bannedUsers }: IButtonsUI) {
           <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
         </div>
       </div>
-      <p className="text-center">All the banned user</p>
+      <p className="text-center">The list of banner users</p>
       {bannedUsers.map((u) => (
         <ManageBannedUsersCard
           searchValue={searchValue}
@@ -636,7 +628,6 @@ function MuteUserBTN({
     />
   );
 }
-
 
 function ManageAdminsBTN({
   cardMember,

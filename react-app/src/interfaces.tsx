@@ -81,6 +81,7 @@ export interface IMessage {
   senderLogin42: string;
   content: string;
   sentAt: string;
+  isBlocked: boolean;
 }
 
 export interface IMessagePost {
