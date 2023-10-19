@@ -16,7 +16,7 @@ const directMessageWithUsername = Prisma.validator<Prisma.DirectMessageDefaultAr
 
 export type DirectMessageWithUsername = Prisma.DirectMessageGetPayload<typeof directMessageWithUsername>;
 
-export class MessageEntity
+export class DirectMessageEntity
 {
 	constructor(prismaObject: DirectMessageWithUsername)
 	{

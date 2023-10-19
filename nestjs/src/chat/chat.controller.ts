@@ -13,7 +13,6 @@ import { MemberEntity } from './entities/member.entity';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 import { BanUserDto } from './dto/ban-user-dto';
-import { BannedUser } from '@prisma/client';
 import { BannedUserEntity } from './entities/banned-user.entity';
 import { ChatMemberService } from './services/chat-member.service';
 import { ChatMessageService } from './services/chat-message.service';

@@ -40,5 +40,5 @@ export class MessageEntity
 	sentAt: Date;
 
 	@ApiProperty()
-	isBlocked: boolean
+	isBlocked: boolean;
 }

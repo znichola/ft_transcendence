@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPi
 import { DmService } from './dm.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { ConversationEntity } from './entities/conversation.entity';
-import { MessageEntity } from './entities/message.entity';
+import { DirectMessageEntity } from './entities/direct-message.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from 'src/prisma-client-exception/prisma-client-exception.filter';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -56,8 +56,8 @@ export class DmController {
 
 	/* user1 only */
 	@Get(':user1/:user2/messages')
-	@ApiOkResponse({type: MessageEntity, isArray: true})
-	async getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string, @Request() req): Promise<MessageEntity[]>
+	@ApiOkResponse({type: DirectMessageEntity, isArray: true})
+	async getAllMessagesFromConversation(@Param('user1') user1: string, @Param('user2') user2: string, @Request() req): Promise<DirectMessageEntity[]>
 	{
 		if (req.user.login != user1)
 			throw new ForbiddenException();
@@ -75,8 +75,8 @@ export class DmController {
 
 	/* user1 only */
 	@Get(':user1/:user2/messages/:msgId')
-	@ApiOkResponse({type: MessageEntity})
-	async getOneMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Request() req): Promise<MessageEntity>
+	@ApiOkResponse({type: DirectMessageEntity})
+	async getOneMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Request() req): Promise<DirectMessageEntity>
 	{
 		if (req.user.login != user1)
 			throw new ForbiddenException();
