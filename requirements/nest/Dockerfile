@@ -16,6 +16,3 @@ WORKDIR /backend
 
 ENTRYPOINT ["/script/config.sh"]
 CMD [ "nest", "start", "--watch", "--preserveWatchOutput" ]
-# docker build -t nest-server .
-# docker run --init --name nest-server -p 3000:3000 nest-server
-# docker exec -it nest-server zsh

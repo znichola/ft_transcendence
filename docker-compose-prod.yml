@@ -1,0 +1,32 @@
+networks:
+  transnet:
+    driver: bridge
+    name: transnet
+
+volumes:
+  database:
+  avatars:
+  frontend:
+
+services:
+  nest:
+    build:
+      context: ./
+      dockerfile: requirements/nest/prod.Dockerfile
+    restart: always
+    volumes:
+      - avatars:/avatars
+    networks:
+      - transnet
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DATABASE_USR}
+      - POSTGRES_PASSWORD=${DATABASE_PWD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    networks:
+      - transnet

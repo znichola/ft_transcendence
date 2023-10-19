@@ -5,20 +5,6 @@ networks:
     driver: bridge
     name: transnet
 
-# volumes:
-#   localdrive:
-#     driver: local
-#     name: localdrive
-#     driver_opts:
-#       device: ${PWD}
-#       type: none
-#       o: bind
-# this is broken for file changes, they don't seem to showup correctly for a modified file
-# no idea why this is the case, new files and deleted files so showup, but a modified file
-# always shows the original file
-#    volumes:
-#      - ${PWD}:/web
-
 services:
   nest:
     container_name: nest
@@ -72,4 +58,3 @@ services:
       - transnet
     depends_on:
       - react
-      
