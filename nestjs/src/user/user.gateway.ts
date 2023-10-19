@@ -6,6 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 import { UserStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
 
 @WebSocketGateway({
     namespace: 'user',
@@ -14,8 +15,7 @@ import { UserStatus } from '@prisma/client';
     },
 })
 @UseGuards(AuthGuard)
-export class UserGateway
-implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer() server: Server;
     constructor(
@@ -23,42 +23,38 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
         private readonly userService: UserService,
         ){}
     private userList: UserEntity[] = [];
+    private matchmakingList: UserEntity[] = [];
+    private gamesCount: number = 0;
     
-
-    afterInit(server: Server): void 
-    {
-        console.log('Init');
-    }
-
     async handleDisconnect(client: Socket)
     {
         const userLogin: string = client.handshake.headers.user.toString();
         console.log('User disconnected : ', userLogin);
+
         let index = this.userList.findIndex(user => user.client.id === client.id);
         this.userList.splice(index, 1);
         this.broadcast("removeUser", userLogin);
+
+        let mmIndex = this.matchmakingList.findIndex(user => user.client.id == client.id)
+        if (mmIndex) this.userList.splice(mmIndex, 1);
+
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
-        {
             await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
-        }
+
     }
 
     async handleConnection(client: Socket)
     {
         const userLogin: string = client.handshake.headers.user.toString();
         console.log('User connected : ', userLogin, ' with id ', client.id);
+
         this.broadcast("addUser", userLogin);
         const user: UserEntity = new UserEntity(userLogin, client);
         this.userList.push(user);
-        // Attempt 2 at a way to send message to selected users
-        // if (this.userList[0] && this.userList[1])
-        // {
-        //     console.log('sending to ', this.userList[0].client.id, ' and ', this.userList[1].client.id);
-        //     this.userList[0].client.join("game1");
-        //     this.userList[1].client.join("game1");
-        //     const message = "hello this is a test with ids " + this.userList[0].client.id + ' and ' + this.userList[1].client.id;
-        //     this.broadcastTo("game1", "test", message);
-        // }
+
+        if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
+            this.matchmakingList.push(user)
+
         await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
     }
 
@@ -71,4 +67,30 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
     {
         this.server.to(room).emit(event, message);
     }
+
+    // run job every 5 seconds
+    @Cron('*/5 * * * * *')
+    findMatches()
+    {
+        console.log('finding matches');
+        this.matchmakingList.forEach(user => { console.log(user.login )});
+        if (this.matchmakingList.length > 1)
+        {
+            const roomName: string = 'game' + this.gamesCount.toString();
+            this.gamesCount++;
+
+            const user1: UserEntity = this.matchmakingList.shift();
+            const user2: UserEntity = this.matchmakingList.shift();
+            
+            user1.client.join(roomName);
+            user2.client.join(roomName);
+
+            const message: string = roomName + ' between ' + user1.login + ' and ' + user2.login + ' is about to start';
+            console.log('making a match. Players are : ', user1.login, ' and ', user2.login);
+
+            this.broadcastTo(roomName, "test", message);
+        }
+        else console.log('Not enough players in matchmaking');
+    }
+
 }

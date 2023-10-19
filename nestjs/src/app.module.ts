@@ -11,9 +11,10 @@ import { DmModule } from './dm/dm.module';
 import { TfaModule } from './tfa/tfa.module';
 import { PongGateway } from './pong/pong.gateway';
 import { PongModule } from './pong/pong.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [PongModule, PrismaModule, UserModule, AuthModule, ChatModule, DmModule, TfaModule],
+  imports: [PongModule, PrismaModule, UserModule, AuthModule, ChatModule, DmModule, TfaModule, ScheduleModule.forRoot()],
   controllers: [AppController],
   providers: [AppService, UserService, PrismaService, PongGateway],
 })
