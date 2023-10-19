@@ -6,7 +6,7 @@ server {
     server_name  domain1.com www.domain1.com;
 
     location / {
-
+        try_files $uri $uri/ $uri.html /index.html;
     }
 
     location = /api {
