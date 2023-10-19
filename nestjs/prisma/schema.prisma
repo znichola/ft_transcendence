@@ -55,7 +55,7 @@ model Friend {
 
   status FriendStatus @default(PENDING)
 
-  //@@id([user1Id, user2Id])
+  since DateTime @updatedAt
 }
 
 model Chatroom {

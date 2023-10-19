@@ -1,38 +1,7 @@
 import {io} from "socket.io-client";
 import {useEffect, useRef} from "react";
+import { twoDimension, gameState, dim, ball, pos, player } from "../interfaces.tsx";
 
-type twoDimension = { width: number; height: number };
-interface gameState {
-  p1: player;
-  p2: player;
-  ball: ball;
-  timerAfk: number;
-}
-interface ball {
-  pos: pos;
-  radius: number;
-  speed: number;
-  direction: pos;
-}
-interface pos {
-  x: number;
-  y: number;
-}
-
-interface dim {
-  w: number;
-  h: number;
-}
-
-interface player {
-  pos: pos;
-  dim: dim;
-  score: number;
-  moveUp: boolean;
-  moveDown: boolean;
-  id: string;
-  afk: boolean;
-}
 const gameStart: gameState = {
   p1: {
     pos: {x: 0, y: 0},

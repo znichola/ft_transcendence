@@ -18,12 +18,13 @@ export type MessageWithUsername = Prisma.MessageGetPayload<typeof messageWithUse
 
 export class MessageEntity
 {
-	constructor(prismaObject: MessageWithUsername)
+	constructor(prismaObject: MessageWithUsername, isBlocked: boolean)
 	{
 		this.id = prismaObject.id;
 		this.content = prismaObject.text;
 		this.senderLogin42 = prismaObject.user.login42;
 		this.sentAt = prismaObject.sentAt;
+		this.isBlocked = isBlocked;
 	}
 
 	@ApiProperty()
@@ -37,4 +38,7 @@ export class MessageEntity
 
 	@ApiProperty()
 	sentAt: Date;
+
+	@ApiProperty()
+	isBlocked: boolean;
 }
