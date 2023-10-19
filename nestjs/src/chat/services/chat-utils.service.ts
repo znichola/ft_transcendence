@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateVisibilityDto } from "../dto/update-visibility-dto";
 import { CreateChatroomDto } from "../dto/create-chatroom-dto";
@@ -29,7 +29,7 @@ export class ChatUtils
 
 	async checkIsMember(userId: number, chatroomId: number)
 	{
-		if (!this.isMember(userId, chatroomId))
+		if (!await this.isMember(userId, chatroomId))
 			throw new NotFoundException('This user is not a member of the chatroom');
 	}
 
@@ -93,9 +93,9 @@ export class ChatUtils
 		});
 
 		if (member == null)
-			throw new NotFoundException("This user is not a member of the chatroom");
-
-		return (member.role == "OWNER");
+			return false;
+		else
+			return member.role == "OWNER";
 	}
 
 	async isBanned(userId: number, chatroomId: number): Promise<boolean>
@@ -116,5 +116,18 @@ export class ChatUtils
 			}
 		});
 		return (new Date() < member.mutedUntil);
+	}
+
+	async requireAdminRights(userId: number, chatroomId: number)
+	{
+		const issuerMember = await this.prisma.chatroomUser.findUnique({
+			where: {
+				chatroomId_userId: {chatroomId: +chatroomId, userId: +userId}
+			}
+		});
+		if (issuerMember == null)
+			throw new ForbiddenException("You are not a member of this chatroom");
+		if (issuerMember.role == "MEMBER")
+			throw new ForbiddenException("You do not have admin rights in this chatroom");
 	}
 }

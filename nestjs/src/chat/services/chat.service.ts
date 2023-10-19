@@ -14,9 +14,28 @@ export class ChatService
 	constructor(private prisma: PrismaService,
 		private readonly utils: ChatUtils){}
 
-	async getAllChatRooms(): Promise<ChatroomEntity[]>
+	async getAllVisibleChatRooms(identity: string): Promise<ChatroomEntity[]>
 	{
 		const chatroomsFromDb: ChatroomWithUsername[] = await this.prisma.chatroom.findMany({
+			where: {
+				OR:[
+					{
+						status: "PUBLIC"
+					},
+					{
+						status: "PROTECTED"
+					},
+					{
+						chatroomUsers: {
+							some: {
+								user: {
+									login42: identity
+								}
+							}
+						}
+					}
+				]
+			},
 			select: {
 				id: true,
 				name: true,
@@ -33,9 +52,9 @@ export class ChatService
 		return chatroomEntities;
 	}
 
-	async createNewChatRoom(chatroomDto: CreateChatroomDto): Promise<ChatroomEntity>
+	async createNewChatRoom(chatroomDto: CreateChatroomDto, identity: string): Promise<ChatroomEntity>
 	{
-		const userId: number = await this.utils.getUserId(chatroomDto.ownerLogin42);
+		const userId: number = await this.utils.getUserId(identity);
 
 		this.utils.checkPasswordPresence(chatroomDto);
 
@@ -49,7 +68,6 @@ export class ChatService
 			hash = await bcrypt.hash(chatroomDto.password, saltOrRounds);
 		}
 
-		/* create new chatroom and return new chatroom id */
 		let newChatroom: ChatroomWithUsername;
 		try {
 			newChatroom = await this.prisma.chatroom.create({
@@ -84,11 +102,11 @@ export class ChatService
 			else
 				throw e;
 		}
-		
+
 		return new ChatroomEntity(newChatroom);
 	}
 
-	async getOneChatRoom(chatroomId: number): Promise<ChatroomEntity>
+	async getOneChatRoom(chatroomId: number, identity: string): Promise<ChatroomEntity>
 	{
 		const chatroomFromDb: ChatroomWithUsername = await this.prisma.chatroom.findUniqueOrThrow({
 			where: {
@@ -106,12 +124,33 @@ export class ChatService
 			}
 		});
 
+		if (chatroomFromDb.status == "PRIVATE")
+		{
+			const userId = await this.utils.getUserId(identity);
+			if (!await this.utils.isMember(userId, chatroomId))
+				throw new ForbiddenException("You are not a member of this chatroom");
+		}
+
 		return new ChatroomEntity(chatroomFromDb);
 	}
 
-	async deleteChatroom(id: number)
+	async deleteChatroom(id: number, identity: string)
 	{
-		await this.utils.checkChatroomExists(id);
+		const chatroom = await this.prisma.chatroom.findUniqueOrThrow({
+			where: {
+				id: +id,
+			},
+			select: {
+				owner: {
+					select: {
+						login42: true
+					}
+				}
+			}
+		});
+
+		if (chatroom.owner.login42 != identity)
+			throw new ForbiddenException("You are not the owner of this chatroom");
 
 		await this.prisma.chatroom.delete({
 			where: {
@@ -120,8 +159,12 @@ export class ChatService
 		});
 	}
 
-	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto)
+	async updateChatroomVisibility(id: number, updateChatroomDto: UpdateVisibilityDto, identity: string)
 	{
+		const userId = await this.utils.getUserId(identity);
+		if (!await this.utils.isOwner(userId, id))
+			throw new ForbiddenException("You are not the owner of this chatroom");
+
 		this.utils.checkPasswordPresence(updateChatroomDto);
 
 		let hash = null;
@@ -145,8 +188,12 @@ export class ChatService
 		});
 	}
 
-	async updateChatroomOwner(id: number, patch: UpdateOwnerDto)
+	async updateChatroomOwner(id: number, patch: UpdateOwnerDto, identity: string)
 	{
+		const userId = await this.utils.getUserId(identity);
+		if (!await this.utils.isOwner(userId, id))
+			throw new ForbiddenException("You are not the owner of this chatroom");
+
 		const newOwnerId = await this.utils.getUserId(patch.ownerLogin42);
 
 		await this.utils.checkIsMember(newOwnerId, id);
@@ -169,26 +216,26 @@ export class ChatService
 			},
 			data: {
 				ownerId: +newOwnerId,
-			}
-		});
-
-		/* set the new owner as OWNER */
-		await this.prisma.chatroomUser.update({
-			where: {
-				chatroomId_userId: {chatroomId: +id, userId: newOwnerId}
-			},
-			data: {
-				role: "OWNER",
-			}
-		});
-
-		/* set the old owner of the chatroom as ADMIN */
-		await this.prisma.chatroomUser.update({
-			where: {
-				chatroomId_userId: {chatroomId: +id, userId: +oldOwnerId},
-			},
-			data: {
-				role: "ADMIN"
+				chatroomUsers: {
+					update: [
+						{
+							where: {
+								chatroomId_userId: {chatroomId: +id, userId: newOwnerId}
+							},
+							data: {
+								role: "OWNER"
+							}
+						},
+						{
+							where: {
+								chatroomId_userId: {chatroomId: +id, userId: +oldOwnerId},
+							},
+							data: {
+								role: "ADMIN"
+							}
+						}
+					]
+				}
 			}
 		});
 	}
