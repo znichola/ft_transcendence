@@ -10,6 +10,7 @@ volumes:
 
 services:
   nest:
+    container_name: nest
     build:
       context: ./
       dockerfile: requirements/nest/prod.Dockerfile
@@ -19,38 +20,37 @@ services:
     networks:
       - transnet
     env_file:
-      - .env
+      - env/.nestjs.env
     ports:
      - "3000:3000"
 
   react:
+    container_name: react
     build:
         context: ./
         dockerfile: requirements/react/prod.Dockerfile
     volumes:
       - frontend:/app/dist
     env_file:
-      - .env
+      - env/.react.env
 
   postgres:
+    container_name: postgres
     image: postgres
     restart: always
     environment:
-      - POSTGRES_USER=${DATABASE_USR}
       - POSTGRES_PASSWORD=${DATABASE_PWD}
-      - POSTGRES_DB=${DATABASE_NAME}
     networks:
       - transnet
 
   nginx:
+    container_name: nginx
     build:
       context: requirements/nginx
       dockerfile: prod.Dockerfile
     restart: always
     networks:
       - transnet
-    env_file:
-      - .env
     volumes:
       - frontend:/var/www/html
     environment:

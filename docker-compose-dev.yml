@@ -17,7 +17,7 @@ services:
     volumes:
       - ./:/backend
     env_file:
-      - .env
+      - env/.nestjs.env
     init: true
 
   react:
@@ -29,15 +29,15 @@ services:
       - "5173:5173"
     volumes:
       - ./:/app
+    env_file:
+      - env/.react.env
     init: true
 
   postgres:
     container_name: postgres
     build: requirements/postgres
     environment:
-      - POSTGRES_USER=${DATABASE_USR}
       - POSTGRES_PASSWORD=${DATABASE_PWD}
-      - POSTGRES_DB=${DATABASE_NAME}
     networks:
       - transnet
     volumes:
