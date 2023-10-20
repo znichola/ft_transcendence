@@ -45,7 +45,7 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
-  console.log("useAuth is here", foo);
+  // console.log("useAuth is here", foo);
 
   if (!foo)
     return <h1>critical error with auth, this should not be possible</h1>;

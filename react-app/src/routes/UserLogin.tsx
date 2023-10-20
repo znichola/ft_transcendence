@@ -4,11 +4,18 @@ import { Form, useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/useAuth";
 
 export default function Login() {
+  const foo = useAuth();
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-sky-300">
       <AuthButton />
-      <Logout />
-      <DevLogin />
+      {import.meta.env.MODE == "development" ? <DevLogin /> : <></>}
+      {foo?.isloggedIn ? (
+        <a href="/play" className="text-rose-50 underline">
+          if you don't get redirected automatically, click here
+        </a>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
@@ -38,39 +45,6 @@ const AuthButton = () => {
     </button>
   );
 };
-
-function Logout() {
-  const authContext = useAuth();
-  const [color, setColor] = useState<"text-rose-500" | "text-stone-500">(
-    "text-stone-500",
-  );
-  const [message, setMessage] = useState("");
-
-  return (
-    <button
-      onClick={() =>
-        axios
-          .get<string>("/auth/logout")
-          .then((r) => {
-            r.data;
-            authContext?.logOut();
-          })
-          .catch((e) => {
-            if (e.response.status == 401) setColor("text-rose-500");
-            setMessage(e.response.status + " " + e.response.statusText);
-            setTimeout(() => {
-              setColor("text-stone-500");
-              setMessage("");
-            }, 2000);
-          })
-      }
-      className={`relative py-5 w-64 rounded-xl bg-stone-200 px-3 text-center font-bold shadow ${color}`}
-    >
-      <h1 className="text-3xl ">Logout</h1>
-      <label className="absolute w-full start-0 font-base text-xs text-stone-400">{message}</label>
-    </button>
-  );
-}
 
 function DevLogin() {
   const [login, setLogin] = useState("default42");

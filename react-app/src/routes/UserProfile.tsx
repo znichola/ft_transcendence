@@ -12,7 +12,6 @@ import { useEffect, useRef, useState } from "react";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
 import {
-  Heading,
   InputField,
   InputFile,
   InputToggle,
@@ -91,7 +90,7 @@ export default function UserProfile() {
         )}
       </BoxMenu>
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
-      <div className="flex flex-col w-full h-full px-28 pt-64">
+      <div className="flex h-full w-full flex-col px-28 pt-64">
         <div className="flex max-h-72 w-full grow items-center py-4">
           <div
             ref={elo_graph}
@@ -121,21 +120,23 @@ export default function UserProfile() {
 
 function UserProfileHeading({ user }: { user: UserData }) {
   return (
-    <div className="flex w-full flex-row pl-24 pt-8">
+    <div className="flex w-full flex-row lg:pl-24 pl-8 pt-6">
       <div
         className={
-          "mr-6 h-32 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
+          "mr-6 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
         }
       >
         <img
-          className="h-32 shadow"
+          className="aspect-square max-h-32 shadow"
           src={user.avatar}
           alt={user.login42 + " profile image"}
         />
       </div>
       <div className="">
         <PreHeading text={"@" + user.login42} />
-        <Heading title={user.name} />
+        <h1 className="gradient-hightlight py-2 text-5xl font-bold ">
+          {user.name}
+        </h1>
         <p className="pt-2">{user.bio}</p>
       </div>
     </div>

@@ -16,7 +16,7 @@ export default function BoxMenu({
   return (
     <div
       ref={wrapperRef}
-      className="pointer-events-none absolute z-10 top-0 w-full bg-clip-content px-28 py-5"
+      className="pointer-events-none absolute z-10 top-0 w-full bg-clip-content lg:px-28 px-3 py-5"
     >
       {/* <div className="absolute left-0 top-0 z-0 h-[140%] w-full bg-gradient-to-b from-stone-50 to-transparent"></div> */}
       <div className="pointer-events-auto relative flex w-full flex-col items-center justify-between rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
