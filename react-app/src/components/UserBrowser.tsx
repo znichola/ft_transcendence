@@ -56,7 +56,7 @@ export default function UserBrowser({ title }: { title: string }) {
     authApi
       .get<string[]>("/user/", { params: { ...searchParams, page: pageParam } })
       .then((res) => res.data);
-  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, fetchNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["UserList", searchParams],
     queryFn: fetchPage,
     getNextPageParam: (_, pages) => pages.length + 1,
@@ -73,6 +73,7 @@ export default function UserBrowser({ title }: { title: string }) {
   if (isFriError) return <ErrorMessage message="error fetching friends" />;
   if (isFetchingNextPage)
     return <LoadingSpinnerMessage message="fetching pages ..." />;
+  if (status == "error") return <ErrorMessage message="Error fetching pages" />;
 
   const _posts = data?.pages.flatMap((p) => p);
 
