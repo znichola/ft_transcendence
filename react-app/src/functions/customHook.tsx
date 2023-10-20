@@ -7,7 +7,7 @@ import {
   getChatroomMessages,
   getChatrooomData,
   getChatrooomList,
-  getChatrooomMemebers,
+  getChatroomMembers,
   getCurrentUser,
   getUserConversation,
   getUserConverstaionList,
@@ -25,9 +25,11 @@ import {
   putUserFriendRequest,
   putUserProfile,
   removeUserFriend,
+  getChatroomMember,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
+import { AxiosError, HttpStatusCode } from "axios";
 
 export function useCurrentUser() {
   return useQuery({
@@ -246,13 +248,25 @@ export function useChatroom(id: string) {
   });
 }
 
-export function useChatroomMemebers(id: string) {
+export function useChatroomMembers(id: string) {
   return useQuery({
     queryKey: ["ChatroomMemebers", id],
-    queryFn: () => getChatrooomMemebers(id),
+    queryFn: () => getChatroomMembers(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != ""
+  });
+}
+
+export function useChatroomMember(id: string, member: string, handleError?: (axiosError: AxiosError) => void) {
+  return useQuery({
+    queryKey: ["ChatroomMemebers", id, member],
+    queryFn: () => getChatroomMember(id, member),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: id != "" && member != "",
+    onError: handleError,
+    retry: (count, error) => {return count < 5 && error.response?.status != 403}
   });
 }
 

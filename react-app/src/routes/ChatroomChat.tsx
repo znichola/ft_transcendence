@@ -19,11 +19,11 @@ import {
   IconStop,
   IconUserGroup,
 } from "../components/Icons";
-import { useRef, useState } from "react";
-import { Form, Link, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Form, Link, useNavigate, useParams } from "react-router-dom";
 import {
   useChatroom,
-  useChatroomMemebers,
+  useChatroomMembers,
   useChatroomMessages,
   useChatroomBanned,
   useMutDeleteChatroomBan,
@@ -35,6 +35,7 @@ import {
   useUserData,
   useMutChatroomMute,
   useMutDeleteChatroomMute,
+  useChatroomMember,
 } from "../functions/customHook";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
@@ -42,7 +43,7 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/useAuth";
 import { Heading, PreHeading } from "../components/FormComponents";
-import { useQuery } from "@tanstack/react-query";
+import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import { authApi } from "../Api-axios";
 import {
   GenericActionBTN,
@@ -51,56 +52,145 @@ import {
   convertPerms,
 } from "../components/ChatroomChatBTNs";
 import { isMatch } from "../functions/utils";
+import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
 
-export default function ChatroomChat() {
-  const scrollRef = useRef<null | HTMLDivElement>(null);
-  const [buttonState, setButtonState] = useState<string>("UNSET");
+function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload: () => void}) {
+  const [responseMessage, setResponseMessage] = useState(undefined);
+  const [password, setPassword] = useState("");
+  const [inputType, setInputType] = useState("password");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    let response_value: AxiosError<{message: string}> | undefined = await authApi.post("/chatroom/" + id + "/members/", {login42: login42, password: password})
+    .catch(res => res)
+    if (response_value?.status == 201) {
+      console.log("All good !");
+      reload();
+    }
+    else {
+      console.log("Error 42 : ", response_value?.response?.data.message);
+      setErrorMessage(response_value?.response?.data.message);
+    }
+  }
+
+  return(
+    <div>
+      <form onSubmit={handleSubmit}>
+        <h1>your are about to join a new chatroom</h1>
+        <input type={inputType} onChange={(e) => setPassword(e.currentTarget.value)} value={password} placeholder="Enter room password"/>
+        <h2 className="text-red-600">{errorMessage}</h2>
+        <button>submit</button>
+      </form>
+      <button onClick={() => setInputType(inputType == "password" ? "text" : "password")}>Toggle password visibility</button>
+    </div>
+  );
+}
+
+export default function ChatroomManager() {
   const { id } = useParams<"id">();
   const chatroomID = id || "";
+  const currentUser = useAuth()?.user || "";
+  const [reload, setReload] = useState(false);
+  function reloadComponent() {
+    setReload(!reload);
+  }
 
-  const { data: chatroom, isError, isLoading } = useChatroom(chatroomID);
-  const {
-    data: chatroomMembers,
-    isLoading: isMemLoading,
-    isError: isMemError,
-  } = useChatroomMemebers(chatroomID);
-  const {
-    data: banned,
-    isError: isBaErro,
-    isLoading: isBaLoading,
-  } = useChatroomBanned(chatroomID);
+  const [errorCode, setErrorCode] = useState<number | undefined>(undefined);
 
+  function handleError(axiosError: AxiosError) {
+    setErrorCode(axiosError.response?.status);
+  }
+
+  const { data: currentMember, isLoading, isError, error } = useChatroomMember(chatroomID, currentUser, handleError);
+
+  if (currentUser == "" || isLoading) {
+    return <LoadingSpinnerMessage message={"Loading your " + (isLoading ? "member" : "user") + " data..."}/>;
+  }
+  if (isError) {
+    if (errorCode == 403) { //TODO changer dès que on a la liste des salles d'un user. Check si tout marche bien après (Reload automatique si fonctionne)
+      return <JoinChatRoom id={chatroomID} login42={currentUser} reload={reloadComponent}/>;
+    }
+    return <ErrorMessage message={"Error: failed to load your member data"}/>;
+  }
+  return <ChatroomChat/>
+}
+
+//TODO peut passer le currentUser en paramètre
+export function ChatroomChat() {
+  const currentUser = useAuth()?.user || "";
+  const scrollRef = useRef<null | HTMLDivElement>(null);
+  const [buttonState, setButtonState] = useState<string>("UNSET");
+  
+  const { id } = useParams<"id">();
+  const chatroomID = id || "";
+  const {
+    data: chatroom,
+    isError: isChatError,
+    isLoading: isChatLoading,
+  } = useChatroom(chatroomID);
+  
+  const {
+    data: members,
+    isLoading: isMembersLoading,
+    isError: isMembersError,
+    isSuccess: isMembersSuccess,
+  } = useChatroomMembers(chatroomID);
+  
+  //Pour test dev TODO enlever
+  let currentMember = isMembersSuccess && currentUser != "" ? members?.find((m) => m.login42 == currentUser) : undefined
+  const hasAdminRights: boolean = !!currentMember && currentMember.role != "MEMBER";
+  const bannedUserQuery = useChatroomBanned(hasAdminRights ? chatroomID : "");
+  
   const auAUth = useAuth();
   const { data: user, isSuccess } = useUserData(auAUth?.user);
 
-  if (isLoading || isMemLoading || isBaLoading)
+  //Loading cases
+  if (isChatLoading)
+    //TODO : should we display error directly if chatroomID = ""
     return <LoadingSpinnerMessage message="Loading chatroom data ..." />;
-  if (!isSuccess || isError || isMemError || isBaErro)
-    return <ErrorMessage message="error loaidng current uer" />;
-  const btnProps: IButtonsUI = {
+  if (isMembersLoading)
+    return <LoadingSpinnerMessage message="Loading members data ..." />;
+
+  //Error cases
+  if (!isSuccess || !currentMember) return <ErrorMessage message="error loading current user" />;
+  if (isChatError) return <ErrorMessage message="error loading Chatroom" />;
+  if (isMembersError) return <ErrorMessage message="error loading Members" />;
+
+  const buttonParams: IButtonsData = {
     chatroom: chatroom,
-    cuMember: chatroomMembers.find((u) => u.login42 == user.login42),
-    chatroomMembers: chatroomMembers,
-    bannedUsers: banned,
+    currentMember: currentMember,
+    chatroomMembers: members,
   };
+
   const menuBTNs = [
     {
       c: "MANAGE_USERS",
       i: IconUserGroup,
-      f: <ManageUsersUI {...btnProps} />,
+      f: <ManageUsersUI {...buttonParams} />,
     },
+  ];
+  const adminMenuBTNs = [
     {
       c: "ADD_USERS",
       i: IconAddUser,
-      f: <AddUsersUI {...btnProps} />,
+      f: <AddUsersUI chatroom={chatroom} members={members} currentMember={currentMember} bannedUsersQuery={bannedUserQuery} />,
     },
     {
       c: "SETTINGS",
       i: IconGear,
-      f: <SettingsButtonUI {...btnProps} />,
+      f: (
+        <SettingsButtonUI
+          chatroom={chatroom}
+          currentMember={currentMember}
+          bannedUsersQuery={bannedUserQuery}
+        />
+      ),
     },
   ];
+  const usedButtons = hasAdminRights
+    ? menuBTNs.concat(adminMenuBTNs)
+    : menuBTNs;
 
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
@@ -108,7 +198,7 @@ export default function ChatroomChat() {
         resetBTN={() => setButtonState("UNSET")}
         heading={<ChatroomHeading chatroom={chatroom} />}
       >
-        {menuBTNs.map((b) => (
+        {usedButtons.map((b) => (
           <ButtonGeneric
             key={b.c}
             icon={b.i}
@@ -226,14 +316,17 @@ function ChatroomHeading({ chatroom }: { chatroom: IChatroom }) {
   );
 }
 
-interface IButtonsUI {
+interface IButtonsData {
   chatroom: IChatroom;
-  cuMember: IMember | undefined;
-  bannedUsers: string[];
+  currentMember: IMember;
   chatroomMembers: IMember[];
 }
 
-function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
+function ManageUsersUI({
+  chatroom,
+  currentMember,
+  chatroomMembers,
+}: IButtonsData) {
   const [searchValue, setSearchvalue] = useState("");
   return (
     <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -248,9 +341,9 @@ function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
           key={u.login42}
           cardLogin42={u.login42}
           cardMember={u}
-          userMember={cuMember}
+          userMember={currentMember}
           isMember={
-            chatroomMembers.find((m) => m.login42 === cuMember?.login42)
+            chatroomMembers.find((m) => m.login42 === currentMember?.login42)
               ? true
               : false
           }
@@ -263,10 +356,15 @@ function ManageUsersUI({ chatroom, cuMember, chatroomMembers }: IButtonsUI) {
 
 function AddUsersUI({
   chatroom,
-  chatroomMembers,
-  cuMember,
-  bannedUsers,
-}: IButtonsUI) {
+  members,
+  currentMember,
+  bannedUsersQuery,
+}: {
+  chatroom: IChatroom;
+  members: IMember[];
+  currentMember: IMember;
+  bannedUsersQuery: UseQueryResult<string[], unknown>;
+}) {
   const [searchValue, setSearchvalue] = useState("");
   const searchParams = {
     name: searchValue != "" ? searchValue : undefined,
@@ -293,30 +391,37 @@ function AddUsersUI({
           <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
         </div>
       </div>
-      {isLoading ? (
-        <LoadingSpinnerMessage message="fetching users.." />
-      ) : isError ? (
-        <ErrorMessage message="error fething loading" />
+      {isLoading || bannedUsersQuery.isLoading ? (
+        <LoadingSpinnerMessage
+          message={"Loading " + isLoading ? "" : "banned" + " users data..."}
+        />
+      ) : isError || bannedUsersQuery.isError ? (
+        <ErrorMessage
+          message={
+            "Error: failed to load " + isLoading ? "" : "banned " + "users data"
+          }
+        />
       ) : users.length == 0 ? (
         <p>there are no users</p>
       ) : (
         users.map((u) =>
-          bannedUsers.find((b) => b === u) ? (
+          !!bannedUsersQuery.data &&
+          bannedUsersQuery.data.find((b) => b === u) ? (
             <ManageBannedUsersCard
               searchValue={searchValue}
               key={u}
               cardLogin42={u}
-              userMember={cuMember}
+              userMember={currentMember}
               id={chatroom.id + ""}
             />
           ) : (
             <AddUsersCard
               isMember={
-                chatroomMembers.find((m) => m.login42 === u) ? true : false
+                members.find((m) => m.login42 === u) ? true : false
               }
               key={u}
               login42={u}
-              userRole={cuMember?.role}
+              userRole={currentMember?.role}
               id={chatroom.id + ""}
             />
           ),
@@ -326,7 +431,15 @@ function AddUsersUI({
   );
 }
 
-function SettingsButtonUI({ chatroom, cuMember, bannedUsers }: IButtonsUI) {
+function SettingsButtonUI({
+  chatroom,
+  currentMember,
+  bannedUsersQuery,
+}: {
+  chatroom: IChatroom;
+  currentMember: IMember;
+  bannedUsersQuery: UseQueryResult<string[], unknown>;
+}) {
   const [searchValue, setSearchvalue] = useState("");
 
   return (
@@ -337,15 +450,23 @@ function SettingsButtonUI({ chatroom, cuMember, bannedUsers }: IButtonsUI) {
         </div>
       </div>
       <p className="text-center">The list of banner users</p>
-      {bannedUsers.map((u) => (
-        <ManageBannedUsersCard
-          searchValue={searchValue}
-          key={u}
-          cardLogin42={u}
-          userMember={cuMember}
-          id={chatroom.id + ""}
-        />
-      ))}
+      {bannedUsersQuery.isLoading ? (
+        <LoadingSpinnerMessage message="Loading banned users..." />
+      ) : bannedUsersQuery.isError ? (
+        <ErrorMessage message="Error loading banned users" />
+      ) : bannedUsersQuery.data ? (
+        bannedUsersQuery.data.map((u) => (
+          <ManageBannedUsersCard
+            searchValue={searchValue}
+            key={u}
+            cardLogin42={u}
+            userMember={currentMember}
+            id={chatroom.id + ""}
+          />
+        ))
+      ) : (
+        <></>
+      )}
     </ul>
   );
 }

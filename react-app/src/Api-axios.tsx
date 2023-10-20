@@ -183,9 +183,15 @@ export const getChatrooomData = async (id: string) => {
   return authApi.get<IChatroom>("/chatroom/" + id).then((res) => res.data);
 };
 
-export const getChatrooomMemebers = async (id: string) => {
+export const getChatroomMembers = async (id: string) => {
   return authApi
     .get<IMember[]>("/chatroom/" + id + "/members")
+    .then((res) => res.data);
+};
+
+export const getChatroomMember = async (id: string, member: string) => {
+  return authApi
+    .get<IMember>("/chatroom/" + id + "/members/" + member)
     .then((res) => res.data);
 };
 

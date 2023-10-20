@@ -33,6 +33,7 @@ import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
 import UserProfile from "./routes/UserProfile.tsx";
 import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
 import SocketTest from "./routes/SocketTest.tsx";
+import ChatroomManager from "./routes/ChatroomChat.tsx";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +91,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/chatroom/:id",
-            element: <ChatRoomChat />,
+            element: <ChatroomManager />,
           },
           {
             path: "/friend",
