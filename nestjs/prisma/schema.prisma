@@ -37,7 +37,7 @@ model User {
   createdGames Game[] @relation("Created")
   joinedGames  Game[] @relation("Joined")
 
-  messages Message[]
+  messages       Message[]
   directMessages DirectMessage[]
 
   conversation Conversation[] @relation("User1")
@@ -113,53 +113,55 @@ model Message {
 }
 
 model Conversation {
-	id Int	@id @default(autoincrement())
-	user1Id	Int
-	user1	User @relation("User1", fields: [user1Id], references: [id])
+  id      Int  @id @default(autoincrement())
+  user1Id Int
+  user1   User @relation("User1", fields: [user1Id], references: [id])
 
-	user2Id	Int
-	user2	User @relation("User2", fields: [user2Id], references: [id])
+  user2Id Int
+  user2   User @relation("User2", fields: [user2Id], references: [id])
 
-	messages	DirectMessage[]
-	@@unique([user1Id, user2Id])
+  messages DirectMessage[]
+
+  @@unique([user1Id, user2Id])
 }
 
 model DirectMessage {
-	id Int	@id @default(autoincrement())
-	text String
+  id   Int    @id @default(autoincrement())
+  text String
 
-	senderId Int
-	sender   User @relation(fields: [senderId], references: [id])
+  senderId Int
+  sender   User @relation(fields: [senderId], references: [id])
 
-	conversationId Int
-	conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId Int
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-	sentAt DateTime @default(now())
+  sentAt DateTime @default(now())
 }
 
 model Game {
-  id       Int      @id @default(autoincrement())
-  special  Boolean
-  date     DateTime @default(now())
+  id      Int      @id @default(autoincrement())
+  special Boolean
+  rated   Boolean
+  date    DateTime @default(now())
 
   player1Id        Int
   player1          User @relation("Created", fields: [player1Id], references: [id])
   player1StartElo  Int?
   player1Score     Int?
   player1EloChange Int?
-  player1PosX Int?
-  player1PosY Int?
+  player1PosX      Int?
+  player1PosY      Int?
 
   player2Id        Int
   player2          User @relation("Joined", fields: [player2Id], references: [id])
   player2StartElo  Int?
   player2Score     Int?
   player2EloChange Int?
-  player2PosX Int?
-  player2PosY Int?
+  player2PosX      Int?
+  player2PosY      Int?
 
-  ballPosX    Int?
-  ballPosY    Int?
+  ballPosX Int?
+  ballPosY Int?
 }
 
 enum ChatroomUserRole {
