@@ -121,7 +121,7 @@ async function FakerData() {
         UserStatus.INGAME,
         UserStatus.ONLINE,
         UserStatus.OFFLINE,
-        UserStatus.UNAVAILABLE,
+        UserStatus.INQUEUE,
       ]),
       faker.person.bio(),
     );
