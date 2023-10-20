@@ -26,10 +26,11 @@ import {
   putUserProfile,
   removeUserFriend,
   getChatroomMember,
+  postUserAvatar,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
-import { AxiosError, HttpStatusCode } from "axios";
+import { AxiosError } from "axios";
 
 export function useCurrentUser() {
   return useQuery({
@@ -49,7 +50,7 @@ export function useUserData(login42?: string) {
     queryFn: () => getUserData(login42),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: login42 != ""
+    enabled: login42 != "",
   });
 }
 
@@ -81,7 +82,7 @@ export function useUserConversations(user: string) {
     queryFn: () => getUserConverstaionList(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: user != ""
+    enabled: user != "",
   });
 }
 
@@ -91,7 +92,7 @@ export function useUserConversation(user1: string, user2: string) {
     queryFn: () => getUserConversation(user1, user2),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: user1 != "" && user2 != ""
+    enabled: user1 != "" && user2 != "",
   });
 }
 
@@ -101,7 +102,7 @@ export function useUserConvoMessages(user1: string, user2: string) {
     queryFn: () => getUserConvoMessageList(user1, user2),
     // staleTime: 5 * (60 * 1000), // 5 mins
     // cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: user1 != "" && user2 != ""
+    enabled: user1 != "" && user2 != "",
   });
 }
 
@@ -161,6 +162,19 @@ export function useMutUserProfile(user: string) {
   });
 }
 
+export function useMutUserAvatar(user: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    retry: false,
+    mutationFn: (file: File) => postUserAvatar(user, file),
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: ["UserData", user],
+      });
+    },
+  });
+}
+
 // ---------- User Relations
 
 export function useUserFriends(user: string) {
@@ -169,7 +183,7 @@ export function useUserFriends(user: string) {
     queryFn: () => getUserFriends(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: user != ""
+    enabled: user != "",
   });
 }
 
@@ -244,7 +258,7 @@ export function useChatroom(id: string) {
     queryFn: () => getChatrooomData(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: id != ""
+    enabled: id != "",
   });
 }
 
@@ -254,11 +268,15 @@ export function useChatroomMembers(id: string) {
     queryFn: () => getChatroomMembers(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: id != ""
+    enabled: id != "",
   });
 }
 
-export function useChatroomMember(id: string, member: string, handleError?: (axiosError: AxiosError) => void) {
+export function useChatroomMember(
+  id: string,
+  member: string,
+  handleError?: (axiosError: AxiosError) => void,
+) {
   return useQuery({
     queryKey: ["ChatroomMemebers", id, member],
     queryFn: () => getChatroomMember(id, member),
@@ -266,7 +284,9 @@ export function useChatroomMember(id: string, member: string, handleError?: (axi
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "" && member != "",
     onError: handleError,
-    retry: (count, error) => {return count < 5 && error.response?.status != 403}
+    retry: (count, error) => {
+      return count < 5 && error.response?.status != 403;
+    },
   });
 }
 
@@ -276,7 +296,7 @@ export function useChatroomMessages(id: string) {
     queryFn: () => getChatroomMessages(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: id != ""
+    enabled: id != "",
   });
 }
 
@@ -353,7 +373,7 @@ export function useChatroomBanned(id: string) {
     queryFn: () => getChatroomBanded(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: id != ""
+    enabled: id != "",
   });
 }
 

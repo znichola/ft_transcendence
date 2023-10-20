@@ -99,7 +99,7 @@ export interface IMember {
 
 export interface IPutUserProfile {
   bio?: string;
-  displayName?: string;
+  name?: string;
 }
 
 // --------- pong / gameState

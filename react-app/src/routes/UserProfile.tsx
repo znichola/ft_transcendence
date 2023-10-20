@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import {
+  useMutUserAvatar,
   useMutUserProfile,
   useUserData,
   useUserFriends,
@@ -23,6 +24,7 @@ import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
+import { AxiosError, AxiosResponse } from "axios";
 
 export default function UserProfile() {
   // react states
@@ -38,6 +40,12 @@ export default function UserProfile() {
     isError: isFriError,
   } = useUserFriends(curretUser);
   const { data: profileUser, isLoading, isError } = useUserData(login42 || "");
+
+  const [name, setName] = useState(profileUser?.name || "");
+  const [bio, setBio] = useState(profileUser?.bio);
+
+  // profile elo, maybe this should be abstracted into a component
+  // feels a bit messay having this code that's not related to the rest of the page
 
   //EloRanking size update
   const [graphWidth, setGraphWidth] = useState(0);
@@ -70,7 +78,13 @@ export default function UserProfile() {
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
         resetBTN={() => setButtonState("UNSET")}
-        heading={<UserProfileHeading user={profileUser} />}
+        heading={
+          <UserProfileHeading
+            user={profileUser}
+            name={name || profileUser.name}
+            bio={bio || profileUser.bio}
+          />
+        }
       >
         {curretUser === login42 ? (
           <ButtonGeneric
@@ -79,7 +93,13 @@ export default function UserProfile() {
             buttonState={buttonState}
             checked="user-settings"
           >
-            <CurrentUserSettings user={profileUser} />
+            <CurrentUserSettings
+              user={profileUser}
+              name={name}
+              setName={setName}
+              bio={bio}
+              setBio={setBio}
+            />
           </ButtonGeneric>
         ) : (
           <UserInteractions
@@ -118,9 +138,17 @@ export default function UserProfile() {
   );
 }
 
-function UserProfileHeading({ user }: { user: UserData }) {
+function UserProfileHeading({
+  user,
+  name,
+  bio,
+}: {
+  user: UserData;
+  name: string;
+  bio: string | undefined;
+}) {
   return (
-    <div className="flex w-full flex-row lg:pl-24 pl-8 pt-6">
+    <div className="flex w-full flex-row pl-8 pt-6 lg:pl-24">
       <div
         className={
           "mr-6 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
@@ -134,10 +162,8 @@ function UserProfileHeading({ user }: { user: UserData }) {
       </div>
       <div className="">
         <PreHeading text={"@" + user.login42} />
-        <h1 className="gradient-hightlight py-2 text-5xl font-bold ">
-          {user.name}
-        </h1>
-        <p className="pt-2">{user.bio}</p>
+        <h1 className="gradient-hightlight py-2 text-5xl font-bold ">{name}</h1>
+        <p className="pt-2">{bio}</p>
       </div>
     </div>
   );
@@ -185,10 +211,15 @@ function UserInteractions({
   );
 }
 
-function CurrentUserSettings({ user }: { user: UserData }) {
-  const [name, setName] = useState(user.name);
-  const [bio, setBio] = useState(user.bio);
-  const [tfa, setTFA] = useState(false);
+function CurrentUserSettings({
+  user,
+  name,
+  setName,
+  bio,
+  setBio,
+}: IModifyForm) {
+  // const [name, setName] = useState(user.name);
+  // const [bio, setBio] = useState(user.bio);
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
@@ -200,34 +231,18 @@ function CurrentUserSettings({ user }: { user: UserData }) {
         setBio={setBio}
         user={user}
       />
-      <form
-        className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"
-        onSubmit={(e) => {
-          e.preventDefault();
-          console.log("submitted new image");
+      <button
+        className="w-[32rem] px-12 text-end italic text-slate-400 underline"
+        onClick={() => {
+          setName(user.name);
+          setBio(user.bio);
         }}
       >
-        <div className="w-full">
-          <InputFile name="avatar-image" lable="Avatar image" />
-        </div>
-        <div className="ml-6 flex-grow border-l-2 border-rose-400 pl-6 ">
-          <SubmitBTN lable="Upload" />
-        </div>
-      </form>
+        reset
+      </button>
+      <ProfileModifyAvatar user={user} />
       <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
-      <div className="flex flex-row justify-center pb-10">
-        <InputToggle
-          onLable="2FA Enabled"
-          offLable="2FA Disabled"
-          value={tfa}
-          onToggle={() => setTFA(tfa ? false : true)}
-        />
-        <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
-          <p className="w-72 pb-3 text-slate-400">
-            Once enabled, scan the code to link your google 2FA app.
-          </p>
-        </div>
-      </div>
+      <ProfileModifyTFA />
     </div>
   );
 }
@@ -241,7 +256,9 @@ interface IModifyForm {
 }
 
 function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
-  const modifyProfile = useMutUserProfile(user.login42);
+  const mp = useMutUserProfile(user.login42);
+  const msg = "remember to save changes";
+  const [err, setErr] = useState(msg);
 
   return (
     <form
@@ -249,6 +266,14 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted");
+        mp.mutate({ name: name, bio: bio });
+        mp.isError
+          ? setErr(
+              "Error: " +
+                ((mp.error as AxiosError).response as AxiosResponse).data
+                  .message,
+            )
+          : setErr(msg);
       }}
     >
       <InputField
@@ -267,11 +292,63 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
       />
       <div className="flex text-slate-500 ">
         <p className="mr-6 flex-grow border-r-2 border-rose-400 pr-6 text-right">
-          TODO: add error message for post
+          {err}
         </p>
         <SubmitBTN />
       </div>
     </form>
+  );
+}
+
+function ProfileModifyAvatar({ user }: { user: UserData }) {
+  const [file, setFile] = useState<File>();
+  const foo = useMutUserAvatar(user.login42);
+
+  console.log("file:", file);
+  return (
+    <form
+      className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"
+      onSubmit={(e) => {
+        e.preventDefault();
+        console.log("submitted new image");
+        if (file) foo.mutate(file);
+      }}
+    >
+      <div className="w-full">
+        <InputFile
+          handleFileChange={(e) => {
+            if (e.target.files) {
+              setFile(e.target.files[0]);
+            }
+          }}
+          name="avatar-image"
+          lable="Avatar image"
+        />
+      </div>
+      <div className="ml-6 flex-grow border-l-2 border-rose-400 pl-6 ">
+        <SubmitBTN lable="Upload" />
+      </div>
+    </form>
+  );
+}
+
+function ProfileModifyTFA() {
+  const [tfa, setTFA] = useState(false);
+
+  return (
+    <div className="flex flex-row justify-center pb-10">
+      <InputToggle
+        onLable="2FA Enabled"
+        offLable="2FA Disabled"
+        value={tfa}
+        onToggle={() => setTFA(tfa ? false : true)}
+      />
+      <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
+        <p className="w-72 pb-3 text-slate-400">
+          Once enabled, scan the code to link your google 2FA app.
+        </p>
+      </div>
+    </div>
   );
 }
 
