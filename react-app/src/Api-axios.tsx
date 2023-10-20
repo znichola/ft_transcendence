@@ -120,6 +120,31 @@ export const putUserProfile = async (
   // .catch((error) => console.log(error.toJSON));
 };
 
+// const formData = new FormData();
+//     formData.append("selectedFile", selectedFile);
+//     try {
+//       const response = await axios({
+//         method: "post",
+//         url: "/api/upload/file",
+//         data: formData,
+//         headers: { "Content-Type": "multipart/form-data" },
+//       });
+//     } catch(error) {
+//       console.log(error)
+//     }
+
+export const postUserAvatar = async (login42: string, file: File) => {
+  const formData = new FormData();
+  formData.append("selectedFile", file);
+  return authApi
+    .post<HttpStatusCode>(`/user/${login42}/avatar`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((r) => r.data);
+};
+
 //------------------------------------------Conversations------------------------------------------------//
 
 export const getUserConverstaionList = async (user: string) => {

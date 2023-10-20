@@ -1,3 +1,5 @@
+import { ChangeEvent } from "react";
+
 interface IInputField {
   value: string;
   lable: string;
@@ -52,7 +54,7 @@ export function InputField({
           className="w-full bg-transparent outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
           type="text"
           autoComplete="off"
-          max={max}
+          maxLength={max}
           placeholder={placeholder}
           onChange={onChange}
           value={value}
@@ -76,6 +78,7 @@ interface IInputFile {
   mustHave?: boolean;
   disabled?: boolean;
   accept?: string;
+  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
 export function InputFile({
@@ -84,6 +87,7 @@ export function InputFile({
   mustHave,
   disabled,
   accept,
+  handleFileChange
 }: IInputFile) {
   return (
     <div>
@@ -108,6 +112,7 @@ export function InputFile({
           id={name}
           name={name}
           type="file"
+          onChange={handleFileChange}
           accept={accept}
           disabled={disabled}
         />
