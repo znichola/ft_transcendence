@@ -104,36 +104,38 @@ export interface IPutUserProfile {
 
 // --------- pong / gameState
 
-export type twoDimension = { width: number; height: number };
-export interface gameState {
-  p1: player;
-  p2: player;
-  ball: ball;
+export type I2D = { width: number; height: number };
+
+export interface IGameState {
+  p1: IPlayer;
+  p2: IPlayer;
+  ball: IBall;
   timerAfk: number;
+  type: boolean;
 }
-export interface ball {
-  pos: pos;
+export interface IBall {
+  pos: IPos;
   radius: number;
   speed: number;
-  direction: pos;
+  direction: IPos;
 }
-export interface pos {
+export interface IPos {
   x: number;
   y: number;
 }
 
-export interface dim {
+export interface IDim {
   w: number;
   h: number;
 }
 
-export interface player {
-  pos: pos;
-  dim: dim;
+export interface IPlayer {
+  pos: IPos;
+  dim: IDim;
   score: number;
   moveUp: boolean;
   moveDown: boolean;
-  id: string;
+  id: string | undefined;
   afk: boolean;
 }
 

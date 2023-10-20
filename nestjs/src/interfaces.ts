@@ -1,3 +1,5 @@
+import {UserEntity} from "./user/user.entity";
+
 export interface FriendData {
   login42: string,
   name: string,
@@ -35,34 +37,83 @@ export interface GameHistory {
   result: number;
 }
 
-export interface GameState {
-  p1: Player;
-  p2: Player;
-  ball: ball;
-  timerAfk: number;
+// export interface GameState {
+//   p1: Player;
+//   p2: Player;
+//   ball: ball;
+//   timerAfk: number;
+// }
+// export interface ball {
+//   pos: pos;
+//   radius: number;
+//   speed: number;
+//   direction: pos;
+// }
+// export interface pos {
+//   x: number;
+//   y: number;
+// }
+//
+// export interface dim {
+//   w: number;
+//   h: number;
+// }
+//
+// export interface Player {
+//   pos: pos;
+//   dim: dim;
+//   score: number;
+//   moveUp: boolean;
+//   moveDown: boolean;
+//   id: string;
+//   afk: boolean;
+// }
+
+// --------- pong / gameState
+
+export type I2D = { width: number; height: number };
+
+export interface IRoom {
+  gs: IGameState;
+  user1: IUserInfo;
+  user2: IUserInfo;
+  roomName: string;
+  type: boolean;
 }
-export interface ball {
-  pos: pos;
+
+export interface IUserInfo {
+  info: UserEntity;
+  halo: number;
+}
+export interface IGameState {
+  p1: IPlayer;
+  p2: IPlayer;
+  ball: IBall;
+  timerAfk: number;
+  type: boolean;
+}
+export interface IBall {
+  pos: IPos;
   radius: number;
   speed: number;
-  direction: pos;
+  direction: IPos;
 }
-export interface pos {
+export interface IPos {
   x: number;
   y: number;
 }
 
-export interface dim {
+export interface IDim {
   w: number;
   h: number;
 }
 
-export interface Player {
-  pos: pos;
-  dim: dim;
+export interface IPlayer {
+  pos: IPos;
+  dim: IDim;
   score: number;
   moveUp: boolean;
   moveDown: boolean;
-  id: string;
+  id: string | undefined; // TODO SUPPRIMER
   afk: boolean;
 }
