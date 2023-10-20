@@ -117,7 +117,7 @@ export async function createDummyData() {
     90,
     84,
     generateHistory(),
-    UserStatus.UNAVAILABLE,
+    UserStatus.INQUEUE,
   );
 
   await createUser(
