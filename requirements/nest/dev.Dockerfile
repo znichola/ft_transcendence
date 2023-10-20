@@ -9,10 +9,10 @@ EXPOSE 3000/tcp
 RUN echo 'PS1="nest \w > "' >> ~/.bashrc
 
 RUN mkdir -p /script
-COPY /config.sh /script
-RUN chmod +x /script/config.sh
+COPY dev.entrypoint.sh /script/entrypoint.sh
+RUN chmod +x /script/entrypoint.sh
 
 WORKDIR /backend
 
-ENTRYPOINT ["/script/config.sh"]
+ENTRYPOINT ["/script/entrypoint.sh"]
 CMD [ "nest", "start", "--watch", "--preserveWatchOutput" ]

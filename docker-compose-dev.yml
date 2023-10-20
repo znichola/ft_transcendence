@@ -8,7 +8,9 @@ networks:
 services:
   nest:
     container_name: nest
-    build: requirements/nest
+    build:
+      context: requirements/nest
+      dockerfile: dev.Dockerfile
     networks:
       - transnet
     ports:
@@ -22,7 +24,9 @@ services:
 
   react:
     container_name: react
-    build: requirements/react
+    build:
+      context: requirements/react
+      dockerfile: dev.Dockerfile
     networks:
       - transnet
     ports:
@@ -35,7 +39,9 @@ services:
 
   postgres:
     container_name: postgres
-    build: requirements/postgres
+    build:
+      context: requirements/postgres
+      dockerfile: dev.Dockerfile
     environment:
       - POSTGRES_PASSWORD=${DATABASE_PWD}
     networks:
@@ -48,7 +54,7 @@ services:
     image: nginx
     container_name: nginx
     volumes:
-      - ./requirements/nginx/templates:/etc/nginx/templates
+      - ./requirements/nginx/dev.templates:/etc/nginx/templates
     ports:
       - "8080:80"
     environment:

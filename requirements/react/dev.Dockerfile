@@ -7,10 +7,10 @@ EXPOSE 5173/tcp
 RUN echo 'PS1="react \w > "' >> ~/.bashrc
 
 RUN mkdir -p /script
-COPY /config.sh /script
-RUN chmod +x /script/config.sh
+COPY dev.entrypoint.sh /script/entrypoint.sh
+RUN chmod +x /script/entrypoint.sh
 
 WORKDIR /app
 
-ENTRYPOINT ["/script/config.sh"]
+ENTRYPOINT ["/script/entrypoint.sh"]
 CMD [ "npm", "run", "dev" ]
