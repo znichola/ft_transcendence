@@ -167,8 +167,6 @@ function ButtonGeneric({
 
 function ManageUsersUI({ channelUsers }: { channelUsers: chatRoomUser[] }) {
   const [searchValue, setSearchvalue] = useState("");
-
-  // {data : chatroomUsers, isLoading, isError} useQuery({queryKey: ""})
   return (
     <>
       <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">

@@ -187,9 +187,6 @@ export default function GlobalRanking() {
   const filter_menu = FilterMenu();
   return (
     <div className="flex max-h-screen flex-col items-center overflow-y-auto">
-      <h1 className=" bg-gradient-to-tl from-green-700 to-sky-600 bg-clip-text p-10 text-center text-6xl font-bold text-transparent">
-        Here be ranked <br /> the best <br /> of the best
-      </h1>
       {/* this still needs to be implemented, but it should be possible with the query string on the get whoever want's to should give it a crack*/}
       {filter_menu.Obj}
       {/* also pagination should be added for the all users selector, something to get it working properly */}

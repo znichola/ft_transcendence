@@ -9,25 +9,25 @@ import PlayPong from "./PlayPong";
 export default function PongDuel() {
   const { player1_login42: p1 } = useParams<"player1_login42">();
   const { player2_login42: p2 } = useParams<"player2_login42">();
-  const { game_mode: gm } = useParams<"game_mode">();
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-    initialData: "default42",
-  });
+  // const { game_mode: gm } = useParams<"game_mode">();
+  // const { data: user } = useQuery({
+  //   queryKey: ["currentUser"],
+  //   queryFn: getCurrentUser,
+  //   initialData: "default42",
+  // });
 
-  const {
-    data: gameData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["gameData", p1, "vs", p2],
-    queryFn: () =>
-      axios
-        // fix with corrent type and query
-        .get<UserData>("/pong/" + p1 + "/vs/" + p2)
-        .then((res) => res.data),
-  });
+  // const {
+  //   data: gameData,
+  //   isLoading,
+  //   isError,
+  // } = useQuery({
+  //   queryKey: ["gameData", p1, "vs", p2],
+  //   queryFn: () =>
+  //     axios
+  //       // fix with corrent type and query
+  //       .get<UserData>("/pong/" + p1 + "/vs/" + p2)
+  //       .then((res) => res.data),
+  // });
 
   // if (isLoading) {
   //   return (
@@ -60,6 +60,6 @@ export default function PongDuel() {
   // }
 
   return(
-    <PlayPong player1={p1} player2={p2}/>
+    <PlayPong player1={p1 || ""} player2={p2 || "" }/>
   );
 }

@@ -25,7 +25,7 @@ export default function Root() {
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-stone-200">
-      <div className={"left-0 right-auto absolute z-10 h-screen w-screen transition-all duration-500 " + (hide ? "backdrop-blur-none pointer-events-none" : "backdrop-blur-sm lg:backdrop-blur-none lg:pointer-events-none")}>
+      <div className={"left-0 right-auto absolute z-20 h-screen w-screen transition-all duration-500 " + (hide ? "backdrop-blur-none pointer-events-none" : "backdrop-blur-sm lg:backdrop-blur-none lg:pointer-events-none")}>
         <SideMenu reference={sideMenuRef} hide={hide} toggleHide={() => {setHide(!hide)}}/>
       </div>
       <div className={"transition-all duration-500 " + (hide ? " min-w-0 " : " lg:min-w-[18rem] ")}/>

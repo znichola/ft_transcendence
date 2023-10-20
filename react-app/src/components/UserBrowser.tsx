@@ -108,7 +108,6 @@ export default function UserBrowser({ title }: { title: string }) {
           </div>
         </div>
       </BoxMenu>
-      <h1 className="" />
       <div className="flex w-full flex-col items-center overflow-scroll pt-80">
         {_posts?.map((u) => (
           <FilterInfoCard

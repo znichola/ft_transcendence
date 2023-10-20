@@ -47,6 +47,7 @@ export function useUserData(login42?: string) {
     queryFn: () => getUserData(login42),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: login42 != ""
   });
 }
 
@@ -78,6 +79,7 @@ export function useUserConversations(user: string) {
     queryFn: () => getUserConverstaionList(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: user != ""
   });
 }
 
@@ -87,6 +89,7 @@ export function useUserConversation(user1: string, user2: string) {
     queryFn: () => getUserConversation(user1, user2),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: user1 != "" && user2 != ""
   });
 }
 
@@ -96,6 +99,7 @@ export function useUserConvoMessages(user1: string, user2: string) {
     queryFn: () => getUserConvoMessageList(user1, user2),
     // staleTime: 5 * (60 * 1000), // 5 mins
     // cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: user1 != "" && user2 != ""
   });
 }
 
@@ -163,6 +167,7 @@ export function useUserFriends(user: string) {
     queryFn: () => getUserFriends(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: user != ""
   });
 }
 
@@ -237,6 +242,7 @@ export function useChatroom(id: string) {
     queryFn: () => getChatrooomData(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: id != ""
   });
 }
 
@@ -246,6 +252,7 @@ export function useChatroomMemebers(id: string) {
     queryFn: () => getChatrooomMemebers(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: id != ""
   });
 }
 
@@ -255,6 +262,7 @@ export function useChatroomMessages(id: string) {
     queryFn: () => getChatroomMessages(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: id != ""
   });
 }
 
@@ -331,6 +339,7 @@ export function useChatroomBanned(id: string) {
     queryFn: () => getChatroomBanded(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: id != ""
   });
 }
 

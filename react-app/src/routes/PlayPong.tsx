@@ -36,7 +36,7 @@ export function DisplayPlayer({
       />
       <div
         className={
-          "flex flex-col justify-center p-2" + (right ? " items-end " : "")
+          "flex flex-col justify-center p-2" + (right ? " items-end text-right" : "")
         }
       >
         <p className="">{user?.name}</p>
