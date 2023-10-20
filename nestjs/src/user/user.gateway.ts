@@ -66,7 +66,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
         //     const message = "hello this is a test with ids " + this.userList[0].client.id + ' and ' + this.userList[1].client.id;
         //     this.broadcastTo("game1", "test", message);
         // }
-        await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
+        await this.userService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
     }
 
     broadcast(event: string, user: string)

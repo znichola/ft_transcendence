@@ -100,3 +100,39 @@ export interface IPutUserProfile {
   bio?: string;
   displayName?: string;
 }
+
+// --------- pongRoom / pong
+
+export type twoDimension = { width: number; height: number };
+export interface gameState {
+  p1: player;
+  p2: player;
+  ball: ball;
+  timerAfk: number;
+  //gameType: bool;
+}
+export interface ball {
+  pos: pos;
+  radius: number;
+  speed: number;
+  direction: pos;
+}
+export interface pos {
+  x: number;
+  y: number;
+}
+
+export interface dim {
+  w: number;
+  h: number;
+}
+
+export interface player {
+  pos: pos;
+  dim: dim;
+  score: number;
+  moveUp: boolean;
+  moveDown: boolean;
+  id: string;
+  afk: boolean;
+}
