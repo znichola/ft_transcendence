@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GameState, Player } from 'src/interfaces';
+import { IGameState, IPlayer } from 'src/interfaces';
 
 const prisma: PrismaService = new PrismaService();
 
