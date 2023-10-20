@@ -41,6 +41,69 @@ export class UserService {
     return usersArray;
   }
 
+  async findAllFriends(user: string, page?: number, searchName?: string, findStatus?: UserStatus ): Promise<string[]>
+  {
+    const userId = await this.getUserId(user);
+    const allFriends = await prisma.friend.findMany({
+      where: {
+        OR: [
+          {
+            user1Id: userId,
+            user2: {
+              OR: [
+                {
+                  login42: { mode: 'insensitive', contains: searchName || '' }
+                },
+                {
+                  name: { mode: 'insensitive', contains: searchName || '' }
+                }
+              ],
+              status: findStatus,
+            }
+          },
+          {
+            user2Id: userId,
+            user1: {
+              OR: [
+                {
+                  login42: { mode: 'insensitive', contains: searchName || '' }
+                },
+                {
+                  name: { mode: 'insensitive', contains: searchName || '' }
+                }
+              ],
+              status: findStatus,
+            }
+          }
+        ],
+        status: FriendStatus.ACCEPTED,
+      },
+      select: { 
+        user1Id: true,
+        user2Id: true
+      }
+    });
+
+    console.log(allFriends);
+
+    let filteredFriends: string[] = [];
+    console.log('logging friendships');
+    for (const friendship of allFriends) {
+      if (friendship.user1Id != userId)
+      {
+        const friendLogin = await this.getUserLogin(friendship.user2Id);
+        filteredFriends.push(friendLogin);
+      }
+      else
+      {
+        const friendLogin = await this.getUserLogin(friendship.user2Id);
+        filteredFriends.push(friendLogin);
+      }
+    }
+    return filteredFriends;
+
+  }
+
   async findUserFromLogin(login: string): Promise<UserData> {
     const user = await prisma.user.findUnique({
       where: {
@@ -91,6 +154,15 @@ export class UserService {
       where: { login42: login },
       data: { status: newStatus },
     });
+  }
+
+  async getUserLogin(id: number): Promise<string> {
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+      select: { login42: true },
+    });
+    if (!user) return null;
+    return user.login42;
   }
 
   async getUserId(login: string): Promise<number> {

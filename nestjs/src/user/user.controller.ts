@@ -28,6 +28,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveImageToServer } from 'src/utils/avatar-storage';
 import { createReadStream, existsSync } from 'fs';
+import { UserProfileDto } from './dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -86,17 +87,33 @@ export class UserController {
   })
   @Get()
   async getAllUsers(
+    @Req() req: Request,
     @Query('page') page?: string,
     @Query('status') status?: string,
     @Query('name') name?: string,
+    @Query('friend') friend?: string,
   ): Promise<string[]> {
     if (!page) page = '1';
     let searchStatus: UserStatus = UserStatus[status];
-    const usersInfo: string[] = await this.userService.findAll(
-      parseInt(page),
-      name,
-      searchStatus,
-    );
+    let usersInfo: string[];
+    if (friend == 'true')
+    {
+      const userLogin: string = await this.authService.getLoginFromToken(req.cookies[process.env.COOKIE_USR].access_token);
+      usersInfo = await this.userService.findAllFriends(
+        userLogin,
+        parseInt(page),
+        name,
+        searchStatus,
+      );
+    }
+    else
+    {
+      usersInfo = await this.userService.findAll(
+        parseInt(page),
+        name,
+        searchStatus,
+      );
+    }
     return usersInfo;
   }
 
@@ -166,9 +183,10 @@ export class UserController {
   @Put(':username')
   async updateUser(
     @Param('username') username: string,
-    @Body() bodyData: UserData,
+    @Body() bodyData: UserProfileDto,
     @Req() req: Request,
-  ): Promise<UserData> {
+  ): Promise<UserData>
+  {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
 
     if (bodyData.name) {
@@ -176,12 +194,12 @@ export class UserController {
       if (user) {
         throw new HttpException('Name already in use.', HttpStatus.BAD_REQUEST);
       }
-    }
-    return this.userService.updateUserName(
-      username,
-      bodyData.name,
-      bodyData.bio,
-    );
+      return this.userService.updateUserName(
+        username,
+        bodyData.name,
+        bodyData.bio,
+        );
+      }
   }
 
   @HttpCode(HttpStatus.OK)
