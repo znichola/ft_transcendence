@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IGameState } from 'src/interfaces';
+import { UserStatus } from '@prisma/client';
 
 const prisma: PrismaService = new PrismaService();
 
@@ -29,23 +30,73 @@ export class PongService {
 
     async endGame(gameId: number, gameState: IGameState)
     {
-        await prisma.game.update({
+        const gameInfo = await prisma.game.findUnique({ 
+            where: { id: gameId },
+            select: {
+                player1StartElo: true,
+                player2StartElo: true,
+             },
+        });
+
+        const player1Score = 
+        gameState.p1.score > gameState.p2.score ? 1 
+        : gameState.p1.score == gameState.p2.score ? 0.5 : 0;
+
+        const eloChanges = this.calculateEloChange(
+            gameInfo.player1StartElo,
+            gameInfo.player2StartElo,
+            player1Score);
+
+        const endedGame = await prisma.game.update({
             where: { id: gameId },
             data: { 
                 player1Score: gameState.p1.score,
+                player1EloChange: eloChanges[0],
                 player1PosX: gameState.p1.pos.x,
                 player1PosY: gameState.p1.pos.y,
                 player2Score: gameState.p2.score,
+                player2EloChange: eloChanges[1],
                 player2PosX: gameState.p2.pos.x,
                 player2PosY: gameState.p2.pos.y,
                 ballPosX: gameState.ball.pos.x,
                 ballPosY: gameState.ball.pos.y,
-            }
-        })
+            },
+            select: { player1StartElo: true, player2StartElo: true }
+        });
+
+        this.updateUserElo(gameState.p1.id, endedGame.player1StartElo + eloChanges[0]);
+        this.updateUserElo(gameState.p2.id, endedGame.player2StartElo + eloChanges[1]);
     }
 
     async cancelGame(gameId: number)
     {
         await prisma.game.delete({ where: { id: gameId }});
+    }
+
+    calculateEloChange(player1Elo: number, player2Elo: number, player1Score: number) : number[]
+    {
+        const modifierPlayer1 = 1 / (1 + 10 ** ((player2Elo - player1Elo) / 400));
+        const modifierPlayer2 = 1 / (1 + 10 ** ((player1Elo - player2Elo) / 400));
+
+        const player2Score = 1 - player1Score;
+
+        const eloChange1 = 32 * (player1Score - modifierPlayer1);
+        const eloChange2 = 32 * (player2Score - modifierPlayer2);
+
+        return [eloChange1, eloChange2];
+    }
+
+    async updateUserElo(login: string, newElo: number)
+    {
+        await prisma.user.update({
+            where: { login42: login },
+            data: {
+                elo: newElo,
+                eloHistory: { push: newElo },
+                wins: { increment: newElo > 0 ? 1 : 0 },
+                losses: { increment: newElo < 0 ? 1 : 0},
+                status: UserStatus.ONLINE
+            }
+        });
     }
 }
