@@ -135,7 +135,7 @@ export const putUserProfile = async (
 
 export const postUserAvatar = async (login42: string, file: File) => {
   const formData = new FormData();
-  formData.append("selectedFile", file);
+  formData.append("file", file);
   return authApi
     .post<HttpStatusCode>(`/user/${login42}/avatar`, formData, {
       headers: {

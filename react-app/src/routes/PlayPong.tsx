@@ -1,4 +1,3 @@
-import Avatar from "../components/Avatar";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { IconTrophy } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";

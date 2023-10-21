@@ -90,7 +90,7 @@ function AvatarName({ user }: { user: UserData }) {
   return (
     <div className="flex items-center overflow-hidden">
       <Avatar
-        size="m-2 mb-3 mt-3 w-20 h-20"
+        className="m-2 mb-3 mt-3 w-20 h-20"
         alt={user.name}
         status={user.status}
         img={user.avatar}

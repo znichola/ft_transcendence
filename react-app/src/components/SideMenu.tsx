@@ -7,7 +7,6 @@ import {
   IconAddPulse,
   IconWorld,
   IconUserGroup,
-  IconMegaphone,
   IconHeart,
   IconBolt,
   IconBrain,
@@ -297,7 +296,7 @@ function CurrentUserStats() {
   return (
     <div className="flex">
       <Avatar
-        size="m-2 mb-3 mt-3 w-16 h-16"
+        className="m-2 mb-3 mt-3 w-16 h-16 "
         alt={currentUserData.name}
         status={currentUserData.status}
         img={currentUserData.avatar}
