@@ -29,7 +29,7 @@ import {
   postUserAvatar,
 } from "../Api-axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
+import { IChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
 import { AxiosError } from "axios";
 
 export function useCurrentUser() {
@@ -303,7 +303,7 @@ export function useChatroomMessages(id: string) {
 export function useMutPostNewChatroom() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: ChatroomPost) => postNewChatromm(payload),
+    mutationFn: (payload: IChatroomPost) => postNewChatromm(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomList"],

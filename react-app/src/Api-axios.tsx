@@ -1,7 +1,7 @@
 import axios, { HttpStatusCode } from "axios";
 import {
   IChatroom,
-  ChatroomPost,
+  IChatroomPost,
   Converstaion,
   ConvoMessage,
   UserData,
@@ -227,9 +227,9 @@ export const getChatroomMessages = async (id: string) => {
   // .catch((error) => console.log(error.toJSON));
 };
 
-export const postNewChatromm = async (payload: ChatroomPost) => {
+export const postNewChatromm = async (payload: IChatroomPost) => {
   return authApi
-    .post<HttpStatusCode>("/chatroom/", payload)
+    .post<IChatroom>("/chatroom/", payload)
     .then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
 };
