@@ -8,7 +8,7 @@ server {
 
     listen       ${NGINX_PORT};
     server_name  domain1.com www.domain1.com;
-    
+
 
     location / {
       proxy_pass http://react:5173;
@@ -21,7 +21,7 @@ server {
     return 302 /prisma/;
     }
 
-    location /prisma/ { 
+    location /prisma/ {
       proxy_pass http://nest:5555/; # note the trailing slash here, it matters!
     }
 
@@ -30,9 +30,10 @@ server {
     }
 
     location /api/ {
+        client_max_body_size 2M;
         proxy_pass http://nest:3000/;  # note the trailing slash here, it matters!
     }
 
-    # source for the trailing / and this weird redirection thing 
+    # source for the trailing / and this weird redirection thing
     # https://copyprogramming.com/howto/how-to-remove-the-path-with-an-nginx-proxy-pass
 }
