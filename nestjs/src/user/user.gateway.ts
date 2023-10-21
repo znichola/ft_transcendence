@@ -67,30 +67,4 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
     {
         this.server.to(room).emit(event, message);
     }
-
-    // run job every 5 seconds
-    @Cron('*/5 * * * * *')
-    findMatches()
-    {
-        console.log('finding matches');
-        this.matchmakingList.forEach(user => { console.log(user.login )});
-        if (this.matchmakingList.length > 1)
-        {
-            const roomName: string = 'game' + this.gamesCount.toString();
-            this.gamesCount++;
-
-            const user1: UserEntity = this.matchmakingList.shift();
-            const user2: UserEntity = this.matchmakingList.shift();
-            
-            user1.client.join(roomName);
-            user2.client.join(roomName);
-
-            const message: string = roomName + ' between ' + user1.login + ' and ' + user2.login + ' is about to start';
-            console.log('making a match. Players are : ', user1.login, ' and ', user2.login);
-
-            this.broadcastTo(roomName, "test", message);
-        }
-        else console.log('Not enough players in matchmaking');
-    }
-
 }
