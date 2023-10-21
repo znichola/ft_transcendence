@@ -21,8 +21,6 @@ services:
       - transnet
     env_file:
       - env/.nestjs.env
-    ports:
-     - "3000:3000"
 
   react:
     container_name: react
