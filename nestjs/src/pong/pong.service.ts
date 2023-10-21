@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IGameState } from 'src/interfaces';
-import { UserStatus } from '@prisma/client';
 
 const prisma: PrismaService = new PrismaService();
 
@@ -33,19 +32,26 @@ export class PongService {
         const gameInfo = await prisma.game.findUnique({ 
             where: { id: gameId },
             select: {
+                rated: true,
                 player1StartElo: true,
                 player2StartElo: true,
              },
         });
 
-        const player1Score = 
-        gameState.p1.score > gameState.p2.score ? 1 
-        : gameState.p1.score == gameState.p2.score ? 0.5 : 0;
+        let eloChanges: number[] = [];
 
-        const eloChanges = this.calculateEloChange(
-            gameInfo.player1StartElo,
-            gameInfo.player2StartElo,
-            player1Score);
+        if (gameInfo.rated == true)
+        {
+            const player1Score = 
+            gameState.p1.score > gameState.p2.score ? 1 
+            : gameState.p1.score == gameState.p2.score ? 0.5 : 0;
+    
+            eloChanges = this.calculateEloChange(
+                gameInfo.player1StartElo,
+                gameInfo.player2StartElo,
+                player1Score);
+        }
+        else eloChanges = [0, 0];
 
         const endedGame = await prisma.game.update({
             where: { id: gameId },
@@ -64,8 +70,11 @@ export class PongService {
             select: { player1StartElo: true, player2StartElo: true }
         });
 
-        this.updateUserElo(gameState.p1.id, endedGame.player1StartElo + eloChanges[0]);
-        this.updateUserElo(gameState.p2.id, endedGame.player2StartElo + eloChanges[1]);
+        if (gameInfo.rated)
+        {
+            this.updateUserElo(gameState.p1.id, endedGame.player1StartElo + eloChanges[0]);
+            this.updateUserElo(gameState.p2.id, endedGame.player2StartElo + eloChanges[1]);
+        }
     }
 
     async cancelGame(gameId: number)
@@ -95,7 +104,6 @@ export class PongService {
                 eloHistory: { push: newElo },
                 wins: { increment: newElo > 0 ? 1 : 0 },
                 losses: { increment: newElo < 0 ? 1 : 0},
-                status: UserStatus.ONLINE
             }
         });
     }
