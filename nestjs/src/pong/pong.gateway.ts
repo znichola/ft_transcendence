@@ -14,7 +14,7 @@ import {
   IBall,
   IPlayer,
   IRoom,
-  ISocketInfo,
+  IUserInfo,
 } from '../interfaces';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';

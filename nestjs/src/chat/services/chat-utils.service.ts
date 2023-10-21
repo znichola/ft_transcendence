@@ -59,10 +59,16 @@ export class ChatUtils
 		let schema = new PasswordValidator();
 		schema
 			.is().min(8)
-			.is().max(20);
-		if (!schema.validate(pwd))
+			.is().max(64)
+			.has().uppercase()
+			.has().lowercase()
+			.has().digits(2)
+
+		const messages: any[] = (schema.validate(pwd, {details: true}) as any[]);
+		if (messages.length != 0)
 		{
-			throw new BadRequestException("Password validation failed");
+			const error_message = (messages as any[]).reduce((msg, current, index) => msg += current.message + "\n", "");
+			throw new BadRequestException(error_message);
 		}
 	}
 
