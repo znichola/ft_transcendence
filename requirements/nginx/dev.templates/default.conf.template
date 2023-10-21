@@ -12,9 +12,6 @@ server {
 
     location / {
       proxy_pass http://react:5173;
-      proxy_http_version 1.1;
-      proxy_set_header Upgrade $http_upgrade;
-      proxy_set_header Connection $connection_upgrade;
     }
 
     location = /prisma {
@@ -22,7 +19,7 @@ server {
     }
 
     location /prisma/ {
-      proxy_pass http://nest:5555/; # note the trailing slash here, it matters!
+      proxy_pass http://nest:5555/;
     }
 
     location = /api {
@@ -31,9 +28,9 @@ server {
 
     location /api/ {
         client_max_body_size 2M;
-        proxy_pass http://nest:3000/;  # note the trailing slash here, it matters!
+        proxy_pass http://nest:3000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
     }
-
-    # source for the trailing / and this weird redirection thing
-    # https://copyprogramming.com/howto/how-to-remove-the-path-with-an-nginx-proxy-pass
 }
