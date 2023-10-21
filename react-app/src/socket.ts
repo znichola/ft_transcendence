@@ -21,9 +21,23 @@ export const socketManager = new Manager(
   },
 );
 
-export const statusSocket = socketManager.socket("/user"); // main namespace
-export const pongSocket = socketManager.socket("/pong");        // pong stuff ?
-export const messageSocket = socketManager.socket("/messeges"); // messages ?
+export const userSocket = socketManager.socket("/user"); // main namespace
+export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
+
+export const socketSetHeadersAndReConnect = (headerData: string) => {
+  if (!userSocket.connected || !pongSocket.connected) {
+    userSocket.io.opts.transportOptions = {
+      polling: {
+        extraHeaders: {
+          User: headerData,
+          // Authorization: access_token
+        },
+      },
+    };
+    userSocket.disconnect().connect();
+    pongSocket.disconnect().connect();
+  }
+};
 
 // Step 1:- Create manager >
 // manager = SocketManager(socketURL: URL(string: BaseURL)!, config: [.log(true), .compress, .extraHeaders(["token": getStringValue(key: UserDefaultKeys.loginToken)]), .reconnects(true), .forceWebsockets(true), .forcePolling(true), .forceNew(true)])

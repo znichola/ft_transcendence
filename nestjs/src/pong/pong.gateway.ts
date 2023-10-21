@@ -60,7 +60,7 @@ const gameStart: IGameState = {
 };
 
 @WebSocketGateway({
-  namespace: 'user',
+  namespace: 'pong',
   cors: {
     origin: '*',
   },
@@ -102,7 +102,7 @@ export class PongGateway
 
   async handleConnection(client: Socket, ...args: any[]): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
-    console.log('User connected : ', userLogin, ' with id ', client.id);
+    console.log('Pong User connected : ', userLogin, ' with id ', client.id);
     if (this.userList.findIndex((user) => user.login === userLogin) == -1) {
       const user: UserEntity = new UserEntity(userLogin, client);
       this.userList.push(user);
@@ -112,7 +112,7 @@ export class PongGateway
   }
   async handleDisconnect(client: Socket): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
-    console.log('User disconnected : ', userLogin);
+    console.log('Pong User disconnected : ', userLogin);
     const index = this.userList.findIndex(
       (user) => user.client.id === client.id,
     );
