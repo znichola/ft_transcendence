@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../functions/customHook";
@@ -47,6 +47,19 @@ export const ProtectedRoute = () => {
   const { data: currentUser, isLoading, isError } = useCurrentUser();
   // console.log("useAuth is here", foo);
 
+  useEffect(() => {
+    if (
+      foo &&
+      currentUser !== "" &&
+      !foo.isloggedIn &&
+      !isLoading &&
+      !isError
+    ) {
+      console.log("cu:", currentUser, "foo:", foo.user);
+      foo.logIn(currentUser);
+    }
+  });
+
   if (!foo)
     return <h1>critical error with auth, this should not be possible</h1>;
   if (isLoading)
@@ -59,12 +72,8 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" replace state={{ from: location }} />;
     // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
   }
-  if (!isError && currentUser !== "" && !foo.isloggedIn) {
-    console.log("cu:", currentUser, "foo:", foo.user);
-    foo.logIn(currentUser);
-  }
   if (isError)
-    return <Navigate to="/login" replace state={{ from: location }} />;  
-    // this is here for when the cookie expiers it should kick the user back to the login page 
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  // this is here for when the cookie expiers it should kick the user back to the login page
   return <Outlet />;
 };

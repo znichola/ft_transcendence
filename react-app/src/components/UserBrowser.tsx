@@ -112,6 +112,7 @@ export default function UserBrowser({ title }: { title: string }) {
       <div className="flex w-full flex-col items-center overflow-scroll pt-80">
         {_posts?.map((u) => (
           <FilterInfoCard
+            key={u}
             cardLogin42={u}
             settings={settings}
             currentLogin42={currentUser}
