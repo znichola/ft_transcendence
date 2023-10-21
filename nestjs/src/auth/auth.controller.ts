@@ -122,6 +122,20 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @ApiOperation({
+    summary: 'Get current user token',
+    description: 'Get the access tokem from the JWT token in the cookies for websocket authentication.'
+  })
+  @ApiResponse({ status: 200, description: 'User Access Token provided.' })
+  @ApiResponse({ status: 401, description: 'No JWT cookie found.' })
+  @Get('token')
+  getUserToken(@Req() req: Request): Promise<string>
+  {
+    const userToken = req.cookies[process.env.COOKIE_USR].access_token;
+    return (userToken);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiOperation({
     summary: 'Get current user login',
     description: 'Get the login from the JWT token payload in the browser cookies.'
   })
