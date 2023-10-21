@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/useAuth";
+import { socketSetHeadersAndReConnect } from "../socket";
 
 export default function Login() {
   const foo = useAuth();
@@ -58,11 +59,12 @@ function DevLogin() {
       onSubmit={() => {
         axios
           .get("/auth/dev/", { params: { user: login } })
-          .then(() => {
+          .then(async ()  => {
             authContext?.logIn(login);
             console.log(authContext);
             navigate("/play");
-            console.log("signed in!");
+            await socketSetHeadersAndReConnect(login);
+            console.log("dev: signed in!");
           })
           .catch(() => setColor("bg-rose-500"));
       }}

@@ -1,4 +1,5 @@
 import { Manager } from "socket.io-client";
+import { getUserToken } from "./Api-axios";
 
 // "undefined" means the URL will be computed from the `window.location` object
 // const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:3000';
@@ -24,13 +25,14 @@ export const socketManager = new Manager(
 export const userSocket = socketManager.socket("/user"); // main namespace
 export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
 
-export const socketSetHeadersAndReConnect = (headerData: string) => {
+export const socketSetHeadersAndReConnect = async (headerData: string) => {
   if (!userSocket.connected || !pongSocket.connected) {
+    const access_token = await getUserToken();
     userSocket.io.opts.transportOptions = {
       polling: {
         extraHeaders: {
           User: headerData,
-          // Authorization: access_token
+          Authorization: access_token,
         },
       },
     };
