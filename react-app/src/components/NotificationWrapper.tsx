@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const fakeNofits: INotif[] = [
   {
-    message: "Hey man it's your best freind sending you a nice message!",
+    message: "Hey bibou it's your best freind sending you a nice message!",
     type: "MESSAGE",
   },
   {
@@ -18,9 +18,14 @@ const fakeNofits: INotif[] = [
     to: "/play",
   },
   {
-    message: "znichola",
-    type: "CLASSICAL",
+    message: "hradoux",
+    type: "RESUME",
     to: "/play",
+  },
+  {
+    message: "skoulen",
+    type: "FRIEND",
+    to: "/user/skoulen",
   },
   {
     message: "With html something or another",
@@ -106,7 +111,11 @@ function MsgText({ type, message }: { type: TNotif; message: string }) {
           <span>
             Accept <b>{message}</b>'s challenge ?
           </span>
-        ) : (
+        ) : type == "RESUME" ? (
+          <span>
+            Resume match with <b>{message}</b>{" "}
+          </span>
+        ) : ( type == "FRIEND" ? <span><b>{message}</b> sent your a request</span> :
           message
         )}
       </p>
@@ -124,7 +133,14 @@ function BTNx({ type: t, destroy }: { type: TNotif; destroy?: () => void }) {
   );
 }
 
-type TNotif = "ERROR" | "CLASSICAL" | "SPECIAL" | "MESSAGE" | undefined;
+type TNotif =
+  | "ERROR"
+  | "CLASSICAL"
+  | "SPECIAL"
+  | "MESSAGE"
+  | "RESUME"
+  | "FRIEND"
+  | undefined;
 
 // DON'T try be smart and generate this friken wall of text by string replacing,
 // randomly some classses will not be generated and not work, it's a while load of shit!

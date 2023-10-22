@@ -52,9 +52,9 @@ export default function Root() {
           (hide ? " min-w-0 " : " lg:min-w-[18rem] ")
         }
       />
+      <NotificationWrapper className="absolute right-10 top-16" />
       <div className="flex h-screen w-full min-w-0 grow xl:justify-center">
         <div className="relative flex h-full w-full min-w-0 flex-col items-center justify-center bg-stone-100 text-slate-600 xl:max-w-6xl">
-          <NotificationWrapper className="absolute top-16 right-10" />
           <Outlet />
         </div>
       </div>
