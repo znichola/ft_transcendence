@@ -7,7 +7,9 @@ ifdef TRANSCENDANCE_MODE
 	COMPOSE_FILE=docker-compose-$(TRANSCENDANCE_MODE).yml
 endif
 
-up : env
+CERT = requirements/nginx/certs
+
+up : env $(CERT)
 	env $$(cat env/.docker.env) docker compose -f $(COMPOSE_FILE) -p mastermind up --build
 
 down:
@@ -38,7 +40,9 @@ env-re : env-clean env
 env :
 	@./env/gen-env.sh
 
-cert:
+cert: $(CERT)
+
+$(CERT):
 	mkdir -p requirements/nginx/certs
 	openssl req -x509 -newkey rsa:4096 -keyout requirements/nginx/certs/nginx.key -out requirements/nginx/certs/nginx.crt -sha256 -days 365 -nodes -subj "/C=CH/ST=Vaud/L=Renens/O=42Lausanne/OU=The Masterminds/CN=localhost"
 
