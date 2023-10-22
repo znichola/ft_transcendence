@@ -13,6 +13,7 @@ cat <<-EOF > $SCRIPT_DIR/kickstart.env
 APP_NAME=${APP_NAME:="Transcendance"}
 USE_LOCAL_HOST=${USE_LOCAL_HOST:="false"}
 HTTPS_PORT=443
+HTTP_PORT=80
 API_CLIENT_ID=${API_CLIENT_ID:="_________replace_with_the_API_ID_from_the_42_api_____"}
 API_CLIENT_SECRET=${API_CLIENT_SECRET:="_____replace_with_the_secret_also_from_42________"}
 COOKIE_USR=${COOKIE_USR:="userSession"}
@@ -72,5 +73,6 @@ EOF
 cat <<-EOF > $SCRIPT_DIR/.docker.env
 DATABASE_PWD=$DATABASE_PWD
 HTTPS_PORT=$HTTPS_PORT
+HTTP_PORT=$HTTP_PORT
 EOF
 }

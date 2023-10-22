@@ -41,3 +41,10 @@ server {
 		proxy_set_header Connection $connection_upgrade;
 	}
 }
+
+#redirect HTTP to HTTPS
+server {
+	listen 80 default_server;
+	server_name _;
+	return 301 https://$host$request_uri;
+}

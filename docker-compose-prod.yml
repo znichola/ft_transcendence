@@ -53,3 +53,4 @@ services:
       - frontend:/var/www/html
     ports:
       - "${HTTPS_PORT}:443"
+      - "${HTTP_PORT}:80"
