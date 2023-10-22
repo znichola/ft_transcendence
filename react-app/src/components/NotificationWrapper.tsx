@@ -57,6 +57,7 @@ export default function NotificationWrapper({
     >
       {notifs?.map((n, i) => (
         <Notification
+          key={`${n.type}-${i}`}
           message={n.message}
           to={n.to}
           type={n.type}
@@ -77,7 +78,7 @@ function Notification({ message, to, type: t, destroy }: INotifArgs) {
     <div
       className={
         classNameDiv(t) +
-        " flex w-full items-center gap-4 rounded border px-4 text-sm"
+        " flex w-full items-center gap-4 rounded-lg border px-4 text-sm relative"
       }
       role="alert"
     >
@@ -115,7 +116,11 @@ function MsgText({ type, message }: { type: TNotif; message: string }) {
           <span>
             Resume match with <b>{message}</b>{" "}
           </span>
-        ) : ( type == "FRIEND" ? <span><b>{message}</b> sent your a request</span> :
+        ) : type == "FRIEND" ? (
+          <span>
+            <b>{message}</b> sent your a request
+          </span>
+        ) : (
           message
         )}
       </p>
@@ -125,9 +130,13 @@ function MsgText({ type, message }: { type: TNotif; message: string }) {
 
 function BTNx({ type: t, destroy }: { type: TNotif; destroy?: () => void }) {
   return (
-    <button aria-label="Close" onClick={destroy} className={classNameBTBN(t)}>
-      <span className="relative only:-mx-4">
-        <IconX />
+    <button
+      aria-label="Close"
+      onClick={destroy}
+      className={classNameBTBN(t) + " absolute top-1 right-1"}
+    >
+      <span className="only:-mx-4">
+        <IconX className="h-4 w-4"/>
       </span>
     </button>
   );
