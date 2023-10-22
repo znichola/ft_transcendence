@@ -142,6 +142,7 @@ export default function SideMenu({
             />
             <Category name="dev stuff" />
             <Nav name="socket tests" to="/socket" icon={IconBolt} />
+            <Nav name="pongy testy" to="/ptest" icon={IconFire} />
 
             <Category name="External Links" />
             <Nav

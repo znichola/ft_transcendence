@@ -105,11 +105,12 @@ export interface IPutUserProfile {
 // --------- pong / gameState
 
 export type I2D = { width: number; height: number };
+export type TColor = { r: number, g: number, b: number }
 
 export interface IGameState {
   p1: IPlayer;
   p2: IPlayer;
-  ball: IBall;
+  balls: IBalls;
   timerAfk: number;
   type: boolean;
 }
@@ -118,7 +119,11 @@ export interface IBall {
   radius: number;
   speed: number;
   direction: IPos;
+  mitosis: boolean;
 }
+
+interface IBalls extends Array<IBall> {}
+
 export interface IPos {
   x: number;
   y: number;

@@ -89,7 +89,7 @@ export interface IUserInfo {
 export interface IGameState {
   p1: IPlayer;
   p2: IPlayer;
-  ball: IBall;
+  balls: IBalls;
   timerAfk: number;
   type: boolean;
   //state: string // GAMING, WAITING, OVER
@@ -99,7 +99,9 @@ export interface IBall {
   radius: number;
   speed: number;
   direction: IPos;
+  mitosis: boolean;
 }
+export interface IBalls extends Array<IBall> {}
 export interface IPos {
   x: number;
   y: number;

@@ -64,8 +64,8 @@ export class PongService {
                 player2EloChange: eloChanges[1],
                 player2PosX: gameState.p2.pos.x,
                 player2PosY: gameState.p2.pos.y,
-                ballPosX: gameState.ball.pos.x,
-                ballPosY: gameState.ball.pos.y,
+                ballPosX: gameState.balls[0].pos.x,
+                ballPosY: gameState.balls[0].pos.y,
             },
             select: { player1StartElo: true, player2StartElo: true }
         });

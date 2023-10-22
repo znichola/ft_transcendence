@@ -34,6 +34,7 @@ import UserProfile from "./routes/UserProfile.tsx";
 import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
 import SocketTest from "./routes/SocketTest.tsx";
 import ChatroomManager from "./routes/ChatroomChat.tsx";
+import TestPong from "./pong/TestPong.tsx";
 
 const router = createBrowserRouter([
   {
@@ -106,6 +107,10 @@ const router = createBrowserRouter([
             path: "/socket",
             element: <SocketTest />,
           },
+          {
+            path: "/ptest",
+            element: <TestPong />,
+          }
           // {
           //   path: "/test",
           //   element: <Test />,
