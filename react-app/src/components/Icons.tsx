@@ -937,6 +937,31 @@ export const IconStopCircle = ({
   );
 };
 
+export const IconX = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
+  return (
+    <svg
+      className={className}
+      strokeWidth={strokeWidth}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  );
+};
+
 export const IconTrophy = ({
   className = "h-5 w-5 align-middle",
   strokeWidth = 2,
@@ -1042,7 +1067,7 @@ export const IconVS = ({
       <defs>
         <linearGradient id="Gradient1" x1="0" x2="1" y1="0" y2="1">
           <stop stopColor="rgb(192 38 211)" offset="0%" />
-          <stop stopColor="rgb(249 115 22)" offset="100%"/>
+          <stop stopColor="rgb(249 115 22)" offset="100%" />
         </linearGradient>
       </defs>
       <path
