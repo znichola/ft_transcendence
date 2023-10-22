@@ -59,6 +59,13 @@ export class UserController {
     type: String,
     example: 'funny',
   })
+  @ApiQuery({
+    name: 'friend',
+    description: 'Use true or false to look only for the current user friends, or for everyone',
+    required: false,
+    type: String,
+    example: 'true',
+  })
   @ApiOperation({
     summary: 'Get a paginated list of users',
     description:
@@ -142,6 +149,9 @@ export class UserController {
     if (!userInfo) {
       throw new HttpException('User not Found.', HttpStatus.NOT_FOUND);
     }
+    delete userInfo.tfaStatus;
+    delete userInfo.tfaSecret;
+
     return userInfo;
   }
 

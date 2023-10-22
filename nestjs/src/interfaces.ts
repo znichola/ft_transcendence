@@ -28,6 +28,7 @@ export interface UserData {
   avatar: string;
   bio?: string;
   tfaStatus: boolean;
+  tfaSecret: string;
 }
 
 // /game/id
