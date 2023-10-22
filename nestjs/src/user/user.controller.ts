@@ -247,9 +247,8 @@ export class UserController {
     if (!fileName)
       throw new HttpException('Incorrect file type provided.', HttpStatus.BAD_REQUEST);
     const avatarUrl: string =
-      'http://' +
-      process.env.IP_ADDR +
-      ':8080/api/user/' +
+      process.env.SITE_URL +
+      '/api/user/' +
       username +
       '/avatar';
     await this.userService.updateAvatar(username, avatarUrl);

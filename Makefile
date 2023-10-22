@@ -38,4 +38,8 @@ env-re : env-clean env
 env :
 	@./env/gen-env.sh
 
+cert:
+	mkdir -p requirements/nginx/certs
+	openssl req -x509 -newkey rsa:4096 -keyout requirements/nginx/certs/nginx.key -out requirements/nginx/certs/nginx.crt -sha256 -days 365 -nodes -subj "/C=CH/ST=Vaud/L=Renens/O=42Lausanne/OU=The Masterminds/CN=localhost"
+
 .PHONY: up fclean re ip $(CN) env env-clean env-re

@@ -47,6 +47,7 @@ VITE_IP_ADDR=$IP_ADDR
 {
 cat <<-EOF > $SCRIPT_DIR/.react.env
 VITE_IP_ADDR=$VITE_IP_ADDR
+VITE_SITE_URL=https://$VITE_IP_ADDR:8080
 EOF
 }
 
@@ -60,6 +61,7 @@ COOKIE_USR=$COOKIE_USR
 COOKIE_TMP=$COOKIE_TMP
 APP_NAME=$APP_NAME
 DATABASE_URL=postgresql://postgres:$DATABASE_PWD@postgres:5432/postgres?schema=public
+SITE_URL=https://$VITE_IP_ADDR:8080
 EOF
 }
 

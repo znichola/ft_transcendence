@@ -23,9 +23,9 @@ export default function Login() {
 
 const AuthButton = () => {
   const authRedirectionUrl =
-    "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-49312eda4d8cf2f2d52a18799fa8685046a83b1dc7cd91101d63a63bb3dee558&redirect_uri=http%3A%2F%2F" +
-    import.meta.env.VITE_IP_ADDR +
-    "%3A8080%2Fauth&state=abc&response_type=code"; // Replace with your authentication URL
+    "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-49312eda4d8cf2f2d52a18799fa8685046a83b1dc7cd91101d63a63bb3dee558&redirect_uri=" +
+    encodeURIComponent(import.meta.env.VITE_SITE_URL) +
+    "%2Fauth&state=abc&response_type=code"; // Replace with your authentication URL
 
   console.log(authRedirectionUrl);
 
