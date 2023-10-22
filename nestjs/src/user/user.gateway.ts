@@ -23,20 +23,21 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
         private readonly userService: UserService,
         ){}
     private userList: UserEntity[] = [];
-    private matchmakingList: UserEntity[] = [];
+    // private matchmakingList: UserEntity[] = [];
     private gamesCount: number = 0;
     
     async handleDisconnect(client: Socket)
     {
-        const userLogin: string = client.handshake.headers.user.toString();
+        const userToken: string = client.handshake.headers.authorization.toString();
+        const userLogin = await this.authService.getLoginFromToken(userToken);
         console.log('User disconnected : ', userLogin);
 
         let index = this.userList.findIndex(user => user.client.id === client.id);
         this.userList.splice(index, 1);
         this.broadcast("removeUser", userLogin);
 
-        let mmIndex = this.matchmakingList.findIndex(user => user.client.id == client.id)
-        if (mmIndex) this.userList.splice(mmIndex, 1);
+        // let mmIndex = this.matchmakingList.findIndex(user => user.client.id == client.id)
+        // if (mmIndex) this.userList.splice(mmIndex, 1);
 
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
             await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
@@ -45,15 +46,17 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     async handleConnection(client: Socket)
     {
-        const userLogin: string = client.handshake.headers.user.toString();
-        console.log('User connected : ', userLogin, ' with id ', client.id);
+        const userToken: string = client.handshake.headers.authorization.toString();
+        const userLogin = await this.authService.getLoginFromToken(userToken);
+
+        console.log('User connected : ', userLogin);
 
         this.broadcast("addUser", userLogin);
         const user: UserEntity = new UserEntity(userLogin, client);
         this.userList.push(user);
 
-        if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
-            this.matchmakingList.push(user)
+        // if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
+            // this.matchmakingList.push(user)
 
         await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
     }
