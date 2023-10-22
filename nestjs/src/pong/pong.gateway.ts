@@ -60,7 +60,7 @@ const gameStart: IGameState = {
 };
 
 @WebSocketGateway({
-  namespace: 'user',
+  namespace: 'pong',
   cors: {
     origin: '*',
   },
@@ -105,6 +105,7 @@ export class PongGateway
   //TODO VOIR AVEC LES AUTRES IF OK ONLY ONE SOCKET VALUE PER LOGIN
   async handleConnection(client: Socket, ...args: any[]): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
+    console.log('Pong User connected : ', userLogin, ' with id ', client.id);
     await this.userService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
     const user: UserEntity = new UserEntity(userLogin, client);
     // prettier-ignore
@@ -130,6 +131,7 @@ export class PongGateway
   }
   async handleDisconnect(client: Socket): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
+    console.log('Pong User disconnected : ', userLogin);
     await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
 
     // check if it needs to be defined as afk inside a room

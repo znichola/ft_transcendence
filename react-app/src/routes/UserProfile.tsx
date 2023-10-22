@@ -304,7 +304,7 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
   const [file, setFile] = useState<File>();
   const foo = useMutUserAvatar(user.login42);
 
-  console.log("file:", file);
+  // console.log("file:", file);
   return (
     <form
       className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"

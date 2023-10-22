@@ -3,15 +3,22 @@ import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/useAuth";
-import { getCurrentUser } from "../Api-axios";
+import { useEffect } from "react";
+// import { userSocket } from "../socket";
 
 export default function Auth() {
   let [searchParams] = useSearchParams();
-  const { data: authResp, isLoading, isError } = useQuery({
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const {
+    data: authResp,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["auth"],
     queryFn: () =>
       axios
-        .post<{login: string, tfa: boolean}>(
+        .post<{ login: string; tfa: boolean }>(
           "/auth/login",
           { code: searchParams.get("code"), state: "state" },
           { withCredentials: true },
@@ -19,8 +26,16 @@ export default function Auth() {
         .then((res) => res.data),
   });
 
-  const auth = useAuth();
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isLoading && !isError) {
+      if (authResp.tfa) {
+        navigate("/tfa?user=" + authResp.login);
+      } else if (auth) {
+        navigate("/play");
+      }
+    }
+  });
+
   if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center bg-sky-300">
@@ -28,15 +43,6 @@ export default function Auth() {
       </div>
     );
   if (isError) return <p>Lol.</p>;
-  
-  console.log(authResp);
-  
-  
-  if (authResp.tfa) {
-    navigate("/tfa?user=" + authResp.login);
-  } else if (auth) {
-    auth.logIn(authResp.login);
-    navigate("/play");
-  }
+  console.log("auth object", authResp);
   return <h1>Lol, it's a bag bug</h1>;
 }

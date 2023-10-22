@@ -1,7 +1,7 @@
 import axios, { HttpStatusCode } from "axios";
 import {
   IChatroom,
-  ChatroomPost,
+  IChatroomPost,
   Converstaion,
   ConvoMessage,
   UserData,
@@ -12,7 +12,6 @@ import {
   IUsersAll,
   IPutUserProfile,
 } from "./interfaces";
-import { AuthContext } from "./routes/AuthProvider";
 
 // const BASE_URL = "/api/";
 const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";
@@ -47,6 +46,7 @@ authApi.interceptors.response.use(
 
 //-------------------------------------------User-------------------------------------------------------//
 
+// TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
   authApi.get<string>("/auth/user").then((res) => {
     console.log("Get current user : ", res.data);
@@ -57,16 +57,14 @@ export const getUserData = async (login42: string | undefined) => {
   return authApi.get<UserData>("/user/" + login42).then((res) => res.data);
 };
 
-export const getCurrentUserData = async () => {
-  return () => {
-    // we loose the type information if we do this I think?
-    authApi.get<string>("/auth/user").then((res) => res.data);
-    // .catch((error) => console.log(error.toJSON));
-  };
+export const getUsersAll = async (params: IUsersAll) => {
+  return authApi
+    .get<string[]>("/user/", { params: params })
+    .then((res) => res.data);
 };
 
-export const getUsersAll = async (params: IUsersAll) => {
-  authApi.get<string[]>("/user/", { params: params }).then((res) => res.data);
+export const getUserToken = async () => {
+  return authApi.get<string>("/auth/token").then((r) => r.data);
 };
 
 //--------------------------------------------Friends----------------------------------------------------//
@@ -135,7 +133,7 @@ export const putUserProfile = async (
 
 export const postUserAvatar = async (login42: string, file: File) => {
   const formData = new FormData();
-  formData.append("selectedFile", file);
+  formData.append("file", file);
   return authApi
     .post<HttpStatusCode>(`/user/${login42}/avatar`, formData, {
       headers: {
@@ -227,10 +225,8 @@ export const getChatroomMessages = async (id: string) => {
   // .catch((error) => console.log(error.toJSON));
 };
 
-export const postNewChatromm = async (payload: ChatroomPost) => {
-  return authApi
-    .post<HttpStatusCode>("/chatroom/", payload)
-    .then((res) => res.data);
+export const postNewChatromm = async (payload: IChatroomPost) => {
+  return authApi.post<IChatroom>("/chatroom/", payload).then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
 };
 

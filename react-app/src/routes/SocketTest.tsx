@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { statusSocket } from "../socket";
+import { userSocket } from "../socket";
 import { useAuth } from "../functions/useAuth";
 
 export default function SocketTest() {
@@ -12,7 +12,7 @@ export default function SocketTest() {
 }
 
 function App() {
-  const [isConnected, setIsConnected] = useState(statusSocket.connected);
+  const [isConnected, setIsConnected] = useState(userSocket.connected);
   const [fooEvents, setFooEvents] = useState([]);
 
   useEffect(() => {
@@ -29,14 +29,14 @@ function App() {
       setFooEvents((previous) => [...previous, value]);
     }
 
-    statusSocket.on("connect", onConnect);
-    statusSocket.on("disconnect", onDisconnect);
-    statusSocket.on("foo", onFooEvent);
+    userSocket.on("connect", onConnect);
+    userSocket.on("disconnect", onDisconnect);
+    userSocket.on("foo", onFooEvent);
 
     return () => {
-      statusSocket.off("connect", onConnect);
-      statusSocket.off("disconnect", onDisconnect);
-      statusSocket.off("foo", onFooEvent);
+      userSocket.off("connect", onConnect);
+      userSocket.off("disconnect", onDisconnect);
+      userSocket.off("foo", onFooEvent);
     };
   }, []);
 
@@ -71,11 +71,11 @@ function Events({ events }: { events: string[] }) {
 
 function ConnectionManager() {
   function connect() {
-    statusSocket.connect();
+    userSocket.connect();
   }
 
   function disconnect() {
-    statusSocket.disconnect();
+    userSocket.disconnect();
   }
 
   return (
@@ -98,7 +98,7 @@ function MyForm() {
     event.preventDefault();
     setIsLoading(true);
 
-    statusSocket.timeout(5000).emit("create-something", value, () => {
+    userSocket.timeout(5000).emit("create-something", value, () => {
       setIsLoading(false);
     });
   }
@@ -121,7 +121,7 @@ function UpdateHeaders() {
     <button
       className="m-2 border-2 p-1"
       onClick={() => {
-        statusSocket.io.opts.transportOptions = {
+        userSocket.io.opts.transportOptions = {
           polling: {
             extraHeaders: {
               User: foo.user,
@@ -129,7 +129,7 @@ function UpdateHeaders() {
           },
         };
         // statusSocket.io.opts.extraHeaders = { User: "default42" };
-        statusSocket.disconnect().connect();
+        userSocket.disconnect().connect();
       }}
     >
       socket manager reconnect

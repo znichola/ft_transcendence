@@ -69,7 +69,7 @@ export interface IChatroom {
   status: ChatroomStaus;
 }
 
-export interface ChatroomPost {
+export interface IChatroomPost {
   ownerLogin42: string;
   name: string;
   status: ChatroomStaus;
