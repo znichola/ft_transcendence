@@ -17,6 +17,6 @@ import { PongService } from './pong/pong.service';
 @Module({
   imports: [PongModule, PrismaModule, UserModule, AuthModule, ChatModule, DmModule, TfaModule, ScheduleModule.forRoot()],
   controllers: [AppController],
-  providers: [AppService, UserService, PrismaService, PongGateway, PongService],
+  providers: [AppService, UserService, PrismaService, PongService],
 })
 export class AppModule {}

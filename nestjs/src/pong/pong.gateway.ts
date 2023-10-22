@@ -37,7 +37,7 @@ const gameStart: IGameState = {
     moveUp: false,
     moveDown: false,
     id: undefined,
-    afk: true,
+    afk: false,
     //halo:
   },
   p2: {
@@ -47,13 +47,13 @@ const gameStart: IGameState = {
     moveUp: false,
     moveDown: false,
     id: undefined,
-    afk: true,
+    afk: false,
     //halo:
   },
   balls: [
     {
       pos: { x: 1 / 2, y: 1 / 2 },
-      radius: 1 / 35000,
+      radius: 1 / 70,
       speed: 1 / 4,
       direction: { x: 1, y: 0 },
       mitosis: false,
@@ -69,7 +69,7 @@ const gameStart: IGameState = {
     origin: '*',
   },
 })
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 export class PongGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -115,6 +115,9 @@ export class PongGateway
     // prettier-ignore
     if (this.userList.findIndex((user: UserEntity): boolean => user.login === userLogin) == -1)
       this.userList.push(user);
+    this.userList.forEach((user: UserEntity): void => {
+      console.log('UserList: ', user.login, user.client.id);
+    });
     //checking if need to reconnect to its game
     const index: number = this.roomList.findIndex(
       (room: IRoom): boolean =>
@@ -185,13 +188,13 @@ export class PongGateway
 
       //if player wasn't in wanted queue it gets added
       index = this.specialQueue.findIndex(
-        (user: UserEntity): boolean => user.login == user.login,
+        (u: UserEntity): boolean => u.login == user.login,
       );
       if (index == -1) this.specialQueue.push(user);
 
       //if player was in the other queue it gets deleted
       index = this.normalQueue.findIndex(
-        (user: UserEntity): boolean => user.login == user.login,
+        (u: UserEntity): boolean => u.login == user.login,
       );
       if (index != -1) this.normalQueue.splice(index, 1);
     }
@@ -203,7 +206,6 @@ export class PongGateway
     @MessageBody() data: { id: string; halo: number },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('coucou');
     let user: UserEntity;
     let index: number = this.userList.findIndex(
       (user: UserEntity): boolean => user.client.id == client.id,
@@ -211,16 +213,16 @@ export class PongGateway
     //if this socket is related to a login
     if (index != -1) {
       user = this.userList[index];
-      console.log(user.login, user.client.id);
+      console.log(user.login, user.client.id, 'classical');
       //if player wasn't in wanted queue it gets added
-      index = this.specialQueue.findIndex(
-        (user: UserEntity): boolean => user.login == user.login,
+      index = this.normalQueue.findIndex(
+        (u: UserEntity): boolean => u.login == user.login,
       );
-      if (index == -1) this.specialQueue.push(user);
-
+      if (index == -1) this.normalQueue.push(user);
+      else console.log('pas push sur normal: ', index, index);
       //if player was in the other queue it gets deleted
       index = this.specialQueue.findIndex(
-        (user: UserEntity): boolean => user.login == user.login,
+        (u: UserEntity): boolean => u.login == user.login,
       );
       if (index != -1) this.specialQueue.splice(index, 1);
     }
@@ -275,15 +277,16 @@ export class PongGateway
     }
   }
 
-  @Cron('*/5 * * * * *')
+  @Cron('*/10 * * * * *')
   findMatches() {
     //console.log('finding matches');
-    this.normalQueue.forEach((user: UserEntity): void => {
-      console.log(user.login);
-    });
-    this.specialQueue.forEach((user: UserEntity): void => {
-      console.log(user.login);
-    });
+    // this.normalQueue.forEach((user: UserEntity): void => {
+    //   console.log('list normal', user.login);
+    // });
+    // this.specialQueue.forEach((user: UserEntity): void => {
+    //   console.log('list special', user.login);
+    // });
+    //console.log(this.normalQueue.length, this.userList.length);
     if (this.normalQueue.length > 1) {
       this.cntGame++;
       const roomName: string = `game${this.cntGame}`;
@@ -367,7 +370,7 @@ export class PongGateway
       this.userService
         .setUserStatus(user2.login, UserStatus.ONLINE)
         .then((): void => {});
-      this.pongCalculus(newRoom.gs, canvas).then((): void => {});
+      //this.pongCalculus(newRoom.gs, canvas).then((): void => {});
     } //else console.log('Not enough players in matchmaking');
   }
 
@@ -376,7 +379,7 @@ export class PongGateway
       positionPlayer(gs.p1, canvas);
       positionPlayer(gs.p2, canvas);
       gs.balls.forEach((b: IBall) => setBallPos(b));
-      createNewBall(gs.balls, canvas);
+      if (gs.type) createNewBall(gs.balls, canvas);
       gs.balls.forEach((b: IBall) => bounceWallBall(b, canvas));
       gs.balls.forEach((b: IBall) => definePlayerContact(b, gs, canvas));
       scoreBall(gs, canvas);
@@ -386,9 +389,10 @@ export class PongGateway
       if (gameStart.timerAfk <= 0) return; //TODO GIVE DATA INFO
     }
     this.server.emit('upDate', <any>gs);
-    setTimeout(() => {
-      this.pongCalculus(gs, canvas);
-    }, timer);
+    if (gs.timerAfk > 0)
+      setTimeout(() => {
+        this.pongCalculus(gs, canvas);
+      }, timer);
   }
 }
 
@@ -418,7 +422,6 @@ function bouncePlayerBall(p: IPlayer, b: IBall) {
     b.pos.x - b.radius < p.pos.x + p.dim.w &&
     b.pos.y + b.radius > p.pos.y
   ) {
-    console.log(b.pos.x, b.pos.y, b.radius, p.pos.x, p.pos.y, p.dim.w, p.dim.h);
     const contactRatioY = (b.pos.y - (p.pos.y + p.dim.h / 2)) / (p.dim.h / 2);
     const angle = (Math.PI / 3) * contactRatioY;
     const direction = b.direction.x < 0 ? -1 : 1;
@@ -464,7 +467,7 @@ function createNewBall(bs: IBalls, canvas: I2D) {
       !bs[index].mitosis
     ) {
       // IF GOT LUCKY TO CREATE NEW BALL
-      if (Math.random() * 100 - bs.length >= 70) {
+      if (Math.random() * 100 - bs.length >= 80) {
         bs[index].mitosis = true;
         const b0 = bs[index];
         const ball: IBall = {
