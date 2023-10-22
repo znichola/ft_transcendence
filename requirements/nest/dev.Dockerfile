@@ -4,6 +4,7 @@ FROM node:20.5
 RUN npm i -g @nestjs/cli
 
 EXPOSE 3000/tcp
+EXPOSE 5555/tcp
 
 # set comamnd prompt to indicate the container
 RUN echo 'PS1="nest \w > "' >> ~/.bashrc

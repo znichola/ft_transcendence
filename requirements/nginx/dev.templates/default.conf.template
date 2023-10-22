@@ -23,14 +23,6 @@ server {
 		proxy_set_header Connection $connection_upgrade;
 	}
 
-	location = /prisma {
-		return 302 /prisma/;
-	}
-
-	location /prisma/ {
-		proxy_pass http://nest:5555/;
-	}
-
 	location = /api {
 		return 302 /api/;
 	}
