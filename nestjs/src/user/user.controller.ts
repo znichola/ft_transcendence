@@ -117,7 +117,6 @@ export class UserController {
     return usersInfo;
   }
 
-  // TODO : UseGuards back
   @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Get all the data about a specific user, for profile display',
@@ -191,7 +190,7 @@ export class UserController {
 
     if (bodyData.name) {
       const user = await this.userService.findUserFromName(bodyData.name);
-      if (user) {
+      if (user && user.login42 != username) {
         throw new HttpException('Name already in use.', HttpStatus.BAD_REQUEST);
       }
       return this.userService.updateUserName(
@@ -202,6 +201,7 @@ export class UserController {
       }
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':username/avatar')
   async getAvatar(@Param('username') username: string, @Res() res: Response) {
@@ -217,7 +217,7 @@ export class UserController {
     createReadStream(imagePath).pipe(res);
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', saveImageToServer))
   @HttpCode(HttpStatus.OK)
   @Post(':username/avatar')
@@ -228,8 +228,11 @@ export class UserController {
       }),
     )
     file: Express.Multer.File,
-    @Param('username') username: string)
+    @Param('username') username: string,
+    @Req() req: Request)
   {
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+
     const fileName = file?.filename;
     if (!fileName)
       throw new HttpException('Incorrect file type provided.', HttpStatus.BAD_REQUEST);
@@ -335,6 +338,7 @@ export class UserController {
     @Req() req: Request,
   ): Promise<string> {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+
     const users = await this.userService.getFriendsIds(username, target);
 
     const friendStatus: string = await this.userService.getFriendStatus(
@@ -380,6 +384,7 @@ export class UserController {
     @Req() req: Request,
   ) {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+
     const users = await this.userService.getFriendsIds(username, target);
 
     await this.userService.removeFriend(users[0], users[1]);
@@ -416,6 +421,7 @@ export class UserController {
     @Req() req: Request,
   ) {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.updateFriend(users[0], users[1]);
   }
@@ -472,6 +478,7 @@ export class UserController {
   async blockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+    
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.addBlockedUser(users[0], users[1]);
   }
