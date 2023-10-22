@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IGameState } from 'src/interfaces';
 
@@ -6,6 +6,13 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class PongService {
+    async getUserElo(userLogin: string): Promise<number>
+    {
+        const user = await prisma.user.findUnique({where: { login42: userLogin } });
+        if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        return user.elo;
+    }
+
     async createGame(gameSpecial: boolean, rated: boolean, player1: string, player2: string): Promise<number>
     {
         const user1 = await prisma.user.findUnique({
