@@ -14,7 +14,7 @@ import {
   IBall,
   IPlayer,
   IRoom,
-  ISocketInfo,
+  IUserInfo,
 } from '../interfaces';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
@@ -22,7 +22,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/user.entity';
-import { UserStatus } from '@prisma/client';
+import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
 
 const canvas: I2D = { width: 1 + 111 / 175, height: 1 };
@@ -51,7 +51,7 @@ const gameStart: IGameState = {
   },
   ball: {
     pos: { x: 1 / 2, y: 1 / 2 },
-    radius: 1 / 35000, //TODO: multiplier avec canvas h et w
+    radius: 1 / 35000,
     speed: 1 / 4,
     direction: { x: 1, y: 0 },
   },
@@ -75,18 +75,20 @@ export class PongGateway
     private readonly userService: UserService,
   ) {}
 
-  // ?
+  // therefore 'special' and 'normal' event doesn't need to send infos
   private userList: UserEntity[] = [];
 
-  //liste des players en attente
-  private normalmatchmakingList: UserEntity[] = [];
-  private specialmatchmakingList: UserEntity[] = [];
+  //private userIDMap: Map<string, string> = new Map<string, string>(); //key = socket.id // value = login
 
-  //liste des games en cours
-  private normalRoomList: IRoom[] = [];
-  private specialRoomList: IRoom[] = [];
+  //les queues en fonction du gameType
+  private normalQueue: UserEntity[] = [];
+  private specialQueue: UserEntity[] = [];
 
-  private gameStateMap: Map<string, IGameState> = new Map<string, IGameState>();
+  //les games en cours
+  private roomList: IRoom[] = []; //vs// private roomMap: Map<string, IRoom> = new Map<string, IRoom>(); //string=roomName
+
+  //peut etre utile pour mettre afk simplement un joeur lors d'une DC
+  //private gameStateMap: Map<string, IGameState> = new Map<string, IGameState>();
   private cntGame: number = 0;
 
   broadcast(event: string, data: any): void {
@@ -100,108 +102,187 @@ export class PongGateway
     console.log('Init', server);
   }
 
+  //TODO VOIR AVEC LES AUTRES IF OK ONLY ONE SOCKET VALUE PER LOGIN
   async handleConnection(client: Socket, ...args: any[]): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
-    console.log('User connected : ', userLogin, ' with id ', client.id);
-    if (this.userList.findIndex((user) => user.login === userLogin) == -1) {
-      const user: UserEntity = new UserEntity(userLogin, client);
-      this.userList.push(user);
-    }
-    this.broadcast('addUser', userLogin);
     await this.userService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
+    const user: UserEntity = new UserEntity(userLogin, client);
+    // prettier-ignore
+    if (this.userList.findIndex((user: UserEntity): boolean => user.login === userLogin) == -1)
+      this.userList.push(user);
+    //checking if need to reconnect to its game
+    const index: number = this.roomList.findIndex(
+      (room: IRoom): boolean =>
+        room.user1.info.login === userLogin ||
+        room.user2.info.login === userLogin,
+    );
+    if (index != -1) {
+      //mets a jour le status afk dans la room
+      this.roomList[index].user1.info.login == userLogin
+        ? !this.roomList[index].gs.p1.afk
+        : !this.roomList[index].gs.p2.afk;
+      //mets a jour le socket dans la room
+      this.roomList[index].user1.info.login == userLogin
+        ? (this.roomList[index].user1.info.client = client)
+        : (this.roomList[index].user2.info.client = client);
+      client.join(this.roomList[index].roomID);
+    }
   }
   async handleDisconnect(client: Socket): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
-    console.log('User disconnected : ', userLogin);
-    const index = this.userList.findIndex(
-      (user) => user.client.id === client.id,
+    await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
+
+    // check if it needs to be defined as afk inside a room
+    let index: number = this.roomList.findIndex(
+      (room: IRoom): boolean =>
+        room.user1.info.login === userLogin ||
+        room.user2.info.login === userLogin,
     );
-    this.userList.splice(index, 1);
-    if (this.userList.findIndex((user) => user.login === userLogin) == -1)
-      await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
-    this.broadcast('removeUser', userLogin);
+    if (index != -1) {
+      this.roomList[index].user1.info.login == userLogin
+        ? this.roomList[index].gs.p1.afk
+        : this.roomList[index].gs.p2.afk;
+    }
+
+    //check if inside userList
+    index = this.userList.findIndex(
+      (user: UserEntity): boolean => user.login === userLogin,
+    );
+    if (index != -1) this.userList.splice(index, 1);
+
+    // check if inside normal queue
+    index = this.normalQueue.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
+    );
+    if (index != -1) this.normalQueue.splice(index, 1);
+
+    // check if inside special queue
+    index = this.specialQueue.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
+    );
+    if (index != -1) this.normalQueue.splice(index, 1);
   }
 
   @SubscribeMessage('special')
   async handleSpecial(
-    @MessageBody() data: { id: string; halo: number },
+    // @MessageBody() data: ,
     @ConnectedSocket() client: Socket,
   ) {
-    const user: UserEntity = new UserEntity(data.id, client);
-    this.userList.push(user);
-    const index = this.specialRoomList.findIndex(
-      (r) =>
-        user.login === r.user1.info.login || user.login === r.user2.info.login,
+    let user: UserEntity;
+    let index: number = this.userList.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
     );
-    if (index == -1) this.specialmatchmakingList.push(user);
-    else {
-      // this.gameStateMap.forEach((gs: IGameState, roomName: string): void => {
-      //   if (gs.p1.id === userLogin || gs.p2.id === userLogin) {
-      //     gs.p1.id === userLogin ? (gs.p1.afk = false) : (gs.p2.afk = false);
-      //     gs.timerAfk = 15;
-      //     user.client.join(roomName);
-      //   }
-      // });
-      user.login === this.specialRoomList[index].user1.info.login
-        ? !this.specialRoomList[index].gs.p1.afk
-        : !this.specialRoomList[index].gs.p2.afk;
+
+    //if this socket is related to a login
+    if (index != -1) {
+      user = this.userList[index];
+
+      //if player wasn't in wanted queue it gets added
+      index = this.specialQueue.findIndex(
+        (user: UserEntity): boolean => user.login == user.login,
+      );
+      if (index == -1) this.specialQueue.push(user);
+
+      //if player was in the other queue it gets deleted
+      index = this.normalQueue.findIndex(
+        (user: UserEntity): boolean => user.login == user.login,
+      );
+      if (index != -1) this.normalQueue.splice(index, 1);
     }
-    console.log(data, client.id); // Handle received message
+    //TODO RETURN ERROR LIKE CLOSING SOCKET TO RESTART ALL PROCESS
   }
 
   @SubscribeMessage('normal')
-  async handlenormal(
+  async handleNormal(
     @MessageBody() data: { id: string; halo: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const user: UserEntity = new UserEntity(data.id, client);
-    this.userList.push(user);
-    const index = this.normalRoomList.findIndex(
-      (r) =>
-        user.login === r.user1.info.login || user.login === r.user2.info.login,
+    let user: UserEntity;
+    let index: number = this.userList.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
     );
-    if (index == -1) this.normalmatchmakingList.push(user);
-    else {
-      user.login === this.normalRoomList[index].user1.info.login
-        ? !this.normalRoomList[index].gs.p1.afk
-        : !this.normalRoomList[index].gs.p2.afk;
+
+    //if this socket is related to a login
+    if (index != -1) {
+      user = this.userList[index];
+
+      //if player wasn't in wanted queue it gets added
+      index = this.specialQueue.findIndex(
+        (user: UserEntity): boolean => user.login == user.login,
+      );
+      if (index == -1) this.specialQueue.push(user);
+
+      //if player was in the other queue it gets deleted
+      index = this.specialQueue.findIndex(
+        (user: UserEntity): boolean => user.login == user.login,
+      );
+      if (index != -1) this.specialQueue.splice(index, 1);
     }
-    console.log(data, client.id); // Handle received message
+    //TODO RETURN ERROR LIKE CLOSING SOCKET TO RESTART ALL PROCESS
   }
 
   @SubscribeMessage('moveUp') //TODO: VOIR AVEC NIKI
   async handleMoveUp(
-    @MessageBody() data: { key: string; state: boolean },
+    @MessageBody() data: boolean,
     @ConnectedSocket() client: Socket,
   ) {
-    if (client.id === this.gameStateMap[data.key].p1.id)
-      this.gameStateMap[data.key].p1.moveUp = data.state;
-    else if (client.id === this.gameStateMap[data.key].p2.id)
-      this.gameStateMap[data.key].p2.moveUp = data.state;
+    let user: UserEntity;
+    let index: number = this.userList.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
+    );
+    //if this socket is related to a login
+    if (index != -1) {
+      user = this.userList[index];
+      index = this.roomList.findIndex((room: IRoom): void => {
+        if (
+          user.login == room.user1.info.login ||
+          user.login == room.user2.info.login
+        )
+          user.login == room.user1.info.login
+            ? (room.gs.p1.moveUp = data)
+            : (room.gs.p2.moveUp = data);
+      });
+    }
   }
 
   @SubscribeMessage('moveDown') //TODO: VOIR AVEC NIKI
   async handleMoveDown(
-    @MessageBody() data: { key: string; state: boolean },
+    @MessageBody() data: boolean,
     @ConnectedSocket() client: Socket,
   ) {
-    if (client.id === this.gameStateMap[data.key].p1.id)
-      this.gameStateMap[data.key].p1.moveDown = data.state;
-    else if (client.id === this.gameStateMap[data.key].p2.id)
-      this.gameStateMap[data.key].p2.moveDown = data.state;
+    let user: UserEntity;
+    let index: number = this.userList.findIndex(
+      (user: UserEntity): boolean => user.client.id == client.id,
+    );
+    //if this socket is related to a login
+    if (index != -1) {
+      user = this.userList[index];
+      index = this.roomList.findIndex((room: IRoom): void => {
+        if (
+          user.login == room.user1.info.login ||
+          user.login == room.user2.info.login
+        )
+          user.login == room.user1.info.login
+            ? (room.gs.p1.moveDown = data)
+            : (room.gs.p2.moveDown = data);
+      });
+    }
   }
 
   @Cron('*/5 * * * * *')
   findMatches() {
     console.log('finding matches');
-    this.normalmatchmakingList.forEach((user: UserEntity): void => {
+    this.normalQueue.forEach((user: UserEntity): void => {
       console.log(user.login);
     });
-    if (this.normalmatchmakingList.length > 1) {
+    this.specialQueue.forEach((user: UserEntity): void => {
+      console.log(user.login);
+    });
+    if (this.normalQueue.length > 1) {
       this.cntGame++;
       const roomName: string = `game${this.cntGame}`;
-      const user1: UserEntity = this.normalmatchmakingList.shift();
-      const user2: UserEntity = this.normalmatchmakingList.shift();
+      const user1: UserEntity = this.normalQueue.shift();
+      const user2: UserEntity = this.normalQueue.shift();
       const message: string =
         'A game between ' +
         user1.login +
@@ -217,7 +298,6 @@ export class PongGateway
         user2.login,
       );
       this.broadcastTo(roomName, 'test', message);
-      //TODO: create newRoom
       const newGameState: IGameState = {
         ...gameStart,
         p1: { ...gameStart.p1, pos: gameStart.p1.pos, dim: gameStart.p1.dim },
@@ -229,11 +309,77 @@ export class PongGateway
         },
       };
       setRandomDirBall(newGameState.ball);
-      this.gameStateMap.set(roomName, newGameState);
-
-      this.pongCalculus(this.gameStateMap.get(roomName), canvas).then(
-        (): void => {},
+      const newRoom: IRoom = {
+        gs: newGameState,
+        user1: {
+          info: user1,
+        },
+        user2: {
+          info: user2,
+        },
+        roomID: roomName,
+        type: false,
+      };
+      this.roomList.push(newRoom);
+      this.userService
+        .setUserStatus(user1.login, UserStatus.ONLINE)
+        .then((): void => {});
+      this.userService
+        .setUserStatus(user2.login, UserStatus.ONLINE)
+        .then((): void => {});
+      this.pongCalculus(newRoom.gs, canvas).then((): void => {});
+    } else console.log('Not enough players in matchmaking');
+    ///////////////////////////////////////////////////////////////////////////////////////
+    if (this.specialQueue.length > 1) {
+      this.cntGame++;
+      const roomName: string = `game${this.cntGame}`;
+      const user1: UserEntity = this.specialQueue.shift();
+      const user2: UserEntity = this.specialQueue.shift();
+      const message: string =
+        'A game between ' +
+        user1.login +
+        ' and ' +
+        user2.login +
+        ' is about to start';
+      user1.client.join(roomName);
+      user2.client.join(roomName);
+      console.log(
+        'making a match. Players are : ',
+        user1.login,
+        ' and ',
+        user2.login,
       );
+      this.broadcastTo(roomName, 'test', message);
+      const newGameState: IGameState = {
+        ...gameStart,
+        p1: { ...gameStart.p1, pos: gameStart.p1.pos, dim: gameStart.p1.dim },
+        p2: { ...gameStart.p2, pos: gameStart.p2.pos, dim: gameStart.p2.dim },
+        ball: {
+          ...gameStart.ball,
+          pos: gameStart.ball.pos,
+          direction: gameStart.ball.direction,
+        },
+      };
+      setRandomDirBall(newGameState.ball);
+      const newRoom: IRoom = {
+        gs: newGameState,
+        user1: {
+          info: user1,
+        },
+        user2: {
+          info: user2,
+        },
+        roomID: roomName,
+        type: false,
+      };
+      this.roomList.push(newRoom);
+      this.userService
+        .setUserStatus(user1.login, UserStatus.ONLINE)
+        .then((): void => {});
+      this.userService
+        .setUserStatus(user2.login, UserStatus.ONLINE)
+        .then((): void => {});
+      this.pongCalculus(newRoom.gs, canvas).then((): void => {});
     } else console.log('Not enough players in matchmaking');
   }
 

@@ -77,13 +77,14 @@ export interface IRoom {
   gs: IGameState;
   user1: IUserInfo;
   user2: IUserInfo;
-  roomName: string;
+  roomID: string;
   type: boolean;
+  //state: string // GAMING, WAITING, OVER
 }
 
 export interface IUserInfo {
   info: UserEntity;
-  halo: number;
+  //halo: number;
 }
 export interface IGameState {
   p1: IPlayer;
@@ -91,6 +92,7 @@ export interface IGameState {
   ball: IBall;
   timerAfk: number;
   type: boolean;
+  //state: string // GAMING, WAITING, OVER
 }
 export interface IBall {
   pos: IPos;
