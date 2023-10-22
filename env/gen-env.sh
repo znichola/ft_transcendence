@@ -12,6 +12,7 @@ cat <<-EOF > $SCRIPT_DIR/kickstart.env
 # if present, these value are ported over from the kickstart.env.old
 APP_NAME=${APP_NAME:="Transcendance"}
 USE_LOCAL_HOST=${USE_LOCAL_HOST:="false"}
+HTTPS_PORT=443
 API_CLIENT_ID=${API_CLIENT_ID:="_________replace_with_the_API_ID_from_the_42_api_____"}
 API_CLIENT_SECRET=${API_CLIENT_SECRET:="_____replace_with_the_secret_also_from_42________"}
 COOKIE_USR=${COOKIE_USR:="userSession"}
@@ -44,10 +45,12 @@ fi
 
 VITE_IP_ADDR=$IP_ADDR
 
+SITE_URL=https://$VITE_IP_ADDR:$HTTPS_PORT
+
 {
 cat <<-EOF > $SCRIPT_DIR/.react.env
 VITE_IP_ADDR=$VITE_IP_ADDR
-VITE_SITE_URL=https://$VITE_IP_ADDR:8080
+VITE_SITE_URL=$SITE_URL
 EOF
 }
 
@@ -61,12 +64,13 @@ COOKIE_USR=$COOKIE_USR
 COOKIE_TMP=$COOKIE_TMP
 APP_NAME=$APP_NAME
 DATABASE_URL=postgresql://postgres:$DATABASE_PWD@postgres:5432/postgres?schema=public
-SITE_URL=https://$VITE_IP_ADDR:8080
+SITE_URL=$SITE_URL
 EOF
 }
 
 {
 cat <<-EOF > $SCRIPT_DIR/.docker.env
 DATABASE_PWD=$DATABASE_PWD
+HTTPS_PORT=$HTTPS_PORT
 EOF
 }

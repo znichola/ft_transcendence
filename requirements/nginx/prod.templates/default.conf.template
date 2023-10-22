@@ -6,8 +6,8 @@ map $http_upgrade $connection_upgrade {
 server {
 	access_log	off;
 
-	listen       ${NGINX_PORT} ssl;
-	listen  [::]:${NGINX_PORT} ssl;
+	listen       443 ssl;
+	listen  [::]:443 ssl;
 
 	ssl_certificate     /certs/nginx.crt;
 	ssl_certificate_key /certs/nginx.key;
