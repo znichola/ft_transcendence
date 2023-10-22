@@ -26,8 +26,10 @@ import { UserEntity } from '../user/user.entity';
 import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
 
-const canvas: I2D = { width: 1 + 111 / 175, height: 1 };
+const canvas: I2D = { width: 1, height: 1 };
 const timer: number = 1000 / 60;
+const minV: number = 3 / 10000;
+const maxV: number = (1 / 85 + 2 / 70) / timer;
 
 const gameStart: IGameState = {
   p1: {
@@ -54,9 +56,10 @@ const gameStart: IGameState = {
     {
       pos: { x: 1 / 2, y: 1 / 2 },
       radius: 1 / 70,
-      speed: 1 / 4,
+      speed: minV,
       direction: { x: 1, y: 0 },
       mitosis: false,
+      bounce: 0,
     },
   ],
   timerAfk: 15,
@@ -277,7 +280,7 @@ export class PongGateway
     }
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/5 * * * * *')
   findMatches() {
     //console.log('finding matches');
     // this.normalQueue.forEach((user: UserEntity): void => {
@@ -403,8 +406,8 @@ function definePlayerContact(b: IBall, gs: IGameState, canvas: I2D) {
 }
 
 function setBallPos(b: IBall) {
-  b.pos.x += (b.direction.x * b.speed * timer) / 858;
-  b.pos.y += (b.direction.y * b.speed * timer) / 525;
+  b.pos.x += b.direction.x * b.speed * timer;
+  b.pos.y += b.direction.y * b.speed * timer;
 }
 function bounceWallBall(b: IBall, canvas: I2D) {
   //TOUCHE BORD HAUT OU BAS
@@ -422,19 +425,19 @@ function bouncePlayerBall(p: IPlayer, b: IBall) {
     b.pos.x - b.radius < p.pos.x + p.dim.w &&
     b.pos.y + b.radius > p.pos.y
   ) {
+    b.bounce++;
     const contactRatioY = (b.pos.y - (p.pos.y + p.dim.h / 2)) / (p.dim.h / 2);
     const angle = (Math.PI / 3) * contactRatioY;
     const direction = b.direction.x < 0 ? -1 : 1;
     b.direction.x = -direction * Math.cos(angle);
     b.direction.y = Math.sin(angle);
     b.mitosis = false;
-    if (direction < 0) b.pos.x = p.pos.x + p.dim.w + b.radius;
-    else b.pos.x = p.pos.x - b.radius;
+    if (direction < 0) b.pos.x = p.pos.x + p.dim.w + b.radius + 1 / 100;
+    else b.pos.x = p.pos.x - b.radius - 1 / 100;
     //put lim to Vmax pending on p.w and ball.diam
-    if (b.speed < (p.dim.w + b.radius * 2) / 16) {
-      b.speed *= 1.12;
-      if (b.speed > (p.dim.w + b.radius * 2) / 16)
-        b.speed = (p.dim.w + b.radius * 2) / 16;
+    if (b.speed < maxV) {
+      b.speed *= 1.1;
+      if (b.speed > maxV) b.speed = maxV;
     }
   }
 }
@@ -501,7 +504,8 @@ function setInitialPosition(gs: IGameState) {
   gs.p2.pos.x = 1 - 2 / 85;
   gs.p1.pos.y = gs.p2.pos.y = 1 / 2 - 1 / 10;
   //define ball initial pos
-  gs.balls[0].speed = 1 / 4;
+  gs.balls[0].speed = minV;
+  gs.balls[0].bounce = 0;
   gs.balls[0].pos.x = 1 / 2;
   gs.balls[0].pos.y = 1 / 2;
 }

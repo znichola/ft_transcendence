@@ -18,7 +18,7 @@ export default function ResponsiveAppPong() {
         };
     }, []);
     return (
-        <div ref={pong} className={`h-[40rem] w-full`}>
+        <div ref={pong} className={`h-full w-full`}>
             < PongApp width={dim.x} height={dim.y} />
         </div>
     );

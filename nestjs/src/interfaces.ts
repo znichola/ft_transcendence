@@ -101,6 +101,7 @@ export interface IBall {
   speed: number;
   direction: IPos;
   mitosis: boolean;
+  bounce: number;
 }
 export interface IBalls extends Array<IBall> {}
 export interface IPos {

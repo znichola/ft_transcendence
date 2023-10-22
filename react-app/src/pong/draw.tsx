@@ -14,13 +14,15 @@ export default function draw(
       tmp.balls.forEach((b) => {
         const startColor: TColor = { r: 186, g: 230, b: 253 };
         const endColor: TColor = { r: 245, g: 158, b: 11 };
-        const ac: TColor = lerpRGB(startColor, endColor, (b.speed - 0.25) * 1.5);
+        const ac: TColor = lerpRGB(startColor, endColor, b.bounce / 5);
         ctx.fillStyle = `rgb(${ac.r} ${ac.g} ${ac.b})`;
+        // ctx.fillStyle = "rgb(186 230 253)";
         ctx.beginPath();
         ctx.arc(b.pos.x, b.pos.y, b.radius, 0, 2 * Math.PI);
         ctx.fill();
       });
       //dessine les joueurs
+      ctx.fillStyle = "rgb(186 230 253)";
       ctx.fillRect(
         tmp.p1.pos.x,
         tmp.p1.pos.y,
@@ -63,11 +65,19 @@ export default function draw(
     gs.p1.pos.y *= canvas.height;
     gs.p1.dim.w *= canvas.width;
     gs.p1.dim.h *= canvas.height;
+    // gs.p1.pos.x = Math.round(canvas.width * gs.p1.pos.x);
+    // gs.p1.pos.y = Math.round(canvas.height * gs.p1.pos.y);
+    // gs.p1.dim.w = Math.round(canvas.width * gs.p1.dim.w);
+    // gs.p1.dim.h = Math.round(canvas.height * gs.p1.dim.h);
     //p2
     gs.p2.pos.x *= canvas.width;
     gs.p2.pos.y *= canvas.height;
     gs.p2.dim.w *= canvas.width;
     gs.p2.dim.h *= canvas.height;
+    // gs.p2.pos.x = Math.round(canvas.width * gs.p2.pos.x);
+    // gs.p2.pos.y = Math.round(canvas.height * gs.p2.pos.y);
+    // gs.p2.dim.w = Math.round(canvas.width * gs.p2.dim.w);
+    // gs.p2.dim.h = Math.round(canvas.height * gs.p2.dim.h);
     //ball
     gs.balls.forEach((b) => {
       b.pos.x *= canvas.width;
@@ -75,6 +85,9 @@ export default function draw(
       b.radius *= Math.sqrt(
         Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
       );
+      // b.pos.x = Math.round(canvas.width * b.pos.x);
+      // b.pos.y = Math.round(canvas.height * b.pos.y);
+      // b.radius = Math.round(Math.sqrt(Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2)) * b.radius);
     });
   }
   
