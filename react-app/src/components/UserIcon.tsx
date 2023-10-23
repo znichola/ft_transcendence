@@ -1,16 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUserData } from "../functions/customHook";
 import { UserData } from "../interfaces";
 import { IconUser } from "./Icons";
 
-export function UserIcon({ user }: { user: string }) {
+export function UserIcon({ user, size = 7 }: { user: string, size?: number }) {
   const { data: u, isSuccess } = useUserData(user);
   const navigate = useNavigate();
   if (!isSuccess) return <IconUser />;
   return (
     <img
       onClick={() => navigate("/user/" + user)}
-      className={"h-7 w-7 rounded-full border-[3px] " + statusColor(u.status)}
+      className={"h-" + size.toString() + " w-" + size.toString + " rounded-full border-[3px] " + statusColor(u.status)}
       src={u.avatar}
       alt={u.login42 || "undefined" + " profile image"}
     />

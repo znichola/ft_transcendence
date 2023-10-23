@@ -165,7 +165,7 @@ export function SubmitBTN({ lable }: { lable?: string }) {
   return (
     <button
       type="submit"
-      className="flex h-10 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500 focus:outline focus:outline-rose-400"
+      className="flex h-10 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
     >
       {lable || "Submit"}
     </button>

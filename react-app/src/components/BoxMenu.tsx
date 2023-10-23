@@ -36,6 +36,7 @@ export function ButtonGeneric({
   checked,
   children,
   filledIn,
+  className = "peer-checked:translate-y-5"
 }: {
   icon: iconType;
   setBTNstate: (value: React.SetStateAction<string>) => void;
@@ -43,6 +44,7 @@ export function ButtonGeneric({
   checked: string;
   children?: JSX.Element[] | JSX.Element;
   filledIn?: boolean
+  className?: string
 }) {
   return (
     <div>
@@ -60,8 +62,10 @@ export function ButtonGeneric({
           <Icon />
         </div>
       </button>
-      <div className="invisible absolute left-0 min-w-full translate-y-5 p-3 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:translate-y-10 peer-checked:opacity-100">
-        {children}
+      <div className={"invisible absolute left-0 min-w-full pointer-events-none p-3 translate-y-5 opacity-0 transition-all duration-500 ease-in-out peer-checked:visible peer-checked:opacity-100 " + className}>
+        <div className="pointer-events-auto">
+          {children}
+        </div>
       </div>
     </div>
   );
