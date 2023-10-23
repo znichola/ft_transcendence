@@ -18,10 +18,10 @@ export class TfaController {
     ) {}
 
     @UseGuards(AuthGuard)
-    @Post(':username')
+    @Get(':username')
     async register(@Param('username') username: string, @Res() res: Response, @Req() req: Request)
     {
-        this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+        await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
         const { otpauthUrl } = await this.tfaService.generateTfaSecret(username);
         const qrCode = await toBuffer(otpauthUrl);
         res.header('Content-Type', 'image/png');
@@ -33,7 +33,7 @@ export class TfaController {
     @Post(':username/enable')
     async enableTfa(@Param('username') username: string, @Body() bodyData: TfaCodeDto, @Req() req: Request)
     {
-        this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+        await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
         const userSecret = await this.tfaService.getTfaSecret(username);
         const isValid = this.tfaService.isTfaCodeValid(bodyData.tfaCode, userSecret);
         if (!isValid) throw new HttpException("Invalid Authentication code.", HttpStatus.UNAUTHORIZED);
@@ -44,7 +44,7 @@ export class TfaController {
     @Post(':username/login')
     async login(@Param('username') username: string, @Body() bodyData: TfaCodeDto, @Res() res: Response, @Req() req: Request)
     {
-        this.authService.verifyUser(username, req.cookies[process.env.COOKIE_TMP].access_token);
+        await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_TMP].access_token);
         const userSecret = await this.tfaService.getTfaSecret(username);
         const isValid = this.tfaService.isTfaCodeValid(bodyData.tfaCode, userSecret);
         if (!isValid) throw new HttpException("Invalid Authentication code.", HttpStatus.UNAUTHORIZED);
