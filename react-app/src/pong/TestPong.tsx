@@ -1,32 +1,32 @@
 // import ResponsiveDrawPong from "./ResponsiveDrawPong.tsx";
 import { IGameState } from "../interfaces.tsx";
 import { pongSocket } from "../socket.ts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import ResponsiveAppPong from "./ResponsiveAppPong.tsx";
-import {LoadingSpinnerMessage} from "../components/Loading.tsx";
+import { LoadingSpinnerMessage } from "../components/Loading.tsx";
+import { NotificationContext } from "../routes/NotificationProvider.tsx";
 
 export default function TestPong() {
   const [gameFound, setGameFount] = useState(false);
+  const { addNotif } = useContext(NotificationContext);
 
   useEffect(() => {
     function onGameFound(message: string) {
       console.log("gameFound: ", message);
+      addNotif({ type: "INFO", message: message });
       setGameFount(true);
     }
     pongSocket.emit("classical");
-    
+
     pongSocket.on("gameFound", onGameFound);
-    
+
     return () => {
       pongSocket.off("gameFound", onGameFound);
-
     };
   }, []);
 
-  if (gameFound)
-    return <ResponsiveAppPong />
-  else 
-    return <LoadingSpinnerMessage message="looking for game ..."/>
+  if (gameFound) return <ResponsiveAppPong />;
+  else return <LoadingSpinnerMessage message="looking for game ..." />;
 }
 
 // export const gameStart: IGameState = {

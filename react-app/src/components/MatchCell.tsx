@@ -1,14 +1,14 @@
-import { gameState } from "../interfaces";
+import { IGameState } from "../interfaces";
 import DrawPong from "../pong/DrawPong";
 
-const gameStart: gameState = {
+const gameStart: IGameState = {
   p1: {
     pos: {x: 0, y: 52},
     dim: {w: 2, h: 20},
     score: 0,
     moveUp: false,
     moveDown: false,
-    id: '',
+    id: undefined,
     afk: true,
   },
   p2: {
@@ -17,16 +17,21 @@ const gameStart: gameState = {
     score: 0,
     moveUp: false,
     moveDown: false,
-    id: '',
+    id: undefined,
     afk: true,
   },
-  ball: {
-    pos: { x: 50, y: 50 },
-    radius: 3,
-    speed: 1,
-    direction: { x: 1, y: 0 },
-  },
+  balls: [
+    {
+      pos: { x: 50, y: 50 },
+      radius: 3,
+      speed: 1,
+      direction: { x: 1, y: 0 },
+      mitosis: false,
+      bounce: 0,
+    }
+  ],
   timerAfk: 0,
+  type: false,
 };
 
 export function MatchCell({ victory }: { victory: boolean }) {

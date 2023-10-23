@@ -3,7 +3,11 @@ import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../functions/customHook";
 import { useAuth } from "../functions/useAuth";
-import { pongSocket, socketSetHeadersAndReConnect, userSocket } from "../socket";
+import {
+  pongSocket,
+  socketSetHeadersAndReConnect,
+  userSocket,
+} from "../socket";
 
 export type IAuth = {
   isloggedIn: boolean;
@@ -12,7 +16,13 @@ export type IAuth = {
   logOut: () => void;
 };
 
-export const AuthContext = createContext<IAuth | null>(null);
+// to avoid this  dumb ass null stuff
+export const AuthContext = createContext<IAuth>({
+  isloggedIn: false,
+  user: "",
+  logIn: (_: string) => {},
+  logOut: () => {},
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setToken] = useState({ isloggedIn: false, user: "" });
@@ -57,14 +67,14 @@ export const ProtectedRoute = () => {
 
   if (!foo)
     return <h1>critical error with auth, this should not be possible</h1>;
-  if (isLoading )
+  if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-96 w-96 animate-spin rounded-full border-8 border-slate-300 border-b-transparent" />
       </div>
     );
   if (isError)
-  return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   // this is here for when the cookie expiers it should kick the user back to the login page
   // important this redirection is not to a child of the protected route otherwise it's an infinate loop!
   return <Outlet />;

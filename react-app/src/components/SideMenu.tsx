@@ -327,7 +327,7 @@ function CurrentUserEloStats({ user }: { user: UserData }) {
 function TheMasterminds() {
   return (
     <Link
-      to="/"
+      to="https://projects.intra.42.fr/ft_transcendence/znichola"
       className="group mt-auto flex flex-col items-center justify-center px-4"
     >
       <IconBrain className="h-10 w-10 fill-slate-600 drop-shadow group-hover:fill-red-500" />
