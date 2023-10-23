@@ -28,6 +28,8 @@ export class AuthController {
     @Body() bodyData: object,
     @Res() res: Response,
   ) {
+    if (!bodyData || !bodyData['state'] || !bodyData['code'])
+      throw new HttpException('Missing Body Data.', HttpStatus.BAD_REQUEST);
     const state: string = bodyData['state'];
     const code: string = bodyData['code'];
     try {
@@ -36,8 +38,8 @@ export class AuthController {
         client_id: process.env.API_CLIENT_ID,
         client_secret: process.env.API_CLIENT_SECRET,
         code: code,
-        redirect_uri: 'http://' + process.env.IP_ADDR + ':8080/auth',
-        state: 'abc', //Dont be dumb and use the correct state value for real project.
+        redirect_uri: 'http://' + process.env.IP_ADDR + ':8080/auth', // TODO: change to https when we upgrade
+        state: state
       });
       if (!token42) {
         throw new Error('Unable to retrieve data from 42 API.');
@@ -87,6 +89,7 @@ export class AuthController {
   {
     const userLogin = await this.authService.getLoginFromToken(req.cookies[process.env.COOKIE_USR].access_token);
     await this.authService.signOutUser(userLogin);
+    res.setHeader('Content-Type', 'text/html');
     res.cookie(process.env.COOKIE_USR, '', { expires: new Date() });
     return res.status(200).send();
   }
@@ -110,6 +113,8 @@ export class AuthController {
     if (!user) user = 'default42';
     const token = await this.authService.getUserToken(user);
     if (!token) throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+
+    res.setHeader('Content-Type', 'text/html');
     res.cookie(process.env.COOKIE_USR, token, {
       domain: process.env.IP_ADDR,
       httpOnly: true,

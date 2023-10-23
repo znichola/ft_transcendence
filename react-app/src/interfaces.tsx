@@ -31,7 +31,12 @@ export interface GameHistory {
   result: number;
 }
 
-export type TUserStatus = "ONLINE" | "OFFLINE" | "UNAVAILABLE" | "INGAME" | undefined;
+export type TUserStatus =
+  | "ONLINE"
+  | "OFFLINE"
+  | "UNAVAILABLE"
+  | "INGAME"
+  | undefined;
 
 // --------- user
 export interface IUsersAll {
@@ -105,7 +110,7 @@ export interface IPutUserProfile {
 // --------- pong / gameState
 
 export type I2D = { width: number; height: number };
-export type TColor = { r: number, g: number, b: number }
+export type TColor = { r: number; g: number; b: number };
 
 export interface IGameState {
   p1: IPlayer;
@@ -143,6 +148,68 @@ export interface IPlayer {
   moveDown: boolean;
   id: string | undefined;
   afk: boolean;
+}
+
+// --------- react app useage
+
+export interface INotification {
+  message?: string;
+  from?: string;
+  to?: string;
+  type: TNotif;
+  id?: string;
+}
+
+export type TNotif =
+  | "MESSAGE"
+  | "FRIEND"
+  | "CLASSICAL"
+  | "SPECIAL"
+  | "RESUME"
+  | "ERROR"
+  | "INFO"
+  | undefined;
+
+// --------- socket message interfaces
+
+export type Login42 = string;
+export type TGameMode = "CLASSICAL" | "SPECIAL";
+
+//  ws/user
+
+export interface ISocChatroomMessage {
+  id: number;
+  message: IMessage;
+}
+
+export interface ISocDirectMessage {
+  from: Login42;
+  message: IMessage;
+}
+
+export interface ISocFriendRequest {
+  from: Login42;
+}
+
+// ws/pong 
+
+export interface ISocChallenge {
+  from: Login42;
+  type: TGameMode;
+  id: number; // idk if this is needed
+}
+
+export interface ISocGameFound {
+  from: Login42;
+  type: TGameMode;
+  id: number; // idk if this is needed
+}
+
+// ws/pong - send
+
+export interface ISocAcceptChallenge {
+  id: number;
+  accept: boolean;
 }
 
 

@@ -26,7 +26,6 @@ import AddNewFriend from "./routes/AddNewFriend.tsx";
 import Login from "./routes/UserLogin.tsx";
 import DirectMessage from "./routes/DirectMessage.tsx";
 import PongDuel from "./routes/PongDuel.tsx";
-import ChatRoomChat from "./routes/ChatroomChat.tsx";
 import { AuthProvider, ProtectedRoute } from "./routes/AuthProvider.tsx";
 import MatchMaker from "./routes/MatchMaker.tsx";
 import AuthLoginTFA from "./routes/AuthLoginTFA.tsx";
@@ -35,6 +34,7 @@ import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
 import SocketTest from "./routes/SocketTest.tsx";
 import ChatroomManager from "./routes/ChatroomChat.tsx";
 import TestPong from "./pong/TestPong.tsx";
+import NotificationProvider from "./routes/NotificationProvider.tsx";
 
 const router = createBrowserRouter([
   {
@@ -110,7 +110,7 @@ const router = createBrowserRouter([
           {
             path: "/ptest",
             element: <TestPong />,
-          }
+          },
           // {
           //   path: "/test",
           //   element: <Test />,
@@ -137,7 +137,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <NotificationProvider>
+          <RouterProvider router={router} />
+        </NotificationProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
