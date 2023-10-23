@@ -10,14 +10,7 @@ export default function NotificationWrapper({
 }: {
   className: string;
 }) {
-  const { notifications, removeNotif, addNotif } =
-    useContext(NotificationContext);
-
-  // useEffect(() => {
-  //   function onNewMessage(n: INotification) {
-  //     addNotif(n);
-  //   }
-  // }); 
+  const { notifications, removeNotif } = useContext(NotificationContext);
 
   return (
     <div
