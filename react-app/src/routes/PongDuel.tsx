@@ -1,9 +1,4 @@
 import { useParams } from "react-router";
-import { getCurrentUser } from "../api/axios";
-import { useQuery } from "@tanstack/react-query";
-import { UserData } from "../interfaces";
-import axios from "axios";
-import { LoadingSpinnerMessage } from "../components/Loading";
 import PlayPong from "./PlayPong";
 
 export default function PongDuel() {

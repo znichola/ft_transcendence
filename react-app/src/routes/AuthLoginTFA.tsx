@@ -23,7 +23,7 @@ export default function AuthLoginTFA() {
       setCode("");
     }
     if (isSuccess) navigate("/play");
-  });
+  }, [isError, submitted, navigate, isSuccess]);
 
   if (isSuccess) return <p>it worked!!!</p>;
 

@@ -25,7 +25,7 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
     );
 
     return () => authApi.interceptors.response.eject(interceptor);
-  }, []); // TODO this was added from lint maybe it's a bad idea?!
+  }, [addNotif]); // TODO this was added from lint maybe it's a bad idea?!
   // console.log("isSet:          ", isSet);
   return isSet && children;
 }

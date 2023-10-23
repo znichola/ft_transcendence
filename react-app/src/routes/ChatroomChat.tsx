@@ -51,13 +51,12 @@ import {
   GenericActionBTN,
   IChatroomManageBTN,
   Pop,
-  convertPerms,
 } from "../components/ChatroomChatBTNs";
 import { isMatch } from "../functions/utils";
 import { AxiosError } from "axios";
+import { convertPerms } from "../functions/utils";
 
 function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload: () => void}) {
-  const [responseMessage, setResponseMessage] = useState(undefined);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -65,7 +64,7 @@ function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload
 
   async function handleSubmit(e) {
     e.preventDefault();
-    let response_value: AxiosError<{message: string}> | undefined = await authApi.post("/chatroom/" + id + "/members/", {login42: login42, password: password})
+    const response_value: AxiosError<{message: string}> | undefined = await authApi.post("/chatroom/" + id + "/members/", {login42: login42, password: password})
     .catch(res => res)
     if (response_value?.status == 201) {
       console.log("All good !");

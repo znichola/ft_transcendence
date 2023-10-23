@@ -13,12 +13,10 @@ import {
   IconFire,
   IconGit,
 } from "./Icons";
-import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
-import ProfileElo from "./ProfileElo.tsx";
 import { useCurrentUserData } from "../api/apiHooks.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
@@ -307,19 +305,6 @@ function CurrentUserStats() {
         <p className="font-semibold text-slate-700">{currentUserData.name}</p>
         <p className="text-slate-400">{"@" + currentUserData.login42}</p>
       </div>
-    </div>
-  );
-}
-
-function CurrentUserEloStats({ user }: { user: UserData }) {
-  return (
-    <div className="flex h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-      <ProfileElo
-        className="flex bg-green-200 "
-        lineWidth={3}
-        h={50}
-        data={user.eloHistory.slice(-20)}
-      />
     </div>
   );
 }

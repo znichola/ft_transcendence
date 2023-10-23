@@ -11,7 +11,7 @@ export default function BoxMenu({
   children?: ReactNode;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  if (resetBTN) useOutsideAlerter(wrapperRef, resetBTN);
+  useOutsideAlerter(wrapperRef, resetBTN ? resetBTN : () => {});
 
   return (
     <div
@@ -91,5 +91,5 @@ function useOutsideAlerter(
       // Unbind the event listener on clean up
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref]);
+  }, [ref, setBTNstate]);
 }

@@ -1,5 +1,5 @@
 import { UserData } from "../interfaces";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import ChatRoomMenu from "./ChatRoomMenu.tsx";
 
 function statusColor(status: UserData["status"]) {

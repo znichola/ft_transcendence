@@ -36,7 +36,7 @@ function App() {
       userSocket.off("connect", onConnect);
       userSocket.off("disconnect", onDisconnect);
     };
-  }, []);
+  }, [qc, user]);
 
   return (
     <div className="App">

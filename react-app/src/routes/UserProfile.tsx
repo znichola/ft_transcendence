@@ -405,9 +405,7 @@ function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
       console.log("Two factor authentication was set up successfully");
       addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
     }
-    if (isLoading) {
-    }
-  });
+  }, [addNotif, isError, isSuccess, submitted]);
 
   return (
     <div className="box-theme absolute top-0 bg-stone-50 p-8">

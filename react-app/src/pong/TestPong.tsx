@@ -1,5 +1,4 @@
 // import ResponsiveDrawPong from "./ResponsiveDrawPong.tsx";
-import { IGameState } from "../interfaces.tsx";
 import { pongSocket } from "../socket.ts";
 import { useState, useEffect, useContext } from "react";
 import ResponsiveAppPong from "./ResponsiveAppPong.tsx";
@@ -23,7 +22,7 @@ export default function TestPong() {
     return () => {
       pongSocket.off("gameFound", onGameFound);
     };
-  }, []);
+  }, [addNotif]);
 
   if (gameFound) return <ResponsiveAppPong />;
   else return <LoadingSpinnerMessage message="looking for game ..." />;

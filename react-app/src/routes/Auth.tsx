@@ -7,7 +7,7 @@ import { useEffect } from "react";
 // import { userSocket } from "../socket";
 
 export default function Auth() {
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const auth = useAuth();
   const navigate = useNavigate();
   const {
