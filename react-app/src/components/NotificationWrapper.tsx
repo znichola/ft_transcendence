@@ -1,84 +1,46 @@
-import { useState } from "react";
+import { useContext, useEffect } from "react";
 import { IconX } from "./Icons";
 import { useNavigate } from "react-router-dom";
-
-const fakeNofits: INotif[] = [
-  {
-    message: "Hey bibou it's your best freind sending you a nice message!",
-    type: "MESSAGE",
-  },
-  {
-    message: "coding_ninja",
-    type: "SPECIAL",
-    to: "/play",
-  },
-  {
-    message: "znichola",
-    type: "CLASSICAL",
-    to: "/play",
-  },
-  {
-    message: "hradoux",
-    type: "RESUME",
-    to: "/play",
-  },
-  {
-    message: "skoulen",
-    type: "FRIEND",
-    to: "/user/skoulen",
-  },
-  {
-    message: "With html something or another",
-    type: "ERROR",
-  },
-];
-
-interface INotif {
-  message: string;
-  to?: string;
-  type: TNotif;
-}
+import { INotification, TNotif } from "../interfaces";
+import { NotificationContext } from "../routes/NotificationProvider";
+import { userSocket, pongSocket } from "../socket";
 
 export default function NotificationWrapper({
   className: cn,
 }: {
   className: string;
 }) {
-  const [notifs, setNotifs] = useState<INotif[]>(fakeNofits);
+  const { notifications, removeNotif, addNotif } =
+    useContext(NotificationContext);
 
-  const removeElement = (index: number) => {
-    const newNotifs = notifs.filter((_, i) => i !== index);
-    setNotifs(newNotifs);
-  };
+  // useEffect(() => {
+  //   function onNewMessage(n: INotification) {
+  //     addNotif(n);
+  //   }
+  // }); 
 
   return (
     <div
       className={`${cn} absolute z-40 flex w-96 flex-col gap-2 transition-all`}
     >
-      {notifs?.map((n, i) => (
-        <Notification
-          key={`${n.type}-${i}`}
-          message={n.message}
-          to={n.to}
-          type={n.type}
-          destroy={() => removeElement(i)}
-        />
+      {notifications.map((n, i) => (
+        <Notification {...n} key={n.id} destroy={() => removeNotif(i)} />
       ))}
     </div>
   );
 }
 
-interface INotifArgs extends INotif {
+interface INotifArgs extends INotification {
   destroy: () => void;
 }
 
-function Notification({ message, to, type: t, destroy }: INotifArgs) {
+function Notification({ message, to, from, type: t, destroy }: INotifArgs) {
   const navigate = useNavigate();
   return (
     <div
       className={
         classNameDiv(t) +
-        " flex w-full items-center gap-4 rounded-lg border px-4 text-sm relative"
+        " relative flex w-full items-center gap-4 rounded-lg border px-4 text-sm"
       }
       role="alert"
     >
@@ -90,11 +52,11 @@ function Notification({ message, to, type: t, destroy }: INotifArgs) {
           }}
           className="h-full w-full py-3 text-left"
         >
-          <MsgText type={t} message={message} />
+          <MsgText type={t} message={message} from={from} />
         </button>
       ) : (
         <div className="h-full w-full py-3">
-          <MsgText type={t} message={message} />
+          <MsgText type={t} message={message} from={from} />
         </div>
       )}
 
@@ -103,22 +65,31 @@ function Notification({ message, to, type: t, destroy }: INotifArgs) {
   );
 }
 
-function MsgText({ type, message }: { type: TNotif; message: string }) {
+function MsgText({
+  type,
+  message,
+  from,
+}: {
+  type: TNotif;
+  message?: string;
+  from?: string;
+}) {
   return (
     <div className="flex-grow">
       <h3 className="pb-1 font-semibold capitalize">{type?.toLowerCase()}</h3>
       <p className="pl-3">
+        {from && type == "MESSAGE" ? <b>{from}: </b> : ""}
         {type == "CLASSICAL" || type == "SPECIAL" ? (
           <span>
-            Accept <b>{message}</b>'s challenge ?
+            Accept <b>{from}</b>'s challenge ?
           </span>
         ) : type == "RESUME" ? (
           <span>
-            Resume match with <b>{message}</b>{" "}
+            Resume match with <b>{from}</b>{" "}
           </span>
         ) : type == "FRIEND" ? (
           <span>
-            <b>{message}</b> sent your a request
+            <b>{from}</b> sent your a request
           </span>
         ) : (
           message
@@ -133,23 +104,14 @@ function BTNx({ type: t, destroy }: { type: TNotif; destroy?: () => void }) {
     <button
       aria-label="Close"
       onClick={destroy}
-      className={classNameBTBN(t) + " absolute top-1 right-1"}
+      className={classNameBTBN(t) + " absolute right-1 top-1"}
     >
       <span className="only:-mx-4">
-        <IconX className="h-4 w-4"/>
+        <IconX className="h-4 w-4" />
       </span>
     </button>
   );
 }
-
-type TNotif =
-  | "ERROR"
-  | "CLASSICAL"
-  | "SPECIAL"
-  | "MESSAGE"
-  | "RESUME"
-  | "FRIEND"
-  | undefined;
 
 // DON'T try be smart and generate this friken wall of text by string replacing,
 // randomly some classses will not be generated and not work, it's a while load of shit!
