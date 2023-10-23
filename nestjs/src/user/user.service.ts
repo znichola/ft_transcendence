@@ -9,6 +9,7 @@ import { FriendStatus, User, UserStatus } from '@prisma/client';
 import { contains } from 'class-validator';
 import { existsSync } from 'fs';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ChatroomEntity, ChatroomWithUsername } from 'src/chat/entities/chatroom.entity';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -406,5 +407,35 @@ export class UserService {
         where: { id: blocked.id }
       })
     }
+  }
+
+  async getChatrooms(userLogin: string): Promise<ChatroomEntity[]>
+  {
+    let result: ChatroomEntity[] = [];
+    const chatrooms: ChatroomWithUsername[] = await prisma.chatroom.findMany({
+      where: { 
+        chatroomUsers: {
+           some: { user: {login42: userLogin }}
+        },
+      },
+      select: {
+        id: true,
+				name: true,
+				status: true,
+				owner: {
+					select: {
+						login42: true
+					}
+				}
+      }
+    });
+    
+    console.log(chatrooms);
+    chatrooms.forEach(room => {
+      const chatroom: ChatroomEntity = new ChatroomEntity(room);
+      result.push(chatroom);
+    });
+
+    return result;
   }
 }

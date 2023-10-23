@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/useAuth";
 import { socketSetHeadersAndReConnect } from "../socket";
+import { randString } from "../functions/utils";
 
 export default function Login() {
   const foo = useAuth();
@@ -27,7 +28,9 @@ const AuthButton = () => {
     import.meta.env.VITE_CLIENT_ID +
     "&redirect_uri=" +
     encodeURIComponent(import.meta.env.VITE_SITE_URL) +
-    "%2Fauth&state=abc&response_type=code"; // Replace with your authentication URL
+    "%2Fauth&state=" +
+    randString(10) +
+    "&response_type=code"; // Replace with your authentication URL
 
   console.log(authRedirectionUrl);
 
@@ -61,7 +64,7 @@ function DevLogin() {
       onSubmit={() => {
         axios
           .get("/auth/dev/", { params: { user: login } })
-          .then(async ()  => {
+          .then(async () => {
             authContext?.logIn(login);
             console.log(authContext);
             navigate("/play");
