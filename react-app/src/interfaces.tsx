@@ -119,6 +119,7 @@ export interface IGameState {
   timerAfk: number;
   type: boolean;
 }
+
 export interface IBall {
   pos: IPos;
   radius: number;
@@ -178,7 +179,7 @@ export type TGameMode = "CLASSICAL" | "SPECIAL";
 //  ws/user
 
 export interface ISocChatroomMessage {
-  id: number;
+  chatroomId: number;
   message: IMessage;
 }
 
@@ -212,4 +213,9 @@ export interface ISocAcceptChallenge {
   accept: boolean;
 }
 
+export interface ISocIssueChallenge {
+  from: Login42;
+  to: Login42;
+  type: TGameMode;
+}
 
