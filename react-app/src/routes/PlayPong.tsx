@@ -1,7 +1,7 @@
 import { ErrorMessage } from "../components/ErrorComponents";
 import { IconTrophy } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import { useUserData } from "../functions/customHook";
+import { useUserData } from "../api/apiHooks";
 import PongApp from "../pong/PongApp";
 
 export function DisplayPlayer({

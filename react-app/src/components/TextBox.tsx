@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { putUserProfile } from "../Api-axios";
+import { putUserProfile } from "../api/axios";
 
 export default function EditBox({
   className,

@@ -5,7 +5,7 @@ import { useAuth } from "../functions/useAuth";
 import { socketSetHeadersAndReConnect } from "../socket";
 import { randString } from "../functions/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { setStatus } from "../functions/customHook";
+import { setStatus } from "../api/apiHooks";
 
 export default function Login() {
   const foo = useAuth();

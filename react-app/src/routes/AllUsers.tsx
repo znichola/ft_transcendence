@@ -5,7 +5,7 @@ import { LoadingSpinner, LoadingSpinnerMessage } from "../components/Loading";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useIntersection } from "../functions/uneIntersection";
 import { useRef } from "react";
-import { getCurrentUser } from "../Api-axios";
+import { getCurrentUser } from "../api/axios";
 import { filter } from "../routes/GlobalRanking";
 
 export default function AllUsers({ filter: Filter }: { filter: filter }) {

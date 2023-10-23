@@ -38,7 +38,7 @@ import {
   useMutChatroomMute,
   useMutDeleteChatroomMute,
   useChatroomMember,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
@@ -46,7 +46,7 @@ import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/useAuth";
 import { Heading, PreHeading } from "../components/FormComponents";
 import { UseQueryResult, useQuery } from "@tanstack/react-query";
-import { authApi } from "../Api-axios";
+import { authApi } from "../api/axios";
 import {
   GenericActionBTN,
   IChatroomManageBTN,

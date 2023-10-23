@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { getCurrentUser } from "../Api-axios";
+import { getCurrentUser } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { UserData } from "../interfaces";
 import axios from "axios";

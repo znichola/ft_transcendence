@@ -5,7 +5,7 @@ import {
   useMutUserProfile,
   useUserData,
   useUserFriends,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { useAuth } from "../functions/useAuth";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
@@ -24,9 +24,8 @@ import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
-import { AxiosError, AxiosResponse } from "axios";
 import { CodeInput } from "../components/CodeTFAinput";
-import { patchTFACodeDisable, postTFACodeEnable } from "../Api-axios";
+import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { NotificationContext } from "./NotificationProvider";
 

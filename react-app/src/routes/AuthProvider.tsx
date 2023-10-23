@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { setStatus, useCurrentUser } from "../functions/customHook";
+import { setStatus, useCurrentUser } from "../api/apiHooks";
 import { useAuth } from "../functions/useAuth";
 import {
   pongSocket,

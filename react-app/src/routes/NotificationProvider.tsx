@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useState } from "react";
 import { INotification } from "../interfaces";
-import { AxiosInterceptors } from "../Api-axios";
+import { AxiosInterceptors } from "../api/AxiosInterceptors";
 import { randString } from "../functions/utils";
 
 interface INotifContext {

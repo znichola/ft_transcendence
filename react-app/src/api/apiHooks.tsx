@@ -27,7 +27,7 @@ import {
   removeUserFriend,
   getChatroomMember,
   postUserAvatar,
-} from "../Api-axios";
+} from "./axios";
 import {
   QueryClient,
   useMutation,

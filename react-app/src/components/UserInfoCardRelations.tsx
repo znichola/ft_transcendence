@@ -2,7 +2,7 @@ import {
   useMutDeleteUserFriendRequest,
   useMutPostUserFriendRequest,
   useMutPutUserFriendRequest,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { IconAddUser, IconSent, IconUser } from "./Icons";
 
 export type relationStatus =

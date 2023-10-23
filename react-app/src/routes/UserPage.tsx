@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useCurrentUser, useUserData } from "../functions/customHook";
+import { useCurrentUser, useUserData } from "../api/apiHooks";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import ProfileElo from "../components/ProfileElo";
 import { useRef, useState, useEffect } from "react";
 import EditBox from "../components/TextBox";
-import { putUserProfile } from "../Api-axios";
+import { putUserProfile } from "../api/axios";
 import { MatchCell } from "../components/MatchCell";
 
 const defaultBio =

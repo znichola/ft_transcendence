@@ -1,5 +1,5 @@
 import { UserData } from "../interfaces";
-import { useUserConversations } from "../functions/customHook";
+import { useUserConversations } from "../api/apiHooks";
 import { LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
 import { Nav } from "./SideMenu";

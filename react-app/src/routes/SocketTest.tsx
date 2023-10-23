@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { socketSetHeadersAndReConnect, userSocket } from "../socket";
 import { useAuth } from "../functions/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
-import { setStatus } from "../functions/customHook";
+import { setStatus } from "../api/apiHooks";
 
 export default function SocketTest() {
   return (

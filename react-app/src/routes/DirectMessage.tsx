@@ -4,7 +4,7 @@ import {
   usePostUserConvoMessage,
   useUserConvoMessages,
   useUserData,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { ErrorMessage } from "../components/ErrorComponents";

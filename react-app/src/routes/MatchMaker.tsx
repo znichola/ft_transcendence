@@ -1,9 +1,9 @@
-import { getUserData } from "../Api-axios";
+import { getUserData } from "../api/axios";
 import BoxMenu from "../components/BoxMenu";
 import { Heading } from "../components/FormComponents";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import UserInfoCard from "../components/UserInfoCard";
-import { useUserData } from "../functions/customHook";
+import { useUserData } from "../api/apiHooks";
 import PongApp from "../pong/PongApp";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";

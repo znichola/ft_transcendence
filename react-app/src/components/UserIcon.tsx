@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useUserData } from "../functions/customHook";
+import { useUserData } from "../api/apiHooks";
 import { UserData } from "../interfaces";
 import { IconUser } from "./Icons";
 

@@ -3,7 +3,7 @@ import { LoadingDots } from "./Loading";
 import { UserIcon } from "./UserIcon";
 import { Link } from "react-router-dom";
 import RelationActions, { relationStatus } from "./UserInfoCardRelations";
-import { useUserFriends } from "../functions/customHook";
+import { useUserFriends } from "../api/apiHooks";
 
 export default function NavFriends({ currentUser }: { currentUser: UserData }) {
   const {

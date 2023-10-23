@@ -19,7 +19,7 @@ import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
 import ProfileElo from "./ProfileElo.tsx";
-import { useCurrentUserData } from "../functions/customHook.tsx";
+import { useCurrentUserData } from "../api/apiHooks.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";

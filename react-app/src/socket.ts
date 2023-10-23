@@ -1,5 +1,5 @@
 import { Manager } from "socket.io-client";
-import { getUserToken } from "./Api-axios";
+import { getUserToken } from "./api/axios";
 
 // "undefined" means the URL will be computed from the `window.location` object
 // const URL = process.env.NODE_ENV === 'production' ? undefined : `${import.meta.env.VITE_SITE_URL}`;

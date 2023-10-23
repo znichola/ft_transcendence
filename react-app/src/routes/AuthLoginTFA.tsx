@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { postTFACodeLogin } from "../Api-axios";
+import { postTFACodeLogin } from "../api/axios";
 import { CodeInput } from "../components/CodeTFAinput";
 // import { authApi } from "../Api-axios";
 

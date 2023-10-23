@@ -8,10 +8,10 @@ import {
   PreHeading,
   SubmitBTN,
 } from "./FormComponents";
-import { authApi } from "../Api-axios";
+import { authApi } from "../api/axios";
 import { IUsersAll, UserFriends } from "../interfaces";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useUserData, useUserFriends } from "../functions/customHook";
+import { useUserData, useUserFriends } from "../api/apiHooks";
 import { useAuth } from "../functions/useAuth";
 import { LoadingSpinner, LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
