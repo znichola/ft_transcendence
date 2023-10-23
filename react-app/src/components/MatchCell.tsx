@@ -20,14 +20,16 @@ const gameStart: IGameState = {
     id: undefined,
     afk: true,
   },
-  balls: [{
-    pos: { x: 50, y: 50 },
-    radius: 3,
-    speed: 1,
-    direction: { x: 1, y: 0 },
-    mitosis: false,
-    bounce: 0,
-  }],
+  balls: [
+    {
+      pos: { x: 50, y: 50 },
+      radius: 3,
+      speed: 1,
+      direction: { x: 1, y: 0 },
+      mitosis: false,
+      bounce: 0,
+    }
+  ],
   timerAfk: 0,
   type: false,
 };

@@ -1,4 +1,4 @@
-import { IGameState, TColor } from "../interfaces.tsx";
+import { IGameState, IBall, TColor } from "../interfaces.tsx";
 
 export default function draw(
     ctx: CanvasRenderingContext2D | null | undefined,
@@ -11,12 +11,15 @@ export default function draw(
       //supprime tout
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       //dessine balle
-      tmp.balls.forEach((b) => {
-        const startColor: TColor = { r: 186, g: 230, b: 253 };
-        const endColor: TColor = { r: 245, g: 158, b: 11 };
-        const ac: TColor = lerpRGB(startColor, endColor, b.bounce / 5);
-        ctx.fillStyle = `rgb(${ac.r} ${ac.g} ${ac.b})`;
-        // ctx.fillStyle = "rgb(186 230 253)";
+      tmp.balls.forEach((b: IBall):void => {
+        if (tmp.type)
+        {
+          const startColor: TColor = { r: 186, g: 230, b: 253 };
+          const endColor: TColor = { r: 245, g: 158, b: 11 };
+          const ac: TColor = lerpRGB(startColor, endColor, b.bounce / 5);
+          ctx.fillStyle = `rgb(${ac.r} ${ac.g} ${ac.b})`;
+        }
+        else ctx.fillStyle = "rgb(186 230 253)";
         ctx.beginPath();
         ctx.arc(b.pos.x, b.pos.y, b.radius, 0, 2 * Math.PI);
         ctx.fill();
@@ -51,43 +54,46 @@ export default function draw(
     }
   }
   
-  function lerpRGB(color1: TColor, color2: TColor, t: number) {
-    const color: TColor = { r: 0, g: 0, b: 0 };
-    color.r = color1.r + (color2.r - color1.r) * t;
-    color.g = color1.g + (color2.g - color1.g) * t;
-    color.b = color1.b + (color2.b - color1.b) * t;
-    return color;
-  }
+function lerpRGB(color1: TColor, color2: TColor, t: number) {
+  const color: TColor = { r: 0, g: 0, b: 0 };
+  color.r = color1.r + (color2.r - color1.r) * t;
+  color.g = color1.g + (color2.g - color1.g) * t;
+  color.b = color1.b + (color2.b - color1.b) * t;
+  return color;
+}
   
-  function resizeGameState(gs: IGameState, canvas: HTMLCanvasElement) {
-    //p1
-    gs.p1.pos.x *= canvas.width;
-    gs.p1.pos.y *= canvas.height;
-    gs.p1.dim.w *= canvas.width;
-    gs.p1.dim.h *= canvas.height;
-    // gs.p1.pos.x = Math.round(canvas.width * gs.p1.pos.x);
-    // gs.p1.pos.y = Math.round(canvas.height * gs.p1.pos.y);
-    // gs.p1.dim.w = Math.round(canvas.width * gs.p1.dim.w);
-    // gs.p1.dim.h = Math.round(canvas.height * gs.p1.dim.h);
-    //p2
-    gs.p2.pos.x *= canvas.width;
-    gs.p2.pos.y *= canvas.height;
-    gs.p2.dim.w *= canvas.width;
-    gs.p2.dim.h *= canvas.height;
-    // gs.p2.pos.x = Math.round(canvas.width * gs.p2.pos.x);
-    // gs.p2.pos.y = Math.round(canvas.height * gs.p2.pos.y);
-    // gs.p2.dim.w = Math.round(canvas.width * gs.p2.dim.w);
-    // gs.p2.dim.h = Math.round(canvas.height * gs.p2.dim.h);
-    //ball
-    gs.balls.forEach((b) => {
-      b.pos.x *= canvas.width;
-      b.pos.y *= canvas.height;
-      b.radius *= Math.sqrt(
-        Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
-      );
-      // b.pos.x = Math.round(canvas.width * b.pos.x);
-      // b.pos.y = Math.round(canvas.height * b.pos.y);
-      // b.radius = Math.round(Math.sqrt(Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2)) * b.radius);
-    });
+function resizeGameState(gs: IGameState, canvas: HTMLCanvasElement) {
+  //p1
+  gs.p1.pos.x *= canvas.width;
+  gs.p1.pos.y *= canvas.height;
+  gs.p1.dim.w *= canvas.width;
+  gs.p1.dim.h *= canvas.height;
+  //p2
+  gs.p2.pos.x *= canvas.width;
+  gs.p2.pos.y *= canvas.height;
+  gs.p2.dim.w *= canvas.width;
+  gs.p2.dim.h *= canvas.height;
+  //ball
+  gs.balls.forEach((b) => {
+    b.pos.x *= canvas.width;
+    b.pos.y *= canvas.height;
+    b.radius *= Math.sqrt(
+      Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
+    );
+  });
+}
+
+export function caseDraw(
+    ctx: CanvasRenderingContext2D | null | undefined,
+    gs: IGameState,
+) {
+  if (ctx !== null && ctx !== undefined) {
+    if (!gs.p1.afk && !gs.p2.afk)
+      draw(ctx, gs);
+    else {
+      ctx.fillStyle = "rgb(186 230 253)";
+      ctx.font = `${Math.round(ctx.canvas.height * ctx.canvas.width / 9400)}px sans-serif`;
+      ctx.fillText(`Remaining: ${Math.round(gs.timerAfk)}sc`, ctx.canvas.width / 8, ctx.canvas.height / 2);
+    }
   }
-  
+}
