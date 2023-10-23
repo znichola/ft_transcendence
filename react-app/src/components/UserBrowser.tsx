@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { SetStateAction, useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "./BoxMenu";
 import { IconFunnel } from "./Icons";
 import {
@@ -23,6 +23,38 @@ interface ISettings {
   isOnline: boolean;
   isOffline: boolean;
   isInGame: boolean;
+}
+
+export function SearchComponent({
+  searchValue,
+  setSearchValue,
+  buttonState,
+  setButtonState,
+  buttonClassName,
+  children,
+}: {
+  searchValue: string;
+  setSearchValue: (value: string) => void;
+  buttonState: string;
+  setButtonState: (value: SetStateAction<string>) => void;
+  buttonClassName? : string;
+  children?: JSX.Element[] | JSX.Element;
+}) {
+  return (
+    <div className="flex items-end pb-8 pr-6">
+      <Searchbar value={searchValue} setValue={setSearchValue} />
+      <ButtonGeneric
+        icon={IconFunnel}
+        setBTNstate={setButtonState}
+        buttonState={buttonState}
+        checked="filter-settings"
+        filledIn={true}
+        className={buttonClassName}
+      >
+        {children}
+      </ButtonGeneric>
+    </div>
+  );
 }
 
 export default function UserBrowser({ title }: { title: string }) {
@@ -56,7 +88,7 @@ export default function UserBrowser({ title }: { title: string }) {
     authApi
       .get<string[]>("/user/", { params: { ...searchParams, page: pageParam } })
       .then((res) => res.data);
-  const { data, fetchNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["UserListInfinateScroll", searchParams],
     queryFn: fetchPage,
     getNextPageParam: (_, pages) => pages.length + 1,
@@ -71,9 +103,9 @@ export default function UserBrowser({ title }: { title: string }) {
   if (isFriLoading)
     return <LoadingSpinnerMessage message="fetching friends ..." />;
   if (isFriError) return <ErrorMessage message="error fetching friends" />;
-  if (isFetchingNextPage)
-    return <LoadingSpinnerMessage message="fetching pages ..." />;
-  if (status !== "success") return <ErrorMessage message="Error fetching pages" />;
+  // if (isFetchingNextPage) TODO : Poffiner si on a le temps un jour
+  //   return <LoadingSpinnerMessage message="fetching pages ..." />;
+  // if (status !== "success") return <ErrorMessage message="Error fetching pages" />;
 
   const _posts = data?.pages.flatMap((p) => p);
 
@@ -95,21 +127,19 @@ export default function UserBrowser({ title }: { title: string }) {
       >
         <div className="flex flex-col">
           <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
-          <div className="flex items-end pb-8 pr-6">
-            <Searchbar value={searchValue} setValue={setSearchValue} />
-            <ButtonGeneric
-              icon={IconFunnel}
-              setBTNstate={setButtonState}
-              buttonState={buttonState}
-              checked="filter-settings"
-              filledIn={true}
-            >
-              <FilterSettings settings={settings} setSettings={setSettings} />
-            </ButtonGeneric>
-          </div>
+          <SearchComponent
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            buttonState={buttonState}
+            setButtonState={setButtonState}
+            buttonClassName="translate-y-10"
+          >
+            <FilterSettings settings={settings} setSettings={setSettings} />
+          </SearchComponent>
         </div>
       </BoxMenu>
-      <div className="flex w-full flex-col items-center overflow-scroll pt-80">
+      <div className="flex w-full flex-col items-center overflow-scroll">
+        <div className={"transition-all duration-500 " + (buttonState != "UNSET" ? "min-h-[26rem]" : "min-h-[20rem]")}/>
         {_posts?.map((u) => (
           <FilterInfoCard
             key={u}

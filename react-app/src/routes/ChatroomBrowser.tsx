@@ -3,7 +3,7 @@ import {
   IconAdd,
   IconBashShell,
   IconCrown,
-  IconSearch,
+  IconLock,
 } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import {
@@ -11,34 +11,79 @@ import {
   useMutPostNewChatroom,
 } from "../functions/customHook";
 import { IChatroomPost, IChatroom } from "../interfaces";
-import { Form, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { UserIcon } from "../components/UserIcon";
-import { Heading, PreHeading } from "../components/FormComponents";
+import { Heading, InputToggle, PreHeading } from "../components/FormComponents";
 import { useAuth } from "../functions/useAuth";
+import { SearchComponent } from "../components/UserBrowser";
+
+interface ISettings {
+  isPublic: boolean,
+  isProtected: boolean,
+}
+
+function FilterSettings({
+  settings: s,
+  setSettings,
+}: {
+  settings: ISettings;
+  setSettings: (s: ISettings) => void;
+}) {
+  return (
+    <div className="flex items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 py-8 shadow-xl">
+      <InputToggle
+        onLable="Public"
+        offLable="Public"
+        value={s.isPublic}
+        onToggle={() => setSettings({ isProtected: false, isPublic: !s.isPublic })}
+      />
+      <InputToggle
+        onLable="Protected"
+        offLable="Protected"
+        value={s.isProtected}
+        onToggle={() => setSettings({ isProtected: !s.isProtected, isPublic: false })}
+      />
+    </div>
+  );
+}
 
 export default function ChatroomBrowser() {
+  const [searchvalue, setSearchValue] = useState<string>("");
+  const [settings, setSettings] = useState<ISettings>({isPublic: false, isProtected: false});
   const [buttonState, setButtonState] = useState<string>("UNSET");
 
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
-        heading={<ChatroomBroserHeading />}
+        heading={<ChatroomBrowserHeading searchValue={searchvalue} settings={settings}/>}
         resetBTN={() => setButtonState("UNSET")}
       >
-        <ButtonGeneric
-          icon={IconAdd}
-          setBTNstate={setButtonState}
-          buttonState={buttonState}
-          checked={"NEW_CHAT"}
-        >
-          <CreateChatroomUI />
-        </ButtonGeneric>
+        <div className="flex flex-col items-center pb-5 trnasy">
+          <SearchComponent
+            searchValue={searchvalue}
+            setSearchValue={setSearchValue}
+            buttonState={buttonState}
+            setButtonState={setButtonState}
+            buttonClassName="translate-y-28"
+          >
+            <FilterSettings settings={settings} setSettings={setSettings}/>
+          </SearchComponent>
+          <ButtonGeneric
+            icon={IconAdd}
+            setBTNstate={setButtonState}
+            buttonState={buttonState}
+            checked={"NEW_CHAT"}
+            className="translate-y-10"
+          >
+            <CreateChatroomUI />
+          </ButtonGeneric>
+        </div>
       </BoxMenu>
-      <div>
-        <div className="h-56" />
-        <Listing />
+      <div className="flex flex-col h-screen w-screen overflow-hidden p-3">
+        <div className={"transition-all duration-500 " + (buttonState == "filter-settings" ? "min-h-[28rem]" : "min-h-[21rem]")} />
+        <ListingFiltered searchValue={searchvalue} settings={settings} />
       </div>
     </div>
   );
@@ -158,28 +203,19 @@ function CreateChatroomUI() {
   );
 }
 
-function Listing() {
+function ListingFiltered({ searchValue, settings }:{ searchValue: string, settings: ISettings,}) {
   const { data: chatrooms, isLoading, isError } = useChatroomList();
+
   if (isLoading)
     return <LoadingSpinnerMessage message="Loading chatrooms ..." />;
   if (isError) return <ErrorMessage message="error loading chatroom" />;
 
-  return <ListingFiltered chatrooms={chatrooms} />;
-}
-
-function ListingFiltered({ chatrooms }: { chatrooms: IChatroom[] }) {
-  const [searchValue, setSearchvalue] = useState("");
-
-  return (
-    <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-      <h1 className="px-2 font-semibold">Public Chatrooms</h1>
-      <div className="flex justify-center  ">
-        <div className="max-w-md grow ">
-          <ChatroomSearch setSearchValue={(v: string) => setSearchvalue(v)} />
-        </div>
-      </div>
+   return (
+    <ul className="flex flex-col overflow-auto items-center gap-5 p-3">
       {chatrooms.map((r) =>
-        r.ownerLogin42.toLowerCase().startsWith(searchValue.toLowerCase()) ? ( //Ajouter la comparaison avec le nom du User
+        r.name.toLowerCase().startsWith(searchValue.toLowerCase())
+          && (!settings.isPublic || r.status == 'PUBLIC')
+          && (!settings.isProtected || r.status == 'PROTECTED') ? ( //Ajouter la comparaison avec le nom du User
           <ChatroomCard key={r.id} chatroom={r} />
         ) : (
           <></>
@@ -189,56 +225,33 @@ function ListingFiltered({ chatrooms }: { chatrooms: IChatroom[] }) {
   );
 }
 
-function ChatroomBroserHeading() {
+function ChatroomBrowserHeading({ searchValue, settings }:{searchValue: string, settings: ISettings}) {
   return (
     <div>
-      <PreHeading text="Public, Private & Secret" />
+      <PreHeading text={"Looking for a " + (settings.isPublic ? "public " : settings.isProtected ? "protected " : "") + "chatroom " + (searchValue.length == 0 ? "" : "starting with " + searchValue + " ") + "?"}/>
       <Heading title="Chatrooms" />
     </div>
   );
 }
 
-function ChatroomSearch({
-  setSearchValue,
-}: {
-  setSearchValue: (v: string) => void;
-}) {
-  return (
-    <>
-      <div className="rounded-xl border border-slate-300 p-2 focus-within:border-rose-500 ">
-        <Form className="flex h-full w-full pl-3 ">
-          <input
-            className="focus: w-full outline-none  focus:border-none focus:ring-0"
-            type="search"
-            placeholder="search public channels"
-            onChange={(e) => setSearchValue(e.currentTarget.value)}
-          />
-          <div className="border-l border-slate-300">
-            <button className="flex h-full w-10 items-center justify-center  text-slate-300">
-              <IconSearch />
-            </button>
-          </div>
-        </Form>
-      </div>
-    </>
-  );
-}
-
 function ChatroomCard({ chatroom }: { chatroom: IChatroom }) {
   return (
-    <>
-      <nav className="cursor-pointer  border-l-rose-600 px-4 py-2 text-sm font-medium text-slate-600 outline-none transition-all duration-100 ease-in-out hover:border-l-4 hover:border-l-rose-600 hover:text-rose-600 focus:border-l-4">
-        <Link
-          to={"/chatroom/" + chatroom.id}
-          className="flex flex-grow items-center gap-2"
-        >
-          <IconBashShell />
-          <span className="grow"> {chatroom.name}</span>
-          <IconCrown className="h-5 w-5 align-middle text-amber-400" />
-          <UserIcon user={chatroom.ownerLogin42} />
-        </Link>
-      </nav>
-    </>
+    <nav className="flex cursor-pointer min-w-[30rem] w-fit h-fit px-4 py-2 bg-stone-50 rounded-xl shadow-md border-b-4 font-semibold text-xl">
+      <Link
+        to={"/chatroom/" + chatroom.id}
+        className="flex flex-grow items-center gap-2"
+      >
+        {
+          chatroom.status == "PUBLIC" ?
+            <IconBashShell className="h-6 w-6"/>
+          :
+            <IconLock className="h-6 w-6"/>
+        }
+        <span className="grow text-center min-w-0 min-h-0 max-w-xs overflow-auto px-2"> {chatroom.name}</span>
+        <IconCrown className="h-7 w-7 align-middle text-amber-400" />
+        <UserIcon user={chatroom.ownerLogin42} size={12}/>
+      </Link>
+    </nav>
   );
 }
 
@@ -270,7 +283,7 @@ function ChatroomCreationDescription({
     );
   return (
     <p className="grow">
-      Create a <b>public</b> channel called{" "}
+      Create a <b>protected</b> channel called{" "}
       <b className="gradient-hightlight">{chName}</b>, visible to everyone on
       the site and with "<b>{password}</b>" set as the password.
     </p>
