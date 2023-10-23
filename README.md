@@ -2,6 +2,15 @@
 
 Test playground for the final project of the 42 common core.
 
+## Docker Compose and project overview
+
+There is a docker-compose-prod.yml and a docker-compose-dev.yml
+By default, the dev version is used.
+To use the prod version: export TRANSCENDANCE_MODE=prod
+
+Everything works with HTTPS. HTTP requests are redirected to HTTPS.
+You can configure HTTP_PORT and HTTPS_PORT in kickstart.env
+
 ## How to dev
 
 - clone the repo
@@ -9,10 +18,10 @@ Test playground for the final project of the 42 common core.
 - install the docker extension
 - launch the docker compose with `make up`
 
-Because the node files are present locally, vscode can use them for intelisense so it all works great! 
+Because the node files are present locally, vscode can use them for intelisense so it all works great!
 
 ```bash
-make react # to exec into the container, from here you can npm install etc.. 
+make react # to exec into the container, from here you can npm install etc..
 make nest  # for the nest container
 make postgress # self explanitory
 
@@ -39,7 +48,7 @@ make up
 make react
 > cd react-app
 > npm install
-> npm run dev 
+> npm run dev
 
 # in a new window navagte back to the same repo
 make nest
@@ -66,17 +75,17 @@ make nest
 > cd nestjs
 > npx prisma studio
 
-# to 
+# to
 make nest
-> npx prisma db seed 
+> npx prisma db seed
 
-# to 
+# to
 
 ```
 
-
 It's actaully not needed to do the steps below, but it's how you would launch vscode attached to a container.
-- in the bottom right of vscode you have the blue connect button, click this 
+
+- in the bottom right of vscode you have the blue connect button, click this
 - and attach to running container, pick the react or nest container
 - this is important for vscode to have acess to the node module files for code linting, completion etc..
 - if you can't, open the settings UI with ctrl+shift+p then type Preferences: Open Settins (UI)
@@ -96,7 +105,6 @@ It's actaully not needed to do the steps below, but it's how you would launch vs
 - install axios
   - npm install axios
   - https://github.com/axios/axios#installing
-
 
 ## API the front end needs
 
