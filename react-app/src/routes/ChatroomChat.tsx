@@ -14,13 +14,15 @@ import {
   IconGear,
   IconMinusCircle,
   IconMute,
+  IconPasswordHide,
+  IconPasswordShow,
   IconPlusCircle,
   IconSearch,
   IconStop,
   IconUserGroup,
 } from "../components/Icons";
-import { useEffect, useRef, useState } from "react";
-import { Form, Link, useNavigate, useParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Form, Link, useParams } from "react-router-dom";
 import {
   useChatroom,
   useChatroomMembers,
@@ -52,13 +54,14 @@ import {
   convertPerms,
 } from "../components/ChatroomChatBTNs";
 import { isMatch } from "../functions/utils";
-import axios, { AxiosError, AxiosResponse, HttpStatusCode } from "axios";
+import { AxiosError } from "axios";
 
 function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload: () => void}) {
   const [responseMessage, setResponseMessage] = useState(undefined);
   const [password, setPassword] = useState("");
-  const [inputType, setInputType] = useState("password");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const {data: chatroomData, isLoading, isError} = useChatroom(id || "");
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -74,16 +77,29 @@ function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload
     }
   }
 
+  if (isLoading) {
+    return(
+      <LoadingSpinnerMessage message="Loading chatroom data..."/>
+    );
+  }
+  if (isError) {
+    return(
+      <ErrorMessage message="Loading chatroom data..."/>
+    );
+  }
+
   return(
-    <div>
-      <form onSubmit={handleSubmit}>
-        <h1>your are about to join a new chatroom</h1>
-        <input type={inputType} onChange={(e) => setPassword(e.currentTarget.value)} value={password} placeholder="Enter room password"/>
+      <form className="flex bg-stone-50 flex-col items-center gap-3 shadow-lg p-7 font-semibold rounded-xl border-b-4" onSubmit={handleSubmit}>
+        <h1 className="text-3xl">{"You are about to join : " + chatroomData.name}</h1>
+        <div className={"flex items-center " + (chatroomData.status == 'PROTECTED' ? "" : "hidden")}>
+          <input className="p-2 rounded-full pr-8" type={showPassword ? "text" : "password"} onChange={(e) => setPassword(e.currentTarget.value)} value={password} placeholder="Enter room password"/>
+          <div className="-translate-x-7" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <IconPasswordHide /> : <IconPasswordShow/>}
+          </div>
+        </div>
         <h2 className="text-red-600">{errorMessage}</h2>
-        <button>submit</button>
+        <button className="bg-gradient-to-br text-2xl from-fuchsia-600 to-orange-500 rounded-lg p-2 text-white font-bold">Join</button>
       </form>
-      <button onClick={() => setInputType(inputType == "password" ? "text" : "password")}>Toggle password visibility</button>
-    </div>
   );
 }
 
@@ -102,7 +118,7 @@ export default function ChatroomManager() {
     setErrorCode(axiosError.response?.status);
   }
 
-  const { data: currentMember, isLoading, isError, error } = useChatroomMember(chatroomID, currentUser, handleError);
+  const { isLoading, isError } = useChatroomMember(chatroomID, currentUser, handleError); //TODO: enlever quand can get user chatrooms
 
   if (currentUser == "" || isLoading) {
     return <LoadingSpinnerMessage message={"Loading your " + (isLoading ? "member" : "user") + " data..."}/>;
@@ -121,9 +137,9 @@ export function ChatroomChat() {
   const currentUser = useAuth()?.user || "";
   const scrollRef = useRef<null | HTMLDivElement>(null);
   const [buttonState, setButtonState] = useState<string>("UNSET");
-  
   const { id } = useParams<"id">();
   const chatroomID = id || "";
+
   const {
     data: chatroom,
     isError: isChatError,
@@ -138,7 +154,7 @@ export function ChatroomChat() {
   } = useChatroomMembers(chatroomID);
   
   //Pour test dev TODO enlever
-  let currentMember = isMembersSuccess && currentUser != "" ? members?.find((m) => m.login42 == currentUser) : undefined
+  const currentMember = isMembersSuccess && currentUser != "" ? members?.find((m) => m.login42 == currentUser) : undefined
   const hasAdminRights: boolean = !!currentMember && currentMember.role != "MEMBER";
   const bannedUserQuery = useChatroomBanned(hasAdminRights ? chatroomID : "");
   
