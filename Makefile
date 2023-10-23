@@ -2,8 +2,18 @@
 CONTAINERS = $(shell docker ps -a -q)
 TIDY=2>/dev/null ; true
 
-up : env
-	docker compose -f docker-compose.yml -p mastermind up --build
+COMPOSE_FILE=docker-compose-dev.yml
+ifdef TRANSCENDANCE_MODE
+	COMPOSE_FILE=docker-compose-$(TRANSCENDANCE_MODE).yml
+endif
+
+CERT = requirements/nginx/certs
+
+up : env $(CERT)
+	env $$(cat env/.docker.env) docker compose -f $(COMPOSE_FILE) -p mastermind up --build
+
+down:
+	env $$(cat env/.docker.env) docker compose -f $(COMPOSE_FILE) -p mastermind down
 
 fclean : env-clean
 	docker stop       $(CONTAINERS)                  $(TIDY)
@@ -17,24 +27,23 @@ re : fclean up
 ip :
 	@docker ps -q | xargs -I{} docker inspect -f '{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {}
 
-CN = nest react postgress nginx
+CN = nest react postgres nginx
 
 $(CN) :
 	docker exec -it $@ /bin/bash
 
-# https://stackoverflow.com/questions/31466428/how-to-restart-a-single-container-with-docker-compose
-# docker-compose up --detach --build $@
-
 env-clean :
-	@[ -f kickstart.env ]   && mv kickstart.env kickstart.env.old || true
-	@[ -f .env ]            && rm .env                            || true
-	@[ -f ./react-app/env ] && rm ./react-app/.env                || true
-	@[ -f ./nestjs/env ]    && rm ./nestjs/.env                   || true
-	@printf "\033[31m all .env files removed, kickstart.env renamed to \033[33mkickstart.env.old\033[0m\n"
+	@./env/clean-env.sh
 
 env-re : env-clean env
 
 env :
-	@./gen-env.sh
+	@./env/gen-env.sh
 
-.PHONY: up fclean re ip $(CN) env
+cert: $(CERT)
+
+$(CERT):
+	mkdir -p requirements/nginx/certs
+	openssl req -x509 -newkey rsa:4096 -keyout requirements/nginx/certs/nginx.key -out requirements/nginx/certs/nginx.crt -sha256 -days 365 -nodes -subj "/C=CH/ST=Vaud/L=Renens/O=42Lausanne/OU=The Masterminds/CN=localhost"
+
+.PHONY: up fclean re ip $(CN) env env-clean env-re

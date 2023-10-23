@@ -14,7 +14,8 @@ import {
 } from "./interfaces";
 
 // const BASE_URL = "/api/";
-const BASE_URL = "http://" + import.meta.env.VITE_IP_ADDR + ":8080/api/";
+const BASE_URL = import.meta.env.VITE_SITE_URL + "/api/";
+console.log(BASE_URL);
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
