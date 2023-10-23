@@ -64,7 +64,7 @@ export class AuthController {
       res.cookie(cookieName, token, {
         domain: process.env.IP_ADDR,
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: 'lax',
         maxAge: cookieMaxAge,
       });
@@ -118,7 +118,7 @@ export class AuthController {
     res.cookie(process.env.COOKIE_USR, token, {
       domain: process.env.IP_ADDR,
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: 'lax',
       maxAge: 3600000,
     });
