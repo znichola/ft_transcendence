@@ -38,7 +38,7 @@ export class AuthController {
         client_id: process.env.API_CLIENT_ID,
         client_secret: process.env.API_CLIENT_SECRET,
         code: code,
-        redirect_uri: 'http://' + process.env.IP_ADDR + ':8080/auth', // TODO: change to https when we upgrade
+        redirect_uri: process.env.SITE_URL + '/auth',
         state: state
       });
       if (!token42) {
@@ -70,8 +70,8 @@ export class AuthController {
       });
 
       return res.status(200).send({ login: user.login42, tfa: user.tfaStatus });
-    } 
-    catch (error) 
+    }
+    catch (error)
     {
       console.log('error with 42 login');
     }

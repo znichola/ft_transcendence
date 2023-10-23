@@ -1,0 +1,64 @@
+version: "3.8"
+
+networks:
+  transnet:
+    driver: bridge
+    name: transnet
+
+services:
+  nest:
+    container_name: nest
+    build:
+      context: requirements/nest
+      dockerfile: dev.Dockerfile
+    networks:
+      - transnet
+    ports:
+      - "5555:5555" #for prisma studio
+    volumes:
+      - ./:/backend
+    env_file:
+      - env/.nestjs.env
+    init: true
+
+  react:
+    container_name: react
+    build:
+      context: requirements/react
+      dockerfile: dev.Dockerfile
+    networks:
+      - transnet
+    volumes:
+      - ./:/app
+    env_file:
+      - env/.react.env
+    init: true
+
+  postgres:
+    container_name: postgres
+    build:
+      context: requirements/postgres
+      dockerfile: dev.Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PWD}
+    networks:
+      - transnet
+    volumes:
+      - ./:/database
+    init: true
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    build:
+      context: requirements/nginx
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./requirements/nginx/dev.templates:/etc/nginx/templates
+    ports:
+      - "${HTTPS_PORT}:443"
+      - "${HTTP_PORT}:80"
+    networks:
+      - transnet
+    depends_on:
+      - react

@@ -1,0 +1,56 @@
+networks:
+  transnet:
+    driver: bridge
+    name: transnet
+
+volumes:
+  database:
+  avatars:
+  frontend:
+
+services:
+  nest:
+    container_name: nest
+    build:
+      context: ./
+      dockerfile: requirements/nest/prod.Dockerfile
+    restart: always
+    volumes:
+      - avatars:/avatars
+    networks:
+      - transnet
+    env_file:
+      - env/.nestjs.env
+
+  react:
+    container_name: react
+    build:
+        context: ./
+        dockerfile: requirements/react/prod.Dockerfile
+    volumes:
+      - frontend:/app/dist
+    env_file:
+      - env/.react.env
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PWD}
+    networks:
+      - transnet
+
+  nginx:
+    container_name: nginx
+    build:
+      context: requirements/nginx
+      dockerfile: prod.Dockerfile
+    restart: always
+    networks:
+      - transnet
+    volumes:
+      - frontend:/var/www/html
+    ports:
+      - "${HTTPS_PORT}:443"
+      - "${HTTP_PORT}:80"

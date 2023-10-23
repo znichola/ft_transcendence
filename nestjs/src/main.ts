@@ -21,10 +21,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: [
-      'http://localhost:8080',
       'https://api.intra.42.fr',
-      'http://localhost:5173',
-      'http://' + process.env.IP_ADDR + ':8080',
+      process.env.SITE_URL,
     ],
     credentials: true,
     allowedHeaders: 'Content-Type, Authorization, Cookie',
