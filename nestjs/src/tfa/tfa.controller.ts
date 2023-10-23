@@ -23,7 +23,7 @@ export class TfaController {
     {
         await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
         const status = await this.tfaService.getTfaStatus(username);
-        if (!status) throw new HttpException("TFA is already enabled.", HttpStatus.BAD_REQUEST);
+        if (status) throw new HttpException("TFA is already enabled.", HttpStatus.BAD_REQUEST);
         const { otpauthUrl } = await this.tfaService.generateTfaSecret(username);
         const qrCode = await toBuffer(otpauthUrl);
         res.header('Content-Type', 'image/png');
@@ -37,7 +37,7 @@ export class TfaController {
     {
         await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
         const status = await this.tfaService.getTfaStatus(username);
-        if (!status) throw new HttpException("TFA is already enabled.", HttpStatus.BAD_REQUEST);
+        if (status) throw new HttpException("TFA is already enabled.", HttpStatus.BAD_REQUEST);
         const userSecret = await this.tfaService.getTfaSecret(username);
         const isValid = this.tfaService.isTfaCodeValid(bodyData.tfaCode, userSecret);
         if (!isValid) throw new HttpException("Invalid Authentication code.", HttpStatus.UNAUTHORIZED);
