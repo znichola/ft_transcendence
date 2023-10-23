@@ -4,6 +4,8 @@ import { Form, useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/useAuth";
 import { socketSetHeadersAndReConnect } from "../socket";
 import { randString } from "../functions/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { setStatus } from "../functions/customHook";
 
 export default function Login() {
   const foo = useAuth();
@@ -59,6 +61,7 @@ function DevLogin() {
   );
   const authContext = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   return (
     <Form
       onSubmit={() => {
@@ -70,6 +73,7 @@ function DevLogin() {
             console.log(authContext);
             navigate("/play");
             await socketSetHeadersAndReConnect(login);
+            setStatus(qc, authContext.user, "ONLINE");
             console.log("dev: signed in!");
           })
           .catch(() => setColor("bg-rose-500"));

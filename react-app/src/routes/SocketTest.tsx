@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { socketSetHeadersAndReConnect, userSocket } from "../socket";
 import { useAuth } from "../functions/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
+import { setStatus } from "../functions/customHook";
 
 export default function SocketTest() {
   return (
@@ -13,30 +15,26 @@ export default function SocketTest() {
 
 function App() {
   const [isConnected, setIsConnected] = useState(userSocket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
+  const qc = useQueryClient();
+  const { user } = useAuth();
 
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
+      setStatus(qc, user, "ONLINE");
     }
 
     function onDisconnect() {
       setIsConnected(false);
-    }
-
-    // don't understand what this does
-    function onFooEvent(value) {
-      setFooEvents((previous) => [...previous, value]);
+      setStatus(qc, user, "OFFLINE");
     }
 
     userSocket.on("connect", onConnect);
     userSocket.on("disconnect", onDisconnect);
-    userSocket.on("foo", onFooEvent);
 
     return () => {
       userSocket.off("connect", onConnect);
       userSocket.off("disconnect", onDisconnect);
-      userSocket.off("foo", onFooEvent);
     };
   }, []);
 
@@ -44,9 +42,7 @@ function App() {
     <div className="App">
       <UpdateHeaders />
       <ConnectionState isConnected={isConnected} />
-      <Events events={fooEvents} />
       <ConnectionManager />
-      <MyForm />
     </div>
   );
 }
@@ -59,68 +55,31 @@ function ConnectionState({ isConnected }: { isConnected: boolean }) {
   );
 }
 
-function Events({ events }: { events: string[] }) {
-  return (
-    <ul>
-      {events.map((e, index: number) => (
-        <li key={index}>{e}</li>
-      ))}
-    </ul>
-  );
-}
-
 function ConnectionManager() {
-  function connect() {
-    userSocket.connect();
-  }
-
-  function disconnect() {
-    userSocket.disconnect();
-  }
-
   return (
     <>
-      <button className="m-2 border-2 p-2" onClick={connect}>
+      <button className="m-2 border-2 p-2" onClick={() => userSocket.connect()}>
         Connect
       </button>
-      <button className="m-2 border-2 p-2" onClick={disconnect}>
+      <button
+        className="m-2 border-2 p-2"
+        onClick={() => userSocket.disconnect()}
+      >
         Disconnect
       </button>
     </>
   );
 }
 
-function MyForm() {
-  const [value, setValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoading(true);
-
-    userSocket.timeout(5000).emit("create-something", value, () => {
-      setIsLoading(false);
-    });
-  }
-
-  return (
-    <form onSubmit={onSubmit}>
-      <input onChange={(e) => setValue(e.target.value)} />
-
-      <button className="m-2 border-2 p-1" type="submit" disabled={isLoading}>
-        Submit
-      </button>
-    </form>
-  );
-}
-
 function UpdateHeaders() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   return (
     <button
       className="m-2 border-2 p-1"
       onClick={() => {
         socketSetHeadersAndReConnect(user);
+        setStatus(qc, user, "ONLINE");
       }}
     >
       socket manager reconnect

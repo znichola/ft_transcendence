@@ -1,13 +1,14 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useCurrentUser } from "../functions/customHook";
+import { setStatus, useCurrentUser } from "../functions/customHook";
 import { useAuth } from "../functions/useAuth";
 import {
   pongSocket,
   socketSetHeadersAndReConnect,
   userSocket,
 } from "../socket";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type IAuth = {
   isloggedIn: boolean;
@@ -68,6 +69,7 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (
       foo &&
@@ -79,6 +81,9 @@ export const ProtectedRoute = () => {
       console.log("cu:", currentUser, "foo:", foo.user);
       foo.logIn(currentUser);
       socketSetHeadersAndReConnect(currentUser);
+      setTimeout(() => {
+        setStatus(queryClient, currentUser, "ONLINE");
+      }, 300); // idk why but if it's intantanious it get over written so meh
     }
   });
 
