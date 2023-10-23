@@ -25,6 +25,9 @@ import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { AxiosError, AxiosResponse } from "axios";
+import { CodeInput } from "../components/CodeTFAinput";
+import { postTFACodeEnable } from "../Api-axios";
+import { useQuery } from "@tanstack/react-query";
 
 export default function UserProfile() {
   // react states
@@ -333,11 +336,19 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 }
 
 function ProfileModifyTFA() {
-  const {} = useAuth();
-  const [activateTFA, setActivateTFA] = useState(false);
-  const [isTFA, setIsTFA] = useState(false);
-  const { user } = useAuth();
-  const qrcode = `${import.meta.env.VITE_SITE_URL}/api/tfa/${user}`;
+  const { tfa } = useAuth();
+  const [activateTFA, setActivateTFA] = useState(tfa);
+  const [awaitingTFAresp, setAwaitingTFAresp] = useState(false);
+
+  function toggelTFA() {
+    if (activateTFA) {
+      setActivateTFA(false);
+      console.log("send TFA deactivation request");
+    } else {
+      setAwaitingTFAresp(true);
+      // setActivateTFA(true);
+    }
+  }
 
   return (
     <div className="flex flex-row justify-center pb-10">
@@ -345,14 +356,14 @@ function ProfileModifyTFA() {
         onLable="2FA Enabled"
         offLable="2FA Disabled"
         value={activateTFA}
-        onToggle={() => setActivateTFA(activateTFA ? false : true)}
+        onToggle={toggelTFA}
       />
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
         <p className="w-72 pb-3 text-slate-400">
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {activateTFA ? <QRcode img={qrcode} /> : <></>}
+      {activateTFA || awaitingTFAresp ? <SetupTFA /> : <></>}
     </div>
   );
 }
@@ -373,19 +384,42 @@ function IntroDescription() {
   );
 }
 
-function QRcode({ img }: { img: string }) {
+function SetupTFA() {
+  const { user } = useAuth();
+  const [code, setCode] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const { isLoading, isError, isSuccess } = useQuery({
+    enabled: submitted,
+    retry: false,
+    queryFn: () => postTFACodeEnable(user, code),
+  });
+
   return (
-    <div className="w-64 absolute">
-      <div className="overflow-hidden rounded-xl bg-stone-200 p-7 text-stone-800 shadow">
-        <img className="aspect-square w-full" src={img} alt="qrcode" />
-        <p className="pt-3 text-center ">
-          Open the google
-          <br />
-          <b className="italic text-sky-400">authentication app</b>
-          <br />
-          and scan this QRcode
-        </p>
-      </div>
+    <div className="absolute w-64 top-0">
+      <QRcode />
+      <CodeInput
+        code={code}
+        setCode={setCode}
+        error={isError}
+        submit={() => setSubmitted(true)}
+      />
+    </div>
+  );
+}
+
+function QRcode() {
+  const { user } = useAuth();
+  const qrcode = `${import.meta.env.VITE_SITE_URL}/api/tfa/${user}`;
+  return (
+    <div className="overflow-hidden rounded-xl bg-stone-200 p-7 text-stone-800 shadow">
+      <img className="aspect-square w-full" src={qrcode} alt="qrcode" />
+      <p className="pt-3 text-center ">
+        Open the google
+        <br />
+        <b className="italic text-sky-400">authentication app</b>
+        <br />
+        and scan this QRcode
+      </p>
     </div>
   );
 }

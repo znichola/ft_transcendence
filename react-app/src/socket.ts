@@ -32,12 +32,12 @@ export const socketSetHeadersAndReConnect = async (headerData: string) => {
       polling: {
         extraHeaders: {
           User: headerData,
-          Authorization: access_token,
+          authorization: access_token,
         },
       },
     };
-    // userSocket.disconnect().connect();
-    // pongSocket.disconnect().connect();
+    userSocket.disconnect().connect();
+    pongSocket.disconnect().connect();
   }
 };
 
