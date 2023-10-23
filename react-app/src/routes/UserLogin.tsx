@@ -65,7 +65,8 @@ function DevLogin() {
         axios
           .get("/auth/dev/", { params: { user: login } })
           .then(async () => {
-            authContext?.logIn(login);
+            authContext.logIn(login);
+            authContext.setFTA(true);
             console.log(authContext);
             navigate("/play");
             await socketSetHeadersAndReConnect(login);

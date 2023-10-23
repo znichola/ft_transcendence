@@ -128,6 +128,12 @@ export const postTFACodeEnable = async (user: string, code: string) => {
     .then((r) => r.data);
 };
 
+export const patchTFACodeDisable = async (user: string) => {
+  return authApi
+    .patch<HttpStatusCode>(`/tfa/${user}/disable`)
+    .then((r) => r.data);
+};
+
 //--------------------------------------------Friends----------------------------------------------------//
 
 export const getUserFriends = async (current_user: string) => {

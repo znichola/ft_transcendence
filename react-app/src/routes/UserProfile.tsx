@@ -26,7 +26,7 @@ import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { AxiosError, AxiosResponse } from "axios";
 import { CodeInput } from "../components/CodeTFAinput";
-import { postTFACodeEnable } from "../Api-axios";
+import { patchTFACodeDisable, postTFACodeEnable } from "../Api-axios";
 import { useQuery } from "@tanstack/react-query";
 import { NotificationContext } from "./NotificationProvider";
 
@@ -337,17 +337,17 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 }
 
 function ProfileModifyTFA() {
-  const { tfa } = useAuth();
+  const { user, tfa, setFTA } = useAuth();
   const [activateTFA, setActivateTFA] = useState(tfa);
   const [openTFAwindow, setOpenTFAwindowp] = useState(false);
 
   function toggelTFA() {
     if (activateTFA) {
       setActivateTFA(false);
-      console.log("send TFA deactivation request");
+      patchTFACodeDisable(user);
+      setFTA(false);
     } else {
       setOpenTFAwindowp(true);
-      // setActivateTFA(true);
     }
   }
 
@@ -364,11 +364,7 @@ function ProfileModifyTFA() {
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {activateTFA || openTFAwindow ? (
-        <SetupTFA isOpen={setOpenTFAwindowp} />
-      ) : (
-        <></>
-      )}
+      {openTFAwindow ? <SetupTFA isOpen={setOpenTFAwindowp} /> : <></>}
     </div>
   );
 }
@@ -404,7 +400,7 @@ function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
       setSubmitted(false);
       setCode("");
     }
-    if (isSuccess) {
+    if (isSuccess && submitted) {
       console.log("Two factor authentication was set up successfully");
       addNotif({ type: "GOOD", message: "TFA was setup sucessfully" });
     }
