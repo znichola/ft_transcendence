@@ -1,15 +1,14 @@
 import { useEffect, useRef } from "react";
 import { I2D, IGameState } from "../interfaces.tsx";
 import { pongSocket } from "../socket.ts";
-// import { gameStart } from "./TestPong.tsx";
-import draw from "./draw.tsx";
+import { caseDraw } from "./draw.tsx";
 
 export default function PongApp({ width, height }: I2D) {
   return <Canvas width={width} height={height} />;
 }
 
 function Canvas({ width, height }: { width: number; height: number }) {
-  const canvasRef = useCanvas(draw);
+  const canvasRef = useCanvas(caseDraw);
   return <canvas ref={canvasRef} width={width} height={height} />;
 }
 
