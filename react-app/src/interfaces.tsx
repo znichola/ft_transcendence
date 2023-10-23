@@ -195,9 +195,8 @@ export interface ISocFriendRequest {
 // ws/pong 
 
 export interface ISocChallenge {
-  from: Login42;
+  target: Login42;
   type: TGameMode;
-  id: number; // idk if this is needed
 }
 
 export interface ISocGameFound {

@@ -20,7 +20,7 @@ export default function Auth() {
       axios
         .post<{ login: string; tfa: boolean }>(
           "/auth/login",
-          { code: searchParams.get("code"), state: "state" },
+          { code: searchParams.get("code"), state: searchParams.get("state") },
           { withCredentials: true },
         )
         .then((res) => res.data),
