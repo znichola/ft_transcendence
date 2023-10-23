@@ -25,6 +25,8 @@ import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { AxiosError, AxiosResponse } from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { postUserQR } from "../Api-axios";
 
 export default function UserProfile() {
   // react states
@@ -334,6 +336,12 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 
 function ProfileModifyTFA() {
   const [tfa, setTFA] = useState(false);
+  const { user } = useAuth();
+
+  const { data: qrCode, isSuccess } = useQuery({
+    queryFn: () => postUserQR(user),
+    retry: false,
+  });
 
   return (
     <div className="flex flex-row justify-center pb-10">
@@ -348,6 +356,15 @@ function ProfileModifyTFA() {
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
+      {isSuccess ? <ShowQrCode file={qrCode} /> : <></>}
+    </div>
+  );
+}
+
+function ShowQrCode({ file }: { file: File }) {
+  return (
+    <div>
+      <img src="" alt="" />
     </div>
   );
 }

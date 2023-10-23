@@ -68,6 +68,10 @@ export const getUserToken = async () => {
   return authApi.get<string>("/auth/token").then((r) => r.data);
 };
 
+export const postUserQR = async (user: string) => {
+  return authApi.post<File>(`/tfa/${user}`).then((r) => r.data);
+};
+
 //--------------------------------------------Friends----------------------------------------------------//
 
 export const getUserFriends = async (current_user: string) => {
