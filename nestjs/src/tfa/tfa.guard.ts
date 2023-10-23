@@ -14,7 +14,7 @@ export class TfaGuard implements CanActivate
 	async canActivate(context: ExecutionContext): Promise<boolean> 
 	{
 		const request = context.switchToHttp().getRequest();
-		const token = request.cookies.login2fa;  // TODO : replace with correct cookie name when we use env
+		const token = request.cookies[process.env.COOKIE_TMP];
 		if (!token) 
 		{
 				throw new UnauthorizedException();
