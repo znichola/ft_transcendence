@@ -34,6 +34,12 @@ export class TfaService {
         return toFileStream(stream, otpauthUrl);
     }
 
+    async getTfaStatus(login: string): Promise<boolean>
+    {
+        const user = await prisma.user.findUnique({where: {login42: login}});
+        return user.tfaStatus;
+    }
+
     async setTfaSecret(login: string, secret: string)
     {
         await prisma.user.update({
@@ -56,6 +62,14 @@ export class TfaService {
         await prisma.user.update({
             where: { login42: login },
             data: { tfaStatus: true },
+        });
+    }
+
+    async disableTfa(login: string)
+    {
+        await prisma.user.update({
+            where: { login42: login },
+            data: { tfaSecret: null, tfaStatus: false }
         });
     }
 }
