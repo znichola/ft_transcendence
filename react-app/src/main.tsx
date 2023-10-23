@@ -46,7 +46,7 @@ const router = createBrowserRouter([
     element: <Auth />,
   },
   {
-    path: "/tfa",
+    path: "/tfa/:login42",
     element: <AuthLoginTFA />,
   },
   {

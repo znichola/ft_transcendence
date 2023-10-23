@@ -68,8 +68,15 @@ export const getUserToken = async () => {
   return authApi.get<string>("/auth/token").then((r) => r.data);
 };
 
+// not used!
 export const postUserQR = async (user: string) => {
   return authApi.post<File>(`/tfa/${user}`).then((r) => r.data);
+};
+
+export const postTFACodeLogin = async (user: string, code: string) => {
+  return authApi
+    .post<HttpStatusCode>(`/tfa/${user}/login`, { tfaCode: code })
+    .then((r) => r.data);
 };
 
 //--------------------------------------------Friends----------------------------------------------------//

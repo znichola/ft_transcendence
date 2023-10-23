@@ -12,6 +12,8 @@ import {
 export type IAuth = {
   isloggedIn: boolean;
   user: string;
+  tfa: boolean;
+  setFTA: (tfa: boolean) => void;
   logIn: (user: string) => void;
   logOut: () => void;
 };
@@ -20,28 +22,43 @@ export type IAuth = {
 export const AuthContext = createContext<IAuth>({
   isloggedIn: false,
   user: "",
+  tfa: false,
+  setFTA: (_: boolean) => {},
   logIn: (_: string) => {},
   logOut: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [auth, setToken] = useState({ isloggedIn: false, user: "" });
+  const [auth, setToken] = useState({
+    isloggedIn: false,
+    user: "",
+    tfa: false,
+  });
 
   const logIn = (user: string) => {
-    setToken({ isloggedIn: true, user: user });
+    setToken((prev) => {
+      return { ...prev, isloggedIn: true, user: user };
+    });
   };
+
   const logOut = () => {
     axios
       .get<HttpStatusCode>("/auth/logout")
       .catch((e) => console.log("Auth logout: ", e.data));
-    setToken({ isloggedIn: false, user: "" });
+    setToken({ isloggedIn: false, user: "", tfa: false });
     userSocket.disconnect();
     pongSocket.disconnect();
   };
 
+  const setFTA = (tfa: boolean) => {
+    setToken((prev) => {
+      return { ...prev, tfa: tfa };
+    });
+  };
+
   return (
     // spread operator to use contruct a new type by combining these elements
-    <AuthContext.Provider value={{ ...auth, logIn, logOut }}>
+    <AuthContext.Provider value={{ ...auth, logIn, logOut, setFTA }}>
       {children}
     </AuthContext.Provider>
   );

@@ -25,8 +25,6 @@ import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { AxiosError, AxiosResponse } from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { postUserQR } from "../Api-axios";
 
 export default function UserProfile() {
   // react states
@@ -335,36 +333,26 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 }
 
 function ProfileModifyTFA() {
-  const [tfa, setTFA] = useState(false);
+  const {} = useAuth();
+  const [activateTFA, setActivateTFA] = useState(false);
+  const [isTFA, setIsTFA] = useState(false);
   const { user } = useAuth();
-
-  const { data: qrCode, isSuccess } = useQuery({
-    queryFn: () => postUserQR(user),
-    retry: false,
-  });
+  const qrcode = `${import.meta.env.VITE_SITE_URL}/api/tfa/${user}`;
 
   return (
     <div className="flex flex-row justify-center pb-10">
       <InputToggle
         onLable="2FA Enabled"
         offLable="2FA Disabled"
-        value={tfa}
-        onToggle={() => setTFA(tfa ? false : true)}
+        value={activateTFA}
+        onToggle={() => setActivateTFA(activateTFA ? false : true)}
       />
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
         <p className="w-72 pb-3 text-slate-400">
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {isSuccess ? <ShowQrCode file={qrCode} /> : <></>}
-    </div>
-  );
-}
-
-function ShowQrCode({ file }: { file: File }) {
-  return (
-    <div>
-      <img src="" alt="" />
+      {activateTFA ? <QRcode img={qrcode} /> : <></>}
     </div>
   );
 }
@@ -381,6 +369,23 @@ function IntroDescription() {
         T&C
       </a>
       .
+    </div>
+  );
+}
+
+function QRcode({ img }: { img: string }) {
+  return (
+    <div className="w-64 absolute">
+      <div className="overflow-hidden rounded-xl bg-stone-200 p-7 text-stone-800 shadow">
+        <img className="aspect-square w-full" src={img} alt="qrcode" />
+        <p className="pt-3 text-center ">
+          Open the google
+          <br />
+          <b className="italic text-sky-400">authentication app</b>
+          <br />
+          and scan this QRcode
+        </p>
+      </div>
     </div>
   );
 }

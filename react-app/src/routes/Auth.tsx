@@ -29,7 +29,8 @@ export default function Auth() {
   useEffect(() => {
     if (!isLoading && !isError) {
       if (authResp.tfa) {
-        navigate("/tfa?user=" + authResp.login);
+        auth.setFTA(true);
+        navigate("/tfa/" + authResp.login);
       } else if (auth) {
         navigate("/play");
       }

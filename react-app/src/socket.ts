@@ -36,8 +36,8 @@ export const socketSetHeadersAndReConnect = async (headerData: string) => {
         },
       },
     };
-    userSocket.disconnect().connect();
-    pongSocket.disconnect().connect();
+    // userSocket.disconnect().connect();
+    // pongSocket.disconnect().connect();
   }
 };
 
