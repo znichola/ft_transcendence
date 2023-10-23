@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { userSocket } from "../socket";
+import { socketSetHeadersAndReConnect, userSocket } from "../socket";
 import { useAuth } from "../functions/useAuth";
 
 export default function SocketTest() {
@@ -115,26 +115,15 @@ function MyForm() {
 }
 
 function UpdateHeaders() {
-  const foo = useAuth();
-  if (!foo) return <p className="border-2 p-1">Problem with current user auth</p>;
+  const { user } = useAuth();
   return (
     <button
       className="m-2 border-2 p-1"
       onClick={() => {
-        userSocket.io.opts.transportOptions = {
-          polling: {
-            extraHeaders: {
-              User: foo.user,
-            },
-          },
-        };
-        // statusSocket.io.opts.extraHeaders = { User: "default42" };
-        userSocket.disconnect().connect();
+        socketSetHeadersAndReConnect(user);
       }}
     >
       socket manager reconnect
     </button>
   );
 }
-
-// SocketManager(socketURL: URL(string: BaseURL)!, config: [.log(true), .compress, .extraHeaders(["token": getStringValue(key: UserDefaultKeys.loginToken)]), .reconnects(true), .forceWebsockets(true), .forcePolling(true), .forceNew(true)])
