@@ -119,7 +119,7 @@ function classNameBTBN(type: TNotif) {
       return "inline-flex h-8 items-center justify-center gap-2 justify-self-center whitespace-nowrap rounded-full px-4 text-xs font-medium tracking-wide text-fuchsia-500 transition duration-300 hover:bg-fuchsia-100 hover:text-fuchsia-600 focus:bg-fuchsia-200 focus:text-fuchsia-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-fuchsia-300 disabled:shadow-none disabled:hover:bg-transparent";
     case "MESSAGE":
       return "inline-flex h-8 items-center justify-center gap-2 justify-self-center whitespace-nowrap rounded-full px-4 text-xs font-medium tracking-wide text-amber-500 transition duration-300 hover:bg-amber-100 hover:text-amber-600 focus:bg-amber-200 focus:text-amber-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-amber-300 disabled:shadow-none disabled:hover:bg-transparent";
-    case "GOOD":
+    case "SUCCESS":
       return "inline-flex h-8 items-center justify-center gap-2 justify-self-center whitespace-nowrap rounded-full px-4 text-xs font-medium tracking-wide text-emerald-500 transition duration-300 hover:bg-emerald-100 hover:text-emerald-600 focus:bg-emerald-200 focus:text-emerald-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-emerald-300 disabled:shadow-none disabled:hover:bg-transparent";
     default:
       return "inline-flex h-8 items-center justify-center gap-2 justify-self-center whitespace-nowrap rounded-full px-4 text-xs font-medium tracking-wide text-cyan-500 transition duration-300 hover:bg-cyan-100 hover:text-cyan-600 focus:bg-cyan-200 focus:text-cyan-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:text-cyan-300 disabled:shadow-none disabled:hover:bg-transparent";
@@ -136,7 +136,7 @@ function classNameDiv(type: TNotif) {
       return "border-fuchsia-100 bg-fuchsia-50 text-fuchsia-500";
     case "MESSAGE":
       return "border-amber-100 bg-amber-50 text-amber-500";
-    case "GOOD":
+    case "SUCCESS":
       return "border-emerald-100 bg-emerald-50 text-emerald-500";
     default:
       return "border-cyan-100 bg-cyan-50 text-cyan-500";

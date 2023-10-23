@@ -168,7 +168,7 @@ export type TNotif =
   | "SPECIAL"
   | "RESUME"
   | "ERROR"
-  | "GOOD"
+  | "SUCCESS"
   | "INFO"
   | undefined;
 

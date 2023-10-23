@@ -36,17 +36,16 @@ export default function UserProfile() {
 
   // data fetching
   const { login42 } = useParams<"login42">();
-  const cu = useAuth();
-  const curretUser = cu?.user || "";
+  const { user: curretUser } = useAuth();
   const {
     data: curretUserFriends,
     isLoading: isFriLoading,
     isError: isFriError,
   } = useUserFriends(curretUser);
-  const { data: profileUser, isLoading, isError } = useUserData(login42 || "");
+  const { data: profileUser, isLoading, isError } = useUserData(curretUser);
 
-  const [name, setName] = useState(profileUser?.name || "");
-  const [bio, setBio] = useState(profileUser?.bio);
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState<string | undefined>(undefined);
 
   // profile elo, maybe this should be abstracted into a component
   // feels a bit messay having this code that's not related to the rest of the page
@@ -262,7 +261,7 @@ interface IModifyForm {
 function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
   const mp = useMutUserProfile(user.login42);
   const msg = "remember to save changes";
-  const [err, setErr] = useState(msg);
+  const { addNotif } = useContext(NotificationContext);
 
   return (
     <form
@@ -270,33 +269,32 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted");
-        mp.mutate({ name: name, bio: bio });
-        mp.isError
-          ? setErr(
-              "Error: " +
-                ((mp.error as AxiosError).response as AxiosResponse).data
-                  .message,
-            )
-          : setErr(msg);
+        mp.mutate(
+          { name: name, bio: bio },
+          {
+            onSuccess: () =>
+              addNotif({ type: "SUCCESS", message: "Profile modified" }),
+          },
+        );
       }}
     >
       <InputField
         value={name}
         lable="Display name"
         max={20}
-        placeholder={name}
+        placeholder={user.name}
         onChange={(e) => setName(e.currentTarget.value)}
       />
       <InputField
         value={bio || ""}
         lable="Bio"
         max={140}
-        placeholder={bio || "I played pong back in the 70s."}
+        placeholder={user.bio || "I played pong back in the 70s."}
         onChange={(e) => setBio(e.currentTarget.value)}
       />
       <div className="flex text-slate-500 ">
         <p className="mr-6 flex-grow border-r-2 border-rose-400 pr-6 text-right">
-          {err}
+          {msg}
         </p>
         <SubmitBTN />
       </div>
@@ -307,7 +305,7 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
 function ProfileModifyAvatar({ user }: { user: UserData }) {
   const [file, setFile] = useState<File>();
   const foo = useMutUserAvatar(user.login42);
-
+  const { addNotif } = useContext(NotificationContext);
   // console.log("file:", file);
   return (
     <form
@@ -315,7 +313,11 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted new image");
-        if (file) foo.mutate(file);
+        if (file)
+          foo.mutate(file, {
+            onSuccess: () =>
+              addNotif({ type: "SUCCESS", message: "Profile image modified" }),
+          });
       }}
     >
       <div className="w-full">
@@ -402,7 +404,7 @@ function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
     }
     if (isSuccess && submitted) {
       console.log("Two factor authentication was set up successfully");
-      addNotif({ type: "GOOD", message: "TFA was setup sucessfully" });
+      addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
     }
     if (isLoading) {
     }
