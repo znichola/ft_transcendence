@@ -168,6 +168,7 @@ export type TNotif =
   | "SPECIAL"
   | "RESUME"
   | "ERROR"
+  | "GOOD"
   | "INFO"
   | undefined;
 
@@ -192,7 +193,7 @@ export interface ISocFriendRequest {
   from: Login42;
 }
 
-// ws/pong 
+// ws/pong
 
 export interface ISocChallenge {
   target: Login42;
@@ -217,4 +218,3 @@ export interface ISocIssueChallenge {
   to: Login42;
   type: TGameMode;
 }
-

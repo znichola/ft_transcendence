@@ -32,12 +32,14 @@ export default function AuthLoginTFA() {
       {isLoading && submitted ? (
         <div className="h-96 w-96 animate-spin rounded-full border-8 border-slate-700 border-b-transparent" />
       ) : (
-        <CodeInput
-          code={code}
-          setCode={setCode}
-          error={isError}
-          submit={() => setSubmitted(true)}
-        />
+        <div className="bg-stone-200 font-bold text-stone-500 shadow">
+          <CodeInput
+            code={code}
+            setCode={setCode}
+            error={isError}
+            submit={() => setSubmitted(true)}
+          />
+        </div>
       )}
     </div>
   );

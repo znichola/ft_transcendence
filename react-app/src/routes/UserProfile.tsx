@@ -9,7 +9,7 @@ import {
 import { useAuth } from "../functions/useAuth";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
 import {
@@ -28,6 +28,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { CodeInput } from "../components/CodeTFAinput";
 import { postTFACodeEnable } from "../Api-axios";
 import { useQuery } from "@tanstack/react-query";
+import { NotificationContext } from "./NotificationProvider";
 
 export default function UserProfile() {
   // react states
@@ -235,7 +236,7 @@ function CurrentUserSettings({
         user={user}
       />
       <button
-        className="w-[32rem] px-12 text-end italic text-slate-400 underline"
+        className="w-[32rem] px-12 text-end italic text-slate-400 underline hover:text-rose-500"
         onClick={() => {
           setName(user.name);
           setBio(user.bio);
@@ -338,14 +339,14 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 function ProfileModifyTFA() {
   const { tfa } = useAuth();
   const [activateTFA, setActivateTFA] = useState(tfa);
-  const [awaitingTFAresp, setAwaitingTFAresp] = useState(false);
+  const [openTFAwindow, setOpenTFAwindowp] = useState(false);
 
   function toggelTFA() {
     if (activateTFA) {
       setActivateTFA(false);
       console.log("send TFA deactivation request");
     } else {
-      setAwaitingTFAresp(true);
+      setOpenTFAwindowp(true);
       // setActivateTFA(true);
     }
   }
@@ -355,7 +356,7 @@ function ProfileModifyTFA() {
       <InputToggle
         onLable="2FA Enabled"
         offLable="2FA Disabled"
-        value={activateTFA}
+        value={activateTFA || openTFAwindow}
         onToggle={toggelTFA}
       />
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
@@ -363,7 +364,11 @@ function ProfileModifyTFA() {
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {activateTFA || awaitingTFAresp ? <SetupTFA /> : <></>}
+      {activateTFA || openTFAwindow ? (
+        <SetupTFA isOpen={setOpenTFAwindowp} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
@@ -384,7 +389,7 @@ function IntroDescription() {
   );
 }
 
-function SetupTFA() {
+function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
   const { user } = useAuth();
   const [code, setCode] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -393,16 +398,41 @@ function SetupTFA() {
     retry: false,
     queryFn: () => postTFACodeEnable(user, code),
   });
+  const { addNotif } = useContext(NotificationContext);
+  useEffect(() => {
+    if (isError && submitted) {
+      setSubmitted(false);
+      setCode("");
+    }
+    if (isSuccess) {
+      console.log("Two factor authentication was set up successfully");
+      addNotif({ type: "GOOD", message: "TFA was setup sucessfully" });
+    }
+    if (isLoading) {
+    }
+  });
 
   return (
-    <div className="absolute w-64 top-0">
+    <div className="box-theme absolute top-0 bg-stone-50 p-8">
       <QRcode />
-      <CodeInput
-        code={code}
-        setCode={setCode}
-        error={isError}
-        submit={() => setSubmitted(true)}
-      />
+      <hr className="my-4 h-px w-full border-0 bg-slate-100" />
+      {isLoading && submitted ? (
+        <div className="h-10 w-10 animate-spin rounded-full border-8 border-slate-700 border-b-transparent bg-stone-50" />
+      ) : (
+        <CodeInput
+          code={code}
+          setCode={setCode}
+          error={isError}
+          submit={() => setSubmitted(true)}
+        />
+      )}
+      <button
+        type="submit"
+        onClick={() => isOpen(false)}
+        className="px-12 text-end italic text-slate-400 underline hover:text-rose-500"
+      >
+        close
+      </button>
     </div>
   );
 }
@@ -411,7 +441,7 @@ function QRcode() {
   const { user } = useAuth();
   const qrcode = `${import.meta.env.VITE_SITE_URL}/api/tfa/${user}`;
   return (
-    <div className="overflow-hidden rounded-xl bg-stone-200 p-7 text-stone-800 shadow">
+    <>
       <img className="aspect-square w-full" src={qrcode} alt="qrcode" />
       <p className="pt-3 text-center ">
         Open the google
@@ -420,6 +450,6 @@ function QRcode() {
         <br />
         and scan this QRcode
       </p>
-    </div>
+    </>
   );
 }

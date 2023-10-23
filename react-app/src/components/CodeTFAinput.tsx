@@ -18,7 +18,7 @@ export function CodeInput({
   return (
     <Form
       onSubmit={submit}
-      className="flex w-64 flex-col rounded-xl bg-stone-200 px-7 py-5 font-bold text-stone-500 shadow"
+      className="flex w-64 flex-col rounded-xl px-7 py-5"
     >
       <h1 className="text-3xl ">~2FA code</h1>
       {error ? (
