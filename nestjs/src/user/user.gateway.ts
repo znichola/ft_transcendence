@@ -52,8 +52,8 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
         console.log('User connected : ', userLogin);
 
         this.broadcast("addUser", userLogin);
-        const user: UserEntity = new UserEntity(userLogin, client);
-        this.userList.push(user);
+        // const user: UserEntity = new UserEntity(userLogin, client, 88);
+        // this.userList.push(user);
 
         // if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
             // this.matchmakingList.push(user)

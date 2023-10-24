@@ -20,7 +20,7 @@ import {
   positionPlayer,
   setRandomDirBall,
 } from './pong.maths';
-import { IGameState, I2D, IBall, IRoom, IUserInfo } from '../interfaces';
+import { IGameState, I2D, IBall, IRoom } from '../interfaces';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
@@ -29,6 +29,8 @@ import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/user.entity';
 import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
+import {PongService} from "./pong.service";
+import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils";
 
 @WebSocketGateway({
   namespace: 'pong',
@@ -36,20 +38,17 @@ import { Cron } from '@nestjs/schedule';
     origin: '*',
   },
 })
-//@UseGuards(AuthGuard)
+
+@UseGuards(AuthGuard)
 export class PongGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
+
   constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
+      private readonly authService: AuthService,
+      private readonly userService: UserService,
+      private readonly pongService: PongService,
   ) {}
-
-  // therefore 'special' and 'normal' event doesn't need to send infos
-  private userList: UserEntity[] = [];
-
-  //private userIDMap: Map<string, string> = new Map<string, string>(); //key = socket.id // value = login
 
   //les queues en fonction du gameType
   private normalQueue: UserEntity[] = [];
@@ -58,10 +57,6 @@ export class PongGateway
   //les games en cours
   private roomList: IRoom[] = []; //vs// private roomMap: Map<string, IRoom> = new Map<string, IRoom>(); //string=roomName
 
-  //peut etre utile pour mettre afk simplement un joeur lors d'une DC
-  //private gameStateMap: Map<string, IGameState> = new Map<string, IGameState>();
-  private cntGame: number = 0;
-
   broadcast(event: string, data: any): void {
     this.server.emit(event, data);
   }
@@ -69,278 +64,207 @@ export class PongGateway
   broadcastTo(room: string, event: string, data: any): void {
     this.server.to(room).emit(event, data);
   }
+
   afterInit(server: Server): void {
     console.log('Init', server);
   }
 
   //TODO VOIR AVEC LES AUTRES IF OK ONLY ONE SOCKET VALUE PER LOGIN
-  async handleConnection(client: Socket, ...args: any[]): Promise<any> {
-    const userLogin: string = client.handshake.headers.user.toString();
-    console.log('Pong User connected : ', userLogin, ' with id ', client.id);
-    await this.userService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
-    const user: UserEntity = new UserEntity(userLogin, client);
-    // prettier-ignore
-    if (this.userList.findIndex((user: UserEntity): boolean => user.login === userLogin) == -1)
-      this.userList.push(user);
-    this.userList.forEach((user: UserEntity): void => {
-      console.log('UserList: ', user.login, user.client.id);
-    });
-    //checking if need to reconnect to its game
-    const index: number = this.roomList.findIndex(
-      (room: IRoom): boolean =>
-        room.user1.info.login === userLogin ||
-        room.user2.info.login === userLogin,
+  async handleConnection(client: Socket/*, ...args: any[]*/): Promise<void> {
+    //get user all info
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const userElo: number = await this.pongService.getUserElo(userLogin);
+    console.log(
+        'Pong User connected : ',
+        userLogin,
+        ' with id ',
+        client.id,
+        ' and elo: ',
+        userElo,
     );
+    //checking if user needs to reconnect to its game
+    const index: number = this.findIndexRoomLogin(userLogin);
     if (index != -1) {
       //mets a jour le status afk dans la room
-      this.roomList[index].user1.info.login == userLogin
-        ? !this.roomList[index].gs.p1.afk
-        : !this.roomList[index].gs.p2.afk;
+      this.roomList[index].user1.login == userLogin
+          ? !this.roomList[index].gs.p1.afk
+          : !this.roomList[index].gs.p2.afk;
       //mets a jour le socket dans la room
-      this.roomList[index].user1.info.login == userLogin
-        ? (this.roomList[index].user1.info.client = client)
-        : (this.roomList[index].user2.info.client = client);
+      this.roomList[index].user1.login == userLogin
+          ? (this.roomList[index].user1.client = client)
+          : (this.roomList[index].user2.client = client);
       client.join(this.roomList[index].roomID);
     }
   }
-  async handleDisconnect(client: Socket): Promise<any> {
-    const userLogin: string = client.handshake.headers.user.toString();
-    console.log('Pong User disconnected : ', userLogin);
-    await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
 
+  async handleDisconnect(client: Socket): Promise<void> {
     // check if it needs to be defined as afk inside a room
-    let index: number = this.roomList.findIndex(
-      (room: IRoom): boolean =>
-        room.user1.info.login === userLogin ||
-        room.user2.info.login === userLogin,
-    );
+    let index: number = this.findIndexRoomSocket(client.id);
     if (index != -1) {
-      this.roomList[index].user1.info.login == userLogin
-        ? this.roomList[index].gs.p1.afk
-        : this.roomList[index].gs.p2.afk;
+      this.roomList[index].user1.client.id == client.id
+          ? this.roomList[index].gs.p1.afk
+          : this.roomList[index].gs.p2.afk;
+      this.roomList[index].user1.client.id == client.id
+          ? this.roomList[index].user1.state = 'AFK'
+          : this.roomList[index].user2.state = 'AFK';
     }
-
-    //check if inside userList
-    index = this.userList.findIndex(
-      (user: UserEntity): boolean => user.login === userLogin,
-    );
-    if (index != -1) this.userList.splice(index, 1);
-
     // check if inside normal queue
-    index = this.normalQueue.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
-    );
+    index = this.findIndexQueueSocket(client.id, false);
     if (index != -1) this.normalQueue.splice(index, 1);
-
     // check if inside special queue
-    index = this.specialQueue.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
-    );
-    if (index != -1) this.normalQueue.splice(index, 1);
+    index = this.findIndexQueueSocket(client.id, true);
+    if (index != -1) this.specialQueue.splice(index, 1);
   }
 
-  @SubscribeMessage('special')
+  @SubscribeMessage('looking-for-game')
   async handleSpecial(
-    // @MessageBody() data: ,
-    @ConnectedSocket() client: Socket,
-  ) {
-    let user: UserEntity;
-    let index: number = this.userList.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
-    );
-
-    //if this socket is related to a login
-    if (index != -1) {
-      user = this.userList[index];
-
+      @MessageBody() data: string,
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    let index: number;
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const userElo: number = await this.pongService.getUserElo(userLogin);
+    let type: boolean | undefined = data == 'CLASSICAL' ? false : data == 'SPECIAL' ? true : undefined;
+    //if info is correct
+    if (type != undefined) {
       //if player wasn't in wanted queue it gets added
-      index = this.specialQueue.findIndex(
-        (u: UserEntity): boolean => u.login == user.login,
-      );
-      if (index == -1) this.specialQueue.push(user);
-
+      index = this.findIndexQueueSocket(client.id, type);
+      if (index == -1) {
+        const user: UserEntity = new UserEntity(userLogin, client, userElo, 'PENDING');
+        this.specialQueue.push(user);
+      }
       //if player was in the other queue it gets deleted
-      index = this.normalQueue.findIndex(
-        (u: UserEntity): boolean => u.login == user.login,
-      );
+      index = this.findIndexQueueSocket(client.id, !type);
       if (index != -1) this.normalQueue.splice(index, 1);
+      //updata user state
+      this.userService
+          .setUserStatus(userLogin, UserStatus.INQUEUE)
+          .then((): void => {
+          });
     }
-    //TODO RETURN ERROR LIKE CLOSING SOCKET TO RESTART ALL PROCESS
   }
 
-  @SubscribeMessage('classical')
-  async handleNormal(
-    @MessageBody() data: { id: string; halo: number },
-    @ConnectedSocket() client: Socket,
-  ) {
-    let user: UserEntity;
-    let index: number = this.userList.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
+  @SubscribeMessage('challenge')
+  async handleChallenge(
+      @MessageBody() data: { invitedLogin: string, special: boolean },
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const userElo: number = await this.pongService.getUserElo(userLogin);
+    const user1: UserEntity = new UserEntity(userLogin, client, userElo, 'PENDING');
+    const user2: UserEntity = new UserEntity(data.invitedLogin, undefined, undefined, undefined);
+    // CHECK IF ALREADY CREATED THIS GAME INVITE
+    const index: number = this.roomList.findIndex(
+        (room: IRoom): boolean =>
+            data.invitedLogin == room.user2.login && userLogin == room.user1.login,
     );
-    //if this socket is related to a login
-    if (index != -1) {
-      user = this.userList[index];
-      console.log(user.login, user.client.id, 'classical');
-      //if player wasn't in wanted queue it gets added
-      index = this.normalQueue.findIndex(
-        (u: UserEntity): boolean => u.login == user.login,
-      );
-      if (index == -1) this.normalQueue.push(user);
-      else console.log('pas push sur normal: ', index, index);
-      //if player was in the other queue it gets deleted
-      index = this.specialQueue.findIndex(
-        (u: UserEntity): boolean => u.login == user.login,
-      );
-      if (index != -1) this.specialQueue.splice(index, 1);
-    }
-    //TODO RETURN ERROR LIKE CLOSING SOCKET TO RESTART ALL PROCESS
+    if (index == -1)
+      await this.createNewRoom(user1, user2, data.special, false);
+    this.server.emit('challenge', <any>{from: userLogin, to: data.invitedLogin, special: data.special} );
   }
 
-  @SubscribeMessage('moveUp') //TODO: VOIR AVEC NIKI
+  @SubscribeMessage('accept')
+  async handleAccept(
+      @MessageBody() data: { opponent: string, special: boolean },
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const userElo: number = await this.pongService.getUserElo(userLogin);
+    // CHECK IF HIS LOGIN IS IN ROOM WITH CORRECT OPPONENT
+    const index: number = this.roomList.findIndex(
+        (room: IRoom): boolean =>
+            data.opponent == room.user1.login && userLogin == room.user2.login,
+    );
+    if (index != -1)
+    {
+      this.roomList[index].user2.client = client;
+      this.roomList[index].user2.elo = userElo;
+      this.roomList[index].user2.state = 'PENDING';
+      client.join(this.roomList[index].roomID);
+    }
+  }
+
+  @SubscribeMessage('confirm') // TODO: check qu'il confirme le bon match, donc for each
+  async handleConfirm(
+      @MessageBody() data: { user1: string, user2: string, special: boolean },
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const index: number = this.findIndexRoomSocket(client.id);
+    if (index != -1) {
+      if (this.roomList[index].user1.login == userLogin && this.roomList[index].user1.client.id == client.id)
+        this.roomList[index].user1.state = 'WAITING';//this.roomList[index].gs.p1.afk = false;
+      else if (this.roomList[index].user2.login == userLogin && this.roomList[index].user2.client.id == client.id)
+        this.roomList[index].user2.state = 'WAITING';//this.roomList[index].gs.p2.afk = false;
+    }
+  }
+
+  @SubscribeMessage('moveUp')
   async handleMoveUp(
-    @MessageBody() data: boolean,
-    @ConnectedSocket() client: Socket,
-  ) {
-    let user: UserEntity;
-    let index: number = this.userList.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
-    );
-    //if this socket is related to a login
+      @MessageBody() data: boolean,
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const index: number = this.findIndexRoomSocket(client.id);
     if (index != -1) {
-      user = this.userList[index];
-      index = this.roomList.findIndex((room: IRoom): void => {
-        if (
-          user.login == room.user1.info.login ||
-          user.login == room.user2.info.login
-        )
-          user.login == room.user1.info.login
-            ? (room.gs.p1.moveUp = data)
-            : (room.gs.p2.moveUp = data);
-      });
+      if (this.roomList[index].user1.login == userLogin && this.roomList[index].user1.client.id == client.id)
+        this.roomList[index].gs.p1.moveUp = data;
+      else if (this.roomList[index].user2.login == userLogin && this.roomList[index].user2.client.id == client.id)
+        this.roomList[index].gs.p2.moveUp = data;
     }
   }
 
-  @SubscribeMessage('moveDown') //TODO: VOIR AVEC NIKI
+  @SubscribeMessage('moveDown')
   async handleMoveDown(
-    @MessageBody() data: boolean,
-    @ConnectedSocket() client: Socket,
-  ) {
-    let user: UserEntity;
-    let index: number = this.userList.findIndex(
-      (user: UserEntity): boolean => user.client.id == client.id,
-    );
-    //if this socket is related to a login
+      @MessageBody() data: boolean,
+      @ConnectedSocket() client: Socket,
+  ): Promise<void> {
+    const userToken: string = client.handshake.headers.authorization.toString();
+    const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    const index: number = this.findIndexRoomSocket(client.id);
     if (index != -1) {
-      user = this.userList[index];
-      index = this.roomList.findIndex((room: IRoom): void => {
-        if (
-          user.login == room.user1.info.login ||
-          user.login == room.user2.info.login
-        )
-          user.login == room.user1.info.login
-            ? (room.gs.p1.moveDown = data)
-            : (room.gs.p2.moveDown = data);
-      });
+      if (this.roomList[index].user1.login == userLogin && this.roomList[index].user1.client.id == client.id)
+        this.roomList[index].gs.p1.moveDown = data;
+      else if (this.roomList[index].user2.login == userLogin && this.roomList[index].user2.client.id == client.id)
+        this.roomList[index].gs.p2.moveDown = data;
     }
   }
 
   @Cron('*/5 * * * * *')
-  findMatches() {
-    //console.log('finding matches');
-    // this.normalQueue.forEach((user: UserEntity): void => {
-    //   console.log('list normal', user.login);
-    // });
-    // this.specialQueue.forEach((user: UserEntity): void => {
-    //   console.log('list special', user.login);
-    // });
-    //console.log(this.normalQueue.length, this.userList.length);
-    if (this.normalQueue.length > 1) {
-      this.cntGame++;
-      const roomName: string = `game${this.cntGame}`;
-      const user1: UserEntity = this.normalQueue.shift();
-      const user2: UserEntity = this.normalQueue.shift();
-      const message: string =
-        'A game between ' +
-        user1.login +
-        ' and ' +
-        user2.login +
-        ' is about to start';
-      user1.client.join(roomName);
-      user2.client.join(roomName);
-      console.log(
-        'making a match. Players are : ',
-        user1.login,
-        ' and ',
-        user2.login,
-      );
-      this.broadcastTo(roomName, 'gameFound', message);
-      //TODO waiting players for confirmation
-      const newGameState: IGameState = JSON.parse(JSON.stringify(gameStart)); //TODO
-      setRandomDirBall(newGameState.balls[0]);
-      const newRoom: IRoom = {
-        gs: newGameState,
-        user1: {
-          info: user1,
-        },
-        user2: {
-          info: user2,
-        },
-        roomID: roomName,
-        type: false,
-      };
-      this.roomList.push(newRoom);
-      this.userService
-        .setUserStatus(user1.login, UserStatus.ONLINE)
-        .then((): void => {});
-      this.userService
-        .setUserStatus(user2.login, UserStatus.ONLINE)
-        .then((): void => {});
-      this.pongCalculus(newRoom.gs, canvas).then((): void => {});
-    } //else console.log('Not enough players in matchmaking');
-    ///////////////////////////////////////////////////////////////////////////////////////
-    if (this.specialQueue.length > 1) {
-      this.cntGame++;
-      const roomName: string = `game${this.cntGame}`;
-      const user1: UserEntity = this.specialQueue.shift();
-      const user2: UserEntity = this.specialQueue.shift();
-      const message: string =
-        'A game between ' +
-        user1.login +
-        ' and ' +
-        user2.login +
-        ' is about to start';
-      user1.client.join(roomName);
-      user2.client.join(roomName);
-      console.log(
-        'making a match. Players are : ',
-        user1.login,
-        ' and ',
-        user2.login,
-      );
-      this.broadcastTo(roomName, 'test', message);
-      //TODO waiting players for confirmation
-      const newGameState: IGameState = JSON.parse(JSON.stringify(gameStart)); //TODO
-      setRandomDirBall(newGameState.balls[0]);
-      const newRoom: IRoom = {
-        gs: newGameState,
-        user1: {
-          info: user1,
-        },
-        user2: {
-          info: user2,
-        },
-        roomID: roomName,
-        type: false,
-      };
-      this.roomList.push(newRoom);
-      this.userService
-        .setUserStatus(user1.login, UserStatus.ONLINE)
-        .then((): void => {});
-      this.userService
-        .setUserStatus(user2.login, UserStatus.ONLINE)
-        .then((): void => {});
-      //this.pongCalculus(newRoom.gs, canvas).then((): void => {});
-    } //else console.log('Not enough players in matchmaking');
+  async findMatches(): Promise<void> {
+    await this.findPlayersInQueue(true);
+    await this.findPlayersInQueue(false);
+  }
+
+  @Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
+  async launchRoom(): Promise<void> {
+    this.roomList.forEach((r: IRoom): void => {
+      if (r.user1.client != undefined && r.user2.client != undefined) {
+        //TELLS PLAYERS GAME WILL START
+        if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING')
+          this.broadcastTo(r.roomID, 'room-created', 'merde'); //TODO
+        if (r.user1.state == 'WAITING' && r.user2.state == 'WAITING') {
+          this.broadcastTo(r.roomID, 'start-game', 'merde'); // TODO
+          // SET GAMERS STATUS AS INGAME
+          this.userService
+              .setUserStatus(r.user1.login, UserStatus.INGAME)
+              .then((): void => {
+              });
+          this.userService
+              .setUserStatus(r.user2.login, UserStatus.INGAME)
+              .then((): void => {
+              });
+          this.pongCalculus(r.gs, canvas).then((): void => {
+          });
+        }
+      }
+    })
   }
 
   async pongCalculus(gs: IGameState, canvas: I2D): Promise<void> {
@@ -363,4 +287,70 @@ export class PongGateway
         this.pongCalculus(gs, canvas);
       }, timer);
   }
+
+  findIndexQueueSocket(
+      socketID: string,
+      type: boolean,
+  ): number {
+    if (!type) {
+      return this.normalQueue.findIndex(
+          (user: UserEntity): boolean => user.client.id == socketID,
+      );
+    } else {
+      return this.specialQueue.findIndex(
+          (user: UserEntity): boolean => user.client.id == socketID,
+      );
+    }
+  }
+
+  findIndexRoomSocket(socketID: string): number {
+    return this.roomList.findIndex(
+        (room: IRoom): boolean =>
+            socketID == room.user1.client.id || socketID == room.user2.client.id,
+    );
+  }
+
+  findIndexRoomLogin(userLogin: string): number {
+    return this.roomList.findIndex(
+        (room: IRoom): boolean =>
+            userLogin == room.user1.login || userLogin == room.user2.login,
+    );
+  }
+
+  async createNewRoom(user1: UserEntity, user2: UserEntity, special: boolean, ranked: boolean): Promise<void> {
+    // CREATE ROOM IN DATA
+    const roomName: string = `${await this.pongService.createGame(special, true, user1.login, user2.login)}`;
+    // CREATE NEW GS FOR THIS ROOM
+    const newGameState: IGameState = JSON.parse(JSON.stringify(gameStart)); //TODO
+    setRandomDirBall(newGameState.balls[0]);
+    // CREATE A ROOM IN LIST
+    const newRoom: IRoom = {
+      gs: newGameState,
+      user1: user1,
+      user2: user2,
+      roomID: roomName,
+      type: special,
+      ranked: ranked,
+    };
+    this.roomList.push(newRoom);
+    // ADD USER TO SOCKET ROOM IF POSSIBLE
+    if (user1.client != undefined)
+      user1.client.join(`${roomName}`);
+    if (user2.client != undefined)
+      user2.client.join(`${roomName}`);
+    // TELLS TO BOTH IF IT'S READY TO PLAY
+    // if (user1.client != undefined && user2.client != undefined)
+    //   this.broadcastTo(roomName, 'room-created', 'merde'); //TODO
+  }
+
+  async findPlayersInQueue(special: boolean): Promise<void> {
+    const array: UserEntity[] = special ? this.specialQueue : this.normalQueue;
+    if (array.length > 1) {
+      const user1: UserEntity = array.shift();
+      const user2: UserEntity = array.shift();
+      await this.createNewRoom(user1, user2, special, true);
+    }
+    else console.log(`not enough players in ${special} queue`);
+  }
 }
+

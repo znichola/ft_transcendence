@@ -76,25 +76,24 @@ export type I2D = { width: number; height: number };
 
 export interface IRoom {
   gs: IGameState;
-  user1: IUserInfo;
-  user2: IUserInfo;
+  user1: UserEntity;
+  user2: UserEntity;
   roomID: string;
   type: boolean;
-  //state: string // GAMING, WAITING, OVER
+  ranked: boolean;
+  //states: WAITING AFK GAMING
 }
 
-export interface IUserInfo {
-  info: UserEntity;
-  //halo: number;
-}
 export interface IGameState {
   p1: IPlayer;
   p2: IPlayer;
-  balls: IBalls;
+  // balls: IBalls;
+  balls: Array<IBall>;
   timerAfk: number;
   type: boolean;
   //state: string // GAMING, WAITING, OVER
 }
+
 export interface IBall {
   pos: IPos;
   radius: number;
@@ -103,7 +102,9 @@ export interface IBall {
   mitosis: boolean;
   bounce: number;
 }
-export interface IBalls extends Array<IBall> {}
+
+// export interface IBalls extends Array<IBall> {}
+
 export interface IPos {
   x: number;
   y: number;
