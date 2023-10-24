@@ -7,6 +7,8 @@ import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { WsGuard } from 'src/ws/ws.guard';
 import { UserStatusService } from './user.status.service';
 import { UserStatus } from '@prisma/client';
+import { DirectMessageEntity } from 'src/dm/entities/direct-message.entity';
+import { MessageEntity} from 'src/chat/entities/message.entity';
 
 @WebSocketGateway({
     cors: {
@@ -33,15 +35,15 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     {
         const userToken: string = client.handshake.headers.authorization.toString();
         const userLogin = await this.authService.getLoginFromToken(userToken);
-        console.log('User disconnected : ', userLogin);
 
         let index = this.userList.findIndex(user => user.client.id === client.id);
         this.userList.splice(index, 1);
-        this.broadcast("removeUser", userLogin);
 
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		{
             await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
-
+        	this.broadcast("userDisconnect", userLogin);
+		}
     }
 
     async handleConnection(client: Socket)
@@ -54,7 +56,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         const user: UserEntity = new UserEntity(userLogin, client);
 
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		{
             await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
+        	this.broadcast("userConnect", userLogin);
+		}
         
         this.userList.push(user);
     }
@@ -97,6 +102,22 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     {
         this.server.emit('userUpdated', login);
     }
+
+	sendDM(msg: DirectMessageEntity, to: string)
+	{
+		this.userList.forEach((user) => {
+			if (user.login == to)
+				user.client.send('dm', msg);
+		})
+	}
+
+	sendToChatroom(msg: MessageEntity, to: string)
+	{
+		this.userList.forEach(user => {
+			if (user.login == to)
+				user.client.send('chatroomMessage', msg);
+		})
+	}
 
     broadcast(event: string, user: string)
     {

@@ -4,13 +4,13 @@ import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
 import { DirectMessageWithUsername, DirectMessageEntity } from './entities/direct-message.entity';
-import { DmGateway } from './dm.gateway';
+import { UserGateway } from 'src/user/user.gateway';
 
 @Injectable()
 export class DmService
 {
 	constructor(private prisma: PrismaService,
-		private readonly gateway: DmGateway){}
+		private gateway: UserGateway){}
 
 	async getAllConversations(): Promise<ConversationEntity[]>
 	{
@@ -203,11 +203,21 @@ export class DmService
 			text: payload.content
 		};
 
-		await this.prisma.directMessage.create({
+		const msgFromDb = await this.prisma.directMessage.create({
 			data: msg,
+			select: {
+				id: true,
+				sentAt: true,
+				text: true,
+				sender: {
+					select: {
+						login42: true
+					}
+				}
+			}
 		});
 
-		this.gateway.push(conv);
+		this.gateway.sendDM(new DirectMessageEntity(msgFromDb), to);
 	}
 
 	async deleteMessage(msgId: number, username: string)

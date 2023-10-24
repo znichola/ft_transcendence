@@ -2,15 +2,14 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { MessageEntity, MessageWithUsername } from "../entities/message.entity";
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
-import { ChatGateway } from "../chat.gateway";
-import { Friend } from "@prisma/client";
+import { UserGateway } from "src/user/user.gateway";
 
 @Injectable()
 export class ChatMessageService
 {
 	constructor(private prisma: PrismaService,
 		private readonly utils: ChatUtils,
-		private readonly gateway: ChatGateway){}
+		private readonly gateway: UserGateway){}
 
 	async getOneMessageFromChatroom(id: number, msgId: number, identity: string): Promise<MessageEntity>
 	{
@@ -135,11 +134,48 @@ export class ChatMessageService
 			text: content,
 		}
 
-		await this.prisma.message.create({
+		const msgFromDb = await this.prisma.message.create({
 			data: message,
+			select: {
+				id: true,
+				text: true,
+				sentAt: true,
+				user: {
+					select: {
+						login42: true
+					}
+				}
+			}
 		});
 
-		this.gateway.push(chatroomId);
+		const members = await this.prisma.chatroomUser.findMany({
+			where: {
+				NOT: {
+					user: {
+						friends1: {
+							some: {
+								user2: {
+									login42: identity
+								},
+								status: "BLOCKED"
+							}
+						}
+					}
+				}
+			},
+			select: {
+				user: {
+					select: {
+						login42: true
+					}
+				}
+			}
+		});
+
+		for (const member of members)
+		{
+			this.gateway.sendToChatroom(new MessageEntity(msgFromDb, false), member.user.login42);
+		}
 	}
 
 	async updateMessageFromChatroom(msgId: number, newContent: string, identity: string)
