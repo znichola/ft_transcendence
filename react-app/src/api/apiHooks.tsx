@@ -6,7 +6,7 @@ import {
   getChatroomBanded,
   getChatroomMessages,
   getChatrooomData,
-  getChatrooomList,
+  getChatroomList,
   getChatroomMembers,
   getCurrentUser,
   getUserConversation,
@@ -27,7 +27,9 @@ import {
   removeUserFriend,
   getChatroomMember,
   postUserAvatar,
-  getUserChatrooms
+  getUserChatrooms,
+  deleteChatroom,
+  getLogout
 } from "./axios";
 import {
   QueryClient,
@@ -259,25 +261,33 @@ export function useMutDeleteUserFriendRequest() {
 export function useChatroomList() {
   return useQuery({
     queryKey: ["ChatroomList"],
-    queryFn: () => getChatrooomList(),
+    queryFn: () => getChatroomList(),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
   });
 }
 
-export function useChatroom(id: string) {
+export function useChatroom(
+  id: string,
+  handleError?: (axiosError: AxiosError) => void,
+) {
   return useQuery({
     queryKey: ["Chatroom", id],
     queryFn: () => getChatrooomData(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "",
+    onError: handleError,
+    retry: (count, error) => {
+      var error_value = error.response?.status;
+      return count < 5 && error_value != 403 && error_value != 404;
+    },
   });
 }
 
 export function useChatroomMembers(id: string) {
   return useQuery({
-    queryKey: ["ChatroomMemebers", id],
+    queryKey: ["ChatroomMembers", id],
     queryFn: () => getChatroomMembers(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
@@ -291,14 +301,15 @@ export function useChatroomMember(
   handleError?: (axiosError: AxiosError) => void,
 ) {
   return useQuery({
-    queryKey: ["ChatroomMemebers", id, member],
+    queryKey: ["ChatroomMembers", id, member],
     queryFn: () => getChatroomMember(id, member),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "" && member != "",
     onError: handleError,
     retry: (count, error) => {
-      return count < 5 && error.response?.status != 403;
+      var error_value = error.response?.status;
+      return count < 5 && error_value != 403 && error_value != 404;
     },
   });
 }
@@ -363,7 +374,7 @@ export function useMutPostChatroomMember(id: string) {
       postNewChatroomMember(id, { login42: login42 }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
+        queryKey: ["ChatroomMembers", id],
       });
     },
   });
@@ -373,11 +384,28 @@ export function useMutPostChatroomMember(id: string) {
 export function useMutDeleteChatroomMember(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (login42: string) => deleteChatroomMember(id, login42),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
-      });
+    mutationFn: ({login42, selfDelete = false}:{login42: string, selfDelete?: boolean}) => deleteChatroomMember(id, login42),
+    onSuccess: (_, variables) => {
+      if (variables.selfDelete) {
+        console.log("Self Leave !")
+        queryClient.removeQueries({
+          queryKey: ["ChatroomMembers", id],
+        });
+        queryClient.removeQueries({
+          queryKey: ["ChatroomMessages", id],
+        });
+        queryClient.removeQueries({
+          queryKey: ["ChatroomBannedUsers", id],
+        });
+        queryClient.setQueriesData(["UserChatrooms"], (old_chatrooms: IChatroom[] | undefined) =>
+        old_chatrooms ? old_chatrooms.filter((c) => { return c.id.toString() != id}) : old_chatrooms
+        )
+      }
+      else {
+        queryClient.invalidateQueries({
+          queryKey: ["ChatroomMembers", id],
+        });
+      }
     },
   });
 }
@@ -391,14 +419,14 @@ export function useMutPutChatroomRole(id: string, login42: string) {
     ) => putChatroomRole(id, login42, role),
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
+        queryKey: ["ChatroomMembers", id],
       }),
   });
 }
 
 export function useChatroomBanned(id: string) {
   return useQuery({
-    queryKey: ["chatroomBannedUsers", id],
+    queryKey: ["ChatroomBannedUsers", id],
     queryFn: () => getChatroomBanded(id),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
@@ -412,12 +440,39 @@ export function useMutPostChatroomBan(id: string, login42: string) {
     mutationFn: () => postChatroomBan(id, login42),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["chatroomBannedUsers", id],
+        queryKey: ["ChatroomBannedUsers", id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
+        queryKey: ["ChatroomMembers", id],
       });
     },
+  });
+}
+
+export function useMutDeleteChatroom(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteChatroom(id),
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: ["Chatroom", id],
+      })
+      queryClient.setQueryData(["ChatroomList"], (oldList: IChatroom[] | undefined) => 
+        oldList ? oldList.filter((c) => c.id.toString() != id) : oldList
+      )
+      queryClient.removeQueries({
+        queryKey: ["ChatroomMembers", id],
+      });
+      queryClient.removeQueries({
+        queryKey: ["ChatroomMessages", id],
+      });
+      queryClient.removeQueries({
+        queryKey: ["ChatroomBannedUsers", id],
+      });
+      queryClient.setQueriesData(["UserChatrooms"], (old_chatrooms: IChatroom[] | undefined) =>
+      old_chatrooms ? old_chatrooms.filter((c) => { return c.id.toString() != id}) : old_chatrooms
+      )
+    }
   });
 }
 
@@ -427,7 +482,7 @@ export function useMutDeleteChatroomBan(id: string, login42: string) {
     mutationFn: () => deleteChatroomBan(id, login42),
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: ["chatroomBannedUsers", id],
+        queryKey: ["ChatroomBannedUsers", id],
       }),
   });
 }
@@ -438,7 +493,7 @@ export function useMutChatroomMute(id: string, login42: string) {
     mutationFn: (duration: number) => postChatroomMute(id, login42, duration),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
+        queryKey: ["ChatroomMembers", id],
       });
     },
   });
@@ -450,7 +505,7 @@ export function useMutDeleteChatroomMute(id: string, login42: string) {
     mutationFn: () => deleteChatroomMute(id, login42),
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: ["ChatroomMemebers", id],
+        queryKey: ["ChatroomMembers", id],
       }),
   });
 }
@@ -466,6 +521,18 @@ export function useMutJoinChatroom() {
       );
     },
     onError: () => console.log("Error !!!")
+  });
+}
+
+export function useMutLogout() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => getLogout(),
+    onSuccess: () => {
+      console.log("Successfully logout !");
+      queryClient.removeQueries(); //TODO: optimiser un jour si on a le temps
+    },
+    onError: () => console.log("Error: cannot logout !")
   });
 }
 

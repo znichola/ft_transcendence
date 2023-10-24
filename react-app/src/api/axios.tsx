@@ -24,6 +24,11 @@ export const authApi = axios.create({
 
 //-------------------------------------------User-------------------------------------------------------//
 
+export const getLogout = async () => {
+  authApi.get<string>("/auth/logout")
+  .then((r) => {r.data;});
+}
+
 // TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
   authApi.get<string>("/auth/user").then((res) => {
@@ -199,7 +204,7 @@ export const deleteDMconversation = async (user1: string, user2: string) => {
 //   "content": "new message foobar"
 // }
 
-export const getChatrooomList = async () => {
+export const getChatroomList = async () => {
   return authApi.get<IChatroom[]>("/chatroom/").then((res) => res.data);
 };
 
@@ -235,6 +240,10 @@ export const getChatroomMessages = async (id: string) => {
 export const postNewChatroom = async (payload: IChatroomPost) => {
   return authApi.post<IChatroom>("/chatroom/", payload).then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
+};
+
+export const deleteChatroom = async (id: string) => {
+  return authApi.delete<HttpStatusCode>("/chatroom/" + id).then((res) => res.data);
 };
 
 export const postNewChatroomMessage = async (

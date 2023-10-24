@@ -23,6 +23,7 @@ import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
 import axios from "axios";
 import { useAuth } from "../functions/contexts.tsx";
+import { getLogout } from "../api/axios.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
@@ -125,17 +126,7 @@ export default function SideMenu({
             <Nav
               name="Logout"
               to="/login"
-              onClick={() => {
-                axios
-                  .get<string>("/auth/logout")
-                  .then((r) => {
-                    r.data;
-                    logOut();
-                  })
-                  .catch(() => {
-                    console.log("Cannot logout !");
-                  });
-              }}
+              onClick={() => {getLogout()}}
               icon={IconFire}
             />
             <Category name="dev stuff" />

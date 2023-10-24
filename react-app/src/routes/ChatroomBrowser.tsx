@@ -75,7 +75,7 @@ export default function ChatroomBrowser() {
             setSearchValue={setSearchValue}
             buttonState={buttonState}
             setButtonState={setButtonState}
-            buttonClassName="translate-y-28"
+            largeYTranslate={true}
           >
             <FilterSettings settings={settings} setSettings={setSettings} />
           </SearchComponent>
@@ -84,7 +84,6 @@ export default function ChatroomBrowser() {
             setBTNstate={setButtonState}
             buttonState={buttonState}
             checked={"NEW_CHAT"}
-            className="translate-y-10"
           >
             <CreateChatroomUI />
           </ButtonGeneric>
