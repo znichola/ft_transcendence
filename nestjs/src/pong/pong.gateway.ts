@@ -25,7 +25,7 @@ import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
-import { UserService } from '../user/user.service';
+import { UserStatusService } from '../user/user.status.service';
 import { UserEntity } from '../user/user.entity';
 import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
@@ -43,7 +43,7 @@ export class PongGateway
   @WebSocketServer() server: Server;
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly userStatusService: UserStatusService,
   ) {}
 
   // therefore 'special' and 'normal' event doesn't need to send infos
@@ -77,7 +77,7 @@ export class PongGateway
   async handleConnection(client: Socket, ...args: any[]): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
     console.log('Pong User connected : ', userLogin, ' with id ', client.id);
-    await this.userService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
+    await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
     const user: UserEntity = new UserEntity(userLogin, client);
     // prettier-ignore
     if (this.userList.findIndex((user: UserEntity): boolean => user.login === userLogin) == -1)
@@ -106,7 +106,7 @@ export class PongGateway
   async handleDisconnect(client: Socket): Promise<any> {
     const userLogin: string = client.handshake.headers.user.toString();
     console.log('Pong User disconnected : ', userLogin);
-    await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
+    await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
 
     // check if it needs to be defined as afk inside a room
     let index: number = this.roomList.findIndex(
@@ -289,10 +289,10 @@ export class PongGateway
         type: false,
       };
       this.roomList.push(newRoom);
-      this.userService
+      this.userStatusService
         .setUserStatus(user1.login, UserStatus.ONLINE)
         .then((): void => {});
-      this.userService
+      this.userStatusService
         .setUserStatus(user2.login, UserStatus.ONLINE)
         .then((): void => {});
       this.pongCalculus(newRoom.gs, canvas).then((): void => {});
@@ -333,10 +333,10 @@ export class PongGateway
         type: false,
       };
       this.roomList.push(newRoom);
-      this.userService
+      this.userStatusService
         .setUserStatus(user1.login, UserStatus.ONLINE)
         .then((): void => {});
-      this.userService
+      this.userStatusService
         .setUserStatus(user2.login, UserStatus.ONLINE)
         .then((): void => {});
       //this.pongCalculus(newRoom.gs, canvas).then((): void => {});

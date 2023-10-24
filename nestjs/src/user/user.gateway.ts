@@ -2,11 +2,11 @@ import { UseGuards } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { UserEntity } from './user.entity';
-import { UserService } from './user.service';
-import { UserStatus } from '@prisma/client';
+import { ChallengeEntity, UserEntity, UserNameEntity } from './user.entity';
 import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { WsGuard } from 'src/ws/ws.guard';
+import { UserStatusService } from './user.status.service';
+import { UserStatus } from '@prisma/client';
 
 @WebSocketGateway({
     cors: {
@@ -19,11 +19,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @WebSocketServer() server: Server;
     constructor(
         private readonly authService: AuthService,
-        private readonly userService: UserService,
+        private readonly userStatusService: UserStatusService,
         ){}
     private userList: UserEntity[] = [];
-    // private matchmakingList: UserEntity[] = [];
-    private gamesCount: number = 0;
     
     async afterInit(client: Socket) 
     {
@@ -41,11 +39,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         this.userList.splice(index, 1);
         this.broadcast("removeUser", userLogin);
 
-        // let mmIndex = this.matchmakingList.findIndex(user => user.client.id == client.id)
-        // if (mmIndex) this.userList.splice(mmIndex, 1);
-
         if (this.userList.findIndex(user => user.login === userLogin) == -1)
-            await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
+            await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
 
     }
 
@@ -56,14 +51,51 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
         console.log('User connected : ', userLogin);
 
-        this.broadcast("addUser", userLogin);
         const user: UserEntity = new UserEntity(userLogin, client);
+
+        if (this.userList.findIndex(user => user.login === userLogin) == -1)
+            await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
+        
         this.userList.push(user);
+    }
 
-        // if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
-            // this.matchmakingList.push(user)
+    sendFriendRequest(to: string, sender: UserNameEntity)
+    {
+        this.toAllUserClients(to, 'friendRequest', sender);
+    }
 
-        await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
+    sendChallenge(to: string, challenge: ChallengeEntity)
+    {
+        this.toAllUserClients(to, 'challenge', challenge);
+    }
+
+    @SubscribeMessage('declineChallenge')
+    handleDeclineChallenge(client: Socket, challenge: ChallengeEntity)
+    {
+        console.log('challenge with id ', challenge.gameId, ' declined.');
+    }
+
+    @SubscribeMessage('acceptChallenge')
+    handleAcceptChallenge(client: Socket, challenge: ChallengeEntity)
+    {
+        console.log('challenge with id ', challenge.gameId, ' accepted.');
+        console.log('Accepting client ID is ', client.id);
+    }
+
+    toAllUserClients(to: string, event: string, message: any)
+    {
+        this.userList.forEach((user) => {
+            if (user.login == to)
+            {
+                console.log('sending to client ', user.client.id);
+                user.client.send(event, message);
+            }
+        });
+    }
+
+    sendUserUpdated(login: string)
+    {
+        this.server.emit('userUpdated', login);
     }
 
     broadcast(event: string, user: string)
