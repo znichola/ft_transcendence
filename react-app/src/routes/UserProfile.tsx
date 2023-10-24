@@ -35,13 +35,13 @@ export default function UserProfile() {
 
   // data fetching
   const { login42 } = useParams<"login42">();
-  const { user: curretUser } = useAuth();
+  const { user: currentUser } = useAuth();
   const {
-    data: curretUserFriends,
+    data: currentUserFriends,
     isLoading: isFriLoading,
     isError: isFriError,
-  } = useUserFriends(curretUser);
-  const { data: profileUser, isLoading, isError } = useUserData(curretUser);
+  } = useUserFriends(currentUser);
+  const { data: profileUser, isLoading, isError } = useUserData(login42);
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState<string | undefined>(undefined);
@@ -88,7 +88,7 @@ export default function UserProfile() {
           />
         }
       >
-        {curretUser === login42 ? (
+        {currentUser === login42 ? (
           <ButtonGeneric
             icon={IconGear}
             setBTNstate={setButtonState}
@@ -106,8 +106,8 @@ export default function UserProfile() {
         ) : (
           <UserInteractions
             cardUser={profileUser}
-            userFriends={curretUserFriends}
-            currentUser={curretUser}
+            userFriends={currentUserFriends}
+            currentUser={currentUser}
           />
         )}
       </BoxMenu>

@@ -78,7 +78,6 @@ export const ProtectedRoute = () => {
       !isLoading &&
       !isError
     ) {
-      console.log("cu:", currentUser, "foo:", foo.user);
       foo.logIn(currentUser);
       socketSetHeadersAndReConnect(currentUser);
       setTimeout(() => {

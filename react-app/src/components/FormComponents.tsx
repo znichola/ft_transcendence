@@ -139,9 +139,6 @@ export function InputToggle({
     "-" +
     offLable.replace(" ", "-")
   ).toLocaleLowerCase();
-
-  console.log(onLable, value);
-
   return (
     <div className="relative flex w-32 flex-wrap items-center">
       <input

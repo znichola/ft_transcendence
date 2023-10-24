@@ -98,8 +98,6 @@ export default function UserBrowser({ title }: { title: string }) {
   const ref = useRef(null);
   const inViewport = useIntersection(ref, "0px");
 
-  console.log("-------------");
-
   if (isFriLoading)
     return <LoadingSpinnerMessage message="fetching friends ..." />;
   if (isFriError) return <ErrorMessage message="error fetching friends" />;
@@ -115,7 +113,7 @@ export default function UserBrowser({ title }: { title: string }) {
     _posts.length > 5 &&
     (data?.pages[data?.pageParams.length - 1].length ?? 0) > 0
   ) {
-    console.log("posts len", _posts.length);
+    // console.log("posts len", _posts.length);
     fetchNextPage();
   }
 

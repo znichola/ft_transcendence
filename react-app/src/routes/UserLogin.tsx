@@ -73,7 +73,9 @@ function DevLogin() {
             console.log(authContext);
             navigate("/play");
             await socketSetHeadersAndReConnect(login);
-            setStatus(qc, authContext.user, "ONLINE");
+            setTimeout(() => {
+              setStatus(qc, authContext.user, "ONLINE");
+            }, 300);
             console.log("dev: signed in!");
           })
           .catch(() => setColor("bg-rose-500"));
