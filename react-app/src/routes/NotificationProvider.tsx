@@ -1,5 +1,7 @@
 import { ReactNode, createContext, useState } from "react";
 import { INotification } from "../interfaces";
+import { AxiosInterceptors } from "../api/AxiosInterceptors";
+import { randString } from "../functions/utils";
 
 interface INotifContext {
   notifications: INotification[];
@@ -19,13 +21,11 @@ export default function NotificationProvider({
   children: ReactNode;
 }) {
   const [notifications, setNotifications] = useState<INotification[]>([]);
-  const [count, setCount] = useState(0);
 
   const addNotif = (notif: INotification) => {
-    setCount((prevCount) => prevCount + 1);
     setNotifications((prevNotifications) => [
       ...prevNotifications,
-      { ...notif, id: count + "" },
+      { ...notif, id: randString(8) },
     ]);
   };
 
@@ -39,7 +39,7 @@ export default function NotificationProvider({
     <NotificationContext.Provider
       value={{ notifications, removeNotif, addNotif }}
     >
-      {children}
+      <AxiosInterceptors>{children}</AxiosInterceptors>
     </NotificationContext.Provider>
   );
 }

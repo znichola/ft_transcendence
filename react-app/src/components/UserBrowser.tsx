@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { SetStateAction, useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "./BoxMenu";
 import { IconFunnel } from "./Icons";
 import {
@@ -8,11 +8,11 @@ import {
   PreHeading,
   SubmitBTN,
 } from "./FormComponents";
-import { authApi } from "../Api-axios";
+import { authApi } from "../api/axios";
 import { IUsersAll, UserFriends } from "../interfaces";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useUserData, useUserFriends } from "../functions/customHook";
-import { useAuth } from "../functions/useAuth";
+import { useUserData, useUserFriends } from "../api/apiHooks";
+import { useAuth } from "../functions/contexts";
 import { LoadingSpinner, LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
 import { useIntersection } from "../functions/uneIntersection";
@@ -23,6 +23,38 @@ interface ISettings {
   isOnline: boolean;
   isOffline: boolean;
   isInGame: boolean;
+}
+
+export function SearchComponent({
+  searchValue,
+  setSearchValue,
+  buttonState,
+  setButtonState,
+  buttonClassName,
+  children,
+}: {
+  searchValue: string;
+  setSearchValue: (value: string) => void;
+  buttonState: string;
+  setButtonState: (value: SetStateAction<string>) => void;
+  buttonClassName?: string;
+  children?: JSX.Element[] | JSX.Element;
+}) {
+  return (
+    <div className="flex items-end pb-8 pr-6">
+      <Searchbar value={searchValue} setValue={setSearchValue} />
+      <ButtonGeneric
+        icon={IconFunnel}
+        setBTNstate={setButtonState}
+        buttonState={buttonState}
+        checked="filter-settings"
+        filledIn={true}
+        className={buttonClassName}
+      >
+        {children}
+      </ButtonGeneric>
+    </div>
+  );
 }
 
 export default function UserBrowser({ title }: { title: string }) {
@@ -44,7 +76,7 @@ export default function UserBrowser({ title }: { title: string }) {
   };
 
   // api calls
-  const currentUser = useAuth()?.user || "";
+  const { user: currentUser } = useAuth();
   const {
     data: relations,
     isLoading: isFriLoading,
@@ -56,7 +88,7 @@ export default function UserBrowser({ title }: { title: string }) {
     authApi
       .get<string[]>("/user/", { params: { ...searchParams, page: pageParam } })
       .then((res) => res.data);
-  const { data, fetchNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["UserListInfinateScroll", searchParams],
     queryFn: fetchPage,
     getNextPageParam: (_, pages) => pages.length + 1,
@@ -66,14 +98,12 @@ export default function UserBrowser({ title }: { title: string }) {
   const ref = useRef(null);
   const inViewport = useIntersection(ref, "0px");
 
-  console.log("-------------");
-
   if (isFriLoading)
     return <LoadingSpinnerMessage message="fetching friends ..." />;
   if (isFriError) return <ErrorMessage message="error fetching friends" />;
-  if (isFetchingNextPage)
-    return <LoadingSpinnerMessage message="fetching pages ..." />;
-  if (status !== "success") return <ErrorMessage message="Error fetching pages" />;
+  // if (isFetchingNextPage) TODO : Poffiner si on a le temps un jour
+  //   return <LoadingSpinnerMessage message="fetching pages ..." />;
+  // if (status !== "success") return <ErrorMessage message="Error fetching pages" />;
 
   const _posts = data?.pages.flatMap((p) => p);
 
@@ -83,7 +113,7 @@ export default function UserBrowser({ title }: { title: string }) {
     _posts.length > 5 &&
     (data?.pages[data?.pageParams.length - 1].length ?? 0) > 0
   ) {
-    console.log("posts len", _posts.length);
+    // console.log("posts len", _posts.length);
     fetchNextPage();
   }
 
@@ -95,21 +125,24 @@ export default function UserBrowser({ title }: { title: string }) {
       >
         <div className="flex flex-col">
           <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
-          <div className="flex items-end pb-8 pr-6">
-            <Searchbar value={searchValue} setValue={setSearchValue} />
-            <ButtonGeneric
-              icon={IconFunnel}
-              setBTNstate={setButtonState}
-              buttonState={buttonState}
-              checked="filter-settings"
-              filledIn={true}
-            >
-              <FilterSettings settings={settings} setSettings={setSettings} />
-            </ButtonGeneric>
-          </div>
+          <SearchComponent
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            buttonState={buttonState}
+            setButtonState={setButtonState}
+            buttonClassName="translate-y-10"
+          >
+            <FilterSettings settings={settings} setSettings={setSettings} />
+          </SearchComponent>
         </div>
       </BoxMenu>
-      <div className="flex w-full flex-col items-center overflow-scroll pt-80">
+      <div className="flex w-full flex-col items-center overflow-scroll">
+        <div
+          className={
+            "transition-all duration-500 " +
+            (buttonState != "UNSET" ? "min-h-[26rem]" : "min-h-[20rem]")
+          }
+        />
         {_posts?.map((u) => (
           <FilterInfoCard
             key={u}

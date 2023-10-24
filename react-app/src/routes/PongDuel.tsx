@@ -1,9 +1,4 @@
 import { useParams } from "react-router";
-import { getCurrentUser } from "../Api-axios";
-import { useQuery } from "@tanstack/react-query";
-import { UserData } from "../interfaces";
-import axios from "axios";
-import { LoadingSpinnerMessage } from "../components/Loading";
 import PlayPong from "./PlayPong";
 
 export default function PongDuel() {
@@ -59,7 +54,5 @@ export default function PongDuel() {
   //   );
   // }
 
-  return(
-    <PlayPong player1={p1 || ""} player2={p2 || "" }/>
-  );
+  return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
 }

@@ -1,14 +1,13 @@
 // import ResponsiveDrawPong from "./ResponsiveDrawPong.tsx";
-import { IGameState } from "../interfaces.tsx";
 import { pongSocket } from "../socket.ts";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import ResponsiveAppPong from "./ResponsiveAppPong.tsx";
 import { LoadingSpinnerMessage } from "../components/Loading.tsx";
-import { NotificationContext } from "../routes/NotificationProvider.tsx";
+import { useNotification } from "../functions/contexts.tsx";
 
 export default function TestPong() {
   const [gameFound, setGameFount] = useState(false);
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
 
   useEffect(() => {
     function onGameFound(message: string) {
@@ -23,7 +22,7 @@ export default function TestPong() {
     return () => {
       pongSocket.off("gameFound", onGameFound);
     };
-  }, []);
+  }, [addNotif]);
 
   if (gameFound) return <ResponsiveAppPong />;
   else return <LoadingSpinnerMessage message="looking for game ..." />;

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useChatroomList, useChatroomMembers } from "../functions/customHook";
+import { useChatroomList } from "../api/apiHooks";
 import { IChatroom } from "../interfaces";
 import { ErrorMessage } from "./ErrorComponents";
 import { IconBashShell } from "./Icons";

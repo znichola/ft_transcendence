@@ -1,4 +1,4 @@
-import { TUserStatus } from "../interfaces";
+import { TChatroomRole, TUserStatus } from "../interfaces";
 
 export function statusColor(status: TUserStatus) {
   switch (status) {
@@ -38,4 +38,14 @@ export function randString(length: number) {
     result += characters.charAt(value % charactersLength);
   });
   return result;
+}
+
+export function convertPerms(perms: TChatroomRole | undefined) {
+  return perms == undefined
+    ? 0
+    : perms == "MEMBER"
+    ? 1
+    : perms == "ADMIN"
+    ? 2
+    : 3;
 }

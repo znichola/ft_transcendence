@@ -13,18 +13,16 @@ import {
   IconFire,
   IconGit,
 } from "./Icons";
-import { UserData } from "../interfaces";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
 import { Link } from "react-router-dom";
 import NavFriends from "./SideNaveFriendsList.tsx";
-import ProfileElo from "./ProfileElo.tsx";
-import { useCurrentUserData } from "../functions/customHook.tsx";
+import { useCurrentUserData } from "../api/apiHooks.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
 import axios from "axios";
-import { useAuth } from "../functions/useAuth.tsx";
+import { useAuth } from "../functions/contexts.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
@@ -37,7 +35,7 @@ export default function SideMenu({
   hide: boolean;
   toggleHide: () => void;
 }) {
-  const authContext = useAuth();
+  const { logOut } = useAuth();
 
   const { data: currentUserData, isLoading, isError } = useCurrentUserData();
   const [expended, setExpended] = useState<ExpendedLabel>(null);
@@ -132,7 +130,7 @@ export default function SideMenu({
                   .get<string>("/auth/logout")
                   .then((r) => {
                     r.data;
-                    authContext?.logOut();
+                    logOut();
                   })
                   .catch(() => {
                     console.log("Cannot logout !");
@@ -297,7 +295,7 @@ function CurrentUserStats() {
   return (
     <div className="flex">
       <Avatar
-        className="m-2 mb-3 mt-3 w-16 h-16 "
+        className="m-2 mb-3 mt-3 h-16 w-16 "
         alt={currentUserData.name}
         status={currentUserData.status}
         img={currentUserData.avatar}
@@ -307,19 +305,6 @@ function CurrentUserStats() {
         <p className="font-semibold text-slate-700">{currentUserData.name}</p>
         <p className="text-slate-400">{"@" + currentUserData.login42}</p>
       </div>
-    </div>
-  );
-}
-
-function CurrentUserEloStats({ user }: { user: UserData }) {
-  return (
-    <div className="flex h-40 rounded-xl bg-stone-50 p-4 shadow-inner">
-      <ProfileElo
-        className="flex bg-green-200 "
-        lineWidth={3}
-        h={50}
-        data={user.eloHistory.slice(-20)}
-      />
     </div>
   );
 }

@@ -15,7 +15,7 @@ import { LoadingSpinnerMessage } from "./Loading";
 import { Form, useNavigate } from "react-router-dom";
 import { RefObject, useState } from "react";
 import { useRef, useEffect } from "react";
-import { useMutDeleteUserDMs, useUserData } from "../functions/customHook";
+import { useMutDeleteUserDMs, useUserData } from "../api/apiHooks";
 
 type btnStateType = "USERS" | "SETTINGS" | "ADDUSER" | "UNSET";
 type chatRoomUser = {

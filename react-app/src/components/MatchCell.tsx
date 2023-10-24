@@ -3,8 +3,8 @@ import DrawPong from "../pong/DrawPong";
 
 const gameStart: IGameState = {
   p1: {
-    pos: {x: 0, y: 52},
-    dim: {w: 2, h: 20},
+    pos: { x: 0, y: 52 },
+    dim: { w: 2, h: 20 },
     score: 0,
     moveUp: false,
     moveDown: false,
@@ -12,8 +12,8 @@ const gameStart: IGameState = {
     afk: true,
   },
   p2: {
-    pos: {x: 166, y: 52},
-    dim: {w: 2, h: 20},
+    pos: { x: 166, y: 52 },
+    dim: { w: 2, h: 20 },
     score: 0,
     moveUp: false,
     moveDown: false,
@@ -28,7 +28,7 @@ const gameStart: IGameState = {
       direction: { x: 1, y: 0 },
       mitosis: false,
       bounce: 0,
-    }
+    },
   ],
   timerAfk: 0,
   type: false,
@@ -49,7 +49,7 @@ export function MatchCell({ victory }: { victory: boolean }) {
           vs <span className="font-bold">player</span>
         </span>
         <div className="h-fit w-fit rounded-xl  border-4 border-stone-500 bg-stone-700">
-            <DrawPong height={104} width={170} gs={gameStart}/>
+          <DrawPong height={104} width={170} gs={gameStart} />
         </div>
         <div className="flex gap-1">
           <span className="w-full text-right font-bold">7</span>

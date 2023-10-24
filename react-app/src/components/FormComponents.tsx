@@ -12,7 +12,7 @@ interface IInputField {
 
 export function Heading({ title }: { title: string }) {
   return (
-    <h1 className=" gradient-hightlight text-center text-5xl py-2 font-bold ">
+    <h1 className=" gradient-hightlight py-2 text-center text-5xl font-bold ">
       {title}
     </h1>
   );
@@ -78,7 +78,7 @@ interface IInputFile {
   mustHave?: boolean;
   disabled?: boolean;
   accept?: string;
-  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void
+  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function InputFile({
@@ -87,7 +87,7 @@ export function InputFile({
   mustHave,
   disabled,
   accept,
-  handleFileChange
+  handleFileChange,
 }: IInputFile) {
   return (
     <div>
@@ -139,9 +139,6 @@ export function InputToggle({
     "-" +
     offLable.replace(" ", "-")
   ).toLocaleLowerCase();
-
-  console.log(onLable, value);
-
   return (
     <div className="relative flex w-32 flex-wrap items-center">
       <input
@@ -165,7 +162,7 @@ export function SubmitBTN({ lable }: { lable?: string }) {
   return (
     <button
       type="submit"
-      className="flex h-10 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500 focus:outline focus:outline-rose-400"
+      className="flex h-10 w-min items-center justify-center rounded-xl border-b-2 border-stone-300 bg-stone-200 px-5 py-2 font-semibold text-slate-500 transition-all duration-100 hover:border-b-4 hover:border-rose-400 hover:text-rose-500"
     >
       {lable || "Submit"}
     </button>

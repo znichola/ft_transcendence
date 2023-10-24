@@ -2,7 +2,7 @@ import {
   useMutDeleteUserFriendRequest,
   useMutPostUserFriendRequest,
   useMutPutUserFriendRequest,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { IconAddUser, IconSent, IconUser } from "./Icons";
 
 export type relationStatus =
@@ -40,7 +40,7 @@ export default function RelationActions({
           <IconAddUser />
         )}
       </div>
-      <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl group-hover:border-slate-100 bg-white transition-all group-hover:w-max group-hover:border group-hover:p-2">
+      <div className="duration-400 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-white transition-all group-hover:w-max group-hover:border group-hover:border-slate-100 group-hover:p-2">
         <div className="text-xs font-semibold text-slate-500">
           <ActionsBTN
             currentUser={currentUser}

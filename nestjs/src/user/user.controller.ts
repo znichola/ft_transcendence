@@ -29,6 +29,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { saveImageToServer } from 'src/utils/avatar-storage';
 import { createReadStream, existsSync } from 'fs';
 import { UserProfileDto } from './dto';
+import { ChatroomEntity } from 'src/chat/entities/chatroom.entity';
 
 @ApiTags('User')
 @Controller('user')
@@ -153,6 +154,15 @@ export class UserController {
     delete userInfo.tfaSecret;
 
     return userInfo;
+  }
+
+  @Get(':username/chatrooms')
+  async getUserChatrooms(@Param('username') username: string, @Req() req: Request): Promise <ChatroomEntity[]>
+  {
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+
+    const chatrooms: ChatroomEntity[] = await this.userService.getChatrooms(username);
+    return chatrooms;
   }
 
   @UseGuards(AuthGuard)

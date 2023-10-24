@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { IMember, TChatroomRole } from "../interfaces";
+import { convertPerms } from "../functions/utils";
 
 export interface IChatroomManageBTN {
   cardMember?: IMember;
@@ -25,16 +26,6 @@ export interface IGenericActionBTN {
   unCheckedMessage: string;
   fixedCheckedMessage?: string;
   fixedUnCheckedMessage?: string;
-}
-
-export function convertPerms(perms: TChatroomRole | undefined) {
-  return perms == undefined
-    ? 0
-    : perms == "MEMBER"
-    ? 1
-    : perms == "ADMIN"
-    ? 2
-    : 3;
 }
 
 export function GenericActionBTN({

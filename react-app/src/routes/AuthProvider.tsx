@@ -1,17 +1,21 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useCurrentUser } from "../functions/customHook";
-import { useAuth } from "../functions/useAuth";
+import { setStatus } from "../api/queryMutations";
+import { useAuth } from "../functions/contexts";
 import {
   pongSocket,
   socketSetHeadersAndReConnect,
   userSocket,
 } from "../socket";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "../api/apiHooks";
 
 export type IAuth = {
   isloggedIn: boolean;
   user: string;
+  tfa: boolean;
+  setFTA: (tfa: boolean) => void;
   logIn: (user: string) => void;
   logOut: () => void;
 };
@@ -20,28 +24,43 @@ export type IAuth = {
 export const AuthContext = createContext<IAuth>({
   isloggedIn: false,
   user: "",
+  tfa: false,
+  setFTA: (_: boolean) => {},
   logIn: (_: string) => {},
   logOut: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [auth, setToken] = useState({ isloggedIn: false, user: "" });
+  const [auth, setToken] = useState({
+    isloggedIn: false,
+    user: "",
+    tfa: false,
+  });
 
   const logIn = (user: string) => {
-    setToken({ isloggedIn: true, user: user });
+    setToken((prev) => {
+      return { ...prev, isloggedIn: true, user: user };
+    });
   };
+
   const logOut = () => {
     axios
       .get<HttpStatusCode>("/auth/logout")
       .catch((e) => console.log("Auth logout: ", e.data));
-    setToken({ isloggedIn: false, user: "" });
+    setToken({ isloggedIn: false, user: "", tfa: false });
     userSocket.disconnect();
     pongSocket.disconnect();
   };
 
+  const setFTA = (tfa: boolean) => {
+    setToken((prev) => {
+      return { ...prev, tfa: tfa };
+    });
+  };
+
   return (
     // spread operator to use contruct a new type by combining these elements
-    <AuthContext.Provider value={{ ...auth, logIn, logOut }}>
+    <AuthContext.Provider value={{ ...auth, logIn, logOut, setFTA }}>
       {children}
     </AuthContext.Provider>
   );
@@ -51,6 +70,7 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (
       foo &&
@@ -59,9 +79,11 @@ export const ProtectedRoute = () => {
       !isLoading &&
       !isError
     ) {
-      console.log("cu:", currentUser, "foo:", foo.user);
       foo.logIn(currentUser);
       socketSetHeadersAndReConnect(currentUser);
+      setTimeout(() => {
+        setStatus(queryClient, currentUser, "ONLINE");
+      }, 300); // idk why but if it's intantanious it get over written so meh
     }
   });
 

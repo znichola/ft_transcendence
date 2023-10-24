@@ -27,9 +27,17 @@ import {
   removeUserFriend,
   getChatroomMember,
   postUserAvatar,
-} from "../Api-axios";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IChatroomPost, IMessagePost, IPutUserProfile } from "../interfaces";
+} from "./axios";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  IChatroomPost,
+  IMessagePost,
+  IPutUserProfile,
+} from "../interfaces";
 import { AxiosError } from "axios";
 
 export function useCurrentUser() {

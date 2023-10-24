@@ -1,10 +1,9 @@
 import {
-  useCurrentUser,
   useMutDeleteUserDMs,
   usePostUserConvoMessage,
   useUserConvoMessages,
   useUserData,
-} from "../functions/customHook";
+} from "../api/apiHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { ErrorMessage } from "../components/ErrorComponents";
@@ -13,12 +12,13 @@ import { UserData } from "../interfaces";
 import { useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { IconArrowUturnLeft } from "../components/Icons";
+import { useAuth } from "../functions/contexts";
 
 export default function DirectMessage() {
   const scrollRef = useRef<null | HTMLDivElement>(null);
   const { login42: t } = useParams<"login42">();
   const target_string = t || "";
-  const { data: user_string } = useCurrentUser();
+  const { user: user_string } = useAuth();
   const { data: target, isSuccess: targetSuccess } = useUserData(target_string);
   const { data: user, isSuccess: userSuccess } = useUserData(user_string);
   // prettier-ignore

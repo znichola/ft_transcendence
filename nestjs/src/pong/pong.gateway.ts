@@ -66,7 +66,7 @@ export class PongGateway
   }
 
   afterInit(server: Server): void {
-    console.log('Init', server);
+    // console.log('Init', server);
   }
 
   //TODO VOIR AVEC LES AUTRES IF OK ONLY ONE SOCKET VALUE PER LOGIN

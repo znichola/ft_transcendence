@@ -11,7 +11,7 @@ import {
   IMember,
   IUsersAll,
   IPutUserProfile,
-} from "./interfaces";
+} from "../interfaces";
 
 // const BASE_URL = "/api/";
 const BASE_URL = import.meta.env.VITE_SITE_URL + "/api/";
@@ -21,29 +21,6 @@ export const authApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
-
-authApi.interceptors.response.use(
-  function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-  },
-  function (error) {
-    // const foo = useAuth();
-
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    if (error.response.status) {
-      // console.log(401, "error found baby!");
-      // user?.logOut();
-      // foo?.logOut()
-      // console.log(AuthContext);
-      console.log("Error intercepted:", error.response.status);
-    }
-    return Promise.reject(error);
-    // https://stackoverflow.com/questions/62888255/how-to-use-react-usecontext-in-a-function-that-does-not-render-any-components
-  },
-);
 
 //-------------------------------------------User-------------------------------------------------------//
 
@@ -66,6 +43,29 @@ export const getUsersAll = async (params: IUsersAll) => {
 
 export const getUserToken = async () => {
   return authApi.get<string>("/auth/token").then((r) => r.data);
+};
+
+// not used!
+export const getUserQRcode = async (user: string) => {
+  return authApi.get<File>(`/tfa/${user}`).then((r) => r.data);
+};
+
+export const postTFACodeLogin = async (user: string, code: string) => {
+  return authApi
+    .post<HttpStatusCode>(`/tfa/${user}/login`, { tfaCode: code })
+    .then((r) => r.data);
+};
+
+export const postTFACodeEnable = async (user: string, code: string) => {
+  return authApi
+    .post<HttpStatusCode>(`/tfa/${user}/enable`, { tfaCode: code })
+    .then((r) => r.data);
+};
+
+export const patchTFACodeDisable = async (user: string) => {
+  return authApi
+    .patch<HttpStatusCode>(`/tfa/${user}/disable`)
+    .then((r) => r.data);
 };
 
 //--------------------------------------------Friends----------------------------------------------------//

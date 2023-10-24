@@ -5,8 +5,8 @@ import {
   useMutUserProfile,
   useUserData,
   useUserFriends,
-} from "../functions/customHook";
-import { useAuth } from "../functions/useAuth";
+} from "../api/apiHooks";
+import { useAuth, useNotification } from "../functions/contexts";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { useEffect, useRef, useState } from "react";
@@ -24,7 +24,9 @@ import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
-import { AxiosError, AxiosResponse } from "axios";
+import { CodeInput } from "../components/CodeTFAinput";
+import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
+import { useQuery } from "@tanstack/react-query";
 
 export default function UserProfile() {
   // react states
@@ -32,17 +34,16 @@ export default function UserProfile() {
 
   // data fetching
   const { login42 } = useParams<"login42">();
-  const cu = useAuth();
-  const curretUser = cu?.user || "";
+  const { user: currentUser } = useAuth();
   const {
-    data: curretUserFriends,
+    data: currentUserFriends,
     isLoading: isFriLoading,
     isError: isFriError,
-  } = useUserFriends(curretUser);
-  const { data: profileUser, isLoading, isError } = useUserData(login42 || "");
+  } = useUserFriends(currentUser);
+  const { data: profileUser, isLoading, isError } = useUserData(login42);
 
-  const [name, setName] = useState(profileUser?.name || "");
-  const [bio, setBio] = useState(profileUser?.bio);
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState<string | undefined>(undefined);
 
   // profile elo, maybe this should be abstracted into a component
   // feels a bit messay having this code that's not related to the rest of the page
@@ -86,7 +87,7 @@ export default function UserProfile() {
           />
         }
       >
-        {curretUser === login42 ? (
+        {currentUser === login42 ? (
           <ButtonGeneric
             icon={IconGear}
             setBTNstate={setButtonState}
@@ -104,8 +105,8 @@ export default function UserProfile() {
         ) : (
           <UserInteractions
             cardUser={profileUser}
-            userFriends={curretUserFriends}
-            currentUser={curretUser}
+            userFriends={currentUserFriends}
+            currentUser={currentUser}
           />
         )}
       </BoxMenu>
@@ -232,7 +233,7 @@ function CurrentUserSettings({
         user={user}
       />
       <button
-        className="w-[32rem] px-12 text-end italic text-slate-400 underline"
+        className="w-[32rem] px-12 text-end italic text-slate-400 underline hover:text-rose-500"
         onClick={() => {
           setName(user.name);
           setBio(user.bio);
@@ -258,7 +259,7 @@ interface IModifyForm {
 function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
   const mp = useMutUserProfile(user.login42);
   const msg = "remember to save changes";
-  const [err, setErr] = useState(msg);
+  const { addNotif } = useNotification();
 
   return (
     <form
@@ -266,33 +267,32 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted");
-        mp.mutate({ name: name, bio: bio });
-        mp.isError
-          ? setErr(
-              "Error: " +
-                ((mp.error as AxiosError).response as AxiosResponse).data
-                  .message,
-            )
-          : setErr(msg);
+        mp.mutate(
+          { name: name, bio: bio },
+          {
+            onSuccess: () =>
+              addNotif({ type: "SUCCESS", message: "Profile modified" }),
+          },
+        );
       }}
     >
       <InputField
         value={name}
         lable="Display name"
         max={20}
-        placeholder={name}
+        placeholder={user.name}
         onChange={(e) => setName(e.currentTarget.value)}
       />
       <InputField
         value={bio || ""}
         lable="Bio"
         max={140}
-        placeholder={bio || "I played pong back in the 70s."}
+        placeholder={user.bio || "I played pong back in the 70s."}
         onChange={(e) => setBio(e.currentTarget.value)}
       />
       <div className="flex text-slate-500 ">
         <p className="mr-6 flex-grow border-r-2 border-rose-400 pr-6 text-right">
-          {err}
+          {msg}
         </p>
         <SubmitBTN />
       </div>
@@ -303,7 +303,7 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
 function ProfileModifyAvatar({ user }: { user: UserData }) {
   const [file, setFile] = useState<File>();
   const foo = useMutUserAvatar(user.login42);
-
+  const { addNotif } = useNotification();
   // console.log("file:", file);
   return (
     <form
@@ -311,7 +311,11 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted new image");
-        if (file) foo.mutate(file);
+        if (file)
+          foo.mutate(file, {
+            onSuccess: () =>
+              addNotif({ type: "SUCCESS", message: "Profile image modified" }),
+          });
       }}
     >
       <div className="w-full">
@@ -333,21 +337,34 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 }
 
 function ProfileModifyTFA() {
-  const [tfa, setTFA] = useState(false);
+  const { user, tfa, setFTA } = useAuth();
+  const [activateTFA, setActivateTFA] = useState(tfa);
+  const [openTFAwindow, setOpenTFAwindowp] = useState(false);
+
+  function toggelTFA() {
+    if (activateTFA) {
+      setActivateTFA(false);
+      patchTFACodeDisable(user);
+      setFTA(false);
+    } else {
+      setOpenTFAwindowp(true);
+    }
+  }
 
   return (
     <div className="flex flex-row justify-center pb-10">
       <InputToggle
         onLable="2FA Enabled"
         offLable="2FA Disabled"
-        value={tfa}
-        onToggle={() => setTFA(tfa ? false : true)}
+        value={activateTFA || openTFAwindow}
+        onToggle={toggelTFA}
       />
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
         <p className="w-72 pb-3 text-slate-400">
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
+      {openTFAwindow ? <SetupTFA isOpen={setOpenTFAwindowp} /> : <></>}
     </div>
   );
 }
@@ -365,5 +382,68 @@ function IntroDescription() {
       </a>
       .
     </div>
+  );
+}
+
+function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
+  const { user } = useAuth();
+  const [code, setCode] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const { isLoading, isError, isSuccess } = useQuery({
+    enabled: submitted,
+    retry: false,
+    queryFn: () => postTFACodeEnable(user, code),
+  });
+  const { addNotif } = useNotification();
+  useEffect(() => {
+    if (isError && submitted) {
+      setSubmitted(false);
+      setCode("");
+    }
+    if (isSuccess && submitted) {
+      console.log("Two factor authentication was set up successfully");
+      addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
+    }
+  }, [addNotif, isError, isSuccess, submitted]);
+
+  return (
+    <div className="box-theme absolute top-0 bg-stone-50 p-8">
+      <QRcode />
+      <hr className="my-4 h-px w-full border-0 bg-slate-100" />
+      {isLoading && submitted ? (
+        <div className="h-10 w-10 animate-spin rounded-full border-8 border-slate-700 border-b-transparent bg-stone-50" />
+      ) : (
+        <CodeInput
+          code={code}
+          setCode={setCode}
+          error={isError}
+          submit={() => setSubmitted(true)}
+        />
+      )}
+      <button
+        type="submit"
+        onClick={() => isOpen(false)}
+        className="px-12 text-end italic text-slate-400 underline hover:text-rose-500"
+      >
+        close
+      </button>
+    </div>
+  );
+}
+
+function QRcode() {
+  const { user } = useAuth();
+  const qrcode = `${import.meta.env.VITE_SITE_URL}/api/tfa/${user}`;
+  return (
+    <>
+      <img className="aspect-square w-full" src={qrcode} alt="qrcode" />
+      <p className="pt-3 text-center ">
+        Open the google
+        <br />
+        <b className="italic text-sky-400">authentication app</b>
+        <br />
+        and scan this QRcode
+      </p>
+    </>
   );
 }

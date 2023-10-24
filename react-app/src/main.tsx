@@ -6,8 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import axios from "axios";
 
 // axios.defaults.baseURL = "/api/";
-axios.defaults.baseURL =
-  import.meta.env.VITE_SITE_URL + "/api/";
+axios.defaults.baseURL = import.meta.env.VITE_SITE_URL + "/api/";
 
 axios.defaults.withCredentials = true;
 // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
@@ -46,7 +45,7 @@ const router = createBrowserRouter([
     element: <Auth />,
   },
   {
-    path: "/tfa",
+    path: "/tfa/:login42",
     element: <AuthLoginTFA />,
   },
   {
