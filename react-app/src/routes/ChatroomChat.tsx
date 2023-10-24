@@ -37,7 +37,9 @@ import {
   useUserData,
   useMutChatroomMute,
   useMutDeleteChatroomMute,
-  useChatroomMember,
+  addUserChatroom,
+  useUserChatrooms,
+  useMutJoinChatroom,
 } from "../api/apiHooks";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
@@ -45,7 +47,7 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/contexts";
 import { Heading, PreHeading } from "../components/FormComponents";
-import { UseQueryResult, useQuery } from "@tanstack/react-query";
+import { UseQueryResult, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "../api/axios";
 import {
   GenericActionBTN,
@@ -56,76 +58,39 @@ import { isMatch } from "../functions/utils";
 import { AxiosError } from "axios";
 import { convertPerms } from "../functions/utils";
 
-function JoinChatRoom({
-  id,
-  login42,
-  reload,
-}: {
-  id: string;
-  login42: string;
-  reload: () => void;
-}) {
+function JoinChatRoom({ id, login42 }:{id: string, login42: string}) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined,
-  );
-  const { data: chatroomData, isLoading, isError } = useChatroom(id || "");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const response_value: AxiosError<{ message: string }> | undefined =
-      await authApi
-        .post("/chatroom/" + id + "/members/", {
-          login42: login42,
-          password: password,
-        })
-        .catch((res) => res);
-    if (response_value?.status == 201) {
-      console.log("All good !");
-      reload();
-    } else {
-      console.log("Error 42 : ", response_value?.response?.data.message);
-      setErrorMessage(response_value?.response?.data.message);
-    }
-  }
-
+  const {data: chatroomData, isLoading, isError} = useChatroom(id);
+  const joinChatroom = useMutJoinChatroom();
+  
   if (isLoading) {
-    return <LoadingSpinnerMessage message="Loading chatroom data..." />;
-  }
+    return(
+      <LoadingSpinnerMessage message="Loading chatroom data..."/>
+      );
+    }
   if (isError) {
-    return <ErrorMessage message="Loading chatroom data..." />;
-  }
+    return(
+      <ErrorMessage message="Loading chatroom data..."/>
+      );
+    }
+    
 
-  return (
+  return(
     <form
-      className="flex flex-col items-center gap-3 rounded-xl border-b-4 bg-stone-50 p-7 font-semibold shadow-lg"
-      onSubmit={handleSubmit}
+      className="flex bg-stone-50 flex-col items-center gap-3 shadow-lg p-7 font-semibold rounded-xl border-b-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        joinChatroom.mutate({chatroom: chatroomData, payload: {login42: login42, password: password}});
+      }}
     >
-      <h1 className="text-3xl">
-        {"You are about to join : " + chatroomData.name}
-      </h1>
-      <div
-        className={
-          "flex items-center " +
-          (chatroomData.status == "PROTECTED" ? "" : "hidden")
-        }
-      >
-        <input
-          className="rounded-full p-2 pr-8"
-          type={showPassword ? "text" : "password"}
-          onChange={(e) => setPassword(e.currentTarget.value)}
-          value={password}
-          placeholder="Enter room password"
-        />
-        <div
-          className="-translate-x-7"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? <IconPasswordHide /> : <IconPasswordShow />}
+      <h1 className="text-3xl">{"You are about to join : " + chatroomData.name}</h1>
+        <div className={"flex items-center " + (chatroomData.status == 'PROTECTED' ? "" : "hidden")}>
+          <input className="p-2 rounded-full pr-8" type={showPassword ? "text" : "password"} onChange={(e) => setPassword(e.currentTarget.value)} value={password} placeholder="Enter room password"/>
+          <div className="-translate-x-7" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <IconPasswordHide /> : <IconPasswordShow/>}
+          </div>
         </div>
-      </div>
-      <h2 className="text-red-600">{errorMessage}</h2>
       <button className="rounded-lg bg-gradient-to-br from-fuchsia-600 to-orange-500 p-2 text-2xl font-bold text-white">
         Join
       </button>
@@ -137,22 +102,9 @@ export default function ChatroomManager() {
   const { id } = useParams<"id">();
   const chatroomID = id || "";
   const currentUser = useAuth()?.user || "";
-  const [reload, setReload] = useState(false);
-  function reloadComponent() {
-    setReload(!reload);
-  }
+  const { data: chatrooms, isLoading, isError } = useUserChatrooms(currentUser);
 
-  const [errorCode, setErrorCode] = useState<number | undefined>(undefined);
-
-  function handleError(axiosError: AxiosError) {
-    setErrorCode(axiosError.response?.status);
-  }
-
-  const { isLoading, isError } = useChatroomMember(
-    chatroomID,
-    currentUser,
-    handleError,
-  ); //TODO: enlever quand can get user chatrooms
+  console.log("Username = ", currentUser);
 
   if (currentUser == "" || isLoading) {
     return (
@@ -162,19 +114,13 @@ export default function ChatroomManager() {
     );
   }
   if (isError) {
-    if (errorCode == 403) {
-      //TODO changer dès que on a la liste des salles d'un user. Check si tout marche bien après (Reload automatique si fonctionne)
-      return (
-        <JoinChatRoom
-          id={chatroomID}
-          login42={currentUser}
-          reload={reloadComponent}
-        />
-      );
-    }
-    return <ErrorMessage message={"Error: failed to load your member data"} />;
+    return <ErrorMessage message={"Error: failed to load your member data"}/>;
   }
-  return <ChatroomChat />;
+
+  if (!chatrooms.find((c) => c.id.toString() == chatroomID)) {
+    return <JoinChatRoom id={chatroomID} login42={currentUser}/>;
+  }
+  return <ChatroomChat/>
 }
 
 //TODO peut passer le currentUser en paramètre

@@ -16,8 +16,8 @@ import {
   getUserFriends,
   postChatroomBan,
   postChatroomMute,
-  postNewChatromm,
-  postNewChatrommMessage,
+  postNewChatroom,
+  postNewChatroomMessage,
   postNewChatroomMember,
   postUserConvoMessage,
   postUserFriendRequest,
@@ -27,16 +27,21 @@ import {
   removeUserFriend,
   getChatroomMember,
   postUserAvatar,
+  getUserChatrooms
 } from "./axios";
 import {
+  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  IChatroom,
   IChatroomPost,
   IMessagePost,
   IPutUserProfile,
+  TUserStatus,
+  UserData,
 } from "../interfaces";
 import { AxiosError } from "axios";
 
@@ -298,6 +303,20 @@ export function useChatroomMember(
   });
 }
 
+export function useUserChatrooms(
+  login42: string, //TODO: enlever si api le permet
+  handleError?: (axiosError: AxiosError) => void,
+) {
+  return useQuery({
+    queryKey: ["UserChatrooms"],
+    queryFn: () => getUserChatrooms(login42),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: login42 != "",
+    onError: handleError,
+  });
+}
+
 export function useChatroomMessages(id: string) {
   return useQuery({
     queryKey: ["ChatroomMessages", id],
@@ -311,11 +330,13 @@ export function useChatroomMessages(id: string) {
 export function useMutPostNewChatroom() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: IChatroomPost) => postNewChatromm(payload),
-    onSuccess: () => {
+    mutationFn: (payload: IChatroomPost) => postNewChatroom(payload),
+    onSuccess: (res) => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomList"],
       });
+      queryClient.setQueryData(["UserChatrooms"], (oldChatrooms: IChatroom[] | undefined) =>
+        oldChatrooms ? oldChatrooms.concat(res) : oldChatrooms)
     },
   });
 }
@@ -323,7 +344,7 @@ export function useMutPostNewChatroom() {
 export function useMutPostChatroomMessage(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: IMessagePost) => postNewChatrommMessage(id, payload),
+    mutationFn: (payload: IMessagePost) => postNewChatroomMessage(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomMessages", id],
@@ -432,4 +453,24 @@ export function useMutDeleteChatroomMute(id: string, login42: string) {
         queryKey: ["ChatroomMemebers", id],
       }),
   });
+}
+
+export function useMutJoinChatroom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ chatroom, payload }:{chatroom: IChatroom, payload: {login42: string, password: string}}) => postNewChatroomMember(chatroom.id.toString(), payload),
+    onSuccess: (_, variables) => {
+      console.log("Chatroom Joined !");
+      queryClient.setQueryData(["UserChatrooms"], (oldChatrooms: IChatroom[] | undefined) =>
+        oldChatrooms ? oldChatrooms.concat(variables.chatroom) : oldChatrooms,
+      );
+    },
+    onError: () => console.log("Error !!!")
+  });
+}
+
+export function setStatus(qc: QueryClient, user: string, status: TUserStatus) {
+  qc.setQueryData(["UserData", user], (oldUser: UserData | undefined) =>
+    oldUser ? { ...oldUser, status: status } : oldUser,
+  );
 }
