@@ -1,10 +1,10 @@
-import { ReactNode, useContext, useEffect, useState } from "react";
-import { NotificationContext } from "../routes/NotificationProvider";
+import { ReactNode, useEffect, useState } from "react";
 import { authApi } from "./axios";
+import { useNotification } from "../functions/contexts";
 
 export function AxiosInterceptors({ children }: { children: ReactNode }) {
   const [isSet, setIsSet] = useState(false);
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
   useEffect(() => {
     setIsSet(true);
     const interceptor = authApi.interceptors.response.use(
@@ -13,8 +13,9 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
       },
       (error) => {
         if (error.response.status) {
+          console.log(error.response);
           addNotif({
-            from: error.response.status,
+            from: error.response.statusText,
             message: error.response.data.message,
             type: "ERROR",
           });

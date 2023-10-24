@@ -6,10 +6,10 @@ import {
   useUserData,
   useUserFriends,
 } from "../api/apiHooks";
-import { useAuth } from "../functions/useAuth";
+import { useAuth, useNotification } from "../functions/contexts";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FriendData, UserData, UserFriends } from "../interfaces";
 import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
 import {
@@ -27,7 +27,6 @@ import ProfileElo from "../components/ProfileElo";
 import { CodeInput } from "../components/CodeTFAinput";
 import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
-import { NotificationContext } from "./NotificationProvider";
 
 export default function UserProfile() {
   // react states
@@ -260,7 +259,7 @@ interface IModifyForm {
 function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
   const mp = useMutUserProfile(user.login42);
   const msg = "remember to save changes";
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
 
   return (
     <form
@@ -304,7 +303,7 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
 function ProfileModifyAvatar({ user }: { user: UserData }) {
   const [file, setFile] = useState<File>();
   const foo = useMutUserAvatar(user.login42);
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
   // console.log("file:", file);
   return (
     <form
@@ -395,7 +394,7 @@ function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
     retry: false,
     queryFn: () => postTFACodeEnable(user, code),
   });
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
   useEffect(() => {
     if (isError && submitted) {
       setSubmitted(false);

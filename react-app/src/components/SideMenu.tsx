@@ -22,7 +22,7 @@ import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
 import axios from "axios";
-import { useAuth } from "../functions/useAuth.tsx";
+import { useAuth } from "../functions/contexts.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
@@ -35,7 +35,7 @@ export default function SideMenu({
   hide: boolean;
   toggleHide: () => void;
 }) {
-  const authContext = useAuth();
+  const { logOut } = useAuth();
 
   const { data: currentUserData, isLoading, isError } = useCurrentUserData();
   const [expended, setExpended] = useState<ExpendedLabel>(null);
@@ -130,7 +130,7 @@ export default function SideMenu({
                   .get<string>("/auth/logout")
                   .then((r) => {
                     r.data;
-                    authContext?.logOut();
+                    logOut();
                   })
                   .catch(() => {
                     console.log("Cannot logout !");

@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../functions/useAuth";
+import { useAuth } from "../functions/contexts";
 import { useEffect } from "react";
 // import { userSocket } from "../socket";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
-  const auth = useAuth();
+  const {setFTA, logIn} = useAuth();
   const navigate = useNavigate();
   const {
     data: authResp,
@@ -16,6 +16,7 @@ export default function Auth() {
     isError,
   } = useQuery({
     queryKey: ["auth"],
+    retry: false,
     queryFn: () =>
       axios
         .post<{ login: string; tfa: boolean }>(
@@ -29,9 +30,10 @@ export default function Auth() {
   useEffect(() => {
     if (!isLoading && !isError) {
       if (authResp.tfa) {
-        auth.setFTA(true);
+        setFTA(true);
         navigate("/tfa/" + authResp.login);
-      } else if (auth) {
+      } else {
+        logIn(authResp.login);
         navigate("/play");
       }
     }

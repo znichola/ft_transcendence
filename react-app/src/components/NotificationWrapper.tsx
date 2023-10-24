@@ -1,15 +1,14 @@
-import { useContext } from "react";
 import { IconX } from "./Icons";
 import { useNavigate } from "react-router-dom";
 import { INotification, TNotif } from "../interfaces";
-import { NotificationContext } from "../routes/NotificationProvider";
+import { useNotification } from "../functions/contexts";
 
 export default function NotificationWrapper({
   className: cn,
 }: {
   className: string;
 }) {
-  const { notifications, removeNotif } = useContext(NotificationContext);
+  const { notifications, removeNotif } = useNotification();
 
   return (
     <div
@@ -68,9 +67,11 @@ function MsgText({
 }) {
   return (
     <div className="flex-grow">
-      <h3 className="pb-1 font-semibold capitalize">{type?.toLowerCase()}</h3>
+      <h3 className="pb-1 font-semibold capitalize">
+        {from && type == "ERROR" ? from : type?.toLowerCase()}
+      </h3>
       <p className="pl-3">
-        {from && type == "MESSAGE" ? <b>{from}: </b> : ""}
+        {from && type == "MESSAGE" ? <b>{from}:</b> : ""}
         {type == "CLASSICAL" || type == "SPECIAL" ? (
           <span>
             Accept <b>{from}</b>'s challenge ?

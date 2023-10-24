@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
-import { useAuth } from "../functions/useAuth";
+import { useAuth } from "../functions/contexts";
 import { socketSetHeadersAndReConnect } from "../socket";
 import { randString } from "../functions/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -59,7 +59,7 @@ function DevLogin() {
   const [color, setColor] = useState<"bg-rose-500" | "bg-sky-500">(
     "bg-sky-500",
   );
-  const authContext = useAuth();
+  const { logIn } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   return (
@@ -68,15 +68,12 @@ function DevLogin() {
         axios
           .get("/auth/dev/", { params: { user: login } })
           .then(async () => {
-            authContext.logIn(login);
-            authContext.setFTA(true);
-            console.log(authContext);
+            logIn(login);
             navigate("/play");
             await socketSetHeadersAndReConnect(login);
             setTimeout(() => {
-              setStatus(qc, authContext.user, "ONLINE");
+              setStatus(qc, login, "ONLINE");
             }, 300);
-            console.log("dev: signed in!");
           })
           .catch(() => setColor("bg-rose-500"));
       }}

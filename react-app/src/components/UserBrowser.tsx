@@ -12,7 +12,7 @@ import { authApi } from "../api/axios";
 import { IUsersAll, UserFriends } from "../interfaces";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useUserData, useUserFriends } from "../api/apiHooks";
-import { useAuth } from "../functions/useAuth";
+import { useAuth } from "../functions/contexts";
 import { LoadingSpinner, LoadingSpinnerMessage } from "./Loading";
 import { ErrorMessage } from "./ErrorComponents";
 import { useIntersection } from "../functions/uneIntersection";
@@ -76,7 +76,7 @@ export default function UserBrowser({ title }: { title: string }) {
   };
 
   // api calls
-  const currentUser = useAuth()?.user || "";
+  const { user: currentUser } = useAuth();
   const {
     data: relations,
     isLoading: isFriLoading,

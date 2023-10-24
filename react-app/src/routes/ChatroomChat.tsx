@@ -43,7 +43,7 @@ import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
-import { useAuth } from "../functions/useAuth";
+import { useAuth } from "../functions/contexts";
 import { Heading, PreHeading } from "../components/FormComponents";
 import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import { authApi } from "../api/axios";
@@ -779,8 +779,6 @@ function MuteUserBTN({
 }: IChatroomManageBTN) {
   const mute = useMutChatroomMute(id, cardLogin42);
   const unMute = useMutDeleteChatroomMute(id, cardLogin42);
-
-  console.log("mute:", cardMember);
   const canModify = convertPerms(userMember?.role) >= 2;
 
   return (

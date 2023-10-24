@@ -12,7 +12,7 @@ import { UserData } from "../interfaces";
 import { useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { IconArrowUturnLeft } from "../components/Icons";
-import { useAuth } from "../functions/useAuth";
+import { useAuth } from "../functions/contexts";
 
 export default function DirectMessage() {
   const scrollRef = useRef<null | HTMLDivElement>(null);

@@ -9,13 +9,12 @@ import { LoadingSpinnerMessage } from "../components/Loading";
 import { useChatroomList, useMutPostNewChatroom } from "../api/apiHooks";
 import { IChatroomPost, IChatroom } from "../interfaces";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { UserIcon } from "../components/UserIcon";
 import { Heading, InputToggle, PreHeading } from "../components/FormComponents";
-import { useAuth } from "../functions/useAuth";
+import { useAuth, useNotification } from "../functions/contexts";
 import { SearchComponent } from "../components/UserBrowser";
-import { NotificationContext } from "./NotificationProvider";
 
 interface ISettings {
   isPublic: boolean;
@@ -112,7 +111,7 @@ function CreateChatroomUI() {
   const [isPrivate, setIsPrivate] = useState(false);
   const navigate = useNavigate();
   const newChatroom = useMutPostNewChatroom();
-  const { addNotif } = useContext(NotificationContext);
+  const { addNotif } = useNotification();
   const foo = useAuth();
   const cu = foo?.user || "";
 
