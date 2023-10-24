@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { socketSetHeadersAndReConnect, userSocket } from "../socket";
+import { socketSetHeadersAndReConnect, dmSocket } from "../socket";
 import { useAuth } from "../functions/contexts";
 import { useQueryClient } from "@tanstack/react-query";
 import { setStatus } from "../api/queryMutations";
@@ -14,7 +14,7 @@ export default function SocketTest() {
 }
 
 function App() {
-  const [isConnected, setIsConnected] = useState(userSocket.connected);
+  const [isConnected, setIsConnected] = useState(dmSocket.connected);
   const qc = useQueryClient();
   const { user } = useAuth();
 
@@ -29,12 +29,12 @@ function App() {
       setStatus(qc, user, "OFFLINE");
     }
 
-    userSocket.on("connect", onConnect);
-    userSocket.on("disconnect", onDisconnect);
+    dmSocket.on("connect", onConnect);
+    dmSocket.on("disconnect", onDisconnect);
 
     return () => {
-      userSocket.off("connect", onConnect);
-      userSocket.off("disconnect", onDisconnect);
+      dmSocket.off("connect", onConnect);
+      dmSocket.off("disconnect", onDisconnect);
     };
   }, [qc, user]);
 
@@ -43,6 +43,7 @@ function App() {
       <UpdateHeaders />
       <ConnectionState isConnected={isConnected} />
       <ConnectionManager />
+      <MyForm />
     </div>
   );
 }
@@ -58,12 +59,12 @@ function ConnectionState({ isConnected }: { isConnected: boolean }) {
 function ConnectionManager() {
   return (
     <>
-      <button className="m-2 border-2 p-2" onClick={() => userSocket.connect()}>
+      <button className="m-2 border-2 p-2" onClick={() => dmSocket.connect()}>
         Connect
       </button>
       <button
         className="m-2 border-2 p-2"
-        onClick={() => userSocket.disconnect()}
+        onClick={() => dmSocket.disconnect()}
       >
         Disconnect
       </button>
@@ -84,5 +85,30 @@ function UpdateHeaders() {
     >
       socket manager reconnect
     </button>
+  );
+}
+
+
+function MyForm() {
+  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+
+    dmSocket.emit("message", value, () => {
+      setIsLoading(false);
+    });
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input onChange={(e) => setValue(e.target.value)} />
+
+      <button className="m-2 border-2 p-1" type="submit" disabled={isLoading}>
+        Submit
+      </button>
+    </form>
   );
 }
