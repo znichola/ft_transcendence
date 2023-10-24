@@ -56,49 +56,80 @@ import { isMatch } from "../functions/utils";
 import { AxiosError } from "axios";
 import { convertPerms } from "../functions/utils";
 
-function JoinChatRoom({id, login42, reload}:{id: string, login42: string, reload: () => void}) {
+function JoinChatRoom({
+  id,
+  login42,
+  reload,
+}: {
+  id: string;
+  login42: string;
+  reload: () => void;
+}) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const {data: chatroomData, isLoading, isError} = useChatroom(id || "");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined,
+  );
+  const { data: chatroomData, isLoading, isError } = useChatroom(id || "");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const response_value: AxiosError<{message: string}> | undefined = await authApi.post("/chatroom/" + id + "/members/", {login42: login42, password: password})
-    .catch(res => res)
+    const response_value: AxiosError<{ message: string }> | undefined =
+      await authApi
+        .post("/chatroom/" + id + "/members/", {
+          login42: login42,
+          password: password,
+        })
+        .catch((res) => res);
     if (response_value?.status == 201) {
       console.log("All good !");
       reload();
-    }
-    else {
+    } else {
       console.log("Error 42 : ", response_value?.response?.data.message);
       setErrorMessage(response_value?.response?.data.message);
     }
   }
 
   if (isLoading) {
-    return(
-      <LoadingSpinnerMessage message="Loading chatroom data..."/>
-    );
+    return <LoadingSpinnerMessage message="Loading chatroom data..." />;
   }
   if (isError) {
-    return(
-      <ErrorMessage message="Loading chatroom data..."/>
-    );
+    return <ErrorMessage message="Loading chatroom data..." />;
   }
 
-  return(
-      <form className="flex bg-stone-50 flex-col items-center gap-3 shadow-lg p-7 font-semibold rounded-xl border-b-4" onSubmit={handleSubmit}>
-        <h1 className="text-3xl">{"You are about to join : " + chatroomData.name}</h1>
-        <div className={"flex items-center " + (chatroomData.status == 'PROTECTED' ? "" : "hidden")}>
-          <input className="p-2 rounded-full pr-8" type={showPassword ? "text" : "password"} onChange={(e) => setPassword(e.currentTarget.value)} value={password} placeholder="Enter room password"/>
-          <div className="-translate-x-7" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <IconPasswordHide /> : <IconPasswordShow/>}
-          </div>
+  return (
+    <form
+      className="flex flex-col items-center gap-3 rounded-xl border-b-4 bg-stone-50 p-7 font-semibold shadow-lg"
+      onSubmit={handleSubmit}
+    >
+      <h1 className="text-3xl">
+        {"You are about to join : " + chatroomData.name}
+      </h1>
+      <div
+        className={
+          "flex items-center " +
+          (chatroomData.status == "PROTECTED" ? "" : "hidden")
+        }
+      >
+        <input
+          className="rounded-full p-2 pr-8"
+          type={showPassword ? "text" : "password"}
+          onChange={(e) => setPassword(e.currentTarget.value)}
+          value={password}
+          placeholder="Enter room password"
+        />
+        <div
+          className="-translate-x-7"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? <IconPasswordHide /> : <IconPasswordShow />}
         </div>
-        <h2 className="text-red-600">{errorMessage}</h2>
-        <button className="bg-gradient-to-br text-2xl from-fuchsia-600 to-orange-500 rounded-lg p-2 text-white font-bold">Join</button>
-      </form>
+      </div>
+      <h2 className="text-red-600">{errorMessage}</h2>
+      <button className="rounded-lg bg-gradient-to-br from-fuchsia-600 to-orange-500 p-2 text-2xl font-bold text-white">
+        Join
+      </button>
+    </form>
   );
 }
 
@@ -117,18 +148,33 @@ export default function ChatroomManager() {
     setErrorCode(axiosError.response?.status);
   }
 
-  const { isLoading, isError } = useChatroomMember(chatroomID, currentUser, handleError); //TODO: enlever quand can get user chatrooms
+  const { isLoading, isError } = useChatroomMember(
+    chatroomID,
+    currentUser,
+    handleError,
+  ); //TODO: enlever quand can get user chatrooms
 
   if (currentUser == "" || isLoading) {
-    return <LoadingSpinnerMessage message={"Loading your " + (isLoading ? "member" : "user") + " data..."}/>;
+    return (
+      <LoadingSpinnerMessage
+        message={"Loading your " + (isLoading ? "member" : "user") + " data..."}
+      />
+    );
   }
   if (isError) {
-    if (errorCode == 403) { //TODO changer dès que on a la liste des salles d'un user. Check si tout marche bien après (Reload automatique si fonctionne)
-      return <JoinChatRoom id={chatroomID} login42={currentUser} reload={reloadComponent}/>;
+    if (errorCode == 403) {
+      //TODO changer dès que on a la liste des salles d'un user. Check si tout marche bien après (Reload automatique si fonctionne)
+      return (
+        <JoinChatRoom
+          id={chatroomID}
+          login42={currentUser}
+          reload={reloadComponent}
+        />
+      );
     }
-    return <ErrorMessage message={"Error: failed to load your member data"}/>;
+    return <ErrorMessage message={"Error: failed to load your member data"} />;
   }
-  return <ChatroomChat/>
+  return <ChatroomChat />;
 }
 
 //TODO peut passer le currentUser en paramètre
@@ -144,19 +190,23 @@ export function ChatroomChat() {
     isError: isChatError,
     isLoading: isChatLoading,
   } = useChatroom(chatroomID);
-  
+
   const {
     data: members,
     isLoading: isMembersLoading,
     isError: isMembersError,
     isSuccess: isMembersSuccess,
   } = useChatroomMembers(chatroomID);
-  
+
   //Pour test dev TODO enlever
-  const currentMember = isMembersSuccess && currentUser != "" ? members?.find((m) => m.login42 == currentUser) : undefined
-  const hasAdminRights: boolean = !!currentMember && currentMember.role != "MEMBER";
+  const currentMember =
+    isMembersSuccess && currentUser != ""
+      ? members?.find((m) => m.login42 == currentUser)
+      : undefined;
+  const hasAdminRights: boolean =
+    !!currentMember && currentMember.role != "MEMBER";
   const bannedUserQuery = useChatroomBanned(hasAdminRights ? chatroomID : "");
-  
+
   const auAUth = useAuth();
   const { data: user, isSuccess } = useUserData(auAUth?.user);
 
@@ -168,7 +218,8 @@ export function ChatroomChat() {
     return <LoadingSpinnerMessage message="Loading members data ..." />;
 
   //Error cases
-  if (!isSuccess || !currentMember) return <ErrorMessage message="error loading current user" />;
+  if (!isSuccess || !currentMember)
+    return <ErrorMessage message="error loading current user" />;
   if (isChatError) return <ErrorMessage message="error loading Chatroom" />;
   if (isMembersError) return <ErrorMessage message="error loading Members" />;
 
@@ -189,7 +240,14 @@ export function ChatroomChat() {
     {
       c: "ADD_USERS",
       i: IconAddUser,
-      f: <AddUsersUI chatroom={chatroom} members={members} currentMember={currentMember} bannedUsersQuery={bannedUserQuery} />,
+      f: (
+        <AddUsersUI
+          chatroom={chatroom}
+          members={members}
+          currentMember={currentMember}
+          bannedUsersQuery={bannedUserQuery}
+        />
+      ),
     },
     {
       c: "SETTINGS",
@@ -431,9 +489,7 @@ function AddUsersUI({
             />
           ) : (
             <AddUsersCard
-              isMember={
-                members.find((m) => m.login42 === u) ? true : false
-              }
+              isMember={members.find((m) => m.login42 === u) ? true : false}
               key={u}
               login42={u}
               userRole={currentMember?.role}

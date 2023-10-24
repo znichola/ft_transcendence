@@ -13,7 +13,10 @@ function Canvas({ width, height }: { width: number; height: number }) {
 }
 
 function useCanvas(
-  draw: (ctx: CanvasRenderingContext2D | null | undefined, gs: IGameState) => void,
+  draw: (
+    ctx: CanvasRenderingContext2D | null | undefined,
+    gs: IGameState,
+  ) => void,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // const gameState = useRef<IGameState>(gameStart);
@@ -52,7 +55,7 @@ function useCanvas(
     // clean up on quit
     return () => {
       pongSocket.off("update", onUpdate);
-    }
+    };
   }, [draw]);
   return canvasRef;
 }

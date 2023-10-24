@@ -3,14 +3,21 @@ import { useUserData } from "../api/apiHooks";
 import { UserData } from "../interfaces";
 import { IconUser } from "./Icons";
 
-export function UserIcon({ user, size = 7 }: { user: string, size?: number }) {
+export function UserIcon({ user, size = 7 }: { user: string; size?: number }) {
   const { data: u, isSuccess } = useUserData(user);
   const navigate = useNavigate();
   if (!isSuccess) return <IconUser />;
   return (
     <img
       onClick={() => navigate("/user/" + user)}
-      className={"h-" + size.toString() + " w-" + size.toString + " rounded-full border-[3px] " + statusColor(u.status)}
+      className={
+        "h-" +
+        size.toString() +
+        " w-" +
+        size.toString +
+        " rounded-full border-[3px] " +
+        statusColor(u.status)
+      }
       src={u.avatar}
       alt={u.login42 || "undefined" + " profile image"}
     />

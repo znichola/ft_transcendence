@@ -15,20 +15,24 @@ export default function NavConvos({ currentUser }: { currentUser: UserData }) {
   if (isError) return <ErrorMessage message="Error loading message history" />;
   return (
     <>
-      {convos ? convos.map((c) => {
-        const target =
-          currentUser.login42 === c.user1Login42
-            ? c.user2Login42
-            : c.user1Login42;
-        return (
-          <Nav
-            key={c.id}
-            name={target}
-            to={"/message/" + target}
-            icon={() => <UserIcon user={target} />}
-          />
-        );
-      }) : <></>}
+      {convos ? (
+        convos.map((c) => {
+          const target =
+            currentUser.login42 === c.user1Login42
+              ? c.user2Login42
+              : c.user1Login42;
+          return (
+            <Nav
+              key={c.id}
+              name={target}
+              to={"/message/" + target}
+              icon={() => <UserIcon user={target} />}
+            />
+          );
+        })
+      ) : (
+        <></>
+      )}
     </>
   );
 }

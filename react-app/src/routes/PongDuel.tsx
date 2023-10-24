@@ -54,7 +54,5 @@ export default function PongDuel() {
   //   );
   // }
 
-  return(
-    <PlayPong player1={p1 || ""} player2={p2 || "" }/>
-  );
+  return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
 }

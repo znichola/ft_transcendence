@@ -16,10 +16,7 @@ export function CodeInput({
     "bg-sky-500",
   );
   return (
-    <Form
-      onSubmit={submit}
-      className="flex w-64 flex-col rounded-xl px-7 py-5"
-    >
+    <Form onSubmit={submit} className="flex w-64 flex-col rounded-xl px-7 py-5">
       <h1 className="text-3xl ">~2FA code</h1>
       {error ? (
         <p className="py-1 text-base text-rose-400">bad code, try again</p>

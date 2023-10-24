@@ -9,7 +9,11 @@ import { getCurrentUser } from "../api/axios";
 import { filter } from "../routes/GlobalRanking";
 
 export default function AllUsers({ filter: Filter }: { filter: filter }) {
-  const { data: currentUser, isLoading: userLoading, isError: userError } = useQuery({
+  const {
+    data: currentUser,
+    isLoading: userLoading,
+    isError: userError,
+  } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
     initialData: "default42",
@@ -28,9 +32,9 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
   } = useQuery({
     queryKey: ["Friends"],
     queryFn: () =>
-    axios
-    .get<UserFriends>("/user/" + currentUser + "/friends")
-    .then((res) => res.data),
+      axios
+        .get<UserFriends>("/user/" + currentUser + "/friends")
+        .then((res) => res.data),
     enabled: currentUser != undefined,
   });
 
@@ -39,7 +43,8 @@ export default function AllUsers({ filter: Filter }: { filter: filter }) {
   const ref = useRef(null);
   const inViewport = useIntersection(ref, "0px");
 
-  if (isLoading || userLoading) return <LoadingSpinnerMessage message="loading profile" />;
+  if (isLoading || userLoading)
+    return <LoadingSpinnerMessage message="loading profile" />;
   // if (userError) return <div>Error loading current user, try signing in</div>
   if (userError) console.log("Error loading current user, try signing in");
   if (isError) return <div>Error loading profile</div>;

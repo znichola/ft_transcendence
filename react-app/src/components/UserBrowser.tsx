@@ -37,7 +37,7 @@ export function SearchComponent({
   setSearchValue: (value: string) => void;
   buttonState: string;
   setButtonState: (value: SetStateAction<string>) => void;
-  buttonClassName? : string;
+  buttonClassName?: string;
   children?: JSX.Element[] | JSX.Element;
 }) {
   return (
@@ -139,7 +139,12 @@ export default function UserBrowser({ title }: { title: string }) {
         </div>
       </BoxMenu>
       <div className="flex w-full flex-col items-center overflow-scroll">
-        <div className={"transition-all duration-500 " + (buttonState != "UNSET" ? "min-h-[26rem]" : "min-h-[20rem]")}/>
+        <div
+          className={
+            "transition-all duration-500 " +
+            (buttonState != "UNSET" ? "min-h-[26rem]" : "min-h-[20rem]")
+          }
+        />
         {_posts?.map((u) => (
           <FilterInfoCard
             key={u}

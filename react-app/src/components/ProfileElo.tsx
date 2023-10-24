@@ -56,7 +56,12 @@ export default function ProfileElo({
         className="text-rose-400"
         strokeWidth={lineWidth}
       />
-      <text filter="url(#solid)" x={0} y={-10} className={"fill-current text-sky-500 " + fontSize}>
+      <text
+        filter="url(#solid)"
+        x={0}
+        y={-10}
+        className={"fill-current text-sky-500 " + fontSize}
+      >
         {Math.floor(data.reduce((acc, n) => acc + n, 0) / data.length)}
       </text>
     </svg>

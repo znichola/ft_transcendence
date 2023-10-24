@@ -12,7 +12,7 @@ interface IInputField {
 
 export function Heading({ title }: { title: string }) {
   return (
-    <h1 className=" gradient-hightlight text-center text-5xl py-2 font-bold ">
+    <h1 className=" gradient-hightlight py-2 text-center text-5xl font-bold ">
       {title}
     </h1>
   );
@@ -78,7 +78,7 @@ interface IInputFile {
   mustHave?: boolean;
   disabled?: boolean;
   accept?: string;
-  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void
+  handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function InputFile({
@@ -87,7 +87,7 @@ export function InputFile({
   mustHave,
   disabled,
   accept,
-  handleFileChange
+  handleFileChange,
 }: IInputFile) {
   return (
     <div>

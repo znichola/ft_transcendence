@@ -1,6 +1,5 @@
 import { useRouteError } from "react-router-dom";
 
-
 // issue with error types and stuff
 // https://www.reddit.com/r/typescript/comments/12d2db3/whats_the_correct_type_for_error_in_userouteerror/
 

@@ -38,8 +38,10 @@ export default function UserInfoCard({
             <AvatarName user={cardUser} />
           </div>
 
-          {isCU ? ( 
-            <span className="gradient-hightlight absolute right-5 top-4">Look, it's you!</span>
+          {isCU ? (
+            <span className="gradient-hightlight absolute right-5 top-4">
+              Look, it's you!
+            </span>
           ) : (
             <div className="flex flex-col py-2">
               <SideButton2
@@ -90,7 +92,7 @@ function AvatarName({ user }: { user: UserData }) {
   return (
     <div className="flex items-center overflow-hidden">
       <Avatar
-        className="m-2 mb-3 mt-3 w-20 h-20"
+        className="m-2 mb-3 mt-3 h-20 w-20"
         alt={user.name}
         status={user.status}
         img={user.avatar}

@@ -26,7 +26,7 @@ export default function Avatar({
   return (
     <div className={`relative ${className}`}>
       <img
-        className="rounded-full h-full w-full ring-2 ring-gray-100"
+        className="h-full w-full rounded-full ring-2 ring-gray-100"
         src={img}
         alt={alt || "undefined" + " profile image"}
       />

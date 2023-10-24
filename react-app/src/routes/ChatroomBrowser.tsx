@@ -6,10 +6,7 @@ import {
   IconLock,
 } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
-import {
-  useChatroomList,
-  useMutPostNewChatroom,
-} from "../api/apiHooks";
+import { useChatroomList, useMutPostNewChatroom } from "../api/apiHooks";
 import { IChatroomPost, IChatroom } from "../interfaces";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";

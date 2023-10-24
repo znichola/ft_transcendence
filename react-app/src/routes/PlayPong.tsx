@@ -24,18 +24,21 @@ export function DisplayPlayer({
   return (
     <div
       className={
-        "h-30 flex w-72 rounded-full border-b-4 bg-stone-50 px-0.5 py-1 shadow-md font-extrabold" +
+        "h-30 flex w-72 rounded-full border-b-4 bg-stone-50 px-0.5 py-1 font-extrabold shadow-md" +
         (right ? " flex-row-reverse " : "")
       }
     >
       <img
         src={user?.avatar}
         alt={user?.login42}
-        className={"h-20 w-20 self-center mx-2 rounded-full" + (right ? " " : "")}
+        className={
+          "mx-2 h-20 w-20 self-center rounded-full" + (right ? " " : "")
+        }
       />
       <div
         className={
-          "flex flex-col justify-center p-2" + (right ? " items-end text-right" : "")
+          "flex flex-col justify-center p-2" +
+          (right ? " items-end text-right" : "")
         }
       >
         <p className="">{user?.name}</p>
