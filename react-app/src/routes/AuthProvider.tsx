@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { setStatus, useCurrentUser } from "../api/apiHooks";
+import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
   pongSocket,
@@ -9,6 +9,7 @@ import {
   userSocket,
 } from "../socket";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "../api/apiHooks";
 
 export type IAuth = {
   isloggedIn: boolean;

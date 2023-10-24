@@ -29,7 +29,6 @@ import {
   postUserAvatar,
 } from "./axios";
 import {
-  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
@@ -38,8 +37,6 @@ import {
   IChatroomPost,
   IMessagePost,
   IPutUserProfile,
-  TUserStatus,
-  UserData,
 } from "../interfaces";
 import { AxiosError } from "axios";
 
@@ -435,10 +432,4 @@ export function useMutDeleteChatroomMute(id: string, login42: string) {
         queryKey: ["ChatroomMemebers", id],
       }),
   });
-}
-
-export function setStatus(qc: QueryClient, user: string, status: TUserStatus) {
-  qc.setQueryData(["UserData", user], (oldUser: UserData | undefined) =>
-    oldUser ? { ...oldUser, status: status } : oldUser,
-  );
 }
