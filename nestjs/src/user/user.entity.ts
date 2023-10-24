@@ -11,3 +11,29 @@ export class UserEntity
     login:      string;
     client:     Socket;
 }
+
+export class UserNameEntity
+{
+    constructor(login: string, name: string)
+    {
+        this.login = login;
+        this.name = name;
+    }
+
+    login: string;
+    name:  string;
+}
+
+export class ChallengeEntity
+{
+    constructor(user: string, gameId: number, special: boolean)
+    {
+        this.user = user;
+        this.gameId = gameId;
+        this.special = special;
+    }
+
+    user: string;
+    gameId: number;
+    special: boolean;
+}
