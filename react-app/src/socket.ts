@@ -22,7 +22,7 @@ export const socketManager = new Manager(
   },
 );
 
-export const userSocket = socketManager.socket("/user"); // main namespace
+export const userSocket = socketManager.socket("/"); // main namespace
 export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
 
 export const socketSetHeadersAndReConnect = async (headerData: string) => {
