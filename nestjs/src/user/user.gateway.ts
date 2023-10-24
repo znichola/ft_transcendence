@@ -1,21 +1,20 @@
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 import { UserStatus } from '@prisma/client';
-import { Cron } from '@nestjs/schedule';
+import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
+import { WsGuard } from 'src/ws/ws.guard';
 
 @WebSocketGateway({
-    namespace: 'user',
     cors: {
         origin: '*',
     },
 })
-@UseGuards(AuthGuard)
-export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
+@UseGuards(WsGuard)
+export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer() server: Server;
     constructor(
@@ -26,6 +25,12 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
     // private matchmakingList: UserEntity[] = [];
     private gamesCount: number = 0;
     
+    async afterInit(client: Socket) 
+    {
+        client.use(SocketAuthMiddleware() as any);
+        console.log('User WS Initialized');
+    }
+
     async handleDisconnect(client: Socket)
     {
         const userToken: string = client.handshake.headers.authorization.toString();

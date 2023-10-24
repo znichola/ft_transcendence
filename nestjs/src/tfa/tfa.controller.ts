@@ -46,10 +46,12 @@ export class TfaController {
 
     @UseGuards(AuthGuard)
     @Patch(':username/disable')
-    async disableTfa(@Param('username') username: string, @Body() bodyData: TfaCodeDto, @Req() req: Request)
+    async disableTfa(@Param('username') username: string, @Res() res: Response, @Req() req: Request)
     {
         await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
+        // res.setHeader('Content-Type', 'text/html');
         await this.tfaService.disableTfa(username);
+        return ("OK");
     }
 
     @UseGuards(TfaGuard)
