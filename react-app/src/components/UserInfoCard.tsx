@@ -90,7 +90,10 @@ export function EloWinRate({ user }: { user: UserData }) {
 
 function AvatarName({ user }: { user: UserData }) {
   return (
-    <div className="flex items-center overflow-hidden">
+    <Link
+      to={"/user/" + user.login42}
+      className="flex items-center overflow-hidden"
+    >
       <Avatar
         className="m-2 mb-3 mt-3 h-20 w-20"
         alt={user.name}
@@ -99,11 +102,9 @@ function AvatarName({ user }: { user: UserData }) {
       />
       <div className="flex flex-col content-center justify-center  ">
         <p className="font-semibold text-slate-700 ">{user.name}</p>
-        <Link to={"/user/" + user.login42} className="text-slate-400">
-          {"@" + user.login42}
-        </Link>
+        <p className="text-slate-400">{"@" + user.login42}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
