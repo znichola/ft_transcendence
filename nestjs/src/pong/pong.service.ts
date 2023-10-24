@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IGameState } from 'src/interfaces';
+import { UserGateway } from 'src/user/user.gateway';
 
 const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class PongService {
+    constructor(private readonly userGateway: UserGateway){}
     async getUserElo(userLogin: string): Promise<number>
     {
         const user = await prisma.user.findUnique({where: { login42: userLogin } });
