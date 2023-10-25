@@ -13,6 +13,7 @@ axios.defaults.withCredentials = true;
 // axios.defaults.headers.post["Content-Type"] =
 // "application/x-www-form-urlencoded";
 
+
 import "./index.css";
 import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";

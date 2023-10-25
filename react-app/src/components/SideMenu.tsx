@@ -12,6 +12,7 @@ import {
   IconBrain,
   IconFire,
   IconGit,
+  Icon42,
 } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
@@ -126,7 +127,9 @@ export default function SideMenu({
             <Nav
               name="Logout"
               to="/login"
-              onClick={() => {logOut()}}
+              onClick={() => {
+                logOut();
+              }}
               icon={IconFire}
             />
             <Category name="dev stuff" />
@@ -139,7 +142,16 @@ export default function SideMenu({
               to="https://github.com/znichola/ft_transcendence_test"
               icon={IconGit}
             />
-            <Nav name="Hart on github" icon={IconHeart} />
+            <Nav
+              name="Intra project"
+              icon={Icon42}
+              to="https://projects.intra.42.fr/ft_transcendence/znichola"
+            />
+            <Nav
+              name="Complain about ... the css"
+              to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              icon={IconBolt}
+            />
             <Category name="" />
             <TheMasterminds />
           </div>
@@ -302,14 +314,11 @@ function CurrentUserStats() {
 
 function TheMasterminds() {
   return (
-    <Link
-      to="https://projects.intra.42.fr/ft_transcendence/znichola"
-      className="group mt-auto flex flex-col items-center justify-center px-4"
-    >
+    <div className="group mt-auto flex flex-col items-center justify-center px-4">
       <IconBrain className="h-10 w-10 fill-slate-600 drop-shadow group-hover:fill-red-500" />
       <span className="italic text-slate-600 drop-shadow group-hover:text-red-500">
         les Masterminds
       </span>
-    </Link>
+    </div>
   );
 }

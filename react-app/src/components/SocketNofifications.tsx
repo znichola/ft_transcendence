@@ -101,7 +101,7 @@ export default function SocketNotificatinos({
     console.log("adding to que the dm message", ev);
   }
 
-  function getFriendRequest(ev: ConvoMessage) {
+  function getFriendRequest(ev: ISocFriendRequest) {
     addFREV(ev);
     console.log("adding to que the dm message", ev);
   }

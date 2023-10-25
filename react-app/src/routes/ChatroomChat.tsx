@@ -295,22 +295,46 @@ function MessageList({
           (m1, m2) =>
             new Date(m1.sentAt).getTime() - new Date(m2.sentAt).getTime(),
         )
-        .map((m) => (
-          <MessageWrapper key={m.id} m={m} cu={cu} />
+        .map((m, i) => (
+          <MessageWrapper
+            key={m.id}
+            m={m}
+            cu={cu}
+            showIcon={
+              !(i < messages.length - 1)
+                ? true
+                : !(messages[i + 1].senderLogin42 === m.senderLogin42)
+            }
+          />
         ))}
       <div ref={scrollRef} className="h-1" />
     </div>
   );
 }
 
-function MessageWrapper({ m, cu }: { m: IMessage; cu: UserData }) {
+function MessageWrapper({
+  m,
+  cu,
+  showIcon,
+}: {
+  m: IMessage;
+  cu: UserData;
+  showIcon: boolean;
+}) {
   const { data: target, isLoading, isError } = useUserData(m.senderLogin42);
   if (isLoading) return <LoadingSpinnerMessage message="Loading user ..." />;
   if (isError) return <ErrorMessage message="Error fetching user" />;
 
   const sender = m.senderLogin42 === cu.login42 ? cu : target;
   const senderSelf = m.senderLogin42 === cu.login42;
-  return <Message sender={sender} text={m.content} left={!senderSelf} />;
+  return (
+    <Message
+      sender={sender}
+      message={m}
+      left={!senderSelf}
+      showIcon={showIcon}
+    />
+  );
 }
 
 export function ChatroomMessageInput({
