@@ -19,7 +19,7 @@ export class WsGuard implements CanActivate {
   
   static validateToken(client: Socket)
   {
-    const token: string = client.handshake.headers.authorization; // client.handshake.auth.token;
+    const token: string = client.handshake.auth.token;
     const payload = verify(token, process.env.JWT_SECRET);
     return payload;
   }

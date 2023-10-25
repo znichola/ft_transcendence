@@ -33,7 +33,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleDisconnect(client: Socket)
 	{
-		const userToken: string = client.handshake.headers.authorization; // client.handshake.auth.token;
+		const userToken: string = client.handshake.auth.token;
 		const userLogin = await this.authService.getLoginFromToken(userToken);
 
 		let index = this.userList.findIndex(user => user.client.id === client.id);
@@ -48,7 +48,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async handleConnection(client: Socket)
 	{
-		const userToken: string = client.handshake.headers.authorization; // client.handshake.auth.token;
+		const userToken: string = client.handshake.auth.token;
 		const userLogin = await this.authService.getLoginFromToken(userToken);
 
 		console.log('User connected : ', userLogin);
