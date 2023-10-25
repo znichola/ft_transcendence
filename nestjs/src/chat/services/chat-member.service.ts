@@ -98,16 +98,15 @@ export class ChatMemberService
 			{
 				throw new ForbiddenException("You cannot join a private chatroom unless an administrator invites you");
 			}
-		}
+			else if (chatroom.status == ChatroomVisibilityStatus.PROTECTED)
+			{
+				if (addMemberDto.password == null || addMemberDto.password == "")
+					throw new ForbiddenException("Password required");
 
-		if (chatroom.status == ChatroomVisibilityStatus.PROTECTED)
-		{
-			if (addMemberDto.password == null || addMemberDto.password == "")
-				throw new ForbiddenException("Password required");
-
-			const pwd_verif: boolean = await bcrypt.compare(addMemberDto.password, chatroom.password);
-			if (!pwd_verif)
-				throw new ForbiddenException("Wrong password");
+				const pwd_verif: boolean = await bcrypt.compare(addMemberDto.password, chatroom.password);
+				if (!pwd_verif)
+					throw new ForbiddenException("Wrong password");
+			}
 		}
 
 		await this.prisma.chatroomUser.create({
