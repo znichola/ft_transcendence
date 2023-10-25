@@ -34,6 +34,7 @@ import SocketTest from "./routes/SocketTest.tsx";
 import ChatroomManager from "./routes/ChatroomChat.tsx";
 import TestPong from "./pong/TestPong.tsx";
 import NotificationProvider from "./routes/NotificationProvider.tsx";
+import SocketNotificatinos from "./components/SocketNofifications.tsx";
 
 const router = createBrowserRouter([
   {
@@ -137,7 +138,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NotificationProvider>
-          <RouterProvider router={router} />
+          <SocketNotificatinos>
+            <RouterProvider router={router} />
+          </SocketNotificatinos>
         </NotificationProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
