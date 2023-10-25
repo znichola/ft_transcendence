@@ -2,6 +2,17 @@ import { Socket } from "socket.io";
 
 export class UserEntity
 {
+    constructor(login: string, client: Socket)
+    {
+        this.login = login;
+        this.client = client;
+    }
+    login:      string;
+    client:     Socket;
+}
+
+export class PlayerEntity
+{
     constructor(login: string, client: Socket | undefined, elo: number | undefined, state: string | undefined)
     {
         this.login = login;
@@ -9,15 +20,14 @@ export class UserEntity
         this.elo = elo;
         this.state = state;
     }
-
     login:      string;
     client:     Socket | undefined;
     elo:        number | undefined;
-    state:      string | undefined; 
+    state:      string | undefined;
     //states:
-    //  - undefined : still not accept game;
-    //  - 'AFK': well...;
+    //  - undefined : just connected ;
     //  - 'PENDING': waiting for room confirmation;
     //  - 'READY': waiting for other player;
     //  - 'GAMING': is playing;
+    //  - 'AFK': well...;
 }

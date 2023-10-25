@@ -34,10 +34,10 @@ export class PongService {
         return (game.id);
     }
 
-    async endGame(gameId: number, gameState: IGameState)
+    async endGame(gameState: IGameState)
     {
         const gameInfo = await prisma.game.findUnique({ 
-            where: { id: gameId },
+            where: { id: gameState.id },
             select: {
                 rated: true,
                 player1StartElo: true,

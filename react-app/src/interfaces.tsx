@@ -115,9 +115,10 @@ export type TColor = { r: number; g: number; b: number };
 export interface IGameState {
   p1: IPlayer;
   p2: IPlayer;
-  balls: IBalls;
+  balls: Array<IBall>;
   timerAfk: number;
   type: boolean;
+  id: number;
 }
 
 export interface IBall {
@@ -129,7 +130,7 @@ export interface IBall {
   bounce: number;
 }
 
-interface IBalls extends Array<IBall> {}
+// interface IBalls extends Array<IBall> {}
 
 export interface IPos {
   x: number;

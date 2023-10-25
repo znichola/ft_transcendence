@@ -54,7 +54,7 @@ function useCanvas(
 
     // clean up on quit
     return () => {
-      pongSocket.off("update", onUpdate);
+      pongSocket.off("upDate", onUpdate);
     };
   }, [draw]);
   return canvasRef;

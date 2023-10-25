@@ -36,6 +36,7 @@ export const gameStart: IGameState = {
   ],
   timerAfk: 15,
   type: false,
+  id: 0,
 };
 
 export function definePlayerContact(b: IBall, gs: IGameState, canvas: I2D) {
