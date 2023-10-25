@@ -15,6 +15,13 @@ export class ChatGateway
 
 	push(chatroomId: number)
 	{
-		this.server.emit('newChatroomMessage', chatroomId);
+		const payload = {
+			id: chatroomId,
+			senderLogin42: "Brisa9",
+			content: "Hello, how are you?",
+			sentAt: "2023-10-24T12:00:00",
+			isBlocked: false,
+		}
+		this.server.emit('newChatroomMessage', payload);
 	}
 }

@@ -15,7 +15,7 @@ export class DmGateway
 
 	push(payload: ConversationEntity)
 	{
-		const payload2 =   {
+		const payload2 = {
 			id: 1,
 			senderLogin42: "Brisa9",
 			content: "Hello, how are you?",

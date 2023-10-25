@@ -23,8 +23,8 @@ export default function SocketNotificatinos({
   const addChatroomEV = (e: IMessage) => {
     setChatroomEV((prev) => [...prev, e]);
   };
-  const removeLastChatroomEV = () => {
-    setChatroomEV((prev) => prev.filter((_, i) => i !== prev.length - 1));
+  const removeFirstChatroomEV = () => {
+    setChatroomEV((prev) => prev.filter((_, i) => i !== 0));
   };
 
   // dms
@@ -32,14 +32,13 @@ export default function SocketNotificatinos({
   const addDMEV = (e: ConvoMessage) => {
     setDMEV((prev) => [...prev, e]);
   };
-  const removeLastDMEV = () => {
-    setDMEV((prev) => prev.filter((_, i) => i !== prev.length - 1));
+  const removeFirstDMEV = () => {
+    setDMEV((prev) => prev.filter((_, i) => i !== 0));
   };
 
   useEffect(() => {
-    const chat_ev = chatroomEV.pop()
+    const chat_ev = chatroomEV[0];
     if (chat_ev) {
-      const chat_ev = chatroomEV[0];
       addNotif({
         type: "MESSAGE",
         from: "chatroom " + chat_ev.id,
@@ -47,11 +46,14 @@ export default function SocketNotificatinos({
         to: `chatroom/${chat_ev.id}`,
       });
       console.log("should be removing the chatroom ev")
-      queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
-      removeLastChatroomEV();
+      // queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
+      queryClient.setQueryData(["ChatroomMessages",  chat_ev.id], (prev: IMessage[] | undefined) =>
+      prev ? [...prev, chat_ev] : prev,
+    );
+      removeFirstChatroomEV();
     }
 
-    const dm_ev = dmEV.pop()
+    const dm_ev = dmEV[0];
     if (dm_ev) {
       addNotif({
         type: "MESSAGE",
@@ -59,12 +61,15 @@ export default function SocketNotificatinos({
         message: dm_ev.content,
         to: `message/${dm_ev.senderLogin42}`,
       });
-      console.log("should be removing the dm ev")
-      queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
-      removeLastDMEV();
+      console.log("should be removing the dm ev", dm_ev);
+      // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
+      queryClient.setQueryData(["UserConversations", dm_ev.senderLogin42], (prev: ConvoMessage[] | undefined) =>
+      prev ? [...prev, dm_ev] : prev,
+    );
+      removeFirstDMEV();
     }
 
-  }, [chatroomEV, dmEV, setDMEV, setChatroomEV]);
+  }, [ dmEV, setDMEV, chatroomEV, setChatroomEV]); //
 
   console.log("dms: ", dmEV);
   // console.log("chats: ", chatroomEV);
