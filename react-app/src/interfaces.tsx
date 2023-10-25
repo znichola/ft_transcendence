@@ -191,6 +191,7 @@ export interface ISocDirectMessage {
 
 export interface ISocFriendRequest {
   from: Login42;
+  name: string;
 }
 
 // ws/pong

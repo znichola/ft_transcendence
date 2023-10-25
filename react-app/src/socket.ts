@@ -1,4 +1,4 @@
-import { Manager } from "socket.io-client";
+import { Manager, io } from "socket.io-client";
 import { getUserToken } from "./api/axios";
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -42,7 +42,6 @@ export const socketSetHeadersAndReConnect = async (headerData: string) => {
     // pongSocket.disconnect().connect();
     dmSocket.disconnect().connect();
     chatroomSocket.disconnect().connect();
-    // userSocket.disconnect().connect();
   }
 };
 

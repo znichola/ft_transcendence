@@ -1,14 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
-import { chatroomSocket, dmSocket } from "../socket";
-import { useChatroomMessages } from "../api/apiHooks";
-import { Converstaion, ConvoMessage, IMessage } from "../interfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  setChatroomMessage,
-  useQuerySubscription,
-} from "../api/queryMutations";
-import { randString } from "../functions/utils";
+import { chatroomSocket, dmSocket, userSocket } from "../socket";
+import { ConvoMessage, FriendData, IMessage, ISocFriendRequest } from "../interfaces";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SocketNotificatinos({
   children,
@@ -36,6 +30,15 @@ export default function SocketNotificatinos({
     setDMEV((prev) => prev.filter((_, i) => i !== 0));
   };
 
+  // friendRequests
+  const [frEV, setFREV] = useState<ISocFriendRequest[]>([]);
+  const addFREV = (e: ISocFriendRequest) => {
+    setFREV((prev) => [...prev, e]);
+  };
+  const removeFirstFREV = () => {
+    setFREV((prev) => prev.filter((_, i) => i !== 0));
+  };
+
   useEffect(() => {
     const chat_ev = chatroomEV[0];
     if (chat_ev) {
@@ -45,11 +48,13 @@ export default function SocketNotificatinos({
         message: chat_ev.content,
         to: `chatroom/${chat_ev.id}`,
       });
-      console.log("should be removing the chatroom ev")
+      console.log("should be removing the chatroom ev");
       // queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
-      queryClient.setQueryData(["ChatroomMessages",  chat_ev.id], (prev: IMessage[] | undefined) =>
-      prev ? [...prev, chat_ev] : prev,
-    );
+      console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
+      queryClient.setQueryData(
+        ["ChatroomMessages", chat_ev.id + ""],
+        (prev: IMessage[] | undefined) => (prev ? [...prev, chat_ev] : prev),
+      );
       removeFirstChatroomEV();
     }
 
@@ -63,15 +68,27 @@ export default function SocketNotificatinos({
       });
       console.log("should be removing the dm ev", dm_ev);
       // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
-      queryClient.setQueryData(["UserConversations", dm_ev.senderLogin42], (prev: ConvoMessage[] | undefined) =>
-      prev ? [...prev, dm_ev] : prev,
-    );
+      queryClient.setQueryData(
+        ["UserConversations", dm_ev.senderLogin42],
+        (prev: ConvoMessage[] | undefined) => (prev ? [...prev, dm_ev] : prev),
+      );
       removeFirstDMEV();
     }
 
-  }, [ dmEV, setDMEV, chatroomEV, setChatroomEV]); //
+    const fr_ev = frEV[0];
+    if (fr_ev) {
+      addNotif({
+        type: "INFO",
+        from: fr_ev.name,
+        message: "new friend request",
+        to: `user/${fr_ev.from}`,
+      });
+      queryClient.refetchQueries({ queryKey: ["Friends"] });
+      removeFirstFREV();
+    }
+  }, [dmEV, setDMEV, chatroomEV, setChatroomEV, frEV, setFREV]); //
 
-  console.log("dms: ", dmEV);
+  console.log("dms: ", chatroomEV);
   // console.log("chats: ", chatroomEV);
 
   function getChatroomMessage(ev: IMessage) {
@@ -84,15 +101,21 @@ export default function SocketNotificatinos({
     console.log("adding to que the dm message", ev);
   }
 
+  function getFriendRequest(ev: ConvoMessage) {
+    addFREV(ev);
+    console.log("adding to que the dm message", ev);
+  }
+
   useEffect(() => {
     chatroomSocket.on("newChatroomMessage", getChatroomMessage);
     dmSocket.on("newDirectMessage", getDMmessage);
+    userSocket.on("newFriendRequest", getFriendRequest);
 
     return () => {
       chatroomSocket.off("newChatroomMessage", getChatroomMessage);
       dmSocket.off("newDirectMessage", getDMmessage);
     };
-  }, [queryClient]);
+  }, []);
 
   // useQuerySubscription();
 
