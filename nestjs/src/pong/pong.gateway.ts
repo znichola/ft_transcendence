@@ -29,6 +29,7 @@ import { UserStatusService } from '../user/user.status.service';
 import { UserEntity } from '../user/user.entity';
 import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
+import { WsGuard } from 'src/ws/ws.guard';
 
 @WebSocketGateway({
   namespace: 'pong',
@@ -36,7 +37,7 @@ import { Cron } from '@nestjs/schedule';
     origin: '*',
   },
 })
-//@UseGuards(AuthGuard)
+@UseGuards(WsGuard)
 export class PongGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -75,7 +76,9 @@ export class PongGateway
 
   //TODO VOIR AVEC LES AUTRES IF OK ONLY ONE SOCKET VALUE PER LOGIN
   async handleConnection(client: Socket, ...args: any[]): Promise<any> {
-    const userLogin: string = client.handshake.headers.user.toString();
+    const userToken: string = client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
+
     console.log('Pong User connected : ', userLogin, ' with id ', client.id);
     await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE); //TODO le mettre dans le findMatch, UserStatus.INGAME
     const user: UserEntity = new UserEntity(userLogin, client);
@@ -104,7 +107,9 @@ export class PongGateway
     }
   }
   async handleDisconnect(client: Socket): Promise<any> {
-    const userLogin: string = client.handshake.headers.user.toString();
+    const userToken: string = client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
+    
     console.log('Pong User disconnected : ', userLogin);
     await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
 

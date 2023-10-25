@@ -11,121 +11,117 @@ import { DirectMessageEntity } from 'src/dm/entities/direct-message.entity';
 import { MessageEntity} from 'src/chat/entities/message.entity';
 
 @WebSocketGateway({
-    cors: {
-        origin: '*',
-    },
+	cors: {
+		origin: '*',
+	},
 })
 @UseGuards(WsGuard)
 export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-    @WebSocketServer() server: Server;
-    constructor(
-        private readonly authService: AuthService,
-        private readonly userStatusService: UserStatusService,
-        ){}
-    private userList: UserEntity[] = [];
-    
-    async afterInit(client: Socket) 
-    {
-        client.use(SocketAuthMiddleware() as any);
-        console.log('User WS Initialized');
-    }
+	@WebSocketServer() server: Server;
+	constructor(
+		private readonly authService: AuthService,
+		private readonly userStatusService: UserStatusService,
+		){}
+	private userList: UserEntity[] = [];
+	
+	async afterInit(client: Socket) 
+	{
+		client.use(SocketAuthMiddleware() as any);
+		console.log('User WS Initialized');
+	}
 
-    async handleDisconnect(client: Socket)
-    {
-        const userToken: string = client.handshake.headers.authorization.toString();
-        const userLogin = await this.authService.getLoginFromToken(userToken);
+	async handleDisconnect(client: Socket)
+	{
+		const userToken: string = client.handshake.headers.authorization; // client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
 
-        let index = this.userList.findIndex(user => user.client.id === client.id);
-        this.userList.splice(index, 1);
+		let index = this.userList.findIndex(user => user.client.id === client.id);
+		this.userList.splice(index, 1);
 
-        if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		if (this.userList.findIndex(user => user.login === userLogin) == -1)
 		{
-            await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
-        	this.broadcast("userDisconnect", userLogin);
+			await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
+			this.broadcast("userDisconnect", userLogin);
 		}
-    }
+	}
 
-    async handleConnection(client: Socket)
-    {
-        const userToken: string = client.handshake.headers.authorization.toString();
-        const userLogin = await this.authService.getLoginFromToken(userToken);
+	async handleConnection(client: Socket)
+	{
+		const userToken: string = client.handshake.headers.authorization; // client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
 
-        console.log('User connected : ', userLogin);
+		console.log('User connected : ', userLogin);
 
-        const user: UserEntity = new UserEntity(userLogin, client);
+		const user: UserEntity = new UserEntity(userLogin, client);
 
-        if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		if (this.userList.findIndex(user => user.login === userLogin) == -1)
 		{
-            await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
-        	this.broadcast("userConnect", userLogin);
+			await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
+			this.broadcast("userConnect", userLogin);
 		}
-        
-        this.userList.push(user);
-    }
+		
+		this.userList.push(user);
+	}
 
-    sendFriendRequest(to: string, sender: UserNameEntity)
-    {
-        this.toAllUserClients(to, 'friendRequest', sender);
-    }
+	sendFriendRequest(to: string, sender: UserNameEntity)
+	{
+		this.toAllUserClients(to, 'friendRequest', sender);
+	}
 
-    sendChallenge(to: string, challenge: ChallengeEntity)
-    {
-        this.toAllUserClients(to, 'challenge', challenge);
-    }
+	/* Challenge part probably needs to be transfered to the pong gateway */
 
-    @SubscribeMessage('declineChallenge')
-    handleDeclineChallenge(client: Socket, challenge: ChallengeEntity)
-    {
-        console.log('challenge with id ', challenge.gameId, ' declined.');
-    }
+	sendChallenge(to: string, challenge: ChallengeEntity)
+	{
+		this.toAllUserClients(to, 'challenge', challenge);
+	}
 
-    @SubscribeMessage('acceptChallenge')
-    handleAcceptChallenge(client: Socket, challenge: ChallengeEntity)
-    {
-        console.log('challenge with id ', challenge.gameId, ' accepted.');
-        console.log('Accepting client ID is ', client.id);
-    }
+	@SubscribeMessage('declineChallenge')
+	handleDeclineChallenge(client: Socket, challenge: ChallengeEntity)
+	{
+		console.log('challenge with id ', challenge.gameId, ' declined.');
+	}
 
-    toAllUserClients(to: string, event: string, message: any)
-    {
-        this.userList.forEach((user) => {
-            if (user.login == to)
-            {
-                console.log('sending to client ', user.client.id);
-                user.client.send(event, message);
-            }
-        });
-    }
+	@SubscribeMessage('acceptChallenge')
+	handleAcceptChallenge(client: Socket, challenge: ChallengeEntity)
+	{
+		console.log('challenge with id ', challenge.gameId, ' accepted.');
+		console.log('Accepting client ID is ', client.id);
+	}
 
-    sendUserUpdated(login: string)
-    {
-        this.server.emit('userUpdated', login);
-    }
-
-	sendDM(msg: DirectMessageEntity, to: string)
+	toAllUserClients(to: string, event: string, message: any)
 	{
 		this.userList.forEach((user) => {
 			if (user.login == to)
-				user.client.send('dm', msg);
-		})
+			{
+				console.log('sending to client ', user.client.id);
+				user.client.send(event, message);
+			}
+		});
+	}
+
+	sendUserUpdated(login: string)
+	{
+		this.server.emit('userUpdated', login);
+	}
+
+	sendDM(msg: DirectMessageEntity, to: string)
+	{
+		this.toAllUserClients(to, 'dm', msg);
 	}
 
 	sendToChatroom(msg: MessageEntity, to: string)
 	{
-		this.userList.forEach(user => {
-			if (user.login == to)
-				user.client.send('chatroomMessage', msg);
-		})
+		this.toAllUserClients(to, 'chatroomMessage', msg);
 	}
 
-    broadcast(event: string, user: string)
-    {
-        this.server.emit(event, user);
-    }
+	broadcast(event: string, user: string)
+	{
+		this.server.emit(event, user);
+	}
 
-    broadcastTo(room: string, event: string, message: string)
-    {
-        this.server.to(room).emit(event, message);
-    }
+	broadcastTo(room: string, event: string, message: string)
+	{
+		this.server.to(room).emit(event, message);
+	}
 }
