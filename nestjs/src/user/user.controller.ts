@@ -27,7 +27,7 @@ import { Request, Response } from 'express';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveImageToServer } from 'src/utils/avatar-storage';
-import { createReadStream, existsSync } from 'fs';
+import { createReadStream } from 'fs';
 import { UserProfileDto } from './dto';
 import { ChatroomEntity } from 'src/chat/entities/chatroom.entity';
 
@@ -156,6 +156,14 @@ export class UserController {
     return userInfo;
   }
 
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Get the list of Chatroom the user is in',
+    description:
+      'Each chatroom is represented by a ChatroomEntity containing multiple information. Being logged in is required',
+  })
+  @ApiResponse({ status: 200, description: 'list of the user\'s chatrooms'})
+  @ApiResponse({ status: 401, description: 'No JTW token found' })
   @Get(':username/chatrooms')
   async getUserChatrooms(@Param('username') username: string, @Req() req: Request): Promise <ChatroomEntity[]>
   {
@@ -295,7 +303,9 @@ export class UserController {
     description: 'No user found with the provided login.',
   })
   @Get(':username/friends')
-  async userFriends(@Param('username') username: string): Promise<UserFriends> {
+  async userFriends(@Param('username') username: string, @Req() req: Request): Promise<UserFriends>
+  {
+    await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
     const userId = await this.userService.getUserId(username);
 
     if (!userId) {
@@ -407,6 +417,8 @@ export class UserController {
     const users = await this.userService.getFriendsIds(username, target);
 
     await this.userService.removeFriend(users[0], users[1]);
+
+    return ("Friend removed.");
   }
 
   @UseGuards(AuthGuard)

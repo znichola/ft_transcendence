@@ -12,51 +12,31 @@ export const socketManager = new Manager(
   `wss://${import.meta.env.VITE_SITE_DOMAIN}`,
   {
     autoConnect: false,
-    transportOptions: {
-      polling: {
-        extraHeaders: {
-          User: "test",
-        },
-      },
-    },
   },
 );
 
-export const userSocket = socketManager.socket("/user"); // main namespace
+export const userSocket = socketManager.socket("/"); // main namespace
 export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
-export const dmSocket = socketManager.socket("/dm"); // pong stuff ?
-export const chatroomSocket = socketManager.socket("/chatroom"); // pong stuff ?
 
-export const socketSetHeadersAndReConnect = async (headerData: string) => {
+export const socketSetHeadersAndReConnect = async () => {
   if (!userSocket.connected || !pongSocket.connected) {
     const access_token = await getUserToken();
-    userSocket.io.opts.transportOptions = {
-      polling: {
-        extraHeaders: {
-          User: headerData,
-          authorization: access_token,
-        },
-      },
-    };
-    // userSocket.disconnect().connect();
-    // pongSocket.disconnect().connect();
-    dmSocket.disconnect().connect();
-    chatroomSocket.disconnect().connect();
+    userSocket.auth = { token: access_token };
+    pongSocket.auth = { token: access_token };
+    userSocket.disconnect().connect();
+    pongSocket.disconnect().connect();
   }
 };
 
 export function socketDisconnect() {
   userSocket.disconnect();
-  pongSocket.disconnect(); 
-  dmSocket.disconnect(); 
-  chatroomSocket.disconnect(); 
+  pongSocket.disconnect();
+
 }
 
 export function socketCcnnect() {
   userSocket.connect();
-  pongSocket.connect(); 
-  dmSocket.connect(); 
-  chatroomSocket.connect(); 
+  pongSocket.connect();
 }
 
 // Step 1:- Create manager >

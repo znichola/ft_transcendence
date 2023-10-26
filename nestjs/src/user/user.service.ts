@@ -12,11 +12,15 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ChatroomEntity, ChatroomWithUsername } from 'src/chat/entities/chatroom.entity';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserGateway } from './user.gateway';
+import { UserNameEntity } from './user.entity';
 
 const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
+  constructor(private userGateway: UserGateway){}
+
   async findAll(page?: number, searchName?: string, findStatus?: UserStatus ): Promise<string[]> {
     const allUsers = await prisma.user.findMany({
       select: { login42: true },
@@ -147,14 +151,6 @@ export class UserService {
       },
     });
     return user;
-  }
-
-  async setUserStatus(login: string, newStatus: UserStatus)
-  {
-    await prisma.user.update({
-      where: { login42: login },
-      data: { status: newStatus },
-    });
   }
 
   async getUserLogin(id: number): Promise<string> {
@@ -300,12 +296,21 @@ export class UserService {
   }
 
   async createFriend(requesterId: number, receiverId: number) {
-    await prisma.friend.create({
+    const request = await prisma.friend.create({
       data: {
         user1Id: requesterId,
         user2Id: receiverId,
       },
+      select: {
+        user1: { select: {
+          login42: true,
+          name: true,
+        }},
+        user2: { select: { login42: true }}
+      }
     });
+    const sender = new UserNameEntity(request.user1.login42, request.user1.name);
+    this.userGateway.sendFriendRequest(request.user2.login42, sender);
   }
 
   async removeFriend(user1: number, user2: number) {

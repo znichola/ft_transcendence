@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
-import { chatroomSocket, dmSocket, userSocket } from "../socket";
+import { userSocket} from "../socket";
 import { ConvoMessage, IMessage, ISocChatroomMessage, ISocDirectMessage, ISocFriendRequest } from "../interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -104,13 +104,13 @@ export default function SocketNotificatinos({
   }
 
   useEffect(() => {
-    chatroomSocket.on("newChatroomMessage", getChatroomMessage);
-    dmSocket.on("newDirectMessage", getDMmessage);
+    userSocket.on("newChatroomMessage", getChatroomMessage);
+    userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
 
     return () => {
-      chatroomSocket.off("newChatroomMessage", getChatroomMessage);
-      dmSocket.off("newDirectMessage", getDMmessage);
+      userSocket.off("newChatroomMessage", getChatroomMessage);
+      userSocket.off("newDirectMessage", getDMmessage);
     };
   }, []);
 
