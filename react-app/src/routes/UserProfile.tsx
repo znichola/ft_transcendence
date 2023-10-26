@@ -1,17 +1,20 @@
 import { useParams } from "react-router-dom";
-import { LoadingSpinnerMessage } from "../components/Loading";
+import { LoadingSpinner, LoadingSpinnerMessage } from "../components/Loading";
 import {
+  useMutBlockUser,
+  useMutUnblockUser,
   useMutUserAvatar,
   useMutUserProfile,
+  useUserBlocked,
   useUserData,
   useUserFriends,
 } from "../api/apiHooks";
 import { useAuth, useNotification } from "../functions/contexts";
 import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
-import { useEffect, useRef, useState } from "react";
-import { FriendData, UserData, UserFriends } from "../interfaces";
-import { IconBolt, IconChatBubble, IconGear } from "../components/Icons";
+import { SetStateAction, useEffect, useRef, useState } from "react";
+import { RelationData, UserData } from "../interfaces";
+import { IconBolt, IconChatBubble, IconGear, IconStop, IconTrophy } from "../components/Icons";
 import {
   InputField,
   InputFile,
@@ -21,29 +24,19 @@ import {
 } from "../components/FormComponents";
 import { statusColor } from "../functions/utils";
 import { SideButton, SideButton2 } from "../components/UserInfoCard";
-import RelationActions from "../components/UserInfoCardRelations";
+import RelationActions, { FB1 } from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { CodeInput } from "../components/CodeTFAinput";
 import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
+import { pongSocket } from "../socket";
 
 export default function UserProfile() {
-  // react states
-  const [buttonState, setButtonState] = useState<string>("UNSET");
-
   // data fetching
   const { login42 } = useParams<"login42">();
-  const { user: currentUser } = useAuth();
-  const {
-    data: currentUserFriends,
-    isLoading: isFriLoading,
-    isError: isFriError,
-  } = useUserFriends(currentUser);
-  const { data: profileUser, isLoading, isError } = useUserData(login42);
-
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState<string | undefined>(undefined);
+  const { data: currentUser, isLoading, isError } = useUserData(login42);
+  const [buttonState, setButtonState] = useState<string>("UNSET");
 
   // profile elo, maybe this should be abstracted into a component
   // feels a bit messay having this code that's not related to the rest of the page
@@ -71,62 +64,47 @@ export default function UserProfile() {
     };
   }, []);
 
-  if (isLoading || isFriLoading)
+  if (isLoading)
     return <LoadingSpinnerMessage message="loading profile" />;
-  if (isError || isFriError)
+  if (isError)
     return <ErrorMessage message="error laoding profile" />;
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
-        resetBTN={() => setButtonState("UNSET")}
+        resetBTN={() => setButtonState('UNSET')}
         heading={
           <UserProfileHeading
-            user={profileUser}
-            name={name || profileUser.name}
-            bio={bio || profileUser.bio}
+            user={currentUser}
+            setButtonState={setButtonState}
+            buttonState={buttonState}
           />
         }
       >
-        {currentUser === login42 ? (
-          <ButtonGeneric
-            icon={IconGear}
-            setBTNstate={setButtonState}
-            buttonState={buttonState}
-            checked="user-settings"
-          >
-            <CurrentUserSettings
-              user={profileUser}
-              name={name}
-              setName={setName}
-              bio={bio}
-              setBio={setBio}
-            />
-          </ButtonGeneric>
-        ) : (
-          <UserInteractions
-            cardUser={profileUser}
-            userFriends={currentUserFriends}
-            currentUser={currentUser}
-          />
-        )}
       </BoxMenu>
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
-      <div className="flex h-full w-full flex-col px-28 pt-64">
+      <div className="flex h-full w-full flex-col px-3 lg:px-28 pt-64">
         <div className="flex max-h-72 w-full grow items-center py-4">
           <div
             ref={elo_graph}
-            className="flex min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
+            className="relative flex flex-col min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
           >
             <ProfileElo
-              data={profileUser.eloHistory}
+              data={currentUser.eloHistory}
               w={graphWidth}
               lineWidth={7}
               fontSize="text-3xl"
               className="h-40 max-h-[10rem]"
             />
+            <div className="absolute flex h-fit w-full top-auto bottom-2">
+              <p className="grow text-center text-green-400 font-bold">{"Wins: " + currentUser.wins.toString()}</p>
+              <p className="grow text-center text-red-300 font-bold">{"Losses: " + currentUser.losses.toString()}</p>
+            </div>
           </div>
         </div>
-        <div className="flex h-fit w-full gap-5 overflow-x-scroll pb-7 pl-1">
+        <div
+          className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pb-7 px-1"
+          style={{gridTemplateAreas: "auto-fill", gridRow: "auto-fill"}}
+        >
           <MatchCell victory={true} />
           <MatchCell victory={false} />
           <MatchCell victory={true} />
@@ -141,45 +119,115 @@ export default function UserProfile() {
 
 function UserProfileHeading({
   user,
-  name,
-  bio,
+  buttonState,
+  setButtonState,
 }: {
   user: UserData;
-  name: string;
-  bio: string | undefined;
+  buttonState: string;
+  setButtonState: (value: SetStateAction<string>) => void;
 }) {
+  const { user: currentUser } = useAuth();
+  const [name, setName] = useState(user.name);
+  const [bio, setBio] = useState<string | undefined>(user.bio);
+
   return (
-    <div className="flex w-full flex-row pl-8 pt-6 lg:pl-24">
+    <div className="flex w-full gap-5 flex-row pl-8 pt-6 lg:pl-16">
       <div
         className={
           "mr-6 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
         }
       >
         <img
-          className="aspect-square max-h-32 shadow"
+          className="aspect-square rounded-xl w-24 h-24 min-w-[6rem] min-h-[6rem] sm:min-w-[8rem] sm:min-h-[8rem] shadow"
           src={user.avatar}
           alt={user.login42 + " profile image"}
         />
+        <div className="flex pt-2 grow items-center justify-center text-3xl font-bold">{user.elo} <IconTrophy className="w-7 h-7"/></div>
       </div>
-      <div className="">
+      <div className="flex flex-col overflow-hidden">
         <PreHeading text={"@" + user.login42} />
-        <h1 className="gradient-hightlight py-2 text-5xl font-bold ">{name}</h1>
-        <p className="pt-2">{bio}</p>
+        <h1 className="min-w-0 gradient-hightlight py-2 text-4xl md:text-5xl font-bold break-words overflow-hidden">{name}</h1>
+        <p className="flex grow items-center">{bio}</p>
+      </div>
+       {currentUser === user.login42 ? (
+          <div className="flex grow min-w-0 items-end justify-end px-2 md:px-4">
+            <ButtonGeneric
+              icon={IconGear}
+              setBTNstate={setButtonState}
+              buttonState={buttonState}
+              checked="user-settings"
+
+            >
+              <CurrentUserSettings
+                user={user}
+                name={name}
+                setName={setName}
+                bio={bio}
+                setBio={setBio}
+              />
+            </ButtonGeneric>
+          </div>
+        ) : (
+          <UserInteractions
+            user={user}
+            currentUser={currentUser}
+          />
+        )}
+    </div>
+  );
+}
+
+function BlockSideButton({user, currentUser}:{user: string, currentUser: string}) {
+
+  const {data: blockedUsers, isLoading, isError} = useUserBlocked(currentUser);
+  const blockUser = useMutBlockUser(currentUser, user);
+  const unblockUser = useMutUnblockUser(currentUser, user);
+
+  if (isLoading) {
+    return <LoadingSpinner/>;
+  }
+  if (isError) {
+    return <ErrorMessage message="Error: failed to load blocked users"/>;
+  }
+
+  const isBlocked = !!blockedUsers.find((u) => u == user);
+
+  return (
+    <div
+      className="group relative flex w-12 flex-1 items-center justify-end "
+    >
+      <div className={"absolute h-full grow p-1 pr-2 duration-300 " + (isBlocked ? "text-red-500" : "text-stone-300")}>
+        {<IconStop strokeWidth={2} />}
+      </div>
+      <div className="duration-400 group-hover:order-slate-100 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-white transition-all group-hover:w-max group-hover:border group-hover:p-2">
+        <div className="text-xs font-semibold text-slate-500">
+          <FB1
+            message={"Manage block"}
+            a1={isBlocked ? "unblock" : "block"}
+            a1btn={isBlocked ? () => {unblockUser.mutate()} : () => {blockUser.mutate()}}
+          />
+        </div>
       </div>
     </div>
   );
 }
 
 function UserInteractions({
-  cardUser,
-  userFriends,
+  user,
   currentUser,
 }: {
-  cardUser: UserData;
-  userFriends: UserFriends;
+  user: UserData;
   currentUser: string;
 }) {
-  const ff = (f: FriendData) => f.login42 == cardUser.login42;
+
+  const {data: userFriends, isLoading, isError} = useUserFriends(currentUser);
+
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Loading friends..." />;
+  if (isError)
+    return <ErrorMessage message="error laoding profile" />;
+
+  const ff = (f: RelationData) => f.login42 == user.login42;
   const relationStatus = userFriends.friends.find(ff)
     ? "friends"
     : userFriends.pending.find(ff)
@@ -188,26 +236,41 @@ function UserInteractions({
     ? "pending"
     : "none";
   return (
-    <div className="flex h-12 gap-12 py-2 ">
+    <div className="flex flex-col grow items-end py-2">
       <SideButton2
         message={"Play pong"}
         a1={"classical"}
         a2={"special"}
-        to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
-        to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
+        to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
+        onClick1={() => {
+          console.log("Challenge to classical");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: false,
+          });
+        }}
+        to2={`/pong/${currentUser}/vs/${user.login42}/special`}
+        onClick2={() => {
+          console.log("Challenge to special");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: true,
+          });
+        }}
         icon={IconBolt}
       />
       <SideButton
         message={"Private chat"}
         action={"message"}
-        to={"/message/" + cardUser.login42}
+        to={"/message/" + user.login42}
         icon={IconChatBubble}
       />
       <RelationActions
         currentUser={currentUser}
-        cardUser={cardUser.login42}
+        cardUser={user.login42}
         status={relationStatus}
       />
+      <BlockSideButton user={user.login42} currentUser={currentUser}/>
     </div>
   );
 }
@@ -223,27 +286,20 @@ function CurrentUserSettings({
   // const [bio, setBio] = useState(user.bio);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-      <IntroDescription />
-      <ProfileModifyForm
-        name={name}
-        bio={bio}
-        setName={setName}
-        setBio={setBio}
-        user={user}
-      />
-      <button
-        className="w-[32rem] px-12 text-end italic text-slate-400 underline hover:text-rose-500"
-        onClick={() => {
-          setName(user.name);
-          setBio(user.bio);
-        }}
-      >
-        reset
-      </button>
-      <ProfileModifyAvatar user={user} />
-      <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
-      <ProfileModifyTFA />
+    <div className="relative">
+      <div className="absolute flex flex-col w-full overflow-hidden min-w-0 items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white pt-4 shadow-xl">
+        <IntroDescription />
+        <ProfileModifyForm
+          name={name}
+          bio={bio}
+          setName={setName}
+          setBio={setBio}
+          user={user}
+        />
+        <ProfileModifyAvatar user={user} />
+        <hr className="my-4 h-px w-96 border-0 bg-slate-100"/>
+        <ProfileModifyTFA />
+      </div>
     </div>
   );
 }
@@ -263,7 +319,7 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
 
   return (
     <form
-      className=" flex w-[32rem] flex-col gap-3 px-6"
+      className=" flex w-full max-w-lg flex-col gap-3 px-6"
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted");
@@ -307,7 +363,7 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
   // console.log("file:", file);
   return (
     <form
-      className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"
+      className="flex w-full max-w-lg flex-row items-end justify-center px-6"
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted new image");
@@ -339,32 +395,36 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
 function ProfileModifyTFA() {
   const { user, tfa, setFTA } = useAuth();
   const [activateTFA, setActivateTFA] = useState(tfa);
-  const [openTFAwindow, setOpenTFAwindowp] = useState(false);
+  const [openTFAwindow, setOpenTFAwindow] = useState(false);
+  const selfRef = useRef<HTMLDivElement>(null);
 
   function toggelTFA() {
-    if (activateTFA) {
+    if (openTFAwindow || activateTFA) {
       setActivateTFA(false);
       patchTFACodeDisable(user);
       setFTA(false);
+      setOpenTFAwindow(false);
     } else {
-      setOpenTFAwindowp(true);
+      setOpenTFAwindow(true);
     }
   }
 
   return (
-    <div className="flex flex-row justify-center pb-10">
-      <InputToggle
-        onLable="2FA Enabled"
-        offLable="2FA Disabled"
-        value={activateTFA || openTFAwindow}
-        onToggle={toggelTFA}
-      />
+    <div ref={selfRef} className="flex flex-row justify-center p-4">
+      <div className="">
+        <InputToggle
+          onLable="2FA Enabled"
+          offLable="2FA Disabled"
+          value={activateTFA || openTFAwindow}
+          onToggle={toggelTFA}
+        />
+      </div>
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
-        <p className="w-72 pb-3 text-slate-400">
+        <p className="w-full pb-3 text-slate-400 break-words">
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {openTFAwindow ? <SetupTFA isOpen={setOpenTFAwindowp} /> : <></>}
+      {openTFAwindow && !activateTFA ? <SetupTFA isOpen={setOpenTFAwindow} /> : <></>}
     </div>
   );
 }
@@ -407,7 +467,7 @@ function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
   }, [addNotif, isError, isSuccess, submitted]);
 
   return (
-    <div className="box-theme absolute top-0 bg-stone-50 p-8">
+    <div className="overflow-y-scroll max-h-full box-theme absolute top-0 bg-stone-50 p-8">
       <QRcode />
       <hr className="my-4 h-px w-full border-0 bg-slate-100" />
       {isLoading && submitted ? (

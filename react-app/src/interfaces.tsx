@@ -1,4 +1,4 @@
-export interface FriendData {
+export interface RelationData {
   login42: string;
   name: string;
   status: string;
@@ -6,9 +6,9 @@ export interface FriendData {
 }
 
 export interface UserFriends {
-  friends: FriendData[];
-  pending: FriendData[];
-  requests: FriendData[];
+  friends: RelationData[];
+  pending: RelationData[];
+  requests: RelationData[];
 }
 
 export interface UserData {
@@ -160,6 +160,7 @@ export interface INotification {
   to?: string;
   type: TNotif;
   id?: string;
+  onClick?: () => void;
 }
 
 export type TNotif =
@@ -181,7 +182,7 @@ export type TGameMode = "CLASSICAL" | "SPECIAL";
 //  ws/user
 
 export interface ISocDirectMessage {
-  name: string;          // so it's easy to display the name in the message notification
+  name: string; // so it's easy to display the name in the message notification
   message: ConvoMessage; // message contnent as it's stored so it can be added to the list, with out refetching everything
 }
 
@@ -196,28 +197,52 @@ export interface ISocFriendRequest {
   name: string;
 }
 
-// ws/pong
+// ws/pong - receive
 
+// challenge
 export interface ISocChallenge {
-  target: Login42;
-  type: TGameMode;
+  from: Login42;
+  to: Login42;
+  special: boolean;
 }
 
-export interface ISocGameFound {
-  from: Login42;
-  type: TGameMode;
-  id: number; // idk if this is needed
+interface IGameData {
+  user1: Login42;
+  user2: Login42;
+  special: boolean;
 }
+
+// room-created
+export interface ISocRoomCreated extends IGameData {}
+
+// start-game
+export interface ISocStartGame extends IGameData {}
+
+// game-over
+export interface ISocGameOver extends IGameData {}
 
 // ws/pong - send
 
+// accept
 export interface ISocAcceptChallenge {
-  id: number;
-  accept: boolean;
+  opponent: Login42;
+  special: boolean;
 }
 
+// challenge
 export interface ISocIssueChallenge {
-  from: Login42;
-  to: Login42;
-  type: TGameMode;
+  invitedLogin: Login42;
+  special: boolean;
+}
+
+// ready
+export interface ISocConfirmGame {
+  user1: string;
+  user2: string;
+  special: boolean;
+}
+
+// looking-for-game
+export interface ISocLookingForGame {
+  special: boolean;
 }

@@ -19,6 +19,7 @@ services:
       - ./:/backend
     env_file:
       - env/.nestjs.env
+    restart: always
     init: true
 
   react:
@@ -32,6 +33,7 @@ services:
       - ./:/app
     env_file:
       - env/.react.env
+    restart: always
     init: true
 
   postgres:
@@ -45,6 +47,7 @@ services:
       - transnet
     volumes:
       - ./:/database
+    restart: always
     init: true
 
   nginx:
@@ -62,3 +65,4 @@ services:
       - transnet
     depends_on:
       - react
+    restart: always

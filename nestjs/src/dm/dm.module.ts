@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { DmController } from './dm.controller';
-import { DmGateway } from './dm.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, UserModule],
   controllers: [DmController],
-  providers: [DmService, DmGateway],
+  providers: [DmService],
 })
 export class DmModule {}

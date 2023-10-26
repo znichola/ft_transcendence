@@ -36,25 +36,27 @@ const gameStart: IGameState = {
 
 export function MatchCell({ victory }: { victory: boolean }) {
   return (
-    <div className="h-fit w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-3 shadow">
-      <div
-        className={`${
-          victory ? "text-green-500" : "text-red-600"
-        } text-center font-semibold`}
-      >
-        {victory ? "Victory" : "Defeat"}
-      </div>
-      <div className={`h-fit w-fit rounded bg-stone-50 p-2`}>
-        <span className="ml-1 w-full font-light">
-          vs <span className="font-bold">player</span>
-        </span>
-        <div className="h-fit w-fit rounded-xl  border-4 border-stone-500 bg-stone-700">
-          <DrawPong height={104} width={170} gs={gameStart} />
+    <div className="flex grow justify-center">
+      <div className="flex flex-col items-center h-fit w-full sm:w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-3 shadow">
+        <div
+          className={`${
+            victory ? "text-green-500" : "text-red-600"
+          } text-center font-semibold text-2xl`}
+        >
+          {victory ? "Victory" : "Defeat"}
         </div>
-        <div className="flex gap-1">
-          <span className="w-full text-right font-bold">7</span>
-          <span className="w-full text-center">/</span>
-          <span className="w-full text-left font-bold">10</span>
+        <div className={`h-fit w-fit rounded bg-stone-50 p-2`}>
+          <span className="ml-1 w-full font-light">
+            vs <span className="font-bold">player</span>
+          </span>
+          <div className="h-fit w-fit rounded-xl border-4 border-stone-500 bg-stone-700">
+            <DrawPong height={104} width={170} gs={gameStart} />
+          </div>
+          <div className="flex gap-1">
+            <span className="w-full text-right font-bold">7</span>
+            <span className="w-full text-center">/</span>
+            <span className="w-full text-left font-bold">10</span>
+          </div>
         </div>
       </div>
     </div>

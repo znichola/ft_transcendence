@@ -85,6 +85,7 @@ export function caseDraw(
   if (ctx !== null && ctx !== undefined) {
     if (!gs.p1.afk && !gs.p2.afk) draw(ctx, gs);
     else {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.fillStyle = "rgb(186 230 253)";
       ctx.font = `${Math.round(
         (ctx.canvas.height * ctx.canvas.width) / 9400,

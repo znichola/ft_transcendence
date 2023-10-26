@@ -149,19 +149,14 @@ model Game {
   player1StartElo  Int?
   player1Score     Int?
   player1EloChange Int?
-  player1PosX      Int?
-  player1PosY      Int?
 
   player2Id        Int
   player2          User @relation("Joined", fields: [player2Id], references: [id])
   player2StartElo  Int?
   player2Score     Int?
   player2EloChange Int?
-  player2PosX      Int?
-  player2PosY      Int?
 
-  ballPosX Int?
-  ballPosY Int?
+  gameStateString  String?
 }
 
 enum ChatroomUserRole {

@@ -1,7 +1,7 @@
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { Converstaion, IMessage, TUserStatus, UserData } from "../interfaces";
 import { useEffect } from "react";
-import { chatroomSocket, dmSocket } from "../socket";
+import { userSocket } from "../socket";
 import { useNotification } from "../functions/contexts";
 import { randString } from "../functions/utils";
 
@@ -68,12 +68,12 @@ export const useQuerySubscription = () => {
   }
 
   useEffect(() => {
-    chatroomSocket.on("newChatroomMessage", getChatroomMessage);
-    dmSocket.on("newDirectMessage", getChatroomMessageDM);
+    userSocket.on("newChatroomMessage", getChatroomMessage);
+    userSocket.on("newDirectMessage", getChatroomMessageDM);
 
     return () => {
-      chatroomSocket.off("newChatroomMessage", getChatroomMessage);
-      dmSocket.off("newDirectMessage", getChatroomMessageDM);
+      userSocket.off("newChatroomMessage", getChatroomMessage);
+      userSocket.off("newDirectMessage", getChatroomMessageDM);
     };
   }, [queryClient]);
 };

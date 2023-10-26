@@ -32,7 +32,6 @@ export const getLogout = async () => {
 // TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
   authApi.get<string>("/auth/user").then((res) => {
-    // console.log("Get current user : ", res.data);
     return res.data;
   });
 
@@ -82,6 +81,12 @@ export const getUserFriends = async (current_user: string) => {
   // .catch((error) => console.log(error.toJSON));
 };
 
+export const getUserBlocked = async (current_user: string) => {
+  return authApi
+    .get<string[]>("/user/" + current_user + "/block")
+    .then((res) => res.data);
+};
+
 export const postUserFriendRequest = async (
   current_user: string,
   login42: string,
@@ -110,6 +115,24 @@ export const putUserFriendRequest = async (
     .put<HttpStatusCode>("/user/" + current_user + "/friends/" + login42)
     .then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
+};
+
+export const postUserBlock = async (
+  current_user: string,
+  target: string,
+) => {
+  return authApi
+    .post<HttpStatusCode>("/user/" + current_user + "/block/" + target)
+    .then((res) => res.data);
+};
+
+export const deleteUserBlock = async (
+  current_user: string,
+  target: string,
+) => {
+  return authApi
+    .delete<HttpStatusCode>("/user/" + current_user + "/block/" + target)
+    .then((res) => res.data);
 };
 
 //--------------------------------------------Profile----------------------------------------------------//

@@ -41,7 +41,7 @@ export function CodeInput({
       </div>
       <div className="flex justify-center pt-2">
         <button className={` w-24 p-2 text-stone-50 ${color} rounded-full`}>
-          sumbit
+          submit
         </button>
       </div>
     </Form>
