@@ -79,7 +79,7 @@ function UpdateHeaders() {
     <button
       className="m-2 border-2 p-1"
       onClick={() => {
-        socketSetHeadersAndReConnect(user);
+        socketSetHeadersAndReConnect();
         setStatus(qc, user, "ONLINE");
       }}
     >

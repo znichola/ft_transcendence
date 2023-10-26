@@ -12,11 +12,14 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ChatroomEntity, ChatroomWithUsername } from 'src/chat/entities/chatroom.entity';
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserGateway } from './user.gateway';
 
 const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class UserService {
+  constructor(private userGateway: UserGateway){}
+
   async findAll(page?: number, searchName?: string, findStatus?: UserStatus ): Promise<string[]> {
     const allUsers = await prisma.user.findMany({
       select: { login42: true },
@@ -147,14 +150,6 @@ export class UserService {
       },
     });
     return user;
-  }
-
-  async setUserStatus(login: string, newStatus: UserStatus)
-  {
-    await prisma.user.update({
-      where: { login42: login },
-      data: { status: newStatus },
-    });
   }
 
   async getUserLogin(id: number): Promise<string> {

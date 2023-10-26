@@ -407,6 +407,8 @@ export class UserController {
     const users = await this.userService.getFriendsIds(username, target);
 
     await this.userService.removeFriend(users[0], users[1]);
+
+    return ("Friend removed.");
   }
 
   @UseGuards(AuthGuard)

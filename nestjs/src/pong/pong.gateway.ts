@@ -31,10 +31,8 @@ import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
 import {PongService} from "./pong.service";
 import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils";
-
-// Object.defineProperty(Array.prototype, 'move', {
-//   value: function(from, to):void { this.splice(to, 0, this.splice(from, 1)[0]); }
-// });
+import { UserStatusService } from '../user/user.status.service';
+import { WsGuard } from 'src/ws/ws.guard';
 
 @WebSocketGateway({
   namespace: 'pong',
@@ -42,8 +40,7 @@ import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils"
     origin: '*',
   },
 })
-
-@UseGuards(AuthGuard)
+@UseGuards(WsGuard)
 export class PongGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
@@ -52,6 +49,7 @@ export class PongGateway
       private readonly authService: AuthService,
       private readonly userService: UserService,
       private readonly pongService: PongService,
+      private readonly userStatusService: UserStatusService,
   ) {}
   //les queues en fonction du gameType
   private normalQueue: PlayerEntity[] = [];
@@ -149,7 +147,7 @@ export class PongGateway
       player.state = 'PENDING';
       special == true ? this.specialQueue.push(player) : this.normalQueue.push(player);
       //update user state
-      this.userService
+      this.userStatusService
           .setUserStatus(userLogin, UserStatus.INQUEUE)
           .then((): void => {
           });
@@ -314,11 +312,11 @@ export class PongGateway
           r.user1.state = 'GAMING';
           r.user2.state = 'GAMING';
           // SET GAMERS STATUS AS INGAME
-          this.userService
+          this.userStatusService
               .setUserStatus(r.user1.login, UserStatus.INGAME)
               .then((): void => {
               });
-          this.userService
+          this.userStatusService
               .setUserStatus(r.user2.login, UserStatus.INGAME)
               .then((): void => {
               });

@@ -22,24 +22,18 @@ export const socketManager = new Manager(
   },
 );
 
-export const userSocket = socketManager.socket("/user"); // main namespace
+export const userSocket = socketManager.socket("/"); // main namespace
 export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
 export const dmSocket = socketManager.socket("/dm"); // pong stuff ?
 export const chatroomSocket = socketManager.socket("/chatroom"); // pong stuff ?
 
-export const socketSetHeadersAndReConnect = async (headerData: string) => {
+export const socketSetHeadersAndReConnect = async () => {
   if (!userSocket.connected || !pongSocket.connected) {
     const access_token = await getUserToken();
-    userSocket.io.opts.transportOptions = {
-      polling: {
-        extraHeaders: {
-          User: headerData,
-          authorization: access_token,
-        },
-      },
-    };
-    // userSocket.disconnect().connect();
-    // pongSocket.disconnect().connect();
+    userSocket.auth = { token: access_token };
+    pongSocket.auth = { token: access_token };
+    userSocket.disconnect().connect();
+    pongSocket.disconnect().connect();
     dmSocket.disconnect().connect();
     chatroomSocket.disconnect().connect();
   }

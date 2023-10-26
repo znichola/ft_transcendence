@@ -80,7 +80,7 @@ export const ProtectedRoute = () => {
       !isError
     ) {
       foo.logIn(currentUser);
-      socketSetHeadersAndReConnect(currentUser);
+      socketSetHeadersAndReConnect();
       setTimeout(() => {
         setStatus(queryClient, currentUser, "ONLINE");
       }, 300); // idk why but if it's intantanious it get over written so meh
