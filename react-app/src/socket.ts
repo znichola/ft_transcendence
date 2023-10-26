@@ -38,10 +38,18 @@ export const socketSetHeadersAndReConnect = async (headerData: string) => {
         },
       },
     };
+    pongSocket.io.opts.transportOptions = {
+      polling: {
+        extraHeaders: {
+          User: headerData,
+          authorization: access_token,
+        },
+      },
+    };
     // userSocket.disconnect().connect();
     // pongSocket.disconnect().connect();
-    dmSocket.disconnect().connect();
-    chatroomSocket.disconnect().connect();
+    userSocket.disconnect().connect();
+    // pongSocket.disconnect().connect();
   }
 };
 

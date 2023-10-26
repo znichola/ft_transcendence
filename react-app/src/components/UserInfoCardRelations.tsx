@@ -157,8 +157,8 @@ export function FB2({
   message: string;
   a1: string;
   a2: string;
-  a1btn: () => void;
-  a2btn: () => void;
+  a1btn?: () => void;
+  a2btn?: () => void;
 }) {
   return (
     <div className="flex gap-2">
