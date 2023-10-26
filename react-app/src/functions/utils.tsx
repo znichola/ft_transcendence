@@ -49,3 +49,41 @@ export function convertPerms(perms: TChatroomRole | undefined) {
     ? 2
     : 3;
 }
+
+export function timeAgo(time: string): string {
+  const currentTime = new Date();
+  const inputTime = new Date(time);
+
+  const timeDiffInSeconds = Math.floor(
+    (currentTime.getTime() - inputTime.getTime()) / 1000,
+  );
+
+  const HOUR = 3600;
+  const DAY = 86400;
+  const MONTH = 2.628e6;
+  const YEAR = 3.154e7;
+
+  if (timeDiffInSeconds <= 50) {
+    return "a few seconds ago";
+  } else if (timeDiffInSeconds <= 100) {
+    return "a minute ago";
+  } else if (timeDiffInSeconds <= 55 * 60) {
+    return `${Math.floor(timeDiffInSeconds / 60)} minutes ago`;
+  } else if (timeDiffInSeconds <= 1.5 * HOUR) {
+    return "an hour ago";
+  } else if (timeDiffInSeconds <= 21 * HOUR) {
+    return `${Math.floor(timeDiffInSeconds / HOUR)} hours ago`;
+  } else if (timeDiffInSeconds <= 1.2 * DAY) {
+    return "a day ago";
+  } else if (timeDiffInSeconds <= 27 * DAY) {
+    return `${Math.floor(timeDiffInSeconds / DAY)} days ago`;
+  } else if (timeDiffInSeconds <= 1.2 * MONTH) {
+    return "a month ago";
+  } else if (timeDiffInSeconds <= 11.8 * MONTH) {
+    return `${Math.floor(timeDiffInSeconds / MONTH)} months ago`;
+  } else if (timeDiffInSeconds <= 1.9 * YEAR) {
+    return "a year ago";
+  } else {
+    return `${Math.floor(timeDiffInSeconds / YEAR)} years ago`;
+  }
+}

@@ -30,14 +30,15 @@ export function SearchComponent({
   setSearchValue,
   buttonState,
   setButtonState,
-  buttonClassName,
+  largeYTranslate = false,
   children,
 }: {
   searchValue: string;
   setSearchValue: (value: string) => void;
   buttonState: string;
   setButtonState: (value: SetStateAction<string>) => void;
-  buttonClassName?: string;
+  yTranslation?: string;
+  largeYTranslate?: boolean;
   children?: JSX.Element[] | JSX.Element;
 }) {
   return (
@@ -49,7 +50,7 @@ export function SearchComponent({
         buttonState={buttonState}
         checked="filter-settings"
         filledIn={true}
-        className={buttonClassName}
+        largeYTranslate={largeYTranslate}
       >
         {children}
       </ButtonGeneric>
@@ -130,7 +131,6 @@ export default function UserBrowser({ title }: { title: string }) {
             setSearchValue={setSearchValue}
             buttonState={buttonState}
             setButtonState={setButtonState}
-            buttonClassName="translate-y-10"
           >
             <FilterSettings settings={settings} setSettings={setSettings} />
           </SearchComponent>
@@ -230,7 +230,7 @@ interface ISearchbar {
 function Searchbar({ value, setValue }: ISearchbar) {
   return (
     <form
-      className="flex w-[32rem] min-w-max flex-row items-end justify-center px-6"
+      className="flex w-[28rem] min-w-max flex-row items-end justify-center px-6"
       onSubmit={(e) => {
         e.preventDefault();
         console.log("submitted new image");
@@ -245,9 +245,7 @@ function Searchbar({ value, setValue }: ISearchbar) {
           onChange={(e) => setValue(e.currentTarget.value)}
         />
       </div>
-      <div className="ml-6 flex-grow border-l-2 border-stone-200 pl-6 ">
-        <SubmitBTN lable="Search" />
-      </div>
+      <div className="h-10 flex-grow border-r-2 border-stone-200 pl-6"/>
     </form>
   );
 }

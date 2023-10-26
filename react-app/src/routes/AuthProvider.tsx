@@ -5,6 +5,7 @@ import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
   pongSocket,
+  socketCcnnect,
   socketSetHeadersAndReConnect,
   userSocket,
 } from "../socket";
@@ -48,8 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .get<HttpStatusCode>("/auth/logout")
       .catch((e) => console.log("Auth logout: ", e.data));
     setToken({ isloggedIn: false, user: "", tfa: false });
-    userSocket.disconnect();
-    pongSocket.disconnect();
+    socketCcnnect();
   };
 
   const setFTA = (tfa: boolean) => {

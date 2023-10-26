@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
-import { useChatroomList } from "../api/apiHooks";
+import { useChatroomList, useUserChatrooms } from "../api/apiHooks";
 import { IChatroom } from "../interfaces";
 import { ErrorMessage } from "./ErrorComponents";
 import { IconBashShell } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading";
+import { useAuth } from "../functions/contexts";
+import { authApi } from "../api/axios";
 
 function SmallRoomCard({ room }: { room: IChatroom }) {
   return (
@@ -20,7 +22,8 @@ function SmallRoomCard({ room }: { room: IChatroom }) {
 }
 
 export default function NavChatRooms() {
-  const { data: chatrooms, isLoading, isError } = useChatroomList();
+  const user = useAuth().user;
+  const { data: chatrooms, isLoading, isError } = useUserChatrooms(user);
 
   if (isLoading)
     return <LoadingSpinnerMessage message="loading chatroom data ..." />;

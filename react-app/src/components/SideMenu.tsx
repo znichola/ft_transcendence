@@ -7,11 +7,11 @@ import {
   IconAddPulse,
   IconWorld,
   IconUserGroup,
-  IconHeart,
   IconBolt,
   IconBrain,
   IconFire,
   IconGit,
+  Icon42,
 } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
@@ -21,7 +21,6 @@ import { useCurrentUserData } from "../api/apiHooks.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
-import axios from "axios";
 import { useAuth } from "../functions/contexts.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
@@ -126,15 +125,7 @@ export default function SideMenu({
               name="Logout"
               to="/login"
               onClick={() => {
-                axios
-                  .get<string>("/auth/logout")
-                  .then((r) => {
-                    r.data;
-                    logOut();
-                  })
-                  .catch(() => {
-                    console.log("Cannot logout !");
-                  });
+                logOut();
               }}
               icon={IconFire}
             />
@@ -148,7 +139,16 @@ export default function SideMenu({
               to="https://github.com/znichola/ft_transcendence_test"
               icon={IconGit}
             />
-            <Nav name="Hart on github" icon={IconHeart} />
+            <Nav
+              name="Intra project"
+              icon={Icon42}
+              to="https://projects.intra.42.fr/ft_transcendence/znichola"
+            />
+            <Nav
+              name="Complain about ... the css"
+              to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              icon={IconBolt}
+            />
             <Category name="" />
             <TheMasterminds />
           </div>
@@ -311,14 +311,11 @@ function CurrentUserStats() {
 
 function TheMasterminds() {
   return (
-    <Link
-      to="https://projects.intra.42.fr/ft_transcendence/znichola"
-      className="group mt-auto flex flex-col items-center justify-center px-4"
-    >
+    <div className="group mt-auto flex flex-col items-center justify-center px-4">
       <IconBrain className="h-10 w-10 fill-slate-600 drop-shadow group-hover:fill-red-500" />
       <span className="italic text-slate-600 drop-shadow group-hover:text-red-500">
         les Masterminds
       </span>
-    </Link>
+    </div>
   );
 }

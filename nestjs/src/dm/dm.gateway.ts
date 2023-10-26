@@ -15,7 +15,17 @@ export class DmGateway
 
 	push(payload: ConversationEntity)
 	{
-		console.log(`sending [newDirectMessage] event with payload: ${JSON.stringify(payload)}`);
-		this.server.emit('newDirectMessage', payload);
+		const message = {
+			id: 42,
+			senderLogin42: "Brisa9",
+			content: "Hello, how are you?",
+			sentAt: "2023-10-24T12:00:00",
+		}
+		const payload2 = {
+			name: "Brisa's full name",
+			message: message
+		}
+		console.log(`sending [newDirectMessage] event with payload: ${JSON.stringify(payload2)}`);
+		this.server.emit('newDirectMessage', payload2);
 	}
 }

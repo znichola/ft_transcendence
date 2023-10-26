@@ -1,4 +1,4 @@
-import { Manager } from "socket.io-client";
+import { Manager, io } from "socket.io-client";
 import { getUserToken } from "./api/axios";
 
 // "undefined" means the URL will be computed from the `window.location` object
@@ -24,6 +24,8 @@ export const socketManager = new Manager(
 
 export const userSocket = socketManager.socket("/user"); // main namespace
 export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
+export const dmSocket = socketManager.socket("/dm"); // pong stuff ?
+export const chatroomSocket = socketManager.socket("/chatroom"); // pong stuff ?
 
 export const socketSetHeadersAndReConnect = async (headerData: string) => {
   if (!userSocket.connected || !pongSocket.connected) {
@@ -36,10 +38,26 @@ export const socketSetHeadersAndReConnect = async (headerData: string) => {
         },
       },
     };
-    userSocket.disconnect().connect();
-    pongSocket.disconnect().connect();
+    // userSocket.disconnect().connect();
+    // pongSocket.disconnect().connect();
+    dmSocket.disconnect().connect();
+    chatroomSocket.disconnect().connect();
   }
 };
+
+export function socketDisconnect() {
+  userSocket.disconnect();
+  pongSocket.disconnect(); 
+  dmSocket.disconnect(); 
+  chatroomSocket.disconnect(); 
+}
+
+export function socketCcnnect() {
+  userSocket.connect();
+  pongSocket.connect(); 
+  dmSocket.connect(); 
+  chatroomSocket.connect(); 
+}
 
 // Step 1:- Create manager >
 // manager = SocketManager(socketURL: URL(string: BaseURL)!, config: [.log(true), .compress, .extraHeaders(["token": getStringValue(key: UserDefaultKeys.loginToken)]), .reconnects(true), .forceWebsockets(true), .forcePolling(true), .forceNew(true)])

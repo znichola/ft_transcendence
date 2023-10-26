@@ -180,18 +180,20 @@ export type TGameMode = "CLASSICAL" | "SPECIAL";
 
 //  ws/user
 
-export interface ISocChatroomMessage {
-  chatroomId: number;
-  message: IMessage;
+export interface ISocDirectMessage {
+  name: string;          // so it's easy to display the name in the message notification
+  message: ConvoMessage; // message contnent as it's stored so it can be added to the list, with out refetching everything
 }
 
-export interface ISocDirectMessage {
-  from: Login42;
+export interface ISocChatroomMessage {
+  id: number;
+  name: string;
   message: IMessage;
 }
 
 export interface ISocFriendRequest {
   from: Login42;
+  name: string;
 }
 
 // ws/pong

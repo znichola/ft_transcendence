@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
-import { UserData } from "../interfaces";
+import { IMessage, UserData } from "../interfaces";
 import { useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { IconArrowUturnLeft } from "../components/Icons";
@@ -56,14 +56,18 @@ export default function DirectMessage() {
             (m1, m2) =>
               new Date(m1.sentAt).getTime() - new Date(m2.sentAt).getTime(),
           )
-          .map((m) => {
-            const sender = m.senderLogin42 === user_string ? user : target;
-            const senderSelf = m.senderLogin42 === user_string;
+          .map((m, i) => {
+            const im: IMessage = { ...m, isBlocked: false };
             return (
               <Message
-                sender={sender}
-                text={m.content}
-                left={senderSelf}
+                sender={m.senderLogin42 === user_string ? user : target}
+                message={im}
+                left={m.senderLogin42 === user_string}
+                showIcon={
+                  !(i < messages.length - 1)
+                    ? true
+                    : !(messages[i + 1].senderLogin42 === m.senderLogin42)
+                }
                 key={m.id}
               />
             );
@@ -134,7 +138,6 @@ export function MessageInput({
 
   function sendMessage() {
     if (inputValue === "") return;
-    console.log(user.login42, target.login42, inputValue.length, inputValue);
     addMessage.mutate({
       user1: user.login42,
       user2: target.login42,

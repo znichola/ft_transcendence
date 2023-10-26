@@ -68,10 +68,11 @@ function MsgText({
   return (
     <div className="flex-grow">
       <h3 className="pb-1 font-semibold capitalize">
-        {from && type == "ERROR" ? from : type?.toLowerCase()}
+        {from && (type == "ERROR" || type == "MESSAGE")
+          ? from
+          : type?.toLowerCase()}
       </h3>
       <p className="pl-3">
-        {from && type == "MESSAGE" ? <b>{from}:</b> : ""}
         {type == "CLASSICAL" || type == "SPECIAL" ? (
           <span>
             Accept <b>{from}</b>'s challenge ?

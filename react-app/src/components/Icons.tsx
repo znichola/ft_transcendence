@@ -1185,3 +1185,91 @@ export const IconLock = ({
     </svg>
   );
 };
+
+export const IconTrash = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
+  return (
+    <svg
+      className={className}
+      strokeWidth={strokeWidth}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10 11V17"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M14 11V17"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M4 7H20"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const Icon42 = ({
+  className = "h-5 w-5 align-middle",
+  strokeWidth = 2,
+}: {
+  className?: string;
+  strokeWidth?: number;
+}) => {
+  return (
+    <svg
+      className={className}
+      strokeWidth={strokeWidth}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 -200 960 960"
+      stroke="none"
+      x="0px"
+      y="0px"
+      enableBackground="new 0 -200 960 960"
+    >
+      <polygon
+        id="polygon5"
+        points="32,412.6 362.1,412.6 362.1,578 526.8,578 526.8,279.1 197.3,279.1 526.8,-51.1 362.1,-51.1 
+     32,279.1 "
+      />
+      <polygon id="polygon7" points="597.9,114.2 762.7,-51.1 597.9,-51.1 " />
+      <polygon
+        id="polygon9"
+        points="762.7,114.2 597.9,279.1 597.9,443.9 762.7,443.9 762.7,279.1 928,114.2 928,-51.1 762.7,-51.1 "
+      />
+      <polygon id="polygon11" points="928,279.1 762.7,443.9 928,443.9 " />
+    </svg>
+  );
+};

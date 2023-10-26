@@ -4,9 +4,8 @@ import { convertPerms } from "../functions/utils";
 
 export interface IChatroomManageBTN {
   cardMember?: IMember;
-  userMember?: IMember;
+  currentMember?: IMember;
   cardLogin42: string;
-  isMember: boolean;
   id: string;
 }
 
@@ -51,7 +50,7 @@ export function GenericActionBTN({
   const c = convertPerms(cardRole);
   // prettier-ignore
   // console.log("view:", v, "action", a, "user:", u, "card:", c, cardRole, "value:", value);
-  if (u < v) return <Empty />;
+  if (u < v || c == 3) return <Empty />;
   // prettier-ignore
   if (u < a) // deal with the fixed case!
     return value ? fc ? <Pop message={fcm}>{fc}</Pop> : <Empty /> : fuc ? <Pop message={fucm}>{fuc}</Pop> : <Empty />;

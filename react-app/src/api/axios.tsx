@@ -24,10 +24,15 @@ export const authApi = axios.create({
 
 //-------------------------------------------User-------------------------------------------------------//
 
+export const getLogout = async () => {
+  authApi.get<string>("/auth/logout")
+  .then((r) => {r.data;});
+}
+
 // TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
   authApi.get<string>("/auth/user").then((res) => {
-    console.log("Get current user : ", res.data);
+    // console.log("Get current user : ", res.data);
     return res.data;
   });
 
@@ -199,7 +204,7 @@ export const deleteDMconversation = async (user1: string, user2: string) => {
 //   "content": "new message foobar"
 // }
 
-export const getChatrooomList = async () => {
+export const getChatroomList = async () => {
   return authApi.get<IChatroom[]>("/chatroom/").then((res) => res.data);
 };
 
@@ -219,6 +224,12 @@ export const getChatroomMember = async (id: string, member: string) => {
     .then((res) => res.data);
 };
 
+export const getUserChatrooms = async (login42: string) => {
+  return authApi
+    .get<IChatroom[]>("/user/" + login42 + "/chatrooms/")
+    .then((res) => res.data);
+};
+
 export const getChatroomMessages = async (id: string) => {
   return authApi
     .get<IMessage[]>("/chatroom/" + id + "/messages")
@@ -226,12 +237,16 @@ export const getChatroomMessages = async (id: string) => {
   // .catch((error) => console.log(error.toJSON));
 };
 
-export const postNewChatromm = async (payload: IChatroomPost) => {
+export const postNewChatroom = async (payload: IChatroomPost) => {
   return authApi.post<IChatroom>("/chatroom/", payload).then((res) => res.data);
   // .catch((error) => console.log(error.toJSON));
 };
 
-export const postNewChatrommMessage = async (
+export const deleteChatroom = async (id: string) => {
+  return authApi.delete<HttpStatusCode>("/chatroom/" + id).then((res) => res.data);
+};
+
+export const postNewChatroomMessage = async (
   id: string,
   payload: IMessagePost,
 ) => {
@@ -246,7 +261,7 @@ export const postNewChatrommMessage = async (
 // POST /chatroom/{id}/members
 export const postNewChatroomMember = async (
   id: string,
-  payload: { login42: string },
+  payload: { login42: string, password?: string },
 ) => {
   return authApi
     .post<HttpStatusCode>("/chatroom/" + id + "/members", payload)
