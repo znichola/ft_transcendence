@@ -23,8 +23,8 @@ export default function NotificationProvider({
   const [notifications, setNotifications] = useState<INotification[]>([]);
 
   const addNotif = (notif: INotification) => {
-    console.log("notification href", window.location.pathname, `/${notif.to}`);
-    if (window.location.pathname !== `/${notif.to}`) {
+    // console.log("notification href", window.location.pathname, `/${notif.to?.split("#")[0]}`);
+    if (window.location.pathname !== `/${notif.to?.split("#")[0]}`) {
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         { ...notif, id: randString(8) },

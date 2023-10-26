@@ -32,7 +32,7 @@ export const getLogout = async () => {
 // TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
   authApi.get<string>("/auth/user").then((res) => {
-    console.log("Get current user : ", res.data);
+    // console.log("Get current user : ", res.data);
     return res.data;
   });
 

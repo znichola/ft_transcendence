@@ -48,9 +48,9 @@ export default function SocketNotificatinos({
         message: chat_ev.message.content,
         to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
-      console.log("should be removing the chatroom ev");
+      // console.log("should be removing the chatroom ev");
       // queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
-      console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
+      // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
       queryClient.setQueryData(
         ["ChatroomMessages", chat_ev.id + ""],
         (prev: IMessage[] | undefined) => (prev ? [...prev, chat_ev.message] : prev),
@@ -66,7 +66,7 @@ export default function SocketNotificatinos({
         message: dm_ev.message.content,
         to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
-      console.log("should be removing the dm ev", dm_ev);
+      // console.log("should be removing the dm ev", dm_ev);
       // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
       queryClient.setQueryData(
         ["UserConversations", dm_ev.message.senderLogin42],
@@ -88,22 +88,19 @@ export default function SocketNotificatinos({
     }
   }, [dmEV, setDMEV, chatroomEV, setChatroomEV, frEV, setFREV]); //
 
-  console.log("dms: ", chatroomEV);
-  // console.log("chats: ", chatroomEV);
-
   function getChatroomMessage(ev: ISocChatroomMessage) {
     addChatroomEV(ev);
-    console.log("adding to que the chatroom message");
+    // console.log("adding to que the chatroom message");
   }
 
   function getDMmessage(ev: ISocDirectMessage) {
     addDMEV(ev);
-    console.log("adding to que the dm message", ev);
+    // console.log("adding to que the dm message", ev);
   }
 
   function getFriendRequest(ev: ISocFriendRequest) {
     addFREV(ev);
-    console.log("adding to que the dm message", ev);
+    // console.log("adding to que the dm message", ev);
   }
 
   useEffect(() => {

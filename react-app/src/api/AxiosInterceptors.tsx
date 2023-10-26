@@ -14,13 +14,14 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
       (error) => {
         if (error.response.status) {
           console.log(error.response);
-          addNotif({
-            from: error.response.statusText,
-            message: error.response.data.message,
-            type: "ERROR",
-          });
+          if (window.location.pathname !== "/login") {
+            addNotif({
+              from: error.response.statusText,
+              message: error.response.data.message,
+              type: "ERROR",
+            });
+          }
         }
-
         return Promise.reject(error);
       },
     );
