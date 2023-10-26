@@ -208,8 +208,8 @@ export class PongGateway
     }
   }
 
-  @SubscribeMessage('confirm') // TODO: check qu'il confirme le bon match, donc for each
-  async handleConfirm(
+  @SubscribeMessage('ready') // TODO: check qu'il confirme le bon match, donc for each
+  async handleReady(
       @MessageBody() data: { user1: string, user2: string, special: boolean },
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
@@ -286,7 +286,7 @@ export class PongGateway
     array = array.filter((p: PlayerEntity) => p.state != 'GAMING' && p.state != 'READY');
     // NOT ENOUGH PEOPLE
     if (array.length <= 1) {
-      console.log (`not enough players in ${special} queue`);
+      // console.log (`not enough players in ${special} queue`);
       return ;
     }
     const user1: PlayerEntity = array.shift();
