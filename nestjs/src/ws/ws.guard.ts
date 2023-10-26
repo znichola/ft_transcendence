@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { verify } from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';

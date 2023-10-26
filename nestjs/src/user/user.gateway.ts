@@ -3,7 +3,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, 
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChallengeEntity, UserEntity, UserNameEntity } from './user.entity';
-import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
+import { SocketAuthMiddleware } from 'src/ws/ws.middleware';
 import { WsGuard } from 'src/ws/ws.guard';
 import { UserStatusService } from './user.status.service';
 import { UserStatus } from '@prisma/client';
