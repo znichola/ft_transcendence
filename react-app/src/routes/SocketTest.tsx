@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { socketSetHeadersAndReConnect, dmSocket } from "../socket";
+import { socketSetHeadersAndReConnect, userSocket } from "../socket";
 import { useAuth } from "../functions/contexts";
 import { useQueryClient } from "@tanstack/react-query";
 import { setStatus } from "../api/queryMutations";
@@ -14,7 +14,7 @@ export default function SocketTest() {
 }
 
 function App() {
-  const [isConnected, setIsConnected] = useState(dmSocket.connected);
+  const [isConnected, setIsConnected] = useState(userSocket.connected);
   const qc = useQueryClient();
   const { user } = useAuth();
 
@@ -29,12 +29,12 @@ function App() {
       setStatus(qc, user, "OFFLINE");
     }
 
-    dmSocket.on("connect", onConnect);
-    dmSocket.on("disconnect", onDisconnect);
+    userSocket.on("connect", onConnect);
+    userSocket.on("disconnect", onDisconnect);
 
     return () => {
-      dmSocket.off("connect", onConnect);
-      dmSocket.off("disconnect", onDisconnect);
+      userSocket.off("connect", onConnect);
+      userSocket.off("disconnect", onDisconnect);
     };
   }, [qc, user]);
 
@@ -59,12 +59,12 @@ function ConnectionState({ isConnected }: { isConnected: boolean }) {
 function ConnectionManager() {
   return (
     <>
-      <button className="m-2 border-2 p-2" onClick={() => dmSocket.connect()}>
+      <button className="m-2 border-2 p-2" onClick={() => userSocket.connect()}>
         Connect
       </button>
       <button
         className="m-2 border-2 p-2"
-        onClick={() => dmSocket.disconnect()}
+        onClick={() => userSocket.disconnect()}
       >
         Disconnect
       </button>
@@ -97,7 +97,7 @@ function MyForm() {
     event.preventDefault();
     setIsLoading(true);
 
-    dmSocket.emit("message", value, () => {
+    userSocket.emit("message", value, () => {
       setIsLoading(false);
     });
   }

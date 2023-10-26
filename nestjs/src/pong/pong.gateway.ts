@@ -75,7 +75,7 @@ export class PongGateway
 
   async handleConnection(client: Socket/*, ...args: any[]*/): Promise<void> {
     //get user all info
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const userElo: number = await this.pongService.getUserElo(userLogin);
     console.log(
@@ -133,7 +133,7 @@ export class PongGateway
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
     let index: number;
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     let special: boolean | undefined = data == 'CLASSICAL' ? false : data == 'SPECIAL' ? true : undefined;
     //if info correct && doesn't have WAITING GAMING state on other sockets
@@ -162,7 +162,7 @@ export class PongGateway
       @MessageBody() data: { invitedLogin: string, special: boolean },
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     //CHECK IF BOTH ARE IN UNACCEPTABLE STATE
     if (!this.checkState(userLogin) || !this.checkState(data.invitedLogin))
@@ -187,7 +187,7 @@ export class PongGateway
       @MessageBody() data: { opponent: string, special: boolean },
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const userElo: number = await this.pongService.getUserElo(userLogin);
     // CHECK IF BOTH ARE IN UNACCEPTABLE STATE
@@ -213,7 +213,7 @@ export class PongGateway
       @MessageBody() data: { user1: string, user2: string, special: boolean },
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const index: number = this.findSocketInRoom(client.id);
     if (index != -1) {
@@ -229,7 +229,7 @@ export class PongGateway
       @MessageBody() data: boolean,
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const index: number = this.findSocketInRoom(client.id);
     if (index != -1) {
@@ -245,7 +245,7 @@ export class PongGateway
       @MessageBody() data: boolean,
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const userToken: string = client.handshake.headers.authorization.toString();
+    const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const index: number = this.findSocketInRoom(client.id);
     if (index != -1) {
