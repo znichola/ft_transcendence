@@ -13,6 +13,7 @@ import { ChatroomEntity, ChatroomWithUsername } from 'src/chat/entities/chatroom
 import { FriendData, UserData } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserGateway } from './user.gateway';
+import { UserNameEntity } from './user.entity';
 
 const prisma: PrismaService = new PrismaService();
 
@@ -295,12 +296,21 @@ export class UserService {
   }
 
   async createFriend(requesterId: number, receiverId: number) {
-    await prisma.friend.create({
+    const request = await prisma.friend.create({
       data: {
         user1Id: requesterId,
         user2Id: receiverId,
       },
+      select: {
+        user1: { select: {
+          login42: true,
+          name: true,
+        }},
+        user2: { select: { login42: true }}
+      }
     });
+    const sender = new UserNameEntity(request.user1.login42, request.user1.name);
+    this.userGateway.sendFriendRequest(request.user2.login42, sender);
   }
 
   async removeFriend(user1: number, user2: number) {
