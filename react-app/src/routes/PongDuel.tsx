@@ -17,10 +17,10 @@ export default function PongDuel() {
     setState('READY');
     pongSocket.emit('ready', ev);
   }
-  function getStartGame(ev: ISocRoomCreated) {
+  function getStartGame(_: ISocRoomCreated) {
     setState('PLAYING');
   }
-  function getGameOver(ev: ISocRoomCreated) {
+  function getGameOver(_: ISocRoomCreated) {
     setState('GAME-OVER');
     console.log('game is over motherfucker');
     navigate('/play');

@@ -5,7 +5,7 @@ import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
 import { useEffect, useState } from "react";
 import { pongSocket } from "../socket";
-import { ISocRoomCreated, ISocStartGame } from "../interfaces";
+import { ISocRoomCreated } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components/Loading";
 
 function GameMode({
@@ -117,19 +117,9 @@ function GameAlert({
 function WaitingForGame({ game_mode }: { game_mode: string }) {
   const navigate = useNavigate();
   const [once, setOnce] = useState(true);
-  const [room, setRoom] = useState<ISocRoomCreated | undefined>(undefined);
-  const [state, setState] = useState<
-    "looking-for-game" | "room-created" | "ready" | "start-game"
-  >("looking-for-game");
 
   function getRoomCreated(ev: ISocRoomCreated) {
     navigate(`/pong/${ev.user1}/vs/${ev.user2}/${ev.special}`);
-    setState("room-created");
-    setRoom(ev);
-  }
-
-  function getStartGame(ev: ISocStartGame) {
-    // navigate(ev.)
   }
 
   useEffect(() => {
@@ -147,33 +137,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
 
   return (
     <div className="flex h-fit w-fit flex-col gap-5 p-10">
-      {state == "looking-for-game" ? (
-        <LoadingSpinnerMessage
-          message={`Waiting for a ${game_mode} game ...`}
-        />
-      ) : state == "room-created" ? (
-        <GameAlert
-          player1="default42"
-          player2="default42"
-          setMatchFound={(b: boolean) => {
-            if (!b) {
-              setOnce(true);
-              setState("looking-for-game");
-            } else {
-              setState("ready");
-              pongSocket.emit("ready", room);
-              setRoom(undefined);
-            }
-          }}
-        />
-      ) : state == "ready" ? (
-        <LoadingSpinnerMessage
-          message={`Waiting for opponent to connect ...`}
-        />
-      ) : (
-        <></>
-      )}
-      <div>state: {state}</div>
+      <LoadingSpinnerMessage message={`Looking for a ${game_mode} game ...`} />
     </div>
   );
 }
