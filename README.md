@@ -19,10 +19,10 @@ The database used is PostgreSQL, and the framework used to interact with it is P
 ## Architecture
 This project uses Docker.
 We have in total 4 containers:
-	- A container for the backend, running a node server
-	- A container for our PostgreSQL database
-	- A throwaway container used to build our frontend react code
-	- A container running Nginx, which will serve the fontend code and serve as a reverse-proxy to the node server
+- A container for the backend, running a node server
+- A container for our PostgreSQL database
+- A throwaway container used to build our frontend react code
+- A container running Nginx, which will serve the fontend code and serve as a reverse-proxy to the node server
 
 ## Dev vs Prod
 We have an architecture for development and an architecture for production.
