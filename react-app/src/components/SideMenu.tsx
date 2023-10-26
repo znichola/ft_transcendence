@@ -7,7 +7,6 @@ import {
   IconAddPulse,
   IconWorld,
   IconUserGroup,
-  IconHeart,
   IconBolt,
   IconBrain,
   IconFire,
@@ -22,9 +21,7 @@ import { useCurrentUserData } from "../api/apiHooks.tsx";
 import NavConvos from "./SideMenuConvos.tsx";
 import { useEffect, useState, useRef } from "react";
 import NavChatRooms from "./SideMenuChatRooms.tsx";
-import axios from "axios";
 import { useAuth } from "../functions/contexts.tsx";
-import { getLogout } from "../api/axios.tsx";
 
 type ExpendedLabel = "Messages" | "Chat Channels" | "Friends" | null;
 
