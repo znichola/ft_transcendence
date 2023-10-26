@@ -32,10 +32,6 @@ import { Cron } from '@nestjs/schedule';
 import {PongService} from "./pong.service";
 import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils";
 
-// Object.defineProperty(Array.prototype, 'move', {
-//   value: function(from, to):void { this.splice(to, 0, this.splice(from, 1)[0]); }
-// });
-
 @WebSocketGateway({
   namespace: 'pong',
   cors: {
@@ -110,10 +106,10 @@ export class PongGateway
     // defined afk in IRoom and leave socket.room
     let index: number = this.findSocketInRoom(client.id);
     if (index != -1) {
-      this.roomList[index].user1.client[0].id == client.id
+      this.roomList[index].user1.client.id == client.id
           ? this.roomList[index].gs.p1.afk
           : this.roomList[index].gs.p2.afk;
-      this.roomList[index].user1.client[0].id == client.id
+      this.roomList[index].user1.client.id == client.id
           ? this.roomList[index].user1.state = 'AFK'
           : this.roomList[index].user2.state = 'AFK';
       client.leave(this.roomList[index].roomID);
@@ -361,11 +357,11 @@ export class PongGateway
   ): number {
     if (!type) {
       return this.normalQueue.findIndex(
-          (user: PlayerEntity): boolean => user.client[0].id == socketID,
+          (user: PlayerEntity): boolean => user.client.id == socketID,
       );
     } else {
       return this.specialQueue.findIndex(
-          (user: PlayerEntity): boolean => user.client[0].id == socketID,
+          (user: PlayerEntity): boolean => user.client.id == socketID,
       );
     }
   }
@@ -373,7 +369,7 @@ export class PongGateway
   findSocketInRoom(socketID: string): number {
     return this.roomList.findIndex(
         (room: IRoom): boolean =>
-            socketID == room.user1.client[0].id || socketID == room.user2.client[0].id,
+            socketID == room.user1.client.id || socketID == room.user2.client.id,
     );
   }
 
