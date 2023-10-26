@@ -179,9 +179,9 @@ export class PongGateway
     //SEND INVITE TO ALL SOCKET CHALLENGED IS CONNECTED ON
 
     console.log("lsdjfldkjs", this.findAllLoginsInPlayer(data.invitedLogin));
-
-    // client.send("test", "lksjdf");
-    this.server.emit("test", "sdfsd");
+    console.log("merde: ", client.id);
+    client.send("test", "send");
+    this.server.emit("test", "emite");
 
     await this.createNewRoom(player1, player2, data.special, false);
     this.findAllLoginsInPlayer(data.invitedLogin).forEach((p: PlayerEntity): void => {
