@@ -95,7 +95,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (user.login == to)
 			{
 				console.log('sending to client ', user.client.id);
-				user.client.send(event, message);
+				this.broadcastTo(user.client.id, event, message);
 			}
 		});
 	}
