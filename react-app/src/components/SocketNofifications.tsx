@@ -1,7 +1,15 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
-import { userSocket} from "../socket";
-import { ConvoMessage, IMessage, ISocChatroomMessage, ISocDirectMessage, ISocFriendRequest } from "../interfaces";
+import { userSocket, pongSocket } from "../socket";
+import {
+  ConvoMessage,
+  IMessage,
+  ISocAcceptChallenge,
+  ISocChallenge,
+  ISocChatroomMessage,
+  ISocDirectMessage,
+  ISocFriendRequest,
+} from "../interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SocketNotificatinos({
@@ -53,7 +61,8 @@ export default function SocketNotificatinos({
       // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
       queryClient.setQueryData(
         ["ChatroomMessages", chat_ev.id + ""],
-        (prev: IMessage[] | undefined) => (prev ? [...prev, chat_ev.message] : prev),
+        (prev: IMessage[] | undefined) =>
+          prev ? [...prev, chat_ev.message] : prev,
       );
       removeFirstChatroomEV();
     }
@@ -70,7 +79,8 @@ export default function SocketNotificatinos({
       // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
       queryClient.setQueryData(
         ["UserConversations", dm_ev.message.senderLogin42],
-        (prev: ConvoMessage[] | undefined) => (prev ? [...prev, dm_ev.message] : prev),
+        (prev: ConvoMessage[] | undefined) =>
+          prev ? [...prev, dm_ev.message] : prev,
       );
       removeFirstDMEV();
     }
@@ -103,10 +113,26 @@ export default function SocketNotificatinos({
     // console.log("adding to que the dm message", ev);
   }
 
+  function getChallenge(ev: ISocChallenge) {
+    const type = ev.special ? "SPECIAL" : "CLASSICAL";
+    const accept: ISocAcceptChallenge = {
+      opponent: ev.from,
+      special: ev.special,
+    };
+    addNotif({
+      type: type,
+      from: ev.from,
+      message: `${ev.from} has challenged you, do you accept?`,
+      to: `/pong/${ev.from}/vs/${ev.to}/${type}`,
+      onClick: () => pongSocket.emit("accept", accept),
+    });
+  }
+
   useEffect(() => {
     userSocket.on("newChatroomMessage", getChatroomMessage);
     userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
+    pongSocket.on("challenge", getChallenge);
 
     return () => {
       userSocket.off("newChatroomMessage", getChatroomMessage);

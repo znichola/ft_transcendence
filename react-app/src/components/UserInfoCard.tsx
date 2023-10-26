@@ -154,6 +154,8 @@ export function SideButton2({
   a2,
   to1,
   to2,
+  onClick1,
+  onClick2,
   icon: Icon,
 }: {
   message: string;
@@ -161,6 +163,8 @@ export function SideButton2({
   a2: string;
   to1?: string;
   to2?: string;
+  onClick1?: () => void;
+  onClick2?: () => void;
   icon: ({
     className,
     strokeWidth,
@@ -171,8 +175,14 @@ export function SideButton2({
 }) {
   const navigate = useNavigate();
 
-  const nav1 = () => navigate(to1 || "#");
-  const nav2 = () => navigate(to2 || "#");
+  const nav1 = () => {
+    if (onClick1) onClick1();
+    navigate(to1 || "#");
+  };
+  const nav2 = () => {
+    if (onClick2) onClick2();
+    navigate(to2 || "#");
+  };
 
   return (
     <>
