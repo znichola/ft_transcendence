@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IGameState } from 'src/interfaces';
+import { UserGateway } from 'src/user/user.gateway';
 
 const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class PongService {
+    constructor(private readonly userGateway: UserGateway){}
     async getUserElo(userLogin: string): Promise<number>
     {
         const user = await prisma.user.findUnique({where: { login42: userLogin } });
@@ -34,10 +36,10 @@ export class PongService {
         return (game.id);
     }
 
-    async endGame(gameId: number, gameState: IGameState)
+    async endGame(gameState: IGameState)
     {
         const gameInfo = await prisma.game.findUnique({ 
-            where: { id: gameId },
+            where: { id: gameState.id },
             select: {
                 rated: true,
                 player1StartElo: true,
@@ -59,20 +61,15 @@ export class PongService {
                 player1Score);
         }
         else eloChanges = [0, 0];
-
+        const stringState = JSON.stringify(gameState);
         const endedGame = await prisma.game.update({
-            where: { id: gameId },
+            where: { id: gameState.id },
             data: { 
                 player1Score: gameState.p1.score,
                 player1EloChange: eloChanges[0],
-                player1PosX: gameState.p1.pos.x,
-                player1PosY: gameState.p1.pos.y,
                 player2Score: gameState.p2.score,
                 player2EloChange: eloChanges[1],
-                player2PosX: gameState.p2.pos.x,
-                player2PosY: gameState.p2.pos.y,
-                ballPosX: gameState.balls[0].pos.x,
-                ballPosY: gameState.balls[0].pos.y,
+                gameStateString: stringState
             },
             select: { player1StartElo: true, player2StartElo: true }
         });

@@ -3,6 +3,7 @@ import { RelationData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconBolt, IconChatBubble } from "./Icons";
 import RelationActions, { FB1, FB2 } from "./UserInfoCardRelations";
+import { pongSocket } from "../socket";
 
 export default function UserInfoCard({
   cardUser,
@@ -49,7 +50,21 @@ export default function UserInfoCard({
                 a1={"classical"}
                 a2={"special"}
                 to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
+                onClick1={() => {
+                  console.log("Challenge to classical");
+                  pongSocket.emit("challenge", {
+                    invitedLogin: cardUser.login42,
+                    special: false,
+                  });
+                }}
                 to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
+                onClick2={() => {
+                  console.log("Challenge to special");
+                  pongSocket.emit("challenge", {
+                    invitedLogin: cardUser.login42,
+                    special: true,
+                  });
+                }}
                 icon={IconBolt}
               />
               <SideButton
@@ -154,6 +169,8 @@ export function SideButton2({
   a2,
   to1,
   to2,
+  onClick1,
+  onClick2,
   icon: Icon,
 }: {
   message: string;
@@ -161,6 +178,8 @@ export function SideButton2({
   a2: string;
   to1?: string;
   to2?: string;
+  onClick1?: () => void;
+  onClick2?: () => void;
   icon: ({
     className,
     strokeWidth,
@@ -171,8 +190,14 @@ export function SideButton2({
 }) {
   const navigate = useNavigate();
 
-  const nav1 = () => navigate(to1 || "#");
-  const nav2 = () => navigate(to2 || "#");
+  const nav1 = () => {
+    if (onClick1) onClick1();
+    navigate(to1 || "#");
+  };
+  const nav2 = () => {
+    if (onClick2) onClick2();
+    navigate(to2 || "#");
+  };
 
   return (
     <>

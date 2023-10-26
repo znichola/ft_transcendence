@@ -1,4 +1,4 @@
-import { I2D, IBall, IBalls, IGameState, IPlayer } from '../interfaces';
+import { I2D, IBall, IGameState, IPlayer } from '../interfaces';
 
 export const canvas: I2D = { width: 1, height: 1 };
 export const timer: number = 1000 / 60;
@@ -13,8 +13,7 @@ export const gameStart: IGameState = {
     moveUp: false,
     moveDown: false,
     id: undefined,
-    afk: false,
-    //halo:
+    afk: true,
   },
   p2: {
     pos: { x: 1 - 2 / 85, y: 1 / 2 - 1 / 10 },
@@ -23,8 +22,7 @@ export const gameStart: IGameState = {
     moveUp: false,
     moveDown: false,
     id: undefined,
-    afk: false,
-    //halo:
+    afk: true,
   },
   balls: [
     {
@@ -38,6 +36,7 @@ export const gameStart: IGameState = {
   ],
   timerAfk: 15,
   type: false,
+  id: 0,
 };
 
 export function definePlayerContact(b: IBall, gs: IGameState, canvas: I2D) {
@@ -102,7 +101,7 @@ export function scoreBall(gs: IGameState, canvas: I2D) {
   }
 }
 
-export function createNewBall(bs: IBalls, canvas: I2D) {
+export function createNewBall(bs: Array<IBall>, canvas: I2D) {
   for (let index = 0; index < bs.length; index++) {
     // IF BALL IS TOUCHING THE MIDDLE LINE
     if (

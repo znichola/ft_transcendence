@@ -46,6 +46,7 @@ export class AuthService {
 
   async getLoginFromToken(token: string): Promise<string> {
     const decoded = this.jwtService.decode(token);
+    if (!decoded) return "";
     const login: string = decoded['login'];
     return login;
   }

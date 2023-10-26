@@ -30,6 +30,7 @@ import ProfileElo from "../components/ProfileElo";
 import { CodeInput } from "../components/CodeTFAinput";
 import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
+import { pongSocket } from "../socket";
 
 export default function UserProfile() {
   // data fetching
@@ -241,7 +242,21 @@ function UserInteractions({
         a1={"classical"}
         a2={"special"}
         to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
+        onClick1={() => {
+          console.log("Challenge to classical");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: false,
+          });
+        }}
         to2={`/pong/${currentUser}/vs/${user.login42}/special`}
+        onClick2={() => {
+          console.log("Challenge to special");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: true,
+          });
+        }}
         icon={IconBolt}
       />
       <SideButton

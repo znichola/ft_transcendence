@@ -18,6 +18,7 @@ export function Message({
       className={`flex h-fit w-fit items-center gap-2 rounded-3xl ${
         left ? "text-left" : "ml-auto mr-0 flex-row-reverse"
       } max-w-prose ${showIcon ? "pb-6" : ""}`}
+      id={`message-${message.id}`}
     >
       {showIcon ? (
         <UserIcon user={sender.login42} size={8} />

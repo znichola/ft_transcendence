@@ -1,7 +1,15 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
-import { chatroomSocket, dmSocket, userSocket } from "../socket";
-import { ConvoMessage, RelationData, IMessage, ISocFriendRequest } from "../interfaces";
+import { userSocket, pongSocket } from "../socket";
+import {
+  ConvoMessage,
+  IMessage,
+  ISocAcceptChallenge,
+  ISocChallenge,
+  ISocChatroomMessage,
+  ISocDirectMessage,
+  ISocFriendRequest,
+} from "../interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SocketNotificatinos({
@@ -13,8 +21,8 @@ export default function SocketNotificatinos({
   const queryClient = useQueryClient();
 
   // chatrooms
-  const [chatroomEV, setChatroomEV] = useState<IMessage[]>([]);
-  const addChatroomEV = (e: IMessage) => {
+  const [chatroomEV, setChatroomEV] = useState<ISocChatroomMessage[]>([]);
+  const addChatroomEV = (e: ISocChatroomMessage) => {
     setChatroomEV((prev) => [...prev, e]);
   };
   const removeFirstChatroomEV = () => {
@@ -22,8 +30,8 @@ export default function SocketNotificatinos({
   };
 
   // dms
-  const [dmEV, setDMEV] = useState<ConvoMessage[]>([]);
-  const addDMEV = (e: ConvoMessage) => {
+  const [dmEV, setDMEV] = useState<ISocDirectMessage[]>([]);
+  const addDMEV = (e: ISocDirectMessage) => {
     setDMEV((prev) => [...prev, e]);
   };
   const removeFirstDMEV = () => {
@@ -44,16 +52,17 @@ export default function SocketNotificatinos({
     if (chat_ev) {
       addNotif({
         type: "MESSAGE",
-        from: "chatroom " + chat_ev.id,
-        message: chat_ev.content,
-        to: `chatroom/${chat_ev.id}`,
+        from: chat_ev.name,
+        message: chat_ev.message.content,
+        to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
-      console.log("should be removing the chatroom ev");
+      // console.log("should be removing the chatroom ev");
       // queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
-      console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
+      // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
       queryClient.setQueryData(
         ["ChatroomMessages", chat_ev.id + ""],
-        (prev: IMessage[] | undefined) => (prev ? [...prev, chat_ev] : prev),
+        (prev: IMessage[] | undefined) =>
+          prev ? [...prev, chat_ev.message] : prev,
       );
       removeFirstChatroomEV();
     }
@@ -62,15 +71,16 @@ export default function SocketNotificatinos({
     if (dm_ev) {
       addNotif({
         type: "MESSAGE",
-        from: dm_ev.senderLogin42,
-        message: dm_ev.content,
-        to: `message/${dm_ev.senderLogin42}`,
+        from: dm_ev.name,
+        message: dm_ev.message.content,
+        to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
-      console.log("should be removing the dm ev", dm_ev);
+      // console.log("should be removing the dm ev", dm_ev);
       // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
       queryClient.setQueryData(
-        ["UserConversations", dm_ev.senderLogin42],
-        (prev: ConvoMessage[] | undefined) => (prev ? [...prev, dm_ev] : prev),
+        ["UserConversations", dm_ev.message.senderLogin42],
+        (prev: ConvoMessage[] | undefined) =>
+          prev ? [...prev, dm_ev.message] : prev,
       );
       removeFirstDMEV();
     }
@@ -88,32 +98,49 @@ export default function SocketNotificatinos({
     }
   }, [dmEV, setDMEV, chatroomEV, setChatroomEV, frEV, setFREV]); //
 
-  console.log("dms: ", chatroomEV);
-  // console.log("chats: ", chatroomEV);
-
-  function getChatroomMessage(ev: IMessage) {
+  function getChatroomMessage(ev: ISocChatroomMessage) {
     addChatroomEV(ev);
-    console.log("adding to que the chatroom message");
+    // console.log("adding to que the chatroom message");
   }
 
-  function getDMmessage(ev: ConvoMessage) {
+  function getDMmessage(ev: ISocDirectMessage) {
     addDMEV(ev);
-    console.log("adding to que the dm message", ev);
+    // console.log("adding to que the dm message", ev);
   }
 
   function getFriendRequest(ev: ISocFriendRequest) {
     addFREV(ev);
-    console.log("adding to que the dm message", ev);
+    // console.log("adding to que the dm message", ev);
+  }
+
+  function getChallenge(ev: ISocChallenge) {
+    const type = ev.special ? "SPECIAL" : "CLASSICAL";
+    const accept: ISocAcceptChallenge = {
+      opponent: ev.from,
+      special: ev.special,
+    };
+    console.log("event got it", ev );
+    addNotif({
+      type: type,
+      from: ev.from,
+      message: `${ev.from} has challenged you, do you accept?`,
+      to: `/pong/${ev.from}/vs/${ev.to}/${type}`,
+      onClick: () => pongSocket.emit("accept", accept),
+    });
   }
 
   useEffect(() => {
-    chatroomSocket.on("newChatroomMessage", getChatroomMessage);
-    dmSocket.on("newDirectMessage", getDMmessage);
+    userSocket.on("newChatroomMessage", getChatroomMessage);
+    userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
+    pongSocket.on("challenge", getChallenge);
+    pongSocket.on("test", () => console.log("test recived"))
 
     return () => {
-      chatroomSocket.off("newChatroomMessage", getChatroomMessage);
-      dmSocket.off("newDirectMessage", getDMmessage);
+      userSocket.off("newChatroomMessage", getChatroomMessage);
+      userSocket.off("newDirectMessage", getDMmessage);
+      userSocket.off("newFriendRequest", getFriendRequest);
+      pongSocket.off("challenge", getChallenge);
     };
   }, []);
 

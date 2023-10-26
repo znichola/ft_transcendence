@@ -25,7 +25,14 @@ interface INotifArgs extends INotification {
   destroy: () => void;
 }
 
-function Notification({ message, to, from, type: t, destroy }: INotifArgs) {
+function Notification({
+  message,
+  to,
+  from,
+  type: t,
+  destroy,
+  onClick,
+}: INotifArgs) {
   const navigate = useNavigate();
   return (
     <div
@@ -35,11 +42,12 @@ function Notification({ message, to, from, type: t, destroy }: INotifArgs) {
       }
       role="alert"
     >
-      {to ? (
+      {to || onClick ? (
         <button
           onClick={() => {
-            destroy();
+            if (onClick) onClick();
             if (to) navigate(to);
+            destroy();
           }}
           className="h-full w-full py-3 text-left"
         >
@@ -68,10 +76,11 @@ function MsgText({
   return (
     <div className="flex-grow">
       <h3 className="pb-1 font-semibold capitalize">
-        {from && type == "ERROR" ? from : type?.toLowerCase()}
+        {from && (type == "ERROR" || type == "MESSAGE")
+          ? from
+          : type?.toLowerCase()}
       </h3>
       <p className="pl-3">
-        {from && type == "MESSAGE" ? <b>{from}:</b> : ""}
         {type == "CLASSICAL" || type == "SPECIAL" ? (
           <span>
             Accept <b>{from}</b>'s challenge ?

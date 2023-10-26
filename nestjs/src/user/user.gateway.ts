@@ -1,73 +1,127 @@
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { UserEntity } from './user.entity';
-import { UserService } from './user.service';
+import { ChallengeEntity, UserEntity, UserNameEntity } from './user.entity';
+import { SocketAuthMiddleware } from 'src/ws/ws.middleware';
+import { WsGuard } from 'src/ws/ws.guard';
+import { UserStatusService } from './user.status.service';
 import { UserStatus } from '@prisma/client';
-import { Cron } from '@nestjs/schedule';
+import { DirectMessageEntity } from 'src/dm/entities/direct-message.entity';
+import { MessageEntity, MessageWithChatroomEntity} from 'src/chat/entities/message.entity';
 
 @WebSocketGateway({
-    namespace: 'user',
-    cors: {
-        origin: '*',
-    },
+	cors: {
+		origin: '*',
+	},
 })
-@UseGuards(AuthGuard)
-export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect
+@UseGuards(WsGuard)
+export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-    @WebSocketServer() server: Server;
-    constructor(
-        private readonly authService: AuthService,
-        private readonly userService: UserService,
-        ){}
-    private userList: UserEntity[] = [];
-    // private matchmakingList: UserEntity[] = [];
-    private gamesCount: number = 0;
-    
-    async handleDisconnect(client: Socket)
-    {
-        const userToken: string = client.handshake.headers.authorization.toString();
-        const userLogin = await this.authService.getLoginFromToken(userToken);
-        console.log('User disconnected : ', userLogin);
+	@WebSocketServer() server: Server;
+	constructor(
+		private readonly authService: AuthService,
+		private readonly userStatusService: UserStatusService,
+		){}
+	private userList: UserEntity[] = [];
 
-        let index = this.userList.findIndex(user => user.client.id === client.id);
-        this.userList.splice(index, 1);
-        this.broadcast("removeUser", userLogin);
+	async afterInit(client: Socket)
+	{
+		client.use(SocketAuthMiddleware() as any);
+		console.log('User WS Initialized');
+	}
 
-        // let mmIndex = this.matchmakingList.findIndex(user => user.client.id == client.id)
-        // if (mmIndex) this.userList.splice(mmIndex, 1);
+	async handleDisconnect(client: Socket)
+	{
+		const userToken: string = client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
 
-        if (this.userList.findIndex(user => user.login === userLogin) == -1)
-            await this.userService.setUserStatus(userLogin, UserStatus.OFFLINE);
+		let index = this.userList.findIndex(user => user.client.id === client.id);
+		this.userList.splice(index, 1);
 
-    }
+		if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		{
+			await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
+			this.broadcast("userDisconnect", userLogin);
+		}
+	}
 
-    async handleConnection(client: Socket)
-    {
-        const userToken: string = client.handshake.headers.authorization.toString();
-        const userLogin = await this.authService.getLoginFromToken(userToken);
+	async handleConnection(client: Socket)
+	{
+		const userToken: string = client.handshake.auth.token;
+		const userLogin = await this.authService.getLoginFromToken(userToken);
 
-        console.log('User connected : ', userLogin);
+		console.log('User connected : ', userLogin);
 
-        this.broadcast("addUser", userLogin);
-        const user: UserEntity = new UserEntity(userLogin, client);
-        this.userList.push(user);
+		const user: UserEntity = new UserEntity(userLogin, client);
 
-        // if (this.matchmakingList.findIndex(user => user.login === userLogin) == -1)
-            // this.matchmakingList.push(user)
+		if (this.userList.findIndex(user => user.login === userLogin) == -1)
+		{
+			await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
+			this.broadcast("userConnect", userLogin);
+		}
 
-        await this.userService.setUserStatus(userLogin, UserStatus.ONLINE);
-    }
+		this.userList.push(user);
+	}
 
-    broadcast(event: string, user: string)
-    {
-        this.server.emit(event, user);
-    }
+	sendFriendRequest(to: string, sender: UserNameEntity)
+	{
+		this.toAllUserClients(to, 'friendRequest', sender);
+	}
 
-    broadcastTo(room: string, event: string, message: string)
-    {
-        this.server.to(room).emit(event, message);
-    }
+	/* Challenge part probably needs to be transfered to the pong gateway */
+
+	sendChallenge(to: string, challenge: ChallengeEntity)
+	{
+		this.toAllUserClients(to, 'challenge', challenge);
+	}
+
+	@SubscribeMessage('declineChallenge')
+	handleDeclineChallenge(client: Socket, challenge: ChallengeEntity)
+	{
+		console.log('challenge with id ', challenge.gameId, ' declined.');
+	}
+
+	@SubscribeMessage('acceptChallenge')
+	handleAcceptChallenge(client: Socket, challenge: ChallengeEntity)
+	{
+		console.log('challenge with id ', challenge.gameId, ' accepted.');
+		console.log('Accepting client ID is ', client.id);
+	}
+
+	toAllUserClients(to: string, event: string, message: any)
+	{
+		this.userList.forEach((user) => {
+			if (user.login == to)
+			{
+				console.log('sending to client ', user.client.id);
+				user.client.send(event, message);
+			}
+		});
+	}
+
+	sendUserUpdated(login: string)
+	{
+		this.server.emit('userUpdated', login);
+	}
+
+	sendDM(msg: DirectMessageEntity, to: string)
+	{
+		this.toAllUserClients(to, 'dm', msg);
+	}
+
+	sendToChatroom(msg: MessageWithChatroomEntity, to: string)
+	{
+		this.toAllUserClients(to, 'chatroomMessage', msg);
+	}
+
+	broadcast(event: string, user: string)
+	{
+		this.server.emit(event, user);
+	}
+
+	broadcastTo(room: string, event: string, message: string)
+	{
+		this.server.to(room).emit(event, message);
+	}
 }

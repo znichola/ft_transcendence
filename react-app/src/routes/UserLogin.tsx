@@ -70,7 +70,7 @@ function DevLogin() {
           .then(async () => {
             logIn(login);
             navigate("/play");
-            await socketSetHeadersAndReConnect(login);
+            await socketSetHeadersAndReConnect();
             setTimeout(() => {
               setStatus(qc, login, "ONLINE");
             }, 300);

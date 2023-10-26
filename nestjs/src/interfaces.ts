@@ -1,4 +1,4 @@
-import {UserEntity} from "./user/user.entity";
+import {UserEntity, PlayerEntity} from "./user/user.entity";
 
 export interface FriendData {
   login42: string,
@@ -76,25 +76,22 @@ export type I2D = { width: number; height: number };
 
 export interface IRoom {
   gs: IGameState;
-  user1: IUserInfo;
-  user2: IUserInfo;
+  user1: PlayerEntity;
+  user2: PlayerEntity;
   roomID: string;
   type: boolean;
-  //state: string // GAMING, WAITING, OVER
+  ranked: boolean;
 }
 
-export interface IUserInfo {
-  info: UserEntity;
-  //halo: number;
-}
 export interface IGameState {
   p1: IPlayer;
   p2: IPlayer;
-  balls: IBalls;
+  balls: Array<IBall>;
   timerAfk: number;
   type: boolean;
-  //state: string // GAMING, WAITING, OVER
+  id: number;//TODO CHEKC IF OK
 }
+
 export interface IBall {
   pos: IPos;
   radius: number;
@@ -103,7 +100,9 @@ export interface IBall {
   mitosis: boolean;
   bounce: number;
 }
-export interface IBalls extends Array<IBall> {}
+
+// export interface IBalls extends Array<IBall> {}
+
 export interface IPos {
   x: number;
   y: number;
@@ -120,6 +119,6 @@ export interface IPlayer {
   score: number;
   moveUp: boolean;
   moveDown: boolean;
-  id: string | undefined; // TODO SUPPRIMER
+  id: string | undefined;
   afk: boolean;
 }

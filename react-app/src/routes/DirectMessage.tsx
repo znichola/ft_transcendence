@@ -138,7 +138,6 @@ export function MessageInput({
 
   function sendMessage() {
     if (inputValue === "") return;
-    console.log(user.login42, target.login42, inputValue.length, inputValue);
     addMessage.mutate({
       user1: user.login42,
       user2: target.login42,
