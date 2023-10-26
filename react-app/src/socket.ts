@@ -33,7 +33,7 @@ export function socketDisconnect() {
   pongSocket.disconnect();
 }
 
-export function socketCcnnect() {
+export function socketConnect() {
   userSocket.connect();
   pongSocket.connect();
 }

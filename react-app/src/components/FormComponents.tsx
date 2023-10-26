@@ -12,14 +12,14 @@ interface IInputField {
 
 export function Heading({ title }: { title: string }) {
   return (
-    <h1 className=" gradient-hightlight py-2 text-center text-5xl font-bold ">
+    <h1 className=" gradient-hightlight py-2 text-center text-5xl font-bold break-words overflow-hidden min-w-0 ">
       {title}
     </h1>
   );
 }
 
 export function PreHeading({ text }: { text: string }) {
-  return <p className="text-left font-semibold">{text}</p>;
+  return <p className="text-left font-semibold break-words overflow-hidden min-w-0">{text}</p>;
 }
 
 export function InputField({
@@ -51,7 +51,7 @@ export function InputField({
       >
         <input
           id="channel-name-input"
-          className="w-full bg-transparent outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200"
+          className="w-full bg-transparent outline-none placeholder:text-slate-300 focus:border-none focus:ring-0 disabled:cursor-not-allowed disabled:text-slate-200 pr-20"
           type="text"
           autoComplete="off"
           maxLength={max}

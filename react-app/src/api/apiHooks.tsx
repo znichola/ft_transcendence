@@ -29,7 +29,10 @@ import {
   postUserAvatar,
   getUserChatrooms,
   deleteChatroom,
-  getLogout
+  getLogout,
+  getUserBlocked,
+  postUserBlock,
+  deleteUserBlock
 } from "./axios";
 import {
   QueryClient,
@@ -46,6 +49,7 @@ import {
   UserData,
 } from "../interfaces";
 import { AxiosError } from "axios";
+import { useAuth } from "../functions/contexts";
 
 export function useCurrentUser() {
   return useQuery({
@@ -80,7 +84,7 @@ export function useUserData(login42?: string) {
 // }
 
 export function useCurrentUserData() {
-  const { data: currentUser } = useCurrentUser();
+  const currentUser = useAuth().user;
 
   return useQuery({
     queryKey: ["UserData", currentUser],
@@ -169,10 +173,10 @@ export function useMutUserProfile(user: string) {
   return useMutation({
     retry: false,
     mutationFn: (paylaod: IPutUserProfile) => putUserProfile(user, paylaod),
-    onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: ["UserData", user],
-      });
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData(["UserData", user], (oldProfil: UserData | undefined) =>
+        oldProfil ? {...oldProfil, name: variables?.name || oldProfil.name, bio: variables?.bio || oldProfil.bio} : oldProfil
+      );
     },
   });
 }
@@ -196,6 +200,16 @@ export function useUserFriends(user: string) {
   return useQuery({
     queryKey: ["Friends"],
     queryFn: () => getUserFriends(user),
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: user != "",
+  });
+}
+
+export function useUserBlocked(user: string) {
+  return useQuery({
+    queryKey: ["Blocked"],
+    queryFn: () => getUserBlocked(user),
     staleTime: 5 * (60 * 1000), // 5 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user != "",
@@ -387,7 +401,6 @@ export function useMutDeleteChatroomMember(id: string) {
     mutationFn: ({login42, selfDelete = false}:{login42: string, selfDelete?: boolean}) => deleteChatroomMember(id, login42),
     onSuccess: (_, variables) => {
       if (variables.selfDelete) {
-        console.log("Self Leave !")
         queryClient.removeQueries({
           queryKey: ["ChatroomMembers", id],
         });
@@ -515,12 +528,34 @@ export function useMutJoinChatroom() {
   return useMutation({
     mutationFn: async ({ chatroom, payload }:{chatroom: IChatroom, payload: {login42: string, password: string}}) => postNewChatroomMember(chatroom.id.toString(), payload),
     onSuccess: (_, variables) => {
-      console.log("Chatroom Joined !");
       queryClient.setQueryData(["UserChatrooms"], (oldChatrooms: IChatroom[] | undefined) =>
         oldChatrooms ? oldChatrooms.concat(variables.chatroom) : oldChatrooms,
       );
     },
-    onError: () => console.log("Error !!!")
+  });
+}
+
+export function useMutBlockUser(currentUser: string, target: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => postUserBlock(currentUser, target),
+    onSuccess: () => {
+      queryClient.setQueryData(["Blocked"], (oldBlocked: string[] | undefined) =>
+        oldBlocked ? oldBlocked.concat(target) : oldBlocked
+      );
+    },
+  });
+}
+
+export function useMutUnblockUser(currentUser: string, target: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => deleteUserBlock(currentUser, target),
+    onSuccess: () => {
+      queryClient.setQueryData(["Blocked"], (oldBlocked: string[] | undefined) =>
+        oldBlocked ? oldBlocked.filter((s) => s != target) : oldBlocked
+      );
+    },
   });
 }
 
@@ -530,7 +565,7 @@ export function useMutLogout() {
     mutationFn: async () => getLogout(),
     onSuccess: () => {
       console.log("Successfully logout !");
-      queryClient.removeQueries(); //TODO: optimiser un jour si on a le temps
+      queryClient.clear();
     },
     onError: () => console.log("Error: cannot logout !")
   });
