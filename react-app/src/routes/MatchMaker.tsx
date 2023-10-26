@@ -1,9 +1,12 @@
 import BoxMenu from "../components/BoxMenu";
 import { Heading } from "../components/FormComponents";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { pongSocket } from "../socket";
+import { ISocRoomCreated, ISocStartGame } from "../interfaces";
+import { LoadingSpinnerMessage } from "../components/Loading";
 
 function GameMode({
   className,
@@ -70,23 +73,16 @@ function GameModeSelection() {
 
 // TODO : wait for game_id when click and then redirect
 function GameAlert({
-  class_name,
   player1,
   player2,
   setMatchFound,
 }: {
-  class_name: string;
   player1: string;
   player2: string;
   setMatchFound: (v: boolean) => void;
 }) {
   return (
-    <div
-      className={
-        "min-w-screen fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm " +
-        class_name
-      }
-    >
+    <div className="min-w-screen fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm ">
       <div className="flex h-80 w-[42rem] max-w-[75%] flex-col items-center justify-center overflow-hidden rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
         <h1 className="flex grow items-center justify-center bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
           {"Game Found !"}
@@ -119,25 +115,76 @@ function GameAlert({
 
 //TODO : invalidate wrong gmae_mode request
 function WaitingForGame({ game_mode }: { game_mode: string }) {
-  const [matchFound, setMatchFound] = useState(false);
+  const navigate = useNavigate();
+  const [once, setOnce] = useState(true);
+  const [room, setRoom] = useState<ISocRoomCreated | undefined>(undefined);
+  const [state, setState] = useState<
+    "looking-for-game" | "room-created" | "ready" | "start-game"
+  >("looking-for-game");
+
+  function getRoomCreated(ev: ISocRoomCreated) {
+    navigate(`/pong/${ev.user1}/vs/${ev.user2}/${ev.special}`);
+    setState("room-created");
+    setRoom(ev);
+  }
+
+  function getStartGame(ev: ISocStartGame) {
+    // navigate(ev.)
+  }
+
+  useEffect(() => {
+    if (once) {
+      pongSocket.emit("looking-for-game", { special: game_mode == "SPECIAL" });
+      setOnce(false);
+    }
+    pongSocket.on("room-created", getRoomCreated);
+
+    return () => {
+      pongSocket.off("room-created", getRoomCreated);
+    };
+  }),
+    [pongSocket, getRoomCreated];
 
   return (
     <div className="flex h-fit w-fit flex-col gap-5 p-10">
-      <h2>{"Waiting for a " + game_mode + " Game ..."}</h2>
-      <GameAlert
-        class_name={matchFound ? "" : "hidden"}
-        player1="default42"
-        player2="default42"
-        setMatchFound={setMatchFound}
-      />
-      <button
-        className="rounded-xl border-4 border-stone-200 p-3 hover:cursor-pointer"
-        onClick={() => setMatchFound(true)}
-      >
-        Magic button : Find a game
-      </button>
+      {state == "looking-for-game" ? (
+        <LoadingSpinnerMessage
+          message={`Waiting for a ${game_mode} game ...`}
+        />
+      ) : state == "room-created" ? (
+        <GameAlert
+          player1="default42"
+          player2="default42"
+          setMatchFound={(b: boolean) => {
+            if (!b) {
+              setOnce(true);
+              setState("looking-for-game");
+            } else {
+              setState("ready");
+              pongSocket.emit("ready", room);
+              setRoom(undefined);
+            }
+          }}
+        />
+      ) : state == "ready" ? (
+        <LoadingSpinnerMessage
+          message={`Waiting for opponent to connect ...`}
+        />
+      ) : (
+        <></>
+      )}
+      <div>state: {state}</div>
     </div>
   );
+}
+
+{
+  /* <button
+className="rounded-xl border-4 border-stone-200 p-3 hover:cursor-pointer"
+onClick={() => setMatchFound(true)}
+>
+Magic button : Find a game
+</button> */
 }
 
 export default function MatchMaker() {
