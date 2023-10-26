@@ -13,7 +13,6 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
       },
       (error) => {
         if (error.response.status) {
-          console.log(error.response);
           addNotif({
             from: error.response.statusText,
             message: error.response.data.message,

@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
 import { chatroomSocket, dmSocket, userSocket } from "../socket";
-import { ConvoMessage, FriendData, IMessage, ISocFriendRequest } from "../interfaces";
+import { ConvoMessage, RelationData, IMessage, ISocFriendRequest } from "../interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SocketNotificatinos({

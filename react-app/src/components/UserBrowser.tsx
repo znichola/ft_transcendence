@@ -6,7 +6,6 @@ import {
   InputField,
   InputToggle,
   PreHeading,
-  SubmitBTN,
 } from "./FormComponents";
 import { authApi } from "../api/axios";
 import { IUsersAll, UserFriends } from "../interfaces";
@@ -240,7 +239,7 @@ function Searchbar({ value, setValue }: ISearchbar) {
         <InputField
           value={value}
           lable=""
-          max={40}
+          max={42}
           placeholder={""}
           onChange={(e) => setValue(e.currentTarget.value)}
         />

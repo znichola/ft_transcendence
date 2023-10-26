@@ -52,7 +52,7 @@ export function socketDisconnect() {
   chatroomSocket.disconnect(); 
 }
 
-export function socketCcnnect() {
+export function socketConnect() {
   userSocket.connect();
   pongSocket.connect(); 
   dmSocket.connect(); 

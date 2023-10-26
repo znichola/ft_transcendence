@@ -5,12 +5,13 @@ import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
   pongSocket,
-  socketCcnnect,
+  socketConnect,
+  socketDisconnect,
   socketSetHeadersAndReConnect,
   userSocket,
 } from "../socket";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser } from "../api/apiHooks";
+import { useCurrentUser, useMutLogout } from "../api/apiHooks";
 
 export type IAuth = {
   isloggedIn: boolean;
@@ -32,6 +33,9 @@ export const AuthContext = createContext<IAuth>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+
+  const logOutMut = useMutLogout();
+
   const [auth, setToken] = useState({
     isloggedIn: false,
     user: "",
@@ -45,11 +49,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logOut = () => {
-    axios
-      .get<HttpStatusCode>("/auth/logout")
-      .catch((e) => console.log("Auth logout: ", e.data));
+    logOutMut.mutate();
     setToken({ isloggedIn: false, user: "", tfa: false });
-    socketCcnnect();
+    socketDisconnect();
   };
 
   const setFTA = (tfa: boolean) => {

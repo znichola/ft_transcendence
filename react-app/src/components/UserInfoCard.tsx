@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FriendData, UserData, UserFriends } from "../interfaces";
+import { RelationData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconBolt, IconChatBubble } from "./Icons";
 import RelationActions, { FB1, FB2 } from "./UserInfoCardRelations";
@@ -13,7 +13,7 @@ export default function UserInfoCard({
   currentUser: string;
   userFriends: UserFriends;
 }) {
-  const ff = (f: FriendData) => f.login42 == cardUser.login42;
+  const ff = (f: RelationData) => f.login42 == cardUser.login42;
   const relationStatus = userFriends.friends.find(ff)
     ? "friends"
     : userFriends.pending.find(ff)

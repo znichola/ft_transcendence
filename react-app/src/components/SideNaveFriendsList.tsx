@@ -1,4 +1,4 @@
-import { FriendData, UserData } from "../interfaces";
+import { RelationData, UserData } from "../interfaces";
 import { LoadingDots } from "./Loading";
 import { UserIcon } from "./UserIcon";
 import { Link } from "react-router-dom";
@@ -50,7 +50,7 @@ function NavRequest({
 }: {
   status: relationStatus;
   currentUser: string;
-  cardUser: FriendData;
+  cardUser: RelationData;
 }) {
   return (
     <nav className="flex flex-1">

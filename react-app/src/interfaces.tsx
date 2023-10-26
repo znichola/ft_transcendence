@@ -1,4 +1,4 @@
-export interface FriendData {
+export interface RelationData {
   login42: string;
   name: string;
   status: string;
@@ -6,9 +6,9 @@ export interface FriendData {
 }
 
 export interface UserFriends {
-  friends: FriendData[];
-  pending: FriendData[];
-  requests: FriendData[];
+  friends: RelationData[];
+  pending: RelationData[];
+  requests: RelationData[];
 }
 
 export interface UserData {
