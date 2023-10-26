@@ -42,3 +42,43 @@ export class MessageEntity
 	@ApiProperty()
 	isBlocked: boolean;
 }
+
+const messageWithChatroom = Prisma.validator<Prisma.MessageDefaultArgs>()({
+	select: {
+		id: true,
+		text: true,
+		sentAt: true,
+		user: {
+			select: {
+				login42: true
+			}
+		},
+		chatroom: {
+			select: {
+				id: true,
+				name: true
+			}
+		}
+	}
+})
+
+export type MessageWithChatroom = Prisma.MessageGetPayload<typeof messageWithChatroom>;
+
+export class MessageWithChatroomEntity
+{
+	constructor(prismaObject: MessageWithChatroom)
+	{
+		this.id = prismaObject.chatroom.id;
+		this.name = prismaObject.chatroom.name;
+		this.message = new MessageEntity(prismaObject, false);
+	}
+
+	@ApiProperty()
+	id: number;
+
+	@ApiProperty()
+	name: string;
+
+	@ApiProperty()
+	message: MessageEntity;
+}

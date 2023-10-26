@@ -1,5 +1,5 @@
 import { PrismaService } from "src/prisma/prisma.service";
-import { MessageEntity, MessageWithUsername } from "../entities/message.entity";
+import { MessageEntity, MessageWithChatroomEntity, MessageWithUsername } from "../entities/message.entity";
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { ChatUtils } from "./chat-utils.service";
 import { UserGateway } from "src/user/user.gateway";
@@ -144,6 +144,12 @@ export class ChatMessageService
 					select: {
 						login42: true
 					}
+				},
+				chatroom: {
+					select: {
+						id: true,
+						name: true
+					}
 				}
 			}
 		});
@@ -174,7 +180,7 @@ export class ChatMessageService
 
 		for (const member of members)
 		{
-			this.gateway.sendToChatroom(new MessageEntity(msgFromDb, false), member.user.login42);
+			this.gateway.sendToChatroom(new MessageWithChatroomEntity(msgFromDb), member.user.login42);
 		}
 	}
 

@@ -8,7 +8,7 @@ import { WsGuard } from 'src/ws/ws.guard';
 import { UserStatusService } from './user.status.service';
 import { UserStatus } from '@prisma/client';
 import { DirectMessageEntity } from 'src/dm/entities/direct-message.entity';
-import { MessageEntity} from 'src/chat/entities/message.entity';
+import { MessageEntity, MessageWithChatroomEntity} from 'src/chat/entities/message.entity';
 
 @WebSocketGateway({
 	cors: {
@@ -24,8 +24,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		private readonly userStatusService: UserStatusService,
 		){}
 	private userList: UserEntity[] = [];
-	
-	async afterInit(client: Socket) 
+
+	async afterInit(client: Socket)
 	{
 		client.use(SocketAuthMiddleware() as any);
 		console.log('User WS Initialized');
@@ -60,7 +60,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
 			this.broadcast("userConnect", userLogin);
 		}
-		
+
 		this.userList.push(user);
 	}
 
@@ -110,7 +110,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.toAllUserClients(to, 'dm', msg);
 	}
 
-	sendToChatroom(msg: MessageEntity, to: string)
+	sendToChatroom(msg: MessageWithChatroomEntity, to: string)
 	{
 		this.toAllUserClients(to, 'chatroomMessage', msg);
 	}
