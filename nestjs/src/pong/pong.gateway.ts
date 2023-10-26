@@ -27,7 +27,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
 import { PlayerEntity, UserEntity } from '../user/user.entity';
-// import { User, UserStatus } from '@prisma/client';
+import { User, UserStatus } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
 import {PongService} from "./pong.service";
 import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils";
