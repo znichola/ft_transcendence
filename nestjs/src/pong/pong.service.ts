@@ -61,20 +61,15 @@ export class PongService {
                 player1Score);
         }
         else eloChanges = [0, 0];
-
+        const stringState = JSON.stringify(gameState);
         const endedGame = await prisma.game.update({
             where: { id: gameState.id },
             data: { 
                 player1Score: gameState.p1.score,
                 player1EloChange: eloChanges[0],
-                player1PosX: gameState.p1.pos.x,
-                player1PosY: gameState.p1.pos.y,
                 player2Score: gameState.p2.score,
                 player2EloChange: eloChanges[1],
-                player2PosX: gameState.p2.pos.x,
-                player2PosY: gameState.p2.pos.y,
-                ballPosX: gameState.balls[0].pos.x,
-                ballPosY: gameState.balls[0].pos.y,
+                gameStateString: stringState
             },
             select: { player1StartElo: true, player2StartElo: true }
         });
