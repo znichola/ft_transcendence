@@ -28,7 +28,7 @@ export class TfaController {
         const qrCode = await toBuffer(otpauthUrl);
         res.header('Content-Type', 'image/png');
         res.header('Content-Disposition', 'inline; filename=qr.png');
-        res.send(qrCode);
+        res.status(200).send(qrCode);
     }
 
     @UseGuards(AuthGuard)
@@ -49,9 +49,9 @@ export class TfaController {
     async disableTfa(@Param('username') username: string, @Res() res: Response, @Req() req: Request)
     {
         await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
-        // res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Type', 'text/html');
         await this.tfaService.disableTfa(username);
-        return ("OK");
+        res.status(200).send();
     }
 
     @UseGuards(TfaGuard)
@@ -100,6 +100,6 @@ export class TfaController {
             maxAge: 3600000,
             });
 
-        res.status(200).json({ login: username });
+        res.status(200).json({ login: username, tfa: true });
     }
 }
