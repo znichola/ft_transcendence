@@ -101,7 +101,7 @@ export function scoreBall(gs: IGameState, canvas: I2D) {
   }
 }
 
-export function createNewBall(bs: IBalls, canvas: I2D) {
+export function createNewBall(bs: Array<IBall>, canvas: I2D) {
   for (let index = 0; index < bs.length; index++) {
     // IF BALL IS TOUCHING THE MIDDLE LINE
     if (

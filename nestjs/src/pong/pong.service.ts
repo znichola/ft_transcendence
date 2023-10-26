@@ -61,7 +61,7 @@ export class PongService {
         else eloChanges = [0, 0];
 
         const endedGame = await prisma.game.update({
-            where: { id: gameId },
+            where: { id: gameState.id },
             data: { 
                 player1Score: gameState.p1.score,
                 player1EloChange: eloChanges[0],

@@ -345,13 +345,13 @@ export class PongGateway
       gs.timerAfk -= timer / 1000;
       if (gameStart.timerAfk <= 0) return; //TODO GIVE DATA INFO
     }
-    this.server.emit('upDate', <any>gs);
+    this.broadcastTo(`${gs.id}`, 'upDate', <any>gs);
     if (!this.isGameOver(gs))
       setTimeout((): void => {
         this.pongCalculus(gs, canvas);
       }, timer);
     else
-      await this.pongService.endGame(gs);
+      gs.p1.afk && gs.p2.afk ? await this.pongService.cancelGame(gs.id) : await this.pongService.endGame(gs);
   }
 
   /////////////////////////////////////////////////////////////////// QUEUE LIST
@@ -421,10 +421,16 @@ export class PongGateway
 
   isGameOver(gs: IGameState): boolean {
     if (gs.timerAfk <= 0)
-      return true;
+    {
+      if (gs.p1.afk && !gs.p2.afk)
+        gs.type == true ? gs.p2.score = 30 : gs.p2.score = 5;
+      else if (!gs.p1.afk && gs.p2.afk)
+        gs.type == true ? gs.p1.score = 30 : gs.p1.score = 5;
+      else
+        return false;
+    }
     if (gs.type && (gs.p1.score == 30 || gs.p2.score == 30))
       return true;
-    if (!gs.type && (gs.p1.score == 5 || gs.p2.score == 5))
-      return true;
+    return !gs.type && (gs.p1.score == 5 || gs.p2.score == 5);
   }
 }
