@@ -108,10 +108,10 @@ export class PongGateway
     // defined afk in IRoom and leave socket.room
     let index: number = this.findSocketInRoom(client.id);
     if (index != -1) {
-      this.roomList[index].user1.client[0].id == client.id
+      this.roomList[index].user1.client.id == client.id
           ? this.roomList[index].gs.p1.afk
           : this.roomList[index].gs.p2.afk;
-      this.roomList[index].user1.client[0].id == client.id
+      this.roomList[index].user1.client.id == client.id
           ? this.roomList[index].user1.state = 'AFK'
           : this.roomList[index].user2.state = 'AFK';
       client.leave(this.roomList[index].roomID);
@@ -164,6 +164,7 @@ export class PongGateway
   ): Promise<void> {
     const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    console.log("-------------------------");
     //CHECK IF BOTH ARE IN UNACCEPTABLE STATE
     if (!this.checkState(userLogin) || !this.checkState(data.invitedLogin))
        return ;
@@ -176,10 +177,19 @@ export class PongGateway
     //CREATING ROOM
     player1.state = 'PENDING';
     //SEND INVITE TO ALL SOCKET CHALLENGED IS CONNECTED ON
+
+    console.log("lsdjfldkjs", this.findAllLoginsInPlayer(data.invitedLogin));
+
+    // client.send("test", "lksjdf");
+    this.server.emit("test", "sdfsd");
+
     await this.createNewRoom(player1, player2, data.special, false);
     this.findAllLoginsInPlayer(data.invitedLogin).forEach((p: PlayerEntity): void => {
-        p.client.send('challenge', <any>{from: userLogin, to: data.invitedLogin, special: data.special} );
+      console.log("challenge lsjdflsd", {from: userLogin, to: data.invitedLogin, special: data.special});
+      p.client.send('challenge', <any>{from: userLogin, to: data.invitedLogin, special: data.special} );
     });
+    console.log("challenge end", data);
+
   }
 
   @SubscribeMessage('accept')
@@ -359,11 +369,11 @@ export class PongGateway
   ): number {
     if (!type) {
       return this.normalQueue.findIndex(
-          (user: PlayerEntity): boolean => user.client[0].id == socketID,
+          (user: PlayerEntity): boolean => user.client.id == socketID,
       );
     } else {
       return this.specialQueue.findIndex(
-          (user: PlayerEntity): boolean => user.client[0].id == socketID,
+          (user: PlayerEntity): boolean => user.client.id == socketID,
       );
     }
   }
@@ -371,7 +381,7 @@ export class PongGateway
   findSocketInRoom(socketID: string): number {
     return this.roomList.findIndex(
         (room: IRoom): boolean =>
-            socketID == room.user1.client[0].id || socketID == room.user2.client[0].id,
+            socketID == room.user1.client.id || socketID == room.user2.client.id,
     );
   }
 

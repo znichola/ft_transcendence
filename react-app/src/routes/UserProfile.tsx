@@ -195,19 +195,21 @@ function UserInteractions({
         a1={"classical"}
         a2={"special"}
         to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
-        onClick1={() =>
+        onClick1={() => {
+          console.log("Challenge to classical");
           pongSocket.emit("challenge", {
             invitedLogin: cardUser.login42,
             special: false,
-          })
-        }
+          });
+        }}
         to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
-        onClick2={() =>
+        onClick2={() => {
+          console.log("Challenge to special");
           pongSocket.emit("challenge", {
             invitedLogin: cardUser.login42,
             special: true,
-          })
-        }
+          });
+        }}
         icon={IconBolt}
       />
       <SideButton

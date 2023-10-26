@@ -119,6 +119,7 @@ export default function SocketNotificatinos({
       opponent: ev.from,
       special: ev.special,
     };
+    console.log("event got it", ev );
     addNotif({
       type: type,
       from: ev.from,
@@ -133,10 +134,13 @@ export default function SocketNotificatinos({
     userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
     pongSocket.on("challenge", getChallenge);
+    pongSocket.on("test", () => console.log("test recived"))
 
     return () => {
       userSocket.off("newChatroomMessage", getChatroomMessage);
       userSocket.off("newDirectMessage", getDMmessage);
+      userSocket.off("newFriendRequest", getFriendRequest);
+      pongSocket.off("challenge", getChallenge);
     };
   }, []);
 
