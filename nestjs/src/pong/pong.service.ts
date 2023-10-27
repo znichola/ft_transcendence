@@ -115,4 +115,26 @@ export class PongService {
             }
         });
     }
+
+    async getUserGameHistory(login: string)
+    {
+        const games = await prisma.game.findMany({
+            where: {
+                OR: [
+                    {
+                        player1: { login42: login }
+                    },
+                    {
+                        player2: { login42: login }
+                    }
+                ],
+            },
+            select: {
+                player1: { select: { login42: true }},
+                player2: { select: { login42: true }},
+                gameStateString: true,
+            }
+        });
+        return (games);
+    }
 }
