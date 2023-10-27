@@ -71,13 +71,16 @@ export class PongService {
                 player2EloChange: eloChanges[1],
                 gameStateString: stringState
             },
-            select: { player1StartElo: true, player2StartElo: true }
+            select: { 
+                player1: { select: { login42: true, elo: true } },
+                player2: { select: { login42: true, elo: true } },
+            }
         });
 
         if (gameInfo.rated)
         {
-            this.updateUserElo(gameState.p1.id, endedGame.player1StartElo + eloChanges[0]);
-            this.updateUserElo(gameState.p2.id, endedGame.player2StartElo + eloChanges[1]);
+            this.updateUserElo(endedGame.player1.login42, endedGame.player1.elo, eloChanges[0]);
+            this.updateUserElo(endedGame.player2.login42, endedGame.player2.elo, eloChanges[1]);
         }
     }
 
@@ -93,21 +96,22 @@ export class PongService {
 
         const player2Score = 1 - player1Score;
 
-        const eloChange1 = 32 * (player1Score - modifierPlayer1);
-        const eloChange2 = 32 * (player2Score - modifierPlayer2);
+        const eloChange1 = Math.round(32 * (player1Score - modifierPlayer1));
+        const eloChange2 = Math.round(32 * (player2Score - modifierPlayer2));
 
         return [eloChange1, eloChange2];
     }
 
-    async updateUserElo(login: string, newElo: number)
+    async updateUserElo(login: string, startElo: number, gainElo: number)
     {
+        const newElo = startElo + gainElo;
         await prisma.user.update({
             where: { login42: login },
             data: {
                 elo: newElo,
                 eloHistory: { push: newElo },
-                wins: { increment: newElo > 0 ? 1 : 0 },
-                losses: { increment: newElo < 0 ? 1 : 0},
+                wins: { increment: newElo > startElo ? 1 : 0 },
+                losses: { increment: newElo < startElo ? 1 : 0},
             }
         });
     }
