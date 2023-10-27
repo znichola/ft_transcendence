@@ -124,9 +124,7 @@ export default function SideMenu({
             <Nav
               name="Logout"
               to="/login"
-              onClick={() => {
-                logOut();
-              }}
+              onClick={logOut}
               icon={IconFire}
             />
             <Category name="dev stuff" />

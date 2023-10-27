@@ -69,11 +69,11 @@ function DevLogin() {
           .get("/auth/dev/", { params: { user: login } })
           .then(async () => {
             logIn(login);
-            navigate("/play");
             await socketSetHeadersAndReConnect();
             setTimeout(() => {
               setStatus(qc, login, "ONLINE");
             }, 300);
+            navigate("/play");
           })
           .catch(() => setColor("bg-rose-500"));
       }}

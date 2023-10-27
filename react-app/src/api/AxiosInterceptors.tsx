@@ -20,6 +20,8 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
               message: error.response.data.message,
               type: "ERROR",
             });
+          } else {
+            console.log("skipped error adding");  
           }
         }
         return Promise.reject(error);
