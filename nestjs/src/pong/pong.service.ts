@@ -18,7 +18,7 @@ export class PongService {
     async createGame(gameSpecial: boolean, rated: boolean, player1: string, player2: string): Promise<number>
     {
         const user1 = await prisma.user.findUnique({
-            where: { login42: player2 }
+            where: { login42: player1 }
         });
         const user2 = await prisma.user.findUnique({
             where: { login42: player2 }
