@@ -150,6 +150,8 @@ export class UserService {
         bio: newBio,
       },
     });
+    delete user.tfaSecret;
+    this.userGateway.sendUserUpdated(login);
     return user;
   }
 
@@ -362,6 +364,8 @@ export class UserService {
       where: { login42: login },
       data: { avatar: newAvatar }
     })
+
+    this.userGateway.sendUserUpdated(login);
   }
 
   async getBlockedUsers(user: number): Promise<String[]>
