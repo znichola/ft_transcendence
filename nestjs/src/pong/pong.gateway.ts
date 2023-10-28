@@ -33,6 +33,7 @@ import {PongService} from "./pong.service";
 import {createBooleanLiteral} from "@nestjs/swagger/dist/plugin/utils/ast-utils";
 import { UserStatusService } from '../user/user.status.service';
 import { WsGuard } from 'src/ws/ws.guard';
+import { SocketAuthMiddleware } from 'src/ws/ws.middleware';
 
 @WebSocketGateway({
   namespace: 'pong',
@@ -72,7 +73,7 @@ export class PongGateway
   }
 
   afterInit(server: Server): void {
-    // console.log('Init', server);
+    server.use(SocketAuthMiddleware() as any);
   }
 
   async handleConnection(client: Socket/*, ...args: any[]*/): Promise<void> {
