@@ -40,10 +40,10 @@ export class PongController
     async getUserHistory(@Param('username') username: string)
     {
         const rawGameHistory = await this.pongService.getUserGameHistory(username);
-        const gameHisory: {player1: string, player2: string, gameState: IGameState}[] = [];
+        const gameHistory: {player1: string, player2: string, gameState: IGameState}[] = [];
         rawGameHistory.forEach((game) => {
-            gameHisory.push({player1: game.player1.login42, player2: game.player2.login42, gameState: JSON.parse(game.gameStateString)});
+            gameHistory.push({player1: game.player1.login42, player2: game.player2.login42, gameState: JSON.parse(game.gameStateString)});
         })
-        return gameHisory;
+        return gameHistory;
     }
 }
