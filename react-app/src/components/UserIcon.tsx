@@ -3,25 +3,31 @@ import { useUserData } from "../api/apiHooks";
 import { UserData } from "../interfaces";
 import { IconUser } from "./Icons";
 
-export function UserIcon({ user, size = 7 }: { user: string; size?: number }) {
+type TSizes = 7 | 8 | 12;
+
+export function UserIcon({ user, size = 7 }: { user: string; size?: TSizes }) {
   const { data: u, isSuccess } = useUserData(user);
   const navigate = useNavigate();
   if (!isSuccess) return <IconUser />;
   return (
     <img
       onClick={() => navigate("/user/" + user)}
-      className={
-        "h-" +
-        size.toString() +
-        " w-" +
-        size.toString +
-        " rounded-full border-[3px] " +
+      className={s(size) +
+        " cursor-pointer rounded-full border-[3px] z-10" +
         statusColor(u.status)
       }
       src={u.avatar}
       alt={u.login42 || "undefined" + " profile image"}
     />
   );
+}
+
+function s(s: TSizes) {
+  switch (s) {
+    case 8: return "h-8 w-8";
+    case 12: return "h-12 w-12";
+    default: return "h-7 w-7"
+  }
 }
 
 function statusColor(status: UserData["status"]) {

@@ -10,9 +10,9 @@ import { ButtonGeneric } from "../components/BoxMenu";
 import {
   IconAddUser,
   IconArrowUturnLeft,
+  IconBolt,
   IconCheckBadge,
   IconCrown,
-  IconGear,
   IconMinusCircle,
   IconMute,
   IconPasswordHide,
@@ -58,6 +58,8 @@ import {
 } from "../components/ChatroomChatBTNs";
 import { isMatch } from "../functions/utils";
 import { convertPerms } from "../functions/utils";
+import { SideButton2 } from "../components/UserInfoCard";
+import { pongSocket } from "../socket";
 
 function JoinChatRoom({ id, login42 }: { id: string; login42: string }) {
   const [password, setPassword] = useState("");
@@ -720,9 +722,9 @@ function ManageUserCard({
 
   return (
     <li className="flex items-center gap-2 px-2 py-1">
+      <UserChallenge user={user} currentUser={currentMember?.login42} />
       <UserIcon user={cardLogin42} />
       <div className="grow ">{user.name}</div>
-      {/* <AdminButton userRole="ADMIN" cardRole={cardRole} /> */}
       <BanUserBTN
         id={id}
         cardMember={cardMember}
@@ -748,6 +750,41 @@ function ManageUserCard({
         cardLogin42={cardLogin42}
       />
     </li>
+  );
+}
+
+function UserChallenge({
+  user,
+  currentUser,
+}: {
+  user: UserData;
+  currentUser?: string;
+}) {
+  return (
+    <div className="flex h-8">
+      <SideButton2
+        message={"Play pong"}
+        a1={"classical"}
+        a2={"special"}
+        to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
+        onClick1={() => {
+          console.log("Challenge to classical");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: false,
+          });
+        }}
+        to2={`/pong/${currentUser}/vs/${user.login42}/special`}
+        onClick2={() => {
+          console.log("Challenge to special");
+          pongSocket.emit("challenge", {
+            invitedLogin: user.login42,
+            special: true,
+          });
+        }}
+        icon={IconBolt}
+      />
+    </div>
   );
 }
 
