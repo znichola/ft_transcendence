@@ -20,7 +20,7 @@ import {
   positionPlayer,
   setRandomDirBall,
 } from './pong.maths';
-import {IGameState, I2D, IBall, IRoom, IPlayer} from '../interfaces';
+import {IGameState, I2D, IBall, IRoom, IPlayer, ISocGameOver} from '../interfaces';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
@@ -384,8 +384,14 @@ export class PongGateway
         this.pongCalculus(r, canvas);
       }, timer);
     else {
-      //r.gs.p1.afk && r.gs.p2.afk ? await this.pongService.cancelGame(r.gs.id) : await this.pongService.endGame(r.gs);
-      this.broadcastTo(r.roomID, 'game-over', 'game is over');
+      if(r.gs.p1.afk && r.gs.p2.afk)
+        await this.pongService.cancelGame(r.gs.id);
+      else
+      {
+        const gameOver: ISocGameOver = await this.pongService.endGame(r.gs);
+        console.log(gameOver);
+        this.broadcastTo(r.roomID, 'game-over', gameOver);
+      }
       r.user2.state = undefined;
       r.user1.state = undefined;
       } //TODO: define data

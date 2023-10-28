@@ -122,3 +122,10 @@ export interface IPlayer {
   id: string | undefined;
   afk: boolean;
 }
+
+export interface ISocGameOver {
+  ratedGame: boolean;
+  player1RatingChange: number;
+  player2RatingChange: number;
+  winner: string;
+}

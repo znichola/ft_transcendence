@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { IGameState } from 'src/interfaces';
+import { IGameState, ISocGameOver } from 'src/interfaces';
 import { UserGateway } from 'src/user/user.gateway';
 
 const prisma: PrismaService = new PrismaService();
@@ -36,7 +36,7 @@ export class PongService {
         return (game.id);
     }
 
-    async endGame(gameState: IGameState)
+    async endGame(gameState: IGameState): Promise<ISocGameOver>
     {
         const gameInfo = await prisma.game.findUnique({ 
             where: { id: gameState.id },
@@ -49,18 +49,19 @@ export class PongService {
 
         let eloChanges: number[] = [];
 
+        const player1Score = 
+        gameState.p1.score > gameState.p2.score ? 1 
+        : gameState.p1.score == gameState.p2.score ? 0.5 : 0;
+
         if (gameInfo.rated == true)
         {
-            const player1Score = 
-            gameState.p1.score > gameState.p2.score ? 1 
-            : gameState.p1.score == gameState.p2.score ? 0.5 : 0;
-    
             eloChanges = this.calculateEloChange(
                 gameInfo.player1StartElo,
                 gameInfo.player2StartElo,
                 player1Score);
         }
         else eloChanges = [0, 0];
+        
         const stringState = JSON.stringify(gameState);
         const endedGame = await prisma.game.update({
             where: { id: gameState.id },
@@ -76,12 +77,22 @@ export class PongService {
                 player2: { select: { login42: true, elo: true } },
             }
         });
+        
+        const gameOver: ISocGameOver = 
+        {
+            ratedGame: gameInfo.rated,
+            player1RatingChange: eloChanges[0],
+            player2RatingChange: eloChanges[1],
+            winner: player1Score == 1 ? endedGame.player1.login42 : endedGame.player2.login42
+        };
 
         if (gameInfo.rated)
         {
             this.updateUserElo(endedGame.player1.login42, endedGame.player1.elo, eloChanges[0]);
             this.updateUserElo(endedGame.player2.login42, endedGame.player2.elo, eloChanges[1]);
         }
+
+        return gameOver;
     }
 
     async cancelGame(gameId: number)
