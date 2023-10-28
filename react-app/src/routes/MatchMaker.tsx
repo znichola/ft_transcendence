@@ -124,7 +124,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
 
   useEffect(() => {
     if (once) {
-      pongSocket.emit("looking-for-game", { special: game_mode == "SPECIAL" });
+      pongSocket.emit("looking-for-game", game_mode == "special" );
       setOnce(false);
     }
     pongSocket.on("room-created", getRoomCreated);

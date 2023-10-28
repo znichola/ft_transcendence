@@ -55,6 +55,8 @@ export class PongGateway
   private normalQueue: PlayerEntity[] = [];
   private specialQueue: PlayerEntity[] = [];
 
+  private merde : number = 0;
+
   //for challenges purposes
   private playerList: PlayerEntity[] = [];
 
@@ -78,14 +80,14 @@ export class PongGateway
     const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const userElo: number = await this.pongService.getUserElo(userLogin);
-    console.log(
-        'Pong User connected : ',
-        userLogin,
-        ' with id ',
-        client.id,
-        ' and elo: ',
-        userElo,
-    );
+    // console.log(
+    //     'Pong User connected : ',
+    //     userLogin,
+    //     ' with id ',
+    //     client.id,
+    //     ' and elo: ',
+    //     userElo,
+    // );
     const player: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
     //checking if user needs to reconnect to its game
     let index: number = this.findLoginInRoom(userLogin);
@@ -129,32 +131,33 @@ export class PongGateway
 
   @SubscribeMessage('looking-for-game')
   async handleSpecial(
-      @MessageBody() data: string,
+      @MessageBody() data: boolean, //string,
       @ConnectedSocket() client: Socket,
   ): Promise<void> {
     let index: number;
     const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
-    let special: boolean | undefined = data == 'CLASSICAL' ? false : data == 'SPECIAL' ? true : undefined;
     //if info correct && doesn't have WAITING GAMING state on other sockets
-    if (special == undefined && !this.checkState(userLogin))
+    if (!this.checkState(userLogin))
       return ;
     //gets added in queue
-    index = this.findSocketInQueue(client.id, special);
-    if (index != -1) {
+    index = this.findSocketInQueue(client.id, data);
+    //console.log('login: ', userLogin, ' with socketID: ', client.id, ' wants to play: ', data, ' socket state: ', this.playerList[this.findSocketInPlayer(client.id)].state);
+    if (index == -1) {
       index = this.findSocketInPlayer(client.id);
       const player: PlayerEntity = this.playerList[index];
       player.state = 'PENDING';
-      special == true ? this.specialQueue.push(player) : this.normalQueue.push(player);
+      data == true ? this.specialQueue.push(player) : this.normalQueue.push(player);
       //update user state
       this.userStatusService
           .setUserStatus(userLogin, UserStatus.INQUEUE)
           .then((): void => {
           });
       //if player was in the other queue it gets deleted
-      index = this.findSocketInQueue(client.id, !special);
-      if (index != -1) special == true ? this.normalQueue.splice(index, 1) : this.specialQueue.splice(index, 1);
+      index = this.findSocketInQueue(client.id, !data);
+      if (index != -1) data == true ? this.normalQueue.splice(index, 1) : this.specialQueue.splice(index, 1);
     }
+    // console.log('check player state: ', this.playerList[this.findSocketInPlayer(client.id)].state);
   }
 
   @SubscribeMessage('challenge')
@@ -167,7 +170,7 @@ export class PongGateway
     //CHECK IF BOTH ARE IN UNACCEPTABLE STATE
     if (!this.checkState(userLogin) || !this.checkState(data.invitedLogin))
        return ;
-    console.log(userLogin, ' with id: ', client.id, ' challenges: ', data.invitedLogin);
+    // console.log(userLogin, ' with id: ', client.id, ' challenges: ', data.invitedLogin);
     //FIND CHALLENGER IN PLAYER LIST
     let index: number = this.findSocketInPlayer(client.id);
     const player1: PlayerEntity = this.playerList[index];
@@ -182,7 +185,7 @@ export class PongGateway
     //   p.client.send('challenge', <any>{from: userLogin, to: data.invitedLogin, special: data.special} );
     // });
     this.server.emit("challenge", <any>{from: userLogin, to: data.invitedLogin, special: data.special});
-    console.log('sent message challenge');
+    // console.log('sent message challenge');
   }
 
   @SubscribeMessage('accept')
@@ -198,7 +201,7 @@ export class PongGateway
       return ;
     // FIND CORRECT ROOM
     let index: number = this.findCorrectRoom(data.opponent, userLogin);
-    console.log('test accept: ', userLogin, ' with id: ', client.id, ' accept challenge from : ', data.opponent, ' and index: ' , index);
+    // console.log('test accept: ', userLogin, ' with id: ', client.id, ' accept challenge from : ', data.opponent, ' and index: ' , index);
     if (index != -1)
     {
       const player: PlayerEntity = this.roomList[index].user2;
@@ -210,7 +213,7 @@ export class PongGateway
       this.broadcastTo(this.roomList[index].roomID, 'test', 'asdfasdfasf');
       this.roomList[index].user2 = this.playerList[this.findCorrectPlayer(userLogin, client.id)];
       this.roomList[index].user2.state = 'PENDING';
-      console.log('player: ', this.roomList[index].user2.login, 'with id: ', this.roomList[index].user2.client.id, 'put in room ', this.roomList[index].roomID);
+      // console.log('player: ', this.roomList[index].user2.login, 'with id: ', this.roomList[index].user2.client.id, 'put in room ', this.roomList[index].roomID);
     }
   }
 
@@ -222,17 +225,17 @@ export class PongGateway
     const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
     const index: number = this.findSocketInRoom(client.id);
-    console.log('test ready: ', userLogin, client.id, index);
+    // console.log('test ready: ', userLogin, client.id, index);
     if (index != -1) {
       if (this.roomList[index].user1.login == userLogin && this.roomList[index].user1.client.id == client.id)
       {
         this.roomList[index].user1.state = 'READY';
-        console.log(this.roomList[index].user1.login, 'with id: ', this.roomList[index].user1.client.id, 'has been defined as READY')
+        // console.log(this.roomList[index].user1.login, 'with id: ', this.roomList[index].user1.client.id, 'has been defined as READY')
       }
       else if (this.roomList[index].user2.login == userLogin && this.roomList[index].user2.client.id == client.id)
       {
         this.roomList[index].user2.state = 'READY';
-        console.log(this.roomList[index].user2.login, 'with id: ', this.roomList[index].user2.client.id, 'has been defined as READY')
+        // console.log(this.roomList[index].user2.login, 'with id: ', this.roomList[index].user2.client.id, 'has been defined as READY')
       }
     }
   }
@@ -287,7 +290,7 @@ export class PongGateway
     };
     newRoom.gs.type = special;
     this.roomList.push(newRoom);
-    console.log('creates room with: ', newRoom.user1.login, ' with id: ', newRoom.user1.client.id, ' & ', newRoom.user2.login, ' with id: ', newRoom.user2.client.id, ' and room id: ', newRoom.roomID);
+    //console.log('creates room with: ', newRoom.user1.login, ' with id: ', newRoom.user1.client.id, ' & ', newRoom.user2.login, ' with id: ', newRoom.user2.client.id, ' and room id: ', newRoom.roomID);
     // ADD USER TO SOCKET ROOM IF POSSIBLE
     if (user1.client != undefined)
       user1.client.join(`${roomName}`);
@@ -296,10 +299,15 @@ export class PongGateway
     this.broadcastTo(`${roomName}`, 'test', "asdfasfasdf");
   }
 
-  async findPlayersInQueue(special: boolean): Promise<void> {
-    let array: PlayerEntity[] = special ? this.specialQueue : this.normalQueue;
+  trimQueue(queue: PlayerEntity[]): PlayerEntity[]  {
     //ERASE ALL PLAYERS WITH UNACCEPTABLE STATE
-    array = array.filter((p: PlayerEntity) => p.state != 'GAMING' && p.state != 'READY');
+    return queue.filter((p: PlayerEntity) => p.state != 'GAMING' && p.state != 'READY' && p.state != undefined);
+  }
+
+  async findPlayersInQueue(special: boolean): Promise<void> {
+    special ? this.specialQueue = this.trimQueue(this.specialQueue) : this.normalQueue = this.trimQueue(this.normalQueue);
+    let array: PlayerEntity[] = special ? this.specialQueue : this.normalQueue;
+    //console.log('test length: ', array.length, 'merde:', this.merde++);
     // NOT ENOUGH PEOPLE
     if (array.length <= 1) {
       // console.log (`not enough players in ${special} queue`);
@@ -323,11 +331,11 @@ export class PongGateway
         //TELLS PLAYERS GAME WILL START
         if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
           this.broadcastTo(r.roomID, 'room-created', 'merde'); //TODO
-          console.log('both players were seen as pending');
+          //console.log('both players were seen as pending');
         }
         if (r.user1.state == 'READY' && r.user2.state == 'READY') {
           this.broadcastTo(r.roomID, 'start-game', 'merde'); // TODO
-          console.log('both players were seen as waiting');
+          //console.log('both players were seen as ready');
           r.user1.state = 'GAMING';
           r.user2.state = 'GAMING';
           r.gs.p1.afk = false;
