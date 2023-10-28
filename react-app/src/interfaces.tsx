@@ -219,7 +219,12 @@ export interface ISocRoomCreated extends IGameData {}
 export interface ISocStartGame extends IGameData {}
 
 // game-over
-export interface ISocGameOver extends IGameData {}
+export interface ISocGameOver {
+  ratedGame: boolean;
+  player1RatingChange:number;
+  player2RatingChange: number;
+  winner: string;
+}
 
 // ws/pong - send
 

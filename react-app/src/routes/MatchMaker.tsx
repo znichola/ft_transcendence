@@ -124,7 +124,11 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
   useEffect(() => {
     function getRoomCreated(ev: ISocRoomCreated) {
       console.log("event game found:", ev);
-      navigate(`/pong/${ev.user1}/vs/${ev.user2}/${ev.special}`);
+      navigate(
+        `/pong/${ev.user1}/vs/${ev.user2}/${
+          ev.special ? "special" : "classical"
+        }`,
+      );
     }
     pongSocket.on("room-created", getRoomCreated);
 
