@@ -3,7 +3,7 @@ import { Heading } from "../components/FormComponents";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { pongSocket } from "../socket";
 import { ISocRoomCreated } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components/Loading";
@@ -116,24 +116,22 @@ function GameAlert({
 //TODO : invalidate wrong gmae_mode request
 function WaitingForGame({ game_mode }: { game_mode: string }) {
   const navigate = useNavigate();
-  const [once, setOnce] = useState(true);
-
-  function getRoomCreated(ev: ISocRoomCreated) {
-    navigate(`/pong/${ev.user1}/vs/${ev.user2}/${ev.special}`);
-  }
 
   useEffect(() => {
-    if (once) {
-      pongSocket.emit("looking-for-game", game_mode == "special" );
-      setOnce(false);
+    pongSocket.emit("looking-for-game", game_mode == "special");
+  }, [game_mode]);
+
+  useEffect(() => {
+    function getRoomCreated(ev: ISocRoomCreated) {
+      console.log("event game found:", ev);
+      navigate(`/pong/${ev.user1}/vs/${ev.user2}/${ev.special}`);
     }
     pongSocket.on("room-created", getRoomCreated);
 
     return () => {
       pongSocket.off("room-created", getRoomCreated);
     };
-  }),
-    [pongSocket, getRoomCreated];
+  }, [game_mode, navigate]);
 
   return (
     <div className="flex h-fit w-fit flex-col gap-5 p-10">
@@ -154,6 +152,7 @@ Magic button : Find a game
 export default function MatchMaker() {
   const { game_mode } = useParams<"game_mode">();
 
+  console.log("match maker:", game_mode);
   return (
     <div className="relative flex h-full w-full items-center justify-center pt-16">
       <BoxMenu heading={<Heading title="Select your Game Mode" />}></BoxMenu>

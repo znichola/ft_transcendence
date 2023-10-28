@@ -137,6 +137,7 @@ export class PongGateway
     let index: number;
     const userToken: string = client.handshake.auth.token;
     const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    console.log("looking-for-game triggered", userLogin, data);
     //if info correct && doesn't have WAITING GAMING state on other sockets
     if (!this.checkState(userLogin))
       return ;
@@ -329,12 +330,17 @@ export class PongGateway
     this.roomList.forEach((r: IRoom): void => {
       if (r.user1.client != undefined && r.user2.client != undefined) {
         //TELLS PLAYERS GAME WILL START
+        const payload = {
+          user1: r.user1,
+          user2: r.user2,
+          special: r.type,
+        };
         if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
-          this.broadcastTo(r.roomID, 'room-created', 'merde'); //TODO
+          this.broadcastTo(r.roomID, 'room-created', payload); //TODO
           //console.log('both players were seen as pending');
         }
         if (r.user1.state == 'READY' && r.user2.state == 'READY') {
-          this.broadcastTo(r.roomID, 'start-game', 'merde'); // TODO
+          this.broadcastTo(r.roomID, 'start-game', payload); // TODO
           //console.log('both players were seen as ready');
           r.user1.state = 'GAMING';
           r.user2.state = 'GAMING';
