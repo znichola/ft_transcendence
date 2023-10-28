@@ -331,10 +331,11 @@ export class PongGateway
       if (r.user1.client != undefined && r.user2.client != undefined) {
         //TELLS PLAYERS GAME WILL START
         const payload = {
-          user1: r.user1,
-          user2: r.user2,
+          user1: r.user1.login,
+          user2: r.user2.login,
           special: r.type,
         };
+        console.log("launch room:", payload);
         if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
           this.broadcastTo(r.roomID, 'room-created', payload); //TODO
           //console.log('both players were seen as pending');
