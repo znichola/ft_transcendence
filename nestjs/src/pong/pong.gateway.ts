@@ -35,6 +35,7 @@ import { UserStatusService } from '../user/user.status.service';
 import { WsGuard } from 'src/ws/ws.guard';
 import { SocketAuthMiddleware } from 'src/ws/ws.middleware';
 
+// prettier-ignore
 @WebSocketGateway({
   namespace: 'pong',
   cors: {

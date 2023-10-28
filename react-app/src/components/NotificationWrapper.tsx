@@ -29,6 +29,7 @@ function Notification({
   message,
   to,
   from,
+  count,
   type: t,
   destroy,
   onClick,
@@ -51,11 +52,11 @@ function Notification({
           }}
           className="h-full w-full py-3 text-left"
         >
-          <MsgText type={t} message={message} from={from} />
+          <MsgText type={t} message={message} from={from} count={count} />
         </button>
       ) : (
         <div className="h-full w-full py-3">
-          <MsgText type={t} message={message} from={from} />
+          <MsgText type={t} message={message} from={from} count={count} />
         </div>
       )}
 
@@ -68,17 +69,20 @@ function MsgText({
   type,
   message,
   from,
+  count,
 }: {
   type: TNotif;
   message?: string;
   from?: string;
+  count?: number;
 }) {
   return (
     <div className="flex-grow">
       <h3 className="pb-1 font-semibold capitalize">
         {from && (type == "ERROR" || type == "MESSAGE")
           ? from
-          : type?.toLowerCase()}
+          : type?.toLowerCase()}{" "}
+        <NotifCount type={type} count={count} /> 
       </h3>
       <p className="pl-3">
         {type == "CLASSICAL" || type == "SPECIAL" ? (
@@ -150,5 +154,47 @@ function classNameDiv(type: TNotif) {
       return "border-emerald-100 bg-emerald-50 text-emerald-500";
     default:
       return "border-cyan-100 bg-cyan-50 text-cyan-500";
+  }
+}
+
+function NotifCount({ type, count }: { type: TNotif; count?: number }) {
+  if (count === 0 || count === undefined) return <></>;
+  switch (type) {
+    case "ERROR":
+      return (
+        <span className="inline-block px-1 rounded-full bg-rose-400 text-rose-100 text-center">
+          {count}
+        </span>
+      );
+    case "CLASSICAL":
+      return (
+        <span className="inline-block px-1 rounded-full bg-stone-400 text-stone-100 text-center">
+          {count}
+        </span>
+      );
+    case "SPECIAL":
+      return (
+        <span className="inline-block px-1 rounded-full bg-fuchsia-400 text-fuchsia-100 text-center">
+          {count}
+        </span>
+      );
+    case "MESSAGE":
+      return (
+        <span className="inline-block px-1 rounded-full bg-amber-400 text-amber-100 text-center">
+          {count}
+        </span>
+      );
+    case "SUCCESS":
+      return (
+        <span className="inline-block px-1 rounded-full bg-emerald-400 text-emerald-100 text-center">
+          {count}
+        </span>
+      );
+    default:
+      return (
+        <span className="inline-block px-1 rounded-full bg-cyan-400 text-cyan-100 text-center">
+          {count}
+        </span>
+      );
   }
 }

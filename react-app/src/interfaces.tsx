@@ -160,6 +160,7 @@ export interface INotification {
   to?: string;
   type: TNotif;
   id?: string;
+  count?: number;
   onClick?: () => void;
 }
 

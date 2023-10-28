@@ -23,11 +23,35 @@ export default function NotificationProvider({
   const [notifications, setNotifications] = useState<INotification[]>([]);
 
   const addNotif = (notif: INotification) => {
-    // console.log("notification href", window.location.pathname, `/${notif.to?.split("#")[0]}`);
-    if (window.location.pathname !== `/${notif.to?.split("#")[0]}`) {
+    console.log(
+      "notification href",
+      window.location.pathname,
+      `/${notif.to?.split("#")[0]}`,
+    );
+    if (window.location.pathname !== `/login`) {
+      if (
+        notifications.length > 0 &&
+        (notifications[notifications.length - 1].from === notif.from ||
+          notifications[notifications.length - 1].to === notif.to ||
+          notifications[notifications.length - 1].type === notif.type ||
+          notifications[notifications.length - 1].onClick === notif.onClick ||
+          notifications[notifications.length - 1].message === notif.message)
+      ) {
+        console.log("already displayed", notifications);
+
+        const updated = notifications.map((n, i) =>
+          i == notifications.length - 1
+            ? { ...n, count: (n.count || 0) + 1 }
+            : n,
+        );
+        setNotifications(updated);
+        return;
+      }
+      console.log("this bar ");
+      // if (rest !== notif) {
       setNotifications((prevNotifications) => [
         ...prevNotifications,
-        { ...notif, id: randString(8) },
+        { ...notif, id: randString(8), count: 0 },
       ]);
     }
   };
