@@ -1,5 +1,5 @@
 // import ResponsiveDrawPong from "./ResponsiveDrawPong.tsx";
-import { pongSocket } from "../socket.ts";
+import { userSocket } from "../socket.ts";
 import { useState, useEffect } from "react";
 import ResponsiveAppPong from "./ResponsiveAppPong.tsx";
 import { LoadingSpinnerMessage } from "../components/Loading.tsx";
@@ -15,12 +15,12 @@ export default function TestPong() {
       addNotif({ type: "INFO", message: message });
       setGameFount(true);
     }
-    pongSocket.emit("classical");
+    userSocket.emit("classical");
 
-    pongSocket.on("gameFound", onGameFound);
+    userSocket.on("gameFound", onGameFound);
 
     return () => {
-      pongSocket.off("gameFound", onGameFound);
+      userSocket.off("gameFound", onGameFound);
     };
   }, [addNotif]);
 

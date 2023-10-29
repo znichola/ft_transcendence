@@ -14,26 +14,8 @@ export class PongController
 {
     constructor (
         private readonly pongService: PongService,
-        private readonly userGateway: UserGateway,
         private readonly authService: AuthService,
         ) {}
-
-    @UseGuards(AuthGuard)
-    @Post('/challenge/:target')
-    async challengePlayer(@Param('target') target: string, @Req() req: Request, @Query('mode') mode?: string)
-    {
-        let specialGame: boolean = false;
-        if (mode == 'special')  specialGame = true;
-
-        const userLogin: string = await this.authService.getLoginFromToken(req.cookies[process.env.COOKIE_USR].access_token);
-
-        const gameId: number = await this.pongService.createGame(specialGame, false, userLogin, target);
-        const challenge = new ChallengeEntity(userLogin, gameId, specialGame);
-        
-        this.userGateway.sendChallenge(target, challenge);
-
-        return "OK";
-    }
 
     @UseGuards(AuthGuard)
     @Get('history/:username')

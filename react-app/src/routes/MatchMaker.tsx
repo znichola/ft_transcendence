@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
 import { useEffect } from "react";
-import { pongSocket } from "../socket";
+import { userSocket } from "../socket";
 import { ISocRoomCreated } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components/Loading";
 
@@ -118,7 +118,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    pongSocket.emit("looking-for-game", game_mode == "special");
+    userSocket.emit("looking-for-game", game_mode == "special");
   }, [game_mode]);
 
   useEffect(() => {
@@ -130,10 +130,10 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
         }`,
       );
     }
-    pongSocket.on("room-created", getRoomCreated);
+    userSocket.on("room-created", getRoomCreated);
 
     return () => {
-      pongSocket.off("room-created", getRoomCreated);
+      userSocket.off("room-created", getRoomCreated);
     };
   }, [game_mode, navigate]);
 

@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import PlayPong from "./PlayPong";
 import { useEffect, useState } from "react";
-import { pongSocket } from "../socket.ts";
+import { userSocket } from "../socket.ts";
 import { ISocGameOver, ISocRoomCreated, UserData } from "../interfaces.tsx";
 import { LoadingSpinnerMessage } from "../components/Loading.tsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -23,7 +23,7 @@ export default function PongDuel() {
     function getRoomCreated(ev: ISocRoomCreated) {
       console.log("ACOUNA MY FUCKNIG TATAS");
       setState("READY");
-      pongSocket.emit("ready", ev);
+      userSocket.emit("ready", ev);
     }
     function getStartGame(_: ISocRoomCreated) {
       setState("PLAYING");
@@ -35,14 +35,14 @@ export default function PongDuel() {
       // navigate("/play");
     }
 
-    pongSocket.on("room-created", getRoomCreated);
-    pongSocket.on("start-game", getStartGame);
-    pongSocket.on("game-over", getGameOver);
+    userSocket.on("room-created", getRoomCreated);
+    userSocket.on("start-game", getStartGame);
+    userSocket.on("game-over", getGameOver);
 
     return () => {
-      pongSocket.off("room-created", getRoomCreated);
-      pongSocket.off("start-game", getStartGame);
-      pongSocket.off("game-over", getGameOver);
+      userSocket.off("room-created", getRoomCreated);
+      userSocket.off("start-game", getStartGame);
+      userSocket.off("game-over", getGameOver);
     };
   }, [navigate]);
 
