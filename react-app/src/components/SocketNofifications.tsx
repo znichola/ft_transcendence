@@ -19,9 +19,12 @@ export default function SocketNotificatinos({
 }) {
   const { addNotif } = useNotification();
   const queryClient = useQueryClient();
+  const [chatroomEV, setChatroomEV] = useState<ISocChatroomMessage[]>([]);
+  const [dmEV, setDMEV] = useState<ISocDirectMessage[]>([]);
+  const [frEV, setFREV] = useState<ISocFriendRequest[]>([]);
+  const [updatedUser, setUpdatedUser] = useState<string[]>([]);
 
   // chatrooms
-  const [chatroomEV, setChatroomEV] = useState<ISocChatroomMessage[]>([]);
   const addChatroomEV = (e: ISocChatroomMessage) => {
     setChatroomEV((prev) => [...prev, e]);
   };
@@ -30,7 +33,6 @@ export default function SocketNotificatinos({
   };
 
   // dms
-  const [dmEV, setDMEV] = useState<ISocDirectMessage[]>([]);
   const addDMEV = (e: ISocDirectMessage) => {
     setDMEV((prev) => [...prev, e]);
   };
@@ -39,12 +41,19 @@ export default function SocketNotificatinos({
   };
 
   // friendRequests
-  const [frEV, setFREV] = useState<ISocFriendRequest[]>([]);
   const addFREV = (e: ISocFriendRequest) => {
     setFREV((prev) => [...prev, e]);
   };
   const removeFirstFREV = () => {
     setFREV((prev) => prev.filter((_, i) => i !== 0));
+  };
+
+  // updatedUser
+  const addUpdatedUser = (e: string) => {
+    setUpdatedUser((prev) => [...prev, e]);
+  };
+  const removeFirstUpdatedUser = () => {
+    setUpdatedUser((prev) => prev.filter((_, i) => i !== 0));
   };
 
   useEffect(() => {
@@ -96,53 +105,66 @@ export default function SocketNotificatinos({
       queryClient.refetchQueries({ queryKey: ["Friends"] });
       removeFirstFREV();
     }
-  }, [dmEV, setDMEV, chatroomEV, setChatroomEV, frEV, setFREV]); //
 
-  function getChatroomMessage(ev: ISocChatroomMessage) {
-    addChatroomEV(ev);
-    // console.log("adding to que the chatroom message");
-  }
-
-  function getDMmessage(ev: ISocDirectMessage) {
-    addDMEV(ev);
-    // console.log("adding to que the dm message", ev);
-  }
-
-  function getFriendRequest(ev: ISocFriendRequest) {
-    addFREV(ev);
-    // console.log("adding to que the dm message", ev);
-  }
-
-  function getChallenge(ev: ISocChallenge) {
-    const type = ev.special ? "SPECIAL" : "CLASSICAL";
-    const accept: ISocAcceptChallenge = {
-      opponent: ev.from,
-      special: ev.special,
-    };
-    console.log("event got it", ev);
-    addNotif({
-      type: type,
-      from: ev.from,
-      message: `${ev.from} has challenged you, do you accept?`,
-      to: `/pong/${ev.from}/vs/${ev.to}/${type.toLowerCase()}`,
-      onClick: () => userSocket.emit("accept", accept),
-    });
-  }
+    const us_ev = updatedUser[0];
+    if (us_ev) {
+      queryClient.resetQueries({ queryKey: ["UserData", us_ev] });
+      removeFirstUpdatedUser();
+    }
+  }, [dmEV, chatroomEV, frEV, updatedUser, queryClient, addNotif]);
 
   useEffect(() => {
+    function getChatroomMessage(ev: ISocChatroomMessage) {
+      addChatroomEV(ev);
+      // console.log("adding to que the chatroom message");
+    }
+
+    function getDMmessage(ev: ISocDirectMessage) {
+      addDMEV(ev);
+      // console.log("adding to que the dm message", ev);
+    }
+
+    function getFriendRequest(ev: ISocFriendRequest) {
+      addFREV(ev);
+      // console.log("adding to que the dm message", ev);
+    }
+
+    function getChallenge(ev: ISocChallenge) {
+      const type = ev.special ? "SPECIAL" : "CLASSICAL";
+      const accept: ISocAcceptChallenge = {
+        opponent: ev.from,
+        special: ev.special,
+      };
+      console.log("event got it", ev);
+      addNotif({
+        type: type,
+        from: ev.from,
+        message: `${ev.from} has challenged you, do you accept?`,
+        to: `/pong/${ev.from}/vs/${ev.to}/${type.toLowerCase()}`,
+        onClick: () => userSocket.emit("accept", accept),
+      });
+    }
+
+    function getUserUpdated(ev: string) {
+      console.log("getUserUpdated:", ev);
+      addUpdatedUser(ev);
+    }
+
     userSocket.on("newChatroomMessage", getChatroomMessage);
     userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
     userSocket.on("challenge", getChallenge);
     userSocket.on("test", (e: string) => console.log("test recived:", e));
+    userSocket.on("userUpdated", getUserUpdated);
 
     return () => {
       userSocket.off("newChatroomMessage", getChatroomMessage);
       userSocket.off("newDirectMessage", getDMmessage);
       userSocket.off("newFriendRequest", getFriendRequest);
       userSocket.off("challenge", getChallenge);
+      userSocket.off("userUpdated", getUserUpdated);
     };
-  }, []);
+  }, [addNotif]);
 
   // useQuerySubscription();
 
