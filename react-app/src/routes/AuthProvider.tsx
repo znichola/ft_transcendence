@@ -4,7 +4,6 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
-  pongSocket,
   socketConnect,
   socketDisconnect,
   socketSetHeadersAndReConnect,

@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
-import { userSocket, pongSocket } from "../socket";
+import { userSocket } from "../socket";
 import {
   ConvoMessage,
   IMessage,
@@ -125,7 +125,7 @@ export default function SocketNotificatinos({
       from: ev.from,
       message: `${ev.from} has challenged you, do you accept?`,
       to: `/pong/${ev.from}/vs/${ev.to}/${type.toLowerCase()}`,
-      onClick: () => pongSocket.emit("accept", accept),
+      onClick: () => userSocket.emit("accept", accept),
     });
   }
 
@@ -133,14 +133,14 @@ export default function SocketNotificatinos({
     userSocket.on("newChatroomMessage", getChatroomMessage);
     userSocket.on("newDirectMessage", getDMmessage);
     userSocket.on("newFriendRequest", getFriendRequest);
-    pongSocket.on("challenge", getChallenge);
-    pongSocket.on("test", (e: string) => console.log("test recived:", e));
+    userSocket.on("challenge", getChallenge);
+    userSocket.on("test", (e: string) => console.log("test recived:", e));
 
     return () => {
       userSocket.off("newChatroomMessage", getChatroomMessage);
       userSocket.off("newDirectMessage", getDMmessage);
       userSocket.off("newFriendRequest", getFriendRequest);
-      pongSocket.off("challenge", getChallenge);
+      userSocket.off("challenge", getChallenge);
     };
   }, []);
 

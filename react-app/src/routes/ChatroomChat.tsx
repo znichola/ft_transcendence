@@ -59,7 +59,7 @@ import {
 import { isMatch } from "../functions/utils";
 import { convertPerms } from "../functions/utils";
 import { SideButton2 } from "../components/UserInfoCard";
-import { pongSocket } from "../socket";
+import { userSocket } from "../socket";
 
 function JoinChatRoom({ id, login42 }: { id: string; login42: string }) {
   const [password, setPassword] = useState("");
@@ -769,7 +769,7 @@ function UserChallenge({
         to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
         onClick1={() => {
           console.log("Challenge to classical");
-          pongSocket.emit("challenge", {
+          userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: false,
           });
@@ -777,7 +777,7 @@ function UserChallenge({
         to2={`/pong/${currentUser}/vs/${user.login42}/special`}
         onClick2={() => {
           console.log("Challenge to special");
-          pongSocket.emit("challenge", {
+          userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: true,
           });
