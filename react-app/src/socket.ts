@@ -16,26 +16,21 @@ export const socketManager = new Manager(
 );
 
 export const userSocket = socketManager.socket("/"); // main namespace
-export const pongSocket = socketManager.socket("/pong"); // pong stuff ?
 
 export const socketSetHeadersAndReConnect = async () => {
-  if (!userSocket.connected || !pongSocket.connected) {
+  if (!userSocket.connected) {
     const access_token = await getUserToken();
     userSocket.auth = { token: access_token };
-    pongSocket.auth = { token: access_token };
     userSocket.disconnect().connect();
-    pongSocket.disconnect().connect();
   }
 };
 
 export function socketDisconnect() {
   userSocket.disconnect();
-  pongSocket.disconnect();
 }
 
 export function socketConnect() {
   userSocket.connect();
-  pongSocket.connect();
 }
 
 // Step 1:- Create manager >
