@@ -7,7 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import {UserService} from "../user/user.service";
 
 @Module({
-  imports: [UserModule, AuthModule],
+  imports: [AuthModule],
   controllers: [PongController],
   providers: [PongGateway, PongService],
   exports: [PongService],

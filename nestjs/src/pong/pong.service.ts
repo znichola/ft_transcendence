@@ -7,7 +7,9 @@ const prisma: PrismaService = new PrismaService();
 
 @Injectable()
 export class PongService {
-    constructor(private readonly userGateway: UserGateway){}
+    constructor(
+		// private readonly userGateway: UserGateway
+		){}
     async getUserElo(userLogin: string): Promise<number>
     {
         const user = await prisma.user.findUnique({where: { login42: userLogin } });

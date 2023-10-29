@@ -49,9 +49,9 @@ export class PongGateway
 
   constructor(
       private readonly authService: AuthService,
-      private readonly userService: UserService,
+      // private readonly userService: UserService,
       private readonly pongService: PongService,
-      private readonly userStatusService: UserStatusService,
+      // private readonly userStatusService: UserStatusService,
   ) {}
   //les queues en fonction du gameType
   private normalQueue: PlayerEntity[] = [];
@@ -78,57 +78,57 @@ export class PongGateway
   }
 
   async handleConnection(client: Socket/*, ...args: any[]*/): Promise<void> {
-    //get user all info
-    const userToken: string = client.handshake.auth.token;
-    const userLogin: string = await this.authService.getLoginFromToken(userToken);
-    const userElo: number = await this.pongService.getUserElo(userLogin);
-    // console.log(
-    //     'Pong User connected : ',
-    //     userLogin,
-    //     ' with id ',
-    //     client.id,
-    //     ' and elo: ',
-    //     userElo,
-    // );
-    const player: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
-    //checking if user needs to reconnect to its game
-    let index: number = this.findLoginInRoom(userLogin);
-    if (index != -1) {
-      //mets a jour le status afk dans la room
-      this.roomList[index].user1.login == userLogin
-          ? !this.roomList[index].gs.p1.afk
-          : !this.roomList[index].gs.p2.afk;
-      player.state = 'GAMING';
-      //mets a jour le socket dans la room
-      this.roomList[index].user1.login == userLogin
-          ? (this.roomList[index].user1.client = client)
-          : (this.roomList[index].user2.client = client);
-      client.join(this.roomList[index].roomID);
-    }
-    this.playerList.push(player);
+    // //get user all info
+    // const userToken: string = client.handshake.auth.token;
+    // const userLogin: string = await this.authService.getLoginFromToken(userToken);
+    // const userElo: number = await this.pongService.getUserElo(userLogin);
+    // // console.log(
+    // //     'Pong User connected : ',
+    // //     userLogin,
+    // //     ' with id ',
+    // //     client.id,
+    // //     ' and elo: ',
+    // //     userElo,
+    // // );
+    // const player: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
+    // //checking if user needs to reconnect to its game
+    // let index: number = this.findLoginInRoom(userLogin);
+    // if (index != -1) {
+    //   //mets a jour le status afk dans la room
+    //   this.roomList[index].user1.login == userLogin
+    //       ? !this.roomList[index].gs.p1.afk
+    //       : !this.roomList[index].gs.p2.afk;
+    //   player.state = 'GAMING';
+    //   //mets a jour le socket dans la room
+    //   this.roomList[index].user1.login == userLogin
+    //       ? (this.roomList[index].user1.client = client)
+    //       : (this.roomList[index].user2.client = client);
+    //   client.join(this.roomList[index].roomID);
+    // }
+    // this.playerList.push(player);
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    // defined afk in IRoom and leave socket.room
-    let index: number = this.findSocketInRoom(client.id);
-    if (index != -1) {
-      this.roomList[index].user1.client.id == client.id
-          ? this.roomList[index].gs.p1.afk
-          : this.roomList[index].gs.p2.afk;
-      this.roomList[index].user1.client.id == client.id
-          ? this.roomList[index].user1.state = 'AFK'
-          : this.roomList[index].user2.state = 'AFK';
-      client.leave(this.roomList[index].roomID);
-    }
-    // delete from normal queue
-    index = this.findSocketInQueue(client.id, false);
-    if (index != -1) this.normalQueue.splice(index, 1);
-    // delete from special queue
-    index = this.findSocketInQueue(client.id, true);
-    if (index != -1) this.specialQueue.splice(index, 1);
-    // delete from playerList
-    index = this.findSocketInPlayer(client.id);
-    if (index != -1) this.playerList.splice(index, 1);
+    // // defined afk in IRoom and leave socket.room
+    // let index: number = this.findSocketInRoom(client.id);
+    // if (index != -1) {
+    //   this.roomList[index].user1.client.id == client.id
+    //       ? this.roomList[index].gs.p1.afk
+    //       : this.roomList[index].gs.p2.afk;
+    //   this.roomList[index].user1.client.id == client.id
+    //       ? this.roomList[index].user1.state = 'AFK'
+    //       : this.roomList[index].user2.state = 'AFK';
+    //   client.leave(this.roomList[index].roomID);
+    // }
+    // // delete from normal queue
+    // index = this.findSocketInQueue(client.id, false);
+    // if (index != -1) this.normalQueue.splice(index, 1);
+    // // delete from special queue
+    // index = this.findSocketInQueue(client.id, true);
+    // if (index != -1) this.specialQueue.splice(index, 1);
+    // // delete from playerList
+    // index = this.findSocketInPlayer(client.id);
+    // if (index != -1) this.playerList.splice(index, 1);
   }
 
   @SubscribeMessage('looking-for-game')
@@ -152,10 +152,10 @@ export class PongGateway
       player.state = 'PENDING';
       data == true ? this.specialQueue.push(player) : this.normalQueue.push(player);
       //update user state
-      this.userStatusService
-          .setUserStatus(userLogin, UserStatus.INQUEUE)
-          .then((): void => {
-          });
+      // this.userStatusService
+      //     .setUserStatus(userLogin, UserStatus.INQUEUE)
+      //     .then((): void => {
+      //     });
       //if player was in the other queue it gets deleted
       index = this.findSocketInQueue(client.id, !data);
       if (index != -1) data == true ? this.normalQueue.splice(index, 1) : this.specialQueue.splice(index, 1);
@@ -321,48 +321,48 @@ export class PongGateway
     await this.createNewRoom(user1, user2, special, true);
   }
 
-  @Cron('*/5 * * * * *')
-  async findMatches(): Promise<void> {
-    await this.findPlayersInQueue(true);
-    await this.findPlayersInQueue(false);
-  }
+  // @Cron('*/5 * * * * *')
+  // async findMatches(): Promise<void> {
+  //   await this.findPlayersInQueue(true);
+  //   await this.findPlayersInQueue(false);
+  // }
 
-  @Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
-  async launchRoom(): Promise<void> {
-    this.roomList.forEach((r: IRoom): void => {
-      if (r.user1.client != undefined && r.user2.client != undefined) {
-        //TELLS PLAYERS GAME WILL START
-        const payload = {
-          user1: r.user1.login,
-          user2: r.user2.login,
-          special: r.type,
-        };
-        console.log("launch room:", payload);
-        if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
-          this.broadcastTo(r.roomID, 'room-created', payload); //TODO
-          //console.log('both players were seen as pending');
-        }
-        if (r.user1.state == 'READY' && r.user2.state == 'READY') {
-          this.broadcastTo(r.roomID, 'start-game', payload); // TODO
-          //console.log('both players were seen as ready');
-          r.user1.state = 'GAMING';
-          r.user2.state = 'GAMING';
-          r.gs.p1.afk = false;
-          r.gs.p2.afk = false;
-          // SET GAMERS STATUS AS INGAME
-          this.userStatusService
-              .setUserStatus(r.user1.login, UserStatus.INGAME)
-              .then((): void => {
-              });
-          this.userStatusService
-              .setUserStatus(r.user2.login, UserStatus.INGAME)
-              .then((): void => {
-              });
-          this.pongCalculus(r, canvas);
-        }
-      }
-    })
-  }
+  // @Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
+  // async launchRoom(): Promise<void> {
+  //   this.roomList.forEach((r: IRoom): void => {
+  //     if (r.user1.client != undefined && r.user2.client != undefined) {
+  //       //TELLS PLAYERS GAME WILL START
+  //       const payload = {
+  //         user1: r.user1.login,
+  //         user2: r.user2.login,
+  //         special: r.type,
+  //       };
+  //       console.log("launch room:", payload);
+  //       if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
+  //         this.broadcastTo(r.roomID, 'room-created', payload); //TODO
+  //         //console.log('both players were seen as pending');
+  //       }
+  //       if (r.user1.state == 'READY' && r.user2.state == 'READY') {
+  //         this.broadcastTo(r.roomID, 'start-game', payload); // TODO
+  //         //console.log('both players were seen as ready');
+  //         r.user1.state = 'GAMING';
+  //         r.user2.state = 'GAMING';
+  //         r.gs.p1.afk = false;
+  //         r.gs.p2.afk = false;
+  //         // SET GAMERS STATUS AS INGAME
+  //         this.userStatusService
+  //             .setUserStatus(r.user1.login, UserStatus.INGAME)
+  //             .then((): void => {
+  //             });
+  //         this.userStatusService
+  //             .setUserStatus(r.user2.login, UserStatus.INGAME)
+  //             .then((): void => {
+  //             });
+  //         this.pongCalculus(r, canvas);
+  //       }
+  //     }
+  //   })
+  // }
 
   async pongCalculus(r: IRoom, canvas: I2D): Promise<void> {
     if (!r.gs.p1.afk && !r.gs.p2.afk) {
