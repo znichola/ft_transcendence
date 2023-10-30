@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { LoadingSpinner, LoadingSpinnerMessage } from "../components/Loading";
 import {
   useMutBlockUser,
@@ -15,7 +15,13 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import BoxMenu, { ButtonGeneric } from "../components/BoxMenu";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import { RelationData, UserData } from "../interfaces";
-import { IconBolt, IconChatBubble, IconGear, IconStop, IconTrophy } from "../components/Icons";
+import {
+  IconBolt,
+  IconChatBubble,
+  IconGear,
+  IconStop,
+  IconTrophy,
+} from "../components/Icons";
 import {
   InputField,
   InputFile,
@@ -35,9 +41,12 @@ import { userSocket } from "../socket";
 
 export default function UserProfile() {
   // data fetching
+  const [searchParams] = useSearchParams();
   const { login42 } = useParams<"login42">();
   const { data: currentUser, isLoading, isError } = useUserData(login42);
-  const [buttonState, setButtonState] = useState<string>("UNSET");
+  const [buttonState, setButtonState] = useState<string>(
+    searchParams.get("first") == "true" ? "user-settings" : "UNSET",
+  );
 
   // profile elo, maybe this should be abstracted into a component
   // feels a bit messay having this code that's not related to the rest of the page
@@ -67,13 +76,12 @@ export default function UserProfile() {
 
   if (isError || !login42)
     return <ErrorMessage message="This user does not exist" />;
-  if (isLoading)
-    return <LoadingSpinnerMessage message="loading profile" />;
+  if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
 
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
-        resetBTN={() => setButtonState('UNSET')}
+        resetBTN={() => setButtonState("UNSET")}
         heading={
           <UserProfileHeading
             user={currentUser}
@@ -81,14 +89,13 @@ export default function UserProfile() {
             buttonState={buttonState}
           />
         }
-      >
-      </BoxMenu>
+      ></BoxMenu>
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
-      <div className="flex h-full w-full flex-col px-3 lg:px-28 pt-64">
+      <div className="flex h-full w-full flex-col px-3 pt-64 lg:px-28">
         <div className="flex max-h-72 w-full grow items-center py-4">
           <div
             ref={elo_graph}
-            className="relative flex flex-col min-h-fit min-w-fit rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
+            className="relative flex min-h-fit min-w-fit flex-col rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
           >
             <ProfileElo
               data={currentUser.eloHistory}
@@ -97,39 +104,53 @@ export default function UserProfile() {
               fontSize="text-3xl"
               className="h-40 max-h-[10rem]"
             />
-            <div className="absolute flex h-fit w-full top-auto bottom-2">
-              <p className="grow text-center text-green-400 font-bold">{"Wins: " + currentUser.wins.toString()}</p>
-              <p className="grow text-center text-red-300 font-bold">{"Losses: " + currentUser.losses.toString()}</p>
+            <div className="absolute bottom-2 top-auto flex h-fit w-full">
+              <p className="grow text-center font-bold text-green-400">
+                {"Wins: " + currentUser.wins.toString()}
+              </p>
+              <p className="grow text-center font-bold text-red-300">
+                {"Losses: " + currentUser.losses.toString()}
+              </p>
             </div>
           </div>
         </div>
-        <UserMatchHistory login42={login42}/>
+        <UserMatchHistory login42={login42} />
       </div>
     </div>
   );
 }
 
-function UserMatchHistory({login42}:{login42: string}) {
-
-  const {data: matchHistory, isLoading, isError} = useUserMatchHistory(login42);
+function UserMatchHistory({ login42 }: { login42: string }) {
+  const {
+    data: matchHistory,
+    isLoading,
+    isError,
+  } = useUserMatchHistory(login42);
 
   if (isLoading) {
-    return <LoadingSpinner/>
+    return <LoadingSpinner />;
   }
   if (isError) {
-    return <ErrorMessage message="Error when loading match history !"/>
+    return <ErrorMessage message="Error when loading match history !" />;
   }
 
   return (
     <div
-      className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pt-10 pb-20 px-1"
-      style={{gridTemplateAreas: "auto-fill", gridRow: "auto-fill"}}
+      className="flex w-full flex-wrap justify-center gap-5 overflow-y-auto overflow-x-hidden rounded-xl bg-stone-50 px-1 pb-20 pt-10 shadow-md"
+      style={{ gridTemplateAreas: "auto-fill", gridRow: "auto-fill" }}
     >
-      {
-        matchHistory.map((gameData) => 
-          gameData.gameState != null ? <MatchCell key={gameData.gameState.id} gameData={gameData} profile_user={login42}/> : <></> //TODO : MatchCell sould be always displayable
-        )
-      }
+      {matchHistory.map(
+        (gameData) =>
+          gameData.gameState != null ? (
+            <MatchCell
+              key={gameData.gameState.id}
+              gameData={gameData}
+              profile_user={login42}
+            />
+          ) : (
+            <></>
+          ), //TODO : MatchCell sould be always displayable
+      )}
     </div>
   );
 }
@@ -148,72 +169,80 @@ function UserProfileHeading({
   const [bio, setBio] = useState<string | undefined>(user.bio);
 
   return (
-    <div className="flex w-full gap-5 flex-row pl-8 pt-6 lg:pl-16">
-      <div
-        className={
-          "mr-6 border-r-4 pr-6 " + br_statusColor(user.status)
-        }
-      >
+    <div className="flex w-full flex-row gap-5 pl-8 pt-6 lg:pl-16">
+      <div className={"mr-6 border-r-4 pr-6 " + br_statusColor(user.status)}>
         <img
-          className="aspect-square rounded-xl w-24 h-24 min-w-[6rem] min-h-[6rem] sm:min-w-[8rem] sm:min-h-[8rem] shadow"
+          className="aspect-square h-24 min-h-[6rem] w-24 min-w-[6rem] rounded-xl shadow sm:min-h-[8rem] sm:min-w-[8rem]"
           src={user.avatar}
           alt={user.login42 + " profile image"}
         />
-        <div className="flex pt-2 grow items-center justify-center text-3xl font-bold">{user.elo} <IconTrophy className="w-7 h-7"/></div>
+        <div className="flex grow items-center justify-center pt-2 text-3xl font-bold">
+          {user.elo} <IconTrophy className="h-7 w-7" />
+        </div>
       </div>
       <div className="flex flex-col overflow-hidden">
         <PreHeading text={"@" + user.login42} />
-        <h1 className="min-w-0 gradient-hightlight py-2 text-4xl md:text-5xl font-bold break-words overflow-hidden">{name}</h1>
+        <h1 className="gradient-hightlight min-w-0 overflow-hidden break-words py-2 text-4xl font-bold md:text-5xl">
+          {name}
+        </h1>
         <p className="flex grow items-center">{bio}</p>
       </div>
-       {currentUser === user.login42 ? (
-          <div className="flex grow min-w-0 items-end justify-end px-2 md:px-4">
-            <ButtonGeneric
-              icon={IconGear}
-              setBTNstate={setButtonState}
-              buttonState={buttonState}
-              checked="user-settings"
-
-            >
-              <CurrentUserSettings
-                user={user}
-                name={name}
-                setName={setName}
-                bio={bio}
-                setBio={setBio}
-              />
-            </ButtonGeneric>
-          </div>
-        ) : (
-          <UserInteractions
-            user={user}
-            currentUser={currentUser}
-          />
-        )}
+      {currentUser === user.login42 ? (
+        <div className="flex min-w-0 grow items-end justify-end px-2 md:px-4">
+          <ButtonGeneric
+            icon={IconGear}
+            setBTNstate={setButtonState}
+            buttonState={buttonState}
+            checked="user-settings"
+          >
+            <CurrentUserSettings
+              user={user}
+              name={name}
+              setName={setName}
+              bio={bio}
+              setBio={setBio}
+            />
+          </ButtonGeneric>
+        </div>
+      ) : (
+        <UserInteractions user={user} currentUser={currentUser} />
+      )}
     </div>
   );
 }
 
-function BlockSideButton({user, currentUser}:{user: string, currentUser: string}) {
-
-  const {data: blockedUsers, isLoading, isError} = useUserBlocked(currentUser);
+function BlockSideButton({
+  user,
+  currentUser,
+}: {
+  user: string;
+  currentUser: string;
+}) {
+  const {
+    data: blockedUsers,
+    isLoading,
+    isError,
+  } = useUserBlocked(currentUser);
   const blockUser = useMutBlockUser(currentUser, user);
   const unblockUser = useMutUnblockUser(currentUser, user);
 
   if (isLoading) {
-    return <LoadingSpinner/>;
+    return <LoadingSpinner />;
   }
   if (isError) {
-    return <ErrorMessage message="Error: failed to load blocked users"/>;
+    return <ErrorMessage message="Error: failed to load blocked users" />;
   }
 
   const isBlocked = !!blockedUsers.find((u) => u == user);
 
   return (
-    <div
-      className="group relative flex w-12 flex-1 items-center justify-end "
-    >
-      <div className={"absolute h-full grow p-1 pr-2 duration-300 " + (isBlocked ? "text-red-500" : "text-stone-300")}>
+    <div className="group relative flex w-12 flex-1 items-center justify-end ">
+      <div
+        className={
+          "absolute h-full grow p-1 pr-2 duration-300 " +
+          (isBlocked ? "text-red-500" : "text-stone-300")
+        }
+      >
         {<IconStop strokeWidth={2} />}
       </div>
       <div className="duration-400 group-hover:order-slate-100 absolute flex h-full w-0 items-center justify-center overflow-hidden rounded-l-xl bg-white transition-all group-hover:w-max group-hover:border group-hover:p-2">
@@ -221,7 +250,15 @@ function BlockSideButton({user, currentUser}:{user: string, currentUser: string}
           <FB1
             message={"Manage block"}
             a1={isBlocked ? "unblock" : "block"}
-            a1btn={isBlocked ? () => {unblockUser.mutate()} : () => {blockUser.mutate()}}
+            a1btn={
+              isBlocked
+                ? () => {
+                    unblockUser.mutate();
+                  }
+                : () => {
+                    blockUser.mutate();
+                  }
+            }
           />
         </div>
       </div>
@@ -236,13 +273,10 @@ function UserInteractions({
   user: UserData;
   currentUser: string;
 }) {
+  const { data: userFriends, isLoading, isError } = useUserFriends(currentUser);
 
-  const {data: userFriends, isLoading, isError} = useUserFriends(currentUser);
-
-  if (isLoading)
-    return <LoadingSpinnerMessage message="Loading friends..." />;
-  if (isError)
-    return <ErrorMessage message="error laoding profile" />;
+  if (isLoading) return <LoadingSpinnerMessage message="Loading friends..." />;
+  if (isError) return <ErrorMessage message="error laoding profile" />;
 
   const ff = (f: RelationData) => f.login42 == user.login42;
   const relationStatus = userFriends.friends.find(ff)
@@ -253,7 +287,7 @@ function UserInteractions({
     ? "pending"
     : "none";
   return (
-    <div className="flex flex-col grow items-end py-2">
+    <div className="flex grow flex-col items-end py-2">
       <SideButton2
         message={"Play pong"}
         a1={"classical"}
@@ -287,7 +321,7 @@ function UserInteractions({
         cardUser={user.login42}
         status={relationStatus}
       />
-      <BlockSideButton user={user.login42} currentUser={currentUser}/>
+      <BlockSideButton user={user.login42} currentUser={currentUser} />
     </div>
   );
 }
@@ -304,7 +338,7 @@ function CurrentUserSettings({
 
   return (
     <div className="relative">
-      <div className="absolute flex flex-col w-full min-w-0 items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white pt-4 shadow-xl">
+      <div className="absolute flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white pt-4 shadow-xl">
         <IntroDescription />
         <ProfileModifyForm
           name={name}
@@ -314,7 +348,7 @@ function CurrentUserSettings({
           user={user}
         />
         <ProfileModifyAvatar user={user} />
-        <hr className="my-4 h-px w-96 border-0 bg-slate-100"/>
+        <hr className="my-4 h-px w-96 border-0 bg-slate-100" />
         <ProfileModifyTFA />
       </div>
     </div>
@@ -437,11 +471,15 @@ function ProfileModifyTFA() {
         />
       </div>
       <div className="ml-4 flex-grow border-l-2 border-rose-400 pl-6 ">
-        <p className="w-full pb-3 text-slate-400 break-words">
+        <p className="w-full break-words pb-3 text-slate-400">
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {openTFAwindow && !activateTFA ? <SetupTFA isOpen={setOpenTFAwindow} setActivateTFA={setActivateTFA} /> : <></>}
+      {openTFAwindow && !activateTFA ? (
+        <SetupTFA isOpen={setOpenTFAwindow} setActivateTFA={setActivateTFA} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
@@ -462,27 +500,34 @@ function IntroDescription() {
   );
 }
 
-function SetupTFA({ isOpen, setActivateTFA }: { isOpen: (b: boolean) => void, setActivateTFA: (b: boolean) => void }) {
+function SetupTFA({
+  isOpen,
+  setActivateTFA,
+}: {
+  isOpen: (b: boolean) => void;
+  setActivateTFA: (b: boolean) => void;
+}) {
   const { user, setFTA } = useAuth();
   const [code, setCode] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const changeTFA = useMutation({
-    mutationFn: ({user, code}:{user: string, code: string}) => postTFACodeEnable(user, code),
+    mutationFn: ({ user, code }: { user: string; code: string }) =>
+      postTFACodeEnable(user, code),
     onSuccess: () => {
       addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
-      setFTA(true)
+      setFTA(true);
       setSubmitted(false);
       setActivateTFA(true);
     },
     onError: () => {
       setCode("");
       setSubmitted(false);
-    }
+    },
   });
   const { addNotif } = useNotification();
 
   return (
-    <div className="overflow-y-scroll box-theme absolute top-0 bg-stone-50 p-8">
+    <div className="box-theme absolute top-0 overflow-y-scroll bg-stone-50 p-8">
       <QRcode />
       <hr className="my-4 h-px w-full border-0 bg-slate-100" />
       {submitted ? (
@@ -493,7 +538,7 @@ function SetupTFA({ isOpen, setActivateTFA }: { isOpen: (b: boolean) => void, se
           setCode={setCode}
           submit={() => {
             setSubmitted(true);
-            changeTFA.mutate({user: user, code: code})
+            changeTFA.mutate({ user: user, code: code });
           }}
         />
       )}

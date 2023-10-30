@@ -17,6 +17,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+// prettier-ignore
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
@@ -50,7 +51,8 @@ export class AuthController {
         },
       });
       const { first_name, last_name, login, image } = userInfo.data;
-
+      
+      const userExists = await this.authService.findUser(login);
       const defaultName = first_name + ' ' + last_name;
       const user = await this.authService.signInUser(
         login,
@@ -69,7 +71,7 @@ export class AuthController {
         maxAge: cookieMaxAge,
       });
 
-      return res.status(200).send({ login: user.login42, tfa: user.tfaStatus });
+      return res.status(200).send({ login: user.login42, tfa: user.tfaStatus, first: userExists });
     }
     catch (error)
     {

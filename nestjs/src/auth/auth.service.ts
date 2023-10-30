@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserStatus } from '@prisma/client';
 
 const prisma: PrismaService = new PrismaService();
+// prettier-ignore
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,6 +23,14 @@ export class AuthService {
       update: { status: UserStatus.ONLINE },
     });
     return user;
+  }
+
+  async findUser(login: string): Promise<boolean>
+  {
+    const user = await prisma.user.findUnique({
+      where: { login42: login }
+    });
+    return (user ? true : false);
   }
 
   async signOutUser(login: string)

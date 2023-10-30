@@ -4,8 +4,6 @@ import { Form, useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/contexts";
 import { socketSetHeadersAndReConnect } from "../socket";
 import { randString } from "../functions/utils";
-import { useQueryClient } from "@tanstack/react-query";
-import { setStatus } from "../api/queryMutations";
 
 export default function Login() {
   const foo = useAuth();
@@ -73,7 +71,7 @@ function DevLogin() {
             // setTimeout(() => {
             //   setStatus(qc, login, "ONLINE");
             // }, 300);
-            navigate("/user/" + login);
+            navigate("/user/" + login + "?first=true");
           })
           .catch(() => setColor("bg-rose-500"));
       }}

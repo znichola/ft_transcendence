@@ -15,7 +15,6 @@ axios.defaults.withCredentials = true;
 
 
 import "./index.css";
-import Board from "./routes/TickTackToe.tsx";
 import Root from "./routes/Root.tsx";
 import Auth from "./routes/Auth.tsx";
 import ErrorPage from "./routes/Error-pages.tsx";
@@ -33,7 +32,6 @@ import UserProfile from "./routes/UserProfile.tsx";
 import NewGlobalRanking from "./routes/NewGlobalRanking.tsx";
 import SocketTest from "./routes/SocketTest.tsx";
 import ChatroomManager from "./routes/ChatroomChat.tsx";
-import TestPong from "./pong/TestPong.tsx";
 import NotificationProvider from "./routes/NotificationProvider.tsx";
 import SocketNotificatinos from "./components/SocketNofifications.tsx";
 
@@ -99,27 +97,10 @@ const router = createBrowserRouter([
             path: "/friend",
             element: <AddNewFriend />,
           },
-          // below are the temp dev links
-          {
-            path: "/ttt",
-            element: <Board />,
-          },
           {
             path: "/socket",
             element: <SocketTest />,
           },
-          {
-            path: "/ptest",
-            element: <TestPong />,
-          },
-          // {
-          //   path: "/test",
-          //   element: <Test />,
-          // },
-          // {
-          //   path: "/login",
-          //   element: <Login />,
-          // },
         ],
       },
     ],

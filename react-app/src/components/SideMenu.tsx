@@ -121,16 +121,13 @@ export default function SideMenu({
             </NavExpandable>
 
             <Category name="Session Management" />
-            <Nav
-              name="Logout"
-              to="/login"
-              onClick={logOut}
-              icon={IconFire}
-            />
+            <Nav name="Logout" to="/login" onClick={logOut} icon={IconFire} />
             <Category name="dev stuff" />
-            <Nav name="socket tests" to="/socket" icon={IconBolt} />
-            <Nav name="pongy testy" to="/ptest" icon={IconFire} />
-
+            {import.meta.env.MODE == "development" ? (
+              <Nav name="socket tests" to="/socket" icon={IconBolt} />
+            ) : (
+              <></>
+            )}
             <Category name="External Links" />
             <Nav
               name="Git repo"

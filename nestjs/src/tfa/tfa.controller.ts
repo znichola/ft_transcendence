@@ -8,6 +8,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { TfaGuard } from './tfa.guard';
 import { toBuffer } from 'qrcode'
 
+// prettier-ignore
 @ApiTags('Authentication')
 @Controller('tfa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -100,6 +101,6 @@ export class TfaController {
             maxAge: 3600000,
             });
 
-        res.status(200).json({ login: username, tfa: true });
+        res.status(200).json({ login: username, tfa: true, first: false });
     }
 }
