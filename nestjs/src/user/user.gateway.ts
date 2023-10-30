@@ -297,9 +297,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('afk') // TODO: check qu'il confirme le bon match, donc for each
-	async handleAfk(
-		@MessageBody() data: { user1: string, user2: string, special: boolean },
-		@ConnectedSocket() client: Socket,): Promise<void>
+	async handleAfk(@ConnectedSocket() client: Socket,): Promise<void>
 	{
 		console.log('ASDGGAGGFGSAGS');
 		let index: number = this.findSocketInRoom(client.id);
