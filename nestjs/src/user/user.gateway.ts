@@ -296,6 +296,25 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
+	@SubscribeMessage('afk') // TODO: check qu'il confirme le bon match, donc for each
+	async handleAfk(
+		@MessageBody() data: { user1: string, user2: string, special: boolean },
+		@ConnectedSocket() client: Socket,): Promise<void>
+	{
+		console.log('ASDGGAGGFGSAGS');
+		let index: number = this.findSocketInRoom(client.id);
+		if (index != -1)
+		{
+			this.roomList[index].user1.client.id == client.id
+				? this.roomList[index].gs.p1.afk = true
+				: this.roomList[index].gs.p2.afk = true;
+			this.roomList[index].user1.client.id == client.id
+				? this.roomList[index].user1.state = 'AFK'
+				: this.roomList[index].user2.state = 'AFK';
+			client.leave(this.roomList[index].roomID);
+		}
+	}
+
 	@SubscribeMessage('moveUp')
 	async handleMoveUp(@MessageBody() data: boolean, @ConnectedSocket() client: Socket): Promise<void>
 	{
