@@ -328,37 +328,38 @@ export class PongGateway
   }
 
   @Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
-  async launchRoom(): Promise<void> {
-    this.roomList.forEach((r: IRoom): void => {
+  launchRoom(): void {
+    this.roomList.forEach(async (r: IRoom): Promise<void> => {
       if (r.user1.client != undefined && r.user2.client != undefined) {
         //TELLS PLAYERS GAME WILL START
-        const payload = {
-          user1: r.user1.login,
-          user2: r.user2.login,
-          special: r.type,
-        };
-        console.log("launch room:", payload);
-        if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING') {
-          this.broadcastTo(r.roomID, 'room-created', payload); //TODO
+        // const payload = {
+        //   user1: r.user1.login,
+        //   user2: r.user2.login,
+        //   special: r.type,
+        // };
+        console.log("launch room:", {user1: r.user1.login, user2: r.user2.login, special: r.type});
+        if (r.user1.state === 'PENDING' && r.user2.state === 'PENDING') {
+          this.broadcastTo(r.roomID, 'room-created', {user1: r.user1.login, user2: r.user2.login, special: r.type}); //TODO
           //console.log('both players were seen as pending');
         }
-        if (r.user1.state == 'READY' && r.user2.state == 'READY') {
-          this.broadcastTo(r.roomID, 'start-game', payload); // TODO
+        if (r.user1.state === 'READY' && r.user2.state === 'READY') {
+          this.broadcastTo(r.roomID, 'start-game', {user1: r.user1.login, user2: r.user2.login, special: r.type}); // TODO
           //console.log('both players were seen as ready');
           r.user1.state = 'GAMING';
           r.user2.state = 'GAMING';
           r.gs.p1.afk = false;
           r.gs.p2.afk = false;
           // SET GAMERS STATUS AS INGAME
-          this.userStatusService
-              .setUserStatus(r.user1.login, UserStatus.INGAME)
-              .then((): void => {
-              });
-          this.userStatusService
-              .setUserStatus(r.user2.login, UserStatus.INGAME)
-              .then((): void => {
-              });
+          await Promise.allSettled([
+            this.userStatusService
+                .setUserStatus(r.user1.login, UserStatus.INGAME),
+            this.userStatusService
+                .setUserStatus(r.user2.login, UserStatus.INGAME)
+          ])
           this.pongCalculus(r, canvas);
+        }
+        if (r.user1.state == 'GAMING' && r.user2.state === 'GAMING') {
+
         }
       }
     })
