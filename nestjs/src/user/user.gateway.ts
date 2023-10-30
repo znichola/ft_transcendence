@@ -103,6 +103,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (index != -1 && this.roomList[index].started)
 			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
 		this.userList.push(user);
+
+		if (this.userList.findIndex(user => user.login === userLogin) == -1)
+			await this.updateUserStatus(userLogin, UserStatus.OFFLINE);
 	}
 
 	sendFriendRequest(to: string, sender: UserNameEntity)
