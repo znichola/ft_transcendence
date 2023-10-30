@@ -122,7 +122,7 @@ function UserMatchHistory({login42}:{login42: string}) {
 
   return (
     <div
-      className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pb-7 px-1"
+      className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pt-10 pb-20 px-1"
       style={{gridTemplateAreas: "auto-fill", gridRow: "auto-fill"}}
     >
       {

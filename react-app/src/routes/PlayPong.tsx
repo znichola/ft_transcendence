@@ -2,7 +2,9 @@ import { ErrorMessage } from "../components/ErrorComponents";
 import { IconTrophy } from "../components/Icons";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { useUserData } from "../api/apiHooks";
-import PongApp from "../pong/PongApp";
+import { useState } from "react";
+import ResponsiveAppPong from "../pong/ResponsiveAppPong";
+import { IScore } from "../interfaces";
 
 export function DisplayPlayer({
   name,
@@ -58,27 +60,28 @@ export default function PlayPong({
   player1: string;
   player2: string;
 }) {
+  const [score, setScore] = useState<IScore>({p1Score: 0, p2Score: 0});
+
   return (
     <div className="relative flex h-full w-full flex-col items-center overflow-hidden px-12 pt-5">
-      <div className="absolute left-auto right-auto h-full w-0.5 bg-stone-300 opacity-30"></div>
       <div className="flex w-full text-xl font-bold text-slate-600">
         <div className="flex">
           <DisplayPlayer name={player1} />
         </div>
-        <div className="flex grow items-end justify-center">
-          <div className="flex gap-3 text-5xl">
-            <p className="">10</p>
-            <div className="w-1 bg-slate-600"></div>
-            <p className="">10</p>
+        <div className="flex grow w-full items-end justify-center">
+          <div className="flex gap-3 grow text-5xl">
+            <p className="flex-1 text-center">{score.p1Score}</p>
+            <div className="flex-1 max-w-[4px] min-w-[4px] bg-slate-600"></div>
+            <p className="flex-1 text-center">{score.p2Score}</p>
           </div>
         </div>
         <div className="flex">
-          <DisplayPlayer name={player2} right={true} />
+          <DisplayPlayer name={player2} right={true}/>
         </div>
       </div>
-      <div className="flex grow items-center justify-center pb-14 pt-3">
-        <div className="h-fit w-fit rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
-          <PongApp width={858} height={525} />
+      <div className="flex grow w-full items-center h-full justify-center pb-14 pt-3">
+        <div className="w-full aspect-video rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
+          <ResponsiveAppPong setScore={setScore}/>
         </div>
       </div>
     </div>
