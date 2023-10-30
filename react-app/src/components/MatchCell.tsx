@@ -9,6 +9,15 @@ export function MatchCell({
   gameData: IGameHistory;
   profile_user: string;
 }) {
+  
+  if (!gameData.gameState) {
+    return (
+      <div className="flex grow justify-center">
+        <h1 className="flex h-fit w-full flex-col items-center rounded-xl border border-stone-200 bg-stone-50 px-3 pt-3 sm:w-fit">Game not completed</h1>
+      </div>
+    );
+  }
+
   const opponent =
     gameData.player1 == profile_user ? gameData.player2 : gameData.player1;
   const isVictory =
