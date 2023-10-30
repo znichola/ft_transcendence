@@ -57,6 +57,8 @@ function useCanvas(
     // clean up on quit
     return () => {
       userSocket.off("upDate", onUpdate);
+      userSocket.emit("afk");
+      console.log("unmout and send afk");
     };
   }, [draw, setScore]);
   return canvasRef;

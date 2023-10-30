@@ -65,11 +65,6 @@ export default function PongDuel() {
       userSocket.off("room-created", getRoomCreated);
       userSocket.off("start-game", getStartGame);
       userSocket.off("game-over", getGameOver);
-      userSocket.emit("afk", {
-        user1: p1,
-        user2: p2,
-        special: game_mode == "special",
-      });
     };
   }, [navigate, game_mode, p1, p2]);
 
