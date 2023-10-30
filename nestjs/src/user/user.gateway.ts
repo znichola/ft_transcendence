@@ -58,7 +58,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 		  this.roomList[index].user1.client.id == client.id
 			  ? this.roomList[index].gs.p1.afk = true
-			  : this.roomList[index].gs.p2.afk = false;
+			  : this.roomList[index].gs.p2.afk = true;
 		  this.roomList[index].user1.client.id == client.id
 			  ? this.roomList[index].user1.state = 'AFK'
 			  : this.roomList[index].user2.state = 'AFK';
@@ -99,7 +99,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		);
 		const user: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
 
-		let index: number = this.findLoginInRoom(userLogin);
+		const index: number = this.findLoginInRoom(userLogin);
 		if (this.userList.findIndex(user => user.login === userLogin) == -1)
 		{
 			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
@@ -108,14 +108,18 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			//mets a jour le status afk dans la room
 			this.roomList[index].user1.login == userLogin
-				? !this.roomList[index].gs.p1.afk
-				: !this.roomList[index].gs.p2.afk;
-			user.state = 'GAMING';
+				? this.roomList[index].gs.p1.afk = false
+				: this.roomList[index].gs.p2.afk = false;
 			//mets a jour le socket dans la room
 			this.roomList[index].user1.login == userLogin
-				? (this.roomList[index].user1.client = client)
-				: (this.roomList[index].user2.client = client);
+				? (this.roomList[index].user1 = user)
+				: (this.roomList[index].user2 = user);
 			client.join(this.roomList[index].roomID);
+			//putting in correct state
+			if (user.login == this.roomList[index].user1.login)
+				this.roomList[index].user2.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user2.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
+				if (user.login == this.roomList[index].user2.login)
+				this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user1.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
 			//tells player he will be redirected to new game
 			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
 			await this.updateUserStatus(userLogin, UserStatus.INGAME);
@@ -178,9 +182,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userToken: string = client.handshake.auth.token;
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
 		
-		console.log("looking-for-game triggered", userLogin, special);
+		console.log("looking-for-game triggered", userLogin, this.userList[this.findSocketInPlayer(client.id)].state, special);
 		if (!this.checkState(userLogin)) return ;
-
 		index = this.findSocketInQueue(client.id, special);
 		if (index == -1)
 		{
@@ -504,7 +507,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@Cron('*/1 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
-		console.log("the rooms:", this.roomList);
+		console.log("the rooms[");
+		this.roomList.forEach((r) => console.log(r.roomID, r.user1.login, r.user1.state, r.user2.login, r.user2.state));
+		console.log("]");
 		for (const r of this.roomList)
 		{
 			if (r.user1.client != undefined && r.user2.client != undefined)
