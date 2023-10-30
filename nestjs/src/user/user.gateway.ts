@@ -163,6 +163,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log("looking-for-game triggered", userLogin, this.userList[this.findSocketInPlayer(client.id)].state, special);
 		if (!this.checkState(userLogin)) return ;
 		index = this.findSocketInQueue(client.id, special);
+		console.log('Mission passed !!!', index)
 		if (index == -1)
 		{
 			index = this.findSocketInPlayer(client.id);
@@ -544,6 +545,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
 		this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
 		this.broadcastTo(r.roomID, 'cancelled', {user1: r.user1.login, user2: r.user2.login, special: r.type})
+		r.user1.state = undefined;
+		r.user2.state = undefined;
 		r.user1.client.leave(r.roomID);
 		r.user2.client.leave(r.roomID);
 		const index: number = this.findCorrectRoom(r.user1.login, r.user2.login);
@@ -552,7 +555,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	/* --------------------- SCHEDULE FUNCTIONS ---------------------*/
   
-	@Cron('*/1 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
+	@Cron('*/3 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
 		console.log("the rooms[");
