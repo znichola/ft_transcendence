@@ -8,7 +8,7 @@ import { socketSetHeadersAndReConnect } from "../socket";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
-  const {setFTA, logIn} = useAuth();
+  const { setFTA, logIn } = useAuth();
   const navigate = useNavigate();
   const {
     data: authResp,
@@ -19,7 +19,7 @@ export default function Auth() {
     retry: false,
     queryFn: () =>
       axios
-        .post<{ login: string; tfa: boolean, first:boolean }>(
+        .post<{ login: string; tfa: boolean; first: boolean }>(
           "/auth/login",
           { code: searchParams.get("code"), state: searchParams.get("state") },
           { withCredentials: true },
@@ -35,10 +35,8 @@ export default function Auth() {
       } else {
         logIn(authResp.login);
         socketSetHeadersAndReConnect();
-        if (authResp.first)
-          navigate(`/user/${authResp.login}?first=true`);
-        else
-          navigate("/play");
+        if (authResp.first) navigate(`/user/${authResp.login}?first=true`);
+        else navigate("/play");
       }
     }
   });

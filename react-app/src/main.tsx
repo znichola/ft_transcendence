@@ -13,7 +13,6 @@ axios.defaults.withCredentials = true;
 // axios.defaults.headers.post["Content-Type"] =
 // "application/x-www-form-urlencoded";
 
-
 import "./index.css";
 import Root from "./routes/Root.tsx";
 import Auth from "./routes/Auth.tsx";

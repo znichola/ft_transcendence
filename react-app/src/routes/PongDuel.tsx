@@ -131,7 +131,7 @@ export default function PongDuel() {
   }
   if (state == "PLAYING" || state == "RECONNECTION")
     return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
-  if ((state == "CANCELLED"))
+  if (state == "CANCELLED")
     return (
       <div>
         game cancelled,{" "}

@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import PongApp from "./PongApp.tsx";
 import { IScore } from "../interfaces.tsx";
 
-export default function ResponsiveAppPong({ setScore }:{setScore: (value: IScore) => void}) {
+export default function ResponsiveAppPong({
+  setScore,
+}: {
+  setScore: (value: IScore) => void;
+}) {
   const [dim, setDim] = useState({ x: 858, y: 525 });
   const pong = useRef<HTMLDivElement>(null);
   function handleResize() {

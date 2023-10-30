@@ -155,7 +155,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
           <Link to="/play" className="underline">
             go back
           </Link>
-        </div>  
+        </div>
       )}
     </div>
   );

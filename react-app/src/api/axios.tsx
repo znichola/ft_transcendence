@@ -28,9 +28,10 @@ export const authApi = axios.create({
 //-------------------------------------------User-------------------------------------------------------//
 
 export const getLogout = async () => {
-  authApi.get<string>("/auth/logout")
-  .then((r) => {r.data;});
-}
+  authApi.get<string>("/auth/logout").then((r) => {
+    r.data;
+  });
+};
 
 // TODO: this seems very wrong, it should not just return the res.data, what if the call failes?
 export const getCurrentUser = async () =>
@@ -126,19 +127,13 @@ export const putUserFriendRequest = async (
   // .catch((error) => console.log(error.toJSON));
 };
 
-export const postUserBlock = async (
-  current_user: string,
-  target: string,
-) => {
+export const postUserBlock = async (current_user: string, target: string) => {
   return authApi
     .post<HttpStatusCode>("/user/" + current_user + "/block/" + target)
     .then((res) => res.data);
 };
 
-export const deleteUserBlock = async (
-  current_user: string,
-  target: string,
-) => {
+export const deleteUserBlock = async (current_user: string, target: string) => {
   return authApi
     .delete<HttpStatusCode>("/user/" + current_user + "/block/" + target)
     .then((res) => res.data);
@@ -275,7 +270,9 @@ export const postNewChatroom = async (payload: IChatroomPost) => {
 };
 
 export const deleteChatroom = async (id: string) => {
-  return authApi.delete<HttpStatusCode>("/chatroom/" + id).then((res) => res.data);
+  return authApi
+    .delete<HttpStatusCode>("/chatroom/" + id)
+    .then((res) => res.data);
 };
 
 export const postNewChatroomMessage = async (
@@ -293,7 +290,7 @@ export const postNewChatroomMessage = async (
 // POST /chatroom/{id}/members
 export const postNewChatroomMember = async (
   id: string,
-  payload: { login42: string, password?: string },
+  payload: { login42: string; password?: string },
 ) => {
   return authApi
     .post<HttpStatusCode>("/chatroom/" + id + "/members", payload)
@@ -309,7 +306,7 @@ export const deleteChatroomMember = async (id: string, login42: string) => {
 
 export const putChatroomStatus = async (
   id: string,
-  payload: {status:string, password: string}
+  payload: { status: string; password: string },
 ) => {
   return authApi
     .put<HttpStatusCode>("/chatroom/" + id + "/visibility", payload)

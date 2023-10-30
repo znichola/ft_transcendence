@@ -50,7 +50,7 @@ function useCanvas(
     function onUpdate(data: IGameState) {
       // gameState.current = data;
       draw(context, data);
-      setScore({p1Score: data.p1.score, p2Score: data.p2.score});
+      setScore({ p1Score: data.p1.score, p2Score: data.p2.score });
     }
     userSocket.on("upDate", onUpdate);
 

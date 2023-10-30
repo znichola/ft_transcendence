@@ -9,4 +9,4 @@ export const useAuth = () => {
 
 export const useNotification = () => {
   return useContext(NotificationContext);
-}
+};

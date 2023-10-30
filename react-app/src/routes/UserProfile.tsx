@@ -137,9 +137,10 @@ function UserMatchHistory({ login42 }: { login42: string }) {
   }
 
   return (
-    <div className="flex flex-col items-center w-full rounded-xl bg-stone-50 px-1 pb-20 shadow-md">
-      <h2 className="self-start font-semibold text-lg p-5">Match history</h2>
-      <div className="flex w-full flex-wrap justify-center gap-5 px-5 overflow-y-auto overflow-x-hidden"
+    <div className="flex w-full flex-col items-center rounded-xl bg-stone-50 px-1 pb-20 shadow-md">
+      <h2 className="self-start p-5 text-lg font-semibold">Match history</h2>
+      <div
+        className="flex w-full flex-wrap justify-center gap-5 overflow-y-auto overflow-x-hidden px-5"
         style={{ gridTemplateAreas: "auto-fill", gridRow: "auto-fill" }}
       >
         {matchHistory.map(
@@ -175,7 +176,7 @@ function UserProfileHeading({
   useEffect(() => {
     setName(user.name);
     setBio(user.bio);
-  }, [user])
+  }, [user]);
 
   return (
     <div className="flex w-full flex-row gap-5 pl-8 pt-6 lg:pl-16">

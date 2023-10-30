@@ -2,18 +2,29 @@ import { Link } from "react-router-dom";
 import { IGameHistory } from "../interfaces";
 import DrawPong from "../pong/DrawPong";
 
-export function MatchCell({ gameData, profile_user }: { gameData: IGameHistory, profile_user: string }) {
-
-  const opponent = (gameData.player1 == profile_user) ? gameData.player2 : gameData.player1;
-  const isVictory = (gameData.player1 == profile_user) == (gameData.gameState.p1.score > gameData.gameState.p2.score);
+export function MatchCell({
+  gameData,
+  profile_user,
+}: {
+  gameData: IGameHistory;
+  profile_user: string;
+}) {
+  const opponent =
+    gameData.player1 == profile_user ? gameData.player2 : gameData.player1;
+  const isVictory =
+    (gameData.player1 == profile_user) ==
+    gameData.gameState.p1.score > gameData.gameState.p2.score;
 
   return (
     <div className="flex grow justify-center">
-      <Link to={"/user/" + opponent} className="flex flex-col items-center h-fit w-full sm:w-fit rounded-xl border border-stone-200 bg-stone-50 px-3 pt-3">
+      <Link
+        to={"/user/" + opponent}
+        className="flex h-fit w-full flex-col items-center rounded-xl border border-stone-200 bg-stone-50 px-3 pt-3 sm:w-fit"
+      >
         <div
           className={`${
             isVictory ? "text-green-500" : "text-red-600"
-          } text-center font-semibold text-2xl`}
+          } text-center text-2xl font-semibold`}
         >
           {isVictory ? "Victory" : "Defeat"}
         </div>
@@ -25,12 +36,18 @@ export function MatchCell({ gameData, profile_user }: { gameData: IGameHistory, 
             <DrawPong height={104} width={170} gs={gameData.gameState} />
           </div>
           <div className="flex gap-1">
-            <span className="w-full text-right font-bold">{gameData.gameState.p1.score}</span>
+            <span className="w-full text-right font-bold">
+              {gameData.gameState.p1.score}
+            </span>
             <span className="w-full text-center">/</span>
-            <span className="w-full text-left font-bold">{gameData.gameState.p2.score}</span>
+            <span className="w-full text-left font-bold">
+              {gameData.gameState.p2.score}
+            </span>
           </div>
         </div>
-        <h2 className="text-center p-2 italic text-sm">{gameData.rated ? "Ranked" : "Friendly"} game</h2>
+        <h2 className="p-2 text-center text-sm italic">
+          {gameData.rated ? "Ranked" : "Friendly"} game
+        </h2>
       </Link>
     </div>
   );

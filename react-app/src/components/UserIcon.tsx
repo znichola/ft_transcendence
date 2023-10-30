@@ -12,7 +12,9 @@ export function UserIcon({ user, size = 7 }: { user: string; size?: TSizes }) {
   return (
     <img
       onClick={() => navigate("/user/" + user)}
-      className={`${s(size)} cursor-pointer rounded-full border-[3px] ${statusColor(u.status)}`}
+      className={`${s(
+        size,
+      )} cursor-pointer rounded-full border-[3px] ${statusColor(u.status)}`}
       src={u.avatar}
       alt={u.login42 || "undefined" + " profile image"}
     />
@@ -21,9 +23,12 @@ export function UserIcon({ user, size = 7 }: { user: string; size?: TSizes }) {
 
 function s(s: TSizes) {
   switch (s) {
-    case 8: return "h-8 w-8";
-    case 12: return "h-12 w-12";
-    default: return "h-7 w-7"
+    case 8:
+      return "h-8 w-8";
+    case 12:
+      return "h-12 w-12";
+    default:
+      return "h-7 w-7";
   }
 }
 

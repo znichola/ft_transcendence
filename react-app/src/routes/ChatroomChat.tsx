@@ -51,7 +51,12 @@ import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/contexts";
-import { Heading, InputField, InputToggle, PreHeading } from "../components/FormComponents";
+import {
+  Heading,
+  InputField,
+  InputToggle,
+  PreHeading,
+} from "../components/FormComponents";
 import { UseQueryResult, useMutation, useQuery } from "@tanstack/react-query";
 import { authApi } from "../api/axios";
 import {
@@ -586,40 +591,51 @@ function SettingsButtonUI({
   const changeChatroomStatus = useMutChangeChatroomStatus(chatroom);
 
   return (
-    <div className="flex flex-col justify-center items-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white py-5 px-10 shadow-xl ">
-      <div className="flex w-full justify-center gap-10 h-12">
+    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white px-10 py-5 shadow-xl ">
+      <div className="flex h-12 w-full justify-center gap-10">
         <InputToggle
           offLable="Public"
           onLable="Public"
-          onToggle={() => {setVisibility("PUBLIC")}}
+          onToggle={() => {
+            setVisibility("PUBLIC");
+          }}
           value={visibility == "PUBLIC"}
         />
         <InputToggle
           offLable="Protected"
           onLable="Protected"
-          onToggle={() => {setVisibility("PROTECTED")}}
+          onToggle={() => {
+            setVisibility("PROTECTED");
+          }}
           value={visibility == "PROTECTED"}
         />
         <InputToggle
           offLable="Private"
           onLable="Private"
-          onToggle={() => {setVisibility("PRIVATE")}}
+          onToggle={() => {
+            setVisibility("PRIVATE");
+          }}
           value={visibility == "PRIVATE"}
         />
       </div>
-      <div className={(visibility == "PROTECTED" ? "" : "hidden")}>
+      <div className={visibility == "PROTECTED" ? "" : "hidden"}>
         <InputField
           lable=""
           max={100}
           value={password}
-          onChange={(e) => {setPassword(e.currentTarget.value)}}
+          onChange={(e) => {
+            setPassword(e.currentTarget.value);
+          }}
           placeholder="Enter a new password"
         />
       </div>
       <button
-        className="shadow-md border-b-2 w-36 h-12 mt-5 font-bold rounded-xl"
+        className="mt-5 h-12 w-36 rounded-xl border-b-2 font-bold shadow-md"
         onClick={() => {
-          changeChatroomStatus.mutate({status: visibility, password: password})
+          changeChatroomStatus.mutate({
+            status: visibility,
+            password: password,
+          });
         }}
       >
         Submit

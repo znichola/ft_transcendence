@@ -593,12 +593,12 @@ export function useMutChangeChatroomStatus(chatroom: IChatroom) {
   const queryClient = useQueryClient();
   const { addNotif } = useNotification();
   return useMutation({
-    mutationFn: async ( payload: { status: ChatroomStatus, password: string }
-    ) => putChatroomStatus(chatroom.id.toString(), payload),
+    mutationFn: async (payload: { status: ChatroomStatus; password: string }) =>
+      putChatroomStatus(chatroom.id.toString(), payload),
     onSuccess: (_, variables) => {
-      const newChatroom : IChatroom = {...chatroom, status: variables.status};
+      const newChatroom: IChatroom = { ...chatroom, status: variables.status };
       console.log(newChatroom);
-      addNotif({type: "SUCCESS", message: "Chatroom status changed !"})
+      addNotif({ type: "SUCCESS", message: "Chatroom status changed !" });
       // queryClient.setQueryData(
       //   ["UserChatrooms"],
       //   (oldChatrooms: IChatroom[] | undefined) =>
@@ -608,7 +608,7 @@ export function useMutChangeChatroomStatus(chatroom: IChatroom) {
         ["Chatroom", chatroom.id.toString()],
         (oldChatroom: IChatroom | undefined) => {
           return oldChatroom ? newChatroom : oldChatroom;
-        }
+        },
       );
       queryClient.refetchQueries(["ChatroomList"]); //TODO: optimiser à l'occasion
     },

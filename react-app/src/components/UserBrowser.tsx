@@ -1,12 +1,7 @@
 import { SetStateAction, useRef, useState } from "react";
 import BoxMenu, { ButtonGeneric } from "./BoxMenu";
 import { IconFunnel } from "./Icons";
-import {
-  Heading,
-  InputField,
-  InputToggle,
-  PreHeading,
-} from "./FormComponents";
+import { Heading, InputField, InputToggle, PreHeading } from "./FormComponents";
 import { authApi } from "../api/axios";
 import { IUsersAll, UserFriends } from "../interfaces";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -244,7 +239,7 @@ function Searchbar({ value, setValue }: ISearchbar) {
           onChange={(e) => setValue(e.currentTarget.value)}
         />
       </div>
-      <div className="h-10 flex-grow border-r-2 border-stone-200 pl-6"/>
+      <div className="h-10 flex-grow border-r-2 border-stone-200 pl-6" />
     </form>
   );
 }

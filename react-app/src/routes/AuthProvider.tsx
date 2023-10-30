@@ -83,7 +83,10 @@ export const ProtectedRoute = () => {
       !isError &&
       !isDataError
     ) {
-      foo.logIn(currentUser, currentUserData.tfaStatus ? currentUserData.tfaStatus : false);
+      foo.logIn(
+        currentUser,
+        currentUserData.tfaStatus ? currentUserData.tfaStatus : false,
+      );
       socketSetHeadersAndReConnect();
       // setTimeout(() => {
       //   setStatus(queryClient, currentUser, "ONLINE");

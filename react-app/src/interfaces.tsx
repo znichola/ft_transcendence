@@ -116,7 +116,11 @@ export interface IPutUserProfile {
 
 // --------- pong / gameState
 
-export type I2D = { width: number; height: number, setScore: (value: IScore) => void };
+export type I2D = {
+  width: number;
+  height: number;
+  setScore: (value: IScore) => void;
+};
 export type TColor = { r: number; g: number; b: number };
 
 export interface IGameState {
@@ -231,7 +235,7 @@ export interface ISocStartGame extends IGameData {}
 // game-over
 export interface ISocGameOver {
   ratedGame: boolean;
-  player1RatingChange:number;
+  player1RatingChange: number;
   player2RatingChange: number;
   winner: string;
 }
