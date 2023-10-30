@@ -532,7 +532,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
-			if (Date.now() - r.timer >= 10000)
+			if (Date.now() - r.timer >= 10000 && (r.user1.state == 'PENDING' || r.user2.state == 'PENDING'))
 				this.cancelGame(r);
 		}
 	}
