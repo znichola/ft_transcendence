@@ -1,121 +1,37 @@
-# TRANSCENDENCE
+# FT_TRANSCENDENCE
+The final project of the common core @ Ecole 42.
 
-Test playground for the final project of the 42 common core.
+## Overview
+This project is a web application where connected users can play Pong.
+The most important features are:
+- A user can login with Ecole 42's OAuth system.
+- A user profile with info the user can edit. The user can also upload their own profile picture.
+- Users can create chatrooms, which are either public, private or protected by a password.
+- Users can send friend requests to others. It's also possible to block users.
+- Users can send each other direct messages.
+- Users can either challenge another user to play pong or join a matchmaking system.
 
-## Docker Compose and project overview
+## Frameworks used
+The frontend is written in React with Typescript.
+The backend is written in Nestjs, also with Typescript.
+The database used is PostgreSQL, and the framework used to interact with it is Prisma.
 
-There is a docker-compose-prod.yml and a docker-compose-dev.yml
-By default, the dev version is used.
-To use the prod version: export TRANSCENDANCE_MODE=prod
+## Architecture
+This project uses Docker.
+We have in total 4 containers:
+- A container for the backend, running a node server
+- A container for our PostgreSQL database
+- A throwaway container used to build our frontend react code
+- A container running Nginx, which will serve the fontend code and serve as a reverse-proxy to the node server
 
-Everything works with HTTPS. HTTP requests are redirected to HTTPS.
-You can configure HTTP_PORT and HTTPS_PORT in kickstart.env
+## Dev vs Prod
+We have an architecture for development and an architecture for production.
+In development, we use bind mounts containing our source files. React is not in a throwaway container but has it's own server with a hot-reload feature.
+Nestjs also rebuild on file change.
+In production, we use docker's volumes instead. The only data that really needs to persist in production is that databases data and the uploaded profile pictures.
+We also use a third volume so that Nginx can access the React files.
 
-## How to dev
-
-- clone the repo
-- launch vscode for the repo
-- install the docker extension
-- launch the docker compose with `make up`
-
-Because the node files are present locally, vscode can use them for intelisense so it all works great!
-
-```bash
-make react # to exec into the container, from here you can npm install etc..
-make nest  # for the nest container
-make postgress # self explanitory
-
-make ip    # to show the ips of each container
-make re    # to completly remove all container/images/networks/drives from your system
-
-npm create vite@latest my-react-app -- --template react-ts # to install the basic setup for a react app
-npm ... to add for the nest app
-
-npm install # if there are already project files, but no node_modules
-
-npm run dev # in the react container, to run the vite dev server with hot reloading
-nest start --watch # to start the nest.js server in watchmode
-```
-
-When using the react+nestjs branch to launch the development env for the first time:
-
-```bash
-git clone git@github.com:znichola/ft_transcendence_test.git
-cd ft_transcendence_test
-make up
-
-# in a new window navagte back to the same repo
-make react
-> cd react-app
-> npm install
-> npm run dev
-
-# in a new window navagte back to the same repo
-make nest
-> cd nestjs
-> npm install
-> nest start --watch
-
-
-# installation of prisma in the container
-make nest
-> cd nestjs
-> npm install prisma
-> npm install @prisma/client
-
-# initialize the database after a make re or for first use
-make nest
-> cd nestjs
-> npx prisma migrate dev
-> npx prisma db seed
-
-# to inspect the database data, run from a containerized VS Code
-# by default, allows you to access localhost:5555 from your browser
-make nest
-> cd nestjs
-> npx prisma studio
-
-# to
-make nest
-> npx prisma db seed
-
-# to
-
-```
-
-It's actaully not needed to do the steps below, but it's how you would launch vscode attached to a container.
-
-- in the bottom right of vscode you have the blue connect button, click this
-- and attach to running container, pick the react or nest container
-- this is important for vscode to have acess to the node module files for code linting, completion etc..
-- if you can't, open the settings UI with ctrl+shift+p then type Preferences: Open Settins (UI)
-- search for docker path and add the result of $`which docker` there
-
-## Bootstrapping the frontend app
-
-- install vite react-ts
-- install tailwind
-- install prettier
-- install prettier tailwind
-- install react router
-- install react query
-- install react query dev tools
-  - npm i @tanstack/react-query-devtools
-  - https://tanstack.com/query/latest/docs/react/devtools
-- install axios
-  - npm install axios
-  - https://github.com/axios/axios#installing
-
-## API the front end needs
-
-- install nestjs
-- install prisma
-- install axios
-- install cookie-parser
-- install jwt
-- install swagger
-  - npm install @nestjs/swagger swagger-ui-express
-  - https://rehmat-sayany.medium.com/integrating-swagger-with-nestjs-a-step-by-step-guide-abd532743c43
-- install class-validator and class-transformer (dto validation)
-- install otplib and qrcode (google authentication setup)
-- install socket.io (npm install socket.io)
+## Notes for building the project
+- `make` generates a `kickstart.env` file in the `env/` folder. In this file, you'll need to add the 42API client id and key. You can also choose wether to use 'localhost' or the IP address of the host. But you use the IP address, 42API needs to know about it.
+- To change from dev to prod, use `export TRANSCENDANCE_MODE=prod`
+- HTTPS is used and requires an SSL certificate when doing make, a self-signed certificate is generated in /requirements/nginx/certs and will be copied into the Nginx container
