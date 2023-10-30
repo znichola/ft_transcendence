@@ -38,3 +38,28 @@ export class DirectMessageEntity
 	@ApiProperty()
 	sentAt: Date;
 }
+
+const userDisplayNameWithUserName = Prisma.validator<Prisma.UserDefaultArgs>()({
+	select: {
+		name: true
+	}
+})
+
+export type UserDisplayNameWithUserName = Prisma.UserGetPayload<
+  typeof userDisplayNameWithUserName
+>;
+
+export class DirectMessageWithNameEntity
+{
+	constructor(userPrismaObject: UserDisplayNameWithUserName, dmPrismaObject: DirectMessageWithUsername)
+	{
+		this.name = userPrismaObject.name;
+		this.message = new DirectMessageEntity(dmPrismaObject);
+	}
+
+	@ApiProperty()
+	name: string;
+
+	@ApiProperty()
+	message: DirectMessageEntity;
+}

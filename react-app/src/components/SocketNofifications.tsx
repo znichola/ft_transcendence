@@ -2,8 +2,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { useNotification } from "../functions/contexts";
 import { userSocket } from "../socket";
 import {
-  ConvoMessage,
-  IMessage,
   ISocAcceptChallenge,
   ISocChallenge,
   ISocChatroomMessage,
@@ -66,8 +64,9 @@ export default function SocketNotificatinos({
         to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
       // console.log("should be removing the chatroom ev");
-      console.log("getting called how many times?");
-      queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id + ""] });
+      queryClient.refetchQueries({
+        queryKey: ["ChatroomMessages", chat_ev.id + ""],
+      });
       // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
       // queryClient.setQueryData(
       //   ["ChatroomMessages", chat_ev.id + ""],
@@ -79,6 +78,7 @@ export default function SocketNotificatinos({
 
     const dm_ev = dmEV[0];
     if (dm_ev) {
+      // console.log("message content:", dm_ev);
       addNotif({
         type: "MESSAGE",
         from: dm_ev.name,
@@ -86,7 +86,9 @@ export default function SocketNotificatinos({
         to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
       // console.log("should be removing the dm ev", dm_ev);
-      queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.message.senderLogin42] });
+      queryClient.refetchQueries({
+        queryKey: ["UserConversations", dm_ev.message.senderLogin42],
+      });
       // queryClient.setQueryData(
       //   ["UserConversations", dm_ev.message.senderLogin42],
       //   (prev: ConvoMessage[] | undefined) =>

@@ -1,5 +1,5 @@
-import { UseGuards } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import { UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChallengeEntity, PlayerEntity, UserEntity, UserNameEntity } from './user.entity';
@@ -7,7 +7,7 @@ import { SocketAuthMiddleware } from 'src/ws/ws.middleware';
 import { WsGuard } from 'src/ws/ws.guard';
 import { UserStatusService } from './user.status.service';
 import { UserStatus } from '@prisma/client';
-import { DirectMessageEntity } from 'src/dm/entities/direct-message.entity';
+import { DirectMessageEntity, DirectMessageWithUsername, UserDisplayNameWithUserName } from 'src/dm/entities/direct-message.entity';
 import { MessageEntity, MessageWithChatroomEntity} from 'src/chat/entities/message.entity';
 import { PongService } from 'src/pong/pong.service';
 import { I2D, IBall, IGameState, IRoom, ISocGameOver } from 'src/interfaces';
@@ -24,6 +24,7 @@ import {
 	setRandomDirBall } from 'src/pong/pong.maths';
 import { Cron } from '@nestjs/schedule';
 
+// prettier-ignore
 @WebSocketGateway({
 	cors: {
 		origin: '*',
@@ -133,7 +134,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.userList.forEach((user) => {
 			if (user.login == to)
 			{
-				console.log('sending to client ', user.client.id);
 				this.broadcastTo(user.client.id, event, message);
 			}
 		});
@@ -144,7 +144,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.emit('userUpdated', login);
 	}
 
-	sendDM(msg: DirectMessageEntity, to: string)
+	sendDM(msg: UserDisplayNameWithUserName, to: string)
 	{
 		this.toAllUserClients(to, 'dm', msg);
 	}

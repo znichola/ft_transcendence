@@ -3,9 +3,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
-import { DirectMessageWithUsername, DirectMessageEntity } from './entities/direct-message.entity';
+import { DirectMessageWithUsername, DirectMessageEntity, DirectMessageWithNameEntity } from './entities/direct-message.entity';
 import { UserGateway } from 'src/user/user.gateway';
 
+// prettier-ignore
 @Injectable()
 export class DmService
 {
@@ -217,7 +218,13 @@ export class DmService
 			}
 		});
 
-		this.gateway.sendDM(new DirectMessageEntity(msgFromDb), to);
+		const user = await this.prisma.user.findFirst({
+			where: {
+				id: msg.senderId,
+			}
+		})
+
+		this.gateway.sendDM(new DirectMessageWithNameEntity(user, msgFromDb), to);
 	}
 
 	async deleteMessage(msgId: number, username: string)
