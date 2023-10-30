@@ -10,7 +10,7 @@ import { UserStatus } from '@prisma/client';
 import { DirectMessageEntity, DirectMessageWithUsername, UserDisplayNameWithUserName } from 'src/dm/entities/direct-message.entity';
 import { MessageEntity, MessageWithChatroomEntity} from 'src/chat/entities/message.entity';
 import { PongService } from 'src/pong/pong.service';
-import { I2D, IBall, IGameState, IRoom, ISocGameOver } from 'src/interfaces';
+import {I2D, IBall, IGameState, IPlayer, IRoom, ISocGameOver} from 'src/interfaces';
 import {
 	canvas,
 	timer,
@@ -88,7 +88,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userToken: string = client.handshake.auth.token;
 		const userLogin = await this.authService.getLoginFromToken(userToken);
 		const userElo: number = await this.pongService.getUserElo(userLogin);
-		
 		console.log(
 			'Pong User connected : ',
 			userLogin,
@@ -98,32 +97,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			userElo,
 		);
 		const user: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
-
 		const index: number = this.findLoginInRoom(userLogin);
-		if (this.userList.findIndex(user => user.login === userLogin) == -1)
-		{
-			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
-		}
+		//tells player he can rejoin a lobby
 		if (index != -1)
-		{
-			//mets a jour le status afk dans la room
-			this.roomList[index].user1.login == userLogin
-				? this.roomList[index].gs.p1.afk = false
-				: this.roomList[index].gs.p2.afk = false;
-			//mets a jour le socket dans la room
-			this.roomList[index].user1.login == userLogin
-				? (this.roomList[index].user1 = user)
-				: (this.roomList[index].user2 = user);
-			client.join(this.roomList[index].roomID);
-			//putting in correct state
-			if (user.login == this.roomList[index].user1.login)
-				this.roomList[index].user2.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user2.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
-				if (user.login == this.roomList[index].user2.login)
-				this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user1.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
-			//tells player he will be redirected to new game
 			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
-			await this.updateUserStatus(userLogin, UserStatus.INGAME);
-		}
 		this.userList.push(user);
 	}
 
@@ -278,7 +255,47 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 	}
-  
+
+	@SubscribeMessage('reconnect') // TODO: check qu'il confirme le bon match, donc for each
+	async handleReconnect(
+		@MessageBody() data: { user1: string, user2: string, special: boolean },
+		@ConnectedSocket() client: Socket,): Promise<void>
+	{
+		let user: PlayerEntity = undefined;
+		const userToken: string = client.handshake.auth.token;
+		const userLogin: string = await this.authService.getLoginFromToken(userToken);
+		const index: number = this.findLoginInRoom(userLogin);
+		//check room has the user
+		if (index != -1)
+		{
+			//check data has correct info
+			if (this.roomList[index].user1.login != data.user1 || this.roomList[index].user2.login != this.roomList[index].user2.login || this.roomList[index].type != data.special)
+				return ;
+			const tmp: number = this.findSocketInPlayer(client.id)
+			//redefine the player inside the room
+			if (tmp != -1)
+			{
+				user = this.userList[index];
+				//mets a jour le state
+				this.roomList[index].user1.login == userLogin
+					? this.roomList[index].gs.p1.afk = false
+					: this.roomList[index].gs.p2.afk = false;
+				//mets a jour le socket dans la room
+				this.roomList[index].user1.login == userLogin
+					? this.roomList[index].user1 = user
+					: this.roomList[index].user2 = user;
+				//putting in correct state
+				if (user.login == this.roomList[index].user1.login)
+					this.roomList[index].user2.login == 'GAMING'? user.state = 'GAMING' : user.state ='READY';
+				if (user.login == this.roomList[index].user2.login)
+					this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : user.state = 'READY';
+				//join socket room
+				client.join(this.roomList[index].roomID);
+				await this.updateUserStatus(userLogin, UserStatus.INGAME);
+			}
+		}
+	}
+	
 	@SubscribeMessage('moveUp')
 	async handleMoveUp(@MessageBody() data: boolean, @ConnectedSocket() client: Socket): Promise<void>
 	{
@@ -350,6 +367,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			|| (user1Login == r.user2.login && user2Login == r.user1.login));
 		});
 	}
+	
 	findSocketInPlayer(socketID: string): number
 	{
 		return this.userList.findIndex(
