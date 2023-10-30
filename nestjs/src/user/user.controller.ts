@@ -17,6 +17,8 @@ import {
   MaxFileSizeValidator,
   UseInterceptors,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriends } from '../interfaces';
@@ -32,6 +34,7 @@ import { UserProfileDto } from './dto';
 import { ChatroomEntity } from 'src/chat/entities/chatroom.entity';
 
 @ApiTags('User')
+@UsePipes(new ValidationPipe({whitelist: true}))
 @Controller('user')
 export class UserController {
   constructor(
@@ -511,7 +514,7 @@ export class UserController {
   async blockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
     await this.authService.verifyUser(username, req.cookies[process.env.COOKIE_USR].access_token);
-    
+
     const users = await this.userService.getFriendsIds(username, target);
     await this.userService.addBlockedUser(users[0], users[1]);
   }
