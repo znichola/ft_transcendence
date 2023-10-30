@@ -7,13 +7,10 @@ CERT = requirements/nginx/certs
 up : prod
 
 prod: env $(CERT)
-	docker compose -f docker-compose-prod.yml -p mastermind up --build
+	docker compose -f docker-compose.yml -p mastermind up --build
 
 dev: env $(CERT)
 	docker compose -f docker-compose-dev.yml -p mastermind up --build
-
-down:
-	docker compose -f $(COMPOSE_FILE) -p mastermind down
 
 fclean : env-clean
 	docker stop       $(CONTAINERS)                  $(TIDY)
