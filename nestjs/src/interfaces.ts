@@ -82,6 +82,7 @@ export interface IRoom {
   type: boolean;
   ranked: boolean;
   timer: number;
+  started: boolean;
 }
 
 export interface IGameState {

@@ -99,7 +99,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const user: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
 		const index: number = this.findLoginInRoom(userLogin);
 		//tells player he can rejoin a lobby
-		if (index != -1)
+		if (index != -1 && this.roomList[index].started)
 			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
 		this.userList.push(user);
 	}
@@ -441,6 +441,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			type: special,
 			ranked: ranked,
 			timer: Date.now(),
+			started: false,
 		};
 		newRoom.gs.type = special;
 		this.roomList.push(newRoom);
@@ -564,6 +565,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					//console.log('both players were seen as ready');
 					r.user1.state = 'GAMING';
 					r.user2.state = 'GAMING';
+					r.started = true;
 					r.gs.p1.afk = false;
 					r.gs.p2.afk = false;
 					// SET GAMERS STATUS AS INGAME
@@ -572,7 +574,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
-			if (Date.now() - r.timer >= 10000 && (r.user1.state == 'PENDING' || r.user2.state == 'PENDING'))
+			if (Date.now() - r.timer >= 10000 && !r.started)
 				this.cancelGame(r);
 		}
 	}
