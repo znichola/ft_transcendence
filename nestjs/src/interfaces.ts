@@ -81,6 +81,7 @@ export interface IRoom {
   roomID: string;
   type: boolean;
   ranked: boolean;
+  timer: number;
 }
 
 export interface IGameState {
@@ -89,7 +90,7 @@ export interface IGameState {
   balls: Array<IBall>;
   timerAfk: number;
   type: boolean;
-  id: number;//TODO CHEKC IF OK
+  id: number;//TODO CHECk IF OK
 }
 
 export interface IBall {
