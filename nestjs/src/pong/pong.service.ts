@@ -5,6 +5,7 @@ import { UserGateway } from 'src/user/user.gateway';
 
 const prisma: PrismaService = new PrismaService();
 
+// prettier-ignore
 @Injectable()
 export class PongService {
     constructor(
