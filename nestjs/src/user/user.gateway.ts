@@ -78,7 +78,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 		if (this.userList.findIndex(user => user.login === userLogin) == -1)
 		{
-			await this.userStatusService.setUserStatus(userLogin, UserStatus.OFFLINE);
+			await this.updateUserStatus(userLogin, UserStatus.OFFLINE);
 			this.broadcast("userDisconnect", userLogin);
 		}
 	}
@@ -103,7 +103,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let index: number = this.findLoginInRoom(userLogin);
 		if (this.userList.findIndex(user => user.login === userLogin) == -1)
 		{
-			await this.userStatusService.setUserStatus(userLogin, UserStatus.ONLINE);
+			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
 		}
 
 		if (index != -1)
@@ -118,7 +118,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				? (this.roomList[index].user1.client = client)
 				: (this.roomList[index].user2.client = client);
 			client.join(this.roomList[index].roomID);
-			await this.userStatusService.setUserStatus(userLogin, UserStatus.INGAME);
+			await this.updateUserStatus(userLogin, UserStatus.INGAME);
 		}
 
 		this.userList.push(user);
@@ -164,6 +164,12 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.server.to(room).emit(event, message);
 	}
 
+	async updateUserStatus(user: string, status: UserStatus)
+	{
+		await this.userStatusService.setUserStatus(user, status);
+		this.sendUserUpdated(user);
+	}
+
 	/* ---------------------- EVENTS FUNCTIONS ----------------------*/
 
 	@SubscribeMessage('looking-for-game')
@@ -184,7 +190,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			player.state = 'PENDING';
 			special ? this.specialQueue.push(player) : this.normalQueue.push(player);
 			//update user state
-			this.userStatusService.setUserStatus(userLogin, UserStatus.INQUEUE);
+			await this.updateUserStatus(userLogin, UserStatus.INQUEUE);
 			//if player was in the other queue it gets deleted
 			// Should not happen as previous return should trigger
 			index = this.findSocketInQueue(client.id, !special);
@@ -444,6 +450,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			{
 				const gameOver: ISocGameOver = await this.pongService.endGame(r.gs);
 				this.broadcastTo(r.roomID, 'game-over', gameOver);
+				await this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
+				await this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
 			}
 			let index = this.findCorrectRoom(r.user1.login, r.user2.login);
 			this.roomList.splice(index, 1);
@@ -486,7 +494,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
-		this.roomList.forEach((r: IRoom): void => 
+		this.roomList.forEach(async (r: IRoom) => 
 		{
 			if (r.user1.client != undefined && r.user2.client != undefined)
 			{
@@ -508,8 +516,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					r.gs.p1.afk = false;
 					r.gs.p2.afk = false;
 					// SET GAMERS STATUS AS INGAME
-					this.userStatusService.setUserStatus(r.user1.login, UserStatus.INGAME);
-					this.userStatusService.setUserStatus(r.user2.login, UserStatus.INGAME);
+					await this.updateUserStatus(r.user1.login, UserStatus.INGAME);
+					await this.updateUserStatus(r.user2.login, UserStatus.INGAME);
 					this.pongCalculus(r, canvas);
 				}
 			}
