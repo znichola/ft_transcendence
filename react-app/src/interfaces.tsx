@@ -24,6 +24,7 @@ export interface UserData {
   losses: number;
   avatar: string;
   bio?: string;
+  tfaStatus?: boolean;
 }
 export interface IScore {
   p1Score: number;

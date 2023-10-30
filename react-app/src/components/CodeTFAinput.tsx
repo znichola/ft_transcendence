@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Form } from "react-router-dom";
 
 export function CodeInput({
-  error,
+  error = false,
   code,
   setCode,
   submit,
 }: {
-  error: boolean;
+  error?: boolean;
   code: string;
   submit: () => void;
   setCode: (value: string) => void;

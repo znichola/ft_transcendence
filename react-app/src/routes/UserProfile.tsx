@@ -30,7 +30,7 @@ import { MatchCell } from "../components/MatchCell";
 import ProfileElo from "../components/ProfileElo";
 import { CodeInput } from "../components/CodeTFAinput";
 import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { userSocket } from "../socket";
 
 export default function UserProfile() {
@@ -304,7 +304,7 @@ function CurrentUserSettings({
 
   return (
     <div className="relative">
-      <div className="absolute flex flex-col w-full overflow-hidden min-w-0 items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white pt-4 shadow-xl">
+      <div className="absolute flex flex-col w-full min-w-0 items-center justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white pt-4 shadow-xl">
         <IntroDescription />
         <ProfileModifyForm
           name={name}
@@ -441,7 +441,7 @@ function ProfileModifyTFA() {
           Once enabled, scan the code to link your google 2FA app.
         </p>
       </div>
-      {openTFAwindow && !activateTFA ? <SetupTFA isOpen={setOpenTFAwindow} /> : <></>}
+      {openTFAwindow && !activateTFA ? <SetupTFA isOpen={setOpenTFAwindow} setActivateTFA={setActivateTFA} /> : <></>}
     </div>
   );
 }
@@ -449,7 +449,7 @@ function ProfileModifyTFA() {
 function IntroDescription() {
   return (
     <div className=" max-w-lg pb-3 text-slate-400">
-      Change your profle settings but please <br /> be respectful of other
+      Change your profile settings but please <br /> be respectful of other
       players and our{" "}
       <a
         className="text-sky-400"
@@ -462,39 +462,39 @@ function IntroDescription() {
   );
 }
 
-function SetupTFA({ isOpen }: { isOpen: (b: boolean) => void }) {
-  const { user } = useAuth();
+function SetupTFA({ isOpen, setActivateTFA }: { isOpen: (b: boolean) => void, setActivateTFA: (b: boolean) => void }) {
+  const { user, setFTA } = useAuth();
   const [code, setCode] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const { isLoading, isError, isSuccess } = useQuery({
-    enabled: submitted,
-    retry: false,
-    queryFn: () => postTFACodeEnable(user, code),
+  const changeTFA = useMutation({
+    mutationFn: ({user, code}:{user: string, code: string}) => postTFACodeEnable(user, code),
+    onSuccess: () => {
+      addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
+      setFTA(true)
+      setSubmitted(false);
+      setActivateTFA(true);
+    },
+    onError: () => {
+      setCode("");
+      setSubmitted(false);
+    }
   });
   const { addNotif } = useNotification();
-  useEffect(() => {
-    if (isError && submitted) {
-      setSubmitted(false);
-      setCode("");
-    }
-    if (isSuccess && submitted) {
-      console.log("Two factor authentication was set up successfully");
-      addNotif({ type: "SUCCESS", message: "TFA was setup sucessfully" });
-    }
-  }, [addNotif, isError, isSuccess, submitted]);
 
   return (
-    <div className="overflow-y-scroll max-h-full box-theme absolute top-0 bg-stone-50 p-8">
+    <div className="overflow-y-scroll box-theme absolute top-0 bg-stone-50 p-8">
       <QRcode />
       <hr className="my-4 h-px w-full border-0 bg-slate-100" />
-      {isLoading && submitted ? (
+      {submitted ? (
         <div className="h-10 w-10 animate-spin rounded-full border-8 border-slate-700 border-b-transparent bg-stone-50" />
       ) : (
         <CodeInput
           code={code}
           setCode={setCode}
-          error={isError}
-          submit={() => setSubmitted(true)}
+          submit={() => {
+            setSubmitted(true);
+            changeTFA.mutate({user: user, code: code})
+          }}
         />
       )}
       <button

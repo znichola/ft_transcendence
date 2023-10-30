@@ -1,20 +1,19 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
   socketDisconnect,
   socketSetHeadersAndReConnect,
 } from "../socket";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser, useMutLogout } from "../api/apiHooks";
+import { useCurrentUser, useMutLogout, useUserData } from "../api/apiHooks";
+import { UserData } from "../interfaces";
 
 export type IAuth = {
   isloggedIn: boolean;
   user: string;
   tfa: boolean;
   setFTA: (tfa: boolean) => void;
-  logIn: (user: string) => void;
+  logIn: (userData: UserData) => void;
   logOut: () => void;
 };
 
@@ -23,8 +22,8 @@ export const AuthContext = createContext<IAuth>({
   isloggedIn: false,
   user: "",
   tfa: false,
-  setFTA: (_: boolean) => {},
-  logIn: (_: string) => {},
+  setFTA: (_: boolean) => {_},
+  logIn: (_: UserData) => {_},
   logOut: () => {},
 });
 
@@ -38,9 +37,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     tfa: false,
   });
 
-  const logIn = (user: string) => {
+  const logIn = (userData: UserData) => {
     setToken((prev) => {
-      return { ...prev, isloggedIn: true, user: user }; //TODO Changer ici pour le tfa
+      return { ...prev, isloggedIn: true, user: userData.login42, tfa: userData.tfaStatus? userData.tfaStatus : false};
     });
   };
 
@@ -68,16 +67,17 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
+  const { data: currentUserData, isLoading: isDataLoading, isError: isDataError } = useUserData(currentUser ? currentUser : "");
   // const queryClient = useQueryClient();
   useEffect(() => {
     if (
       foo &&
       currentUser !== "" &&
       !foo.isloggedIn &&
-      !isLoading &&
-      !isError
+      !isLoading && !isDataLoading &&
+      !isError && !isDataError
     ) {
-      foo.logIn(currentUser);
+      foo.logIn(currentUserData);
       socketSetHeadersAndReConnect();
       // setTimeout(() => {
       //   setStatus(queryClient, currentUser, "ONLINE");
