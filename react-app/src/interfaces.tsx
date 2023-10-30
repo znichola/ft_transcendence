@@ -25,6 +25,10 @@ export interface UserData {
   avatar: string;
   bio?: string;
 }
+export interface IScore {
+  p1Score: number;
+  p2Score: number;
+}
 
 export interface IGameHistory {
   player1: string;
@@ -110,7 +114,7 @@ export interface IPutUserProfile {
 
 // --------- pong / gameState
 
-export type I2D = { width: number; height: number };
+export type I2D = { width: number; height: number, setScore: (value: IScore) => void };
 export type TColor = { r: number; g: number; b: number };
 
 export interface IGameState {
