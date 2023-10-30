@@ -205,14 +205,14 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		//CREATING ROOM
 		player1.state = 'PENDING';
 		//SEND INVITE TO ALL SOCKET CHALLENGED IS CONNECTED ON
-		await this.createNewRoom(player1, player2, data.special, false);
-		this.toAllUserClients(data.invitedLogin, 'challenge', {from: userLogin, to: data.invitedLogin, special: data.special});
+		const roomId = await this.createNewRoom(player1, player2, data.special, false);
+		this.toAllUserClients(data.invitedLogin, 'challenge', {from: userLogin, to: data.invitedLogin, special: data.special, roomId: roomId});
 		// console.log('sent message challenge');
 	}
   
 	@SubscribeMessage('accept')
 	async handleAccept(
-		@MessageBody() data: { opponent: string, special: boolean },
+		@MessageBody() data: { opponent: string, special: boolean, roomId: string },
 		@ConnectedSocket() client: Socket,
 	): Promise<void>
 	{
@@ -223,7 +223,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!this.checkState(userLogin) || !this.checkState(data.opponent))
 			return ;
 		// FIND CORRECT ROOM
-		let index: number = this.findCorrectRoom(data.opponent, userLogin);
+		let index = this.roomList.findIndex((roomList) => { return (roomList.roomID == data.roomId)});
 		console.log('test accept: ', userLogin, ' with id: ', client.id, ' accept challenge from : ', data.opponent, ' and index: ' , index);
 		if (index != -1)
 		{
@@ -429,7 +429,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	/* ----------------------- GAME FUNCTIONS -----------------------*/
-	async createNewRoom(user1: PlayerEntity, user2: PlayerEntity, special: boolean, ranked: boolean): Promise<void>
+	async createNewRoom(user1: PlayerEntity, user2: PlayerEntity, special: boolean, ranked: boolean): Promise<string>
 	{
 		// CREATE NEW GS FOR THIS ROOM
 		const newGameState: IGameState = JSON.parse(JSON.stringify(gameStart)); //TODO
@@ -457,6 +457,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (user2.client != undefined)
 			user2.client.join(`${roomName}`);
 		this.broadcastTo(`${roomName}`, 'test', "asdfasfasdf");
+		return newRoom.roomID;
 	}
 	
 	trimQueue(queue: PlayerEntity[]): PlayerEntity[]
