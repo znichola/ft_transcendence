@@ -275,12 +275,12 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			//redefine the player inside the room
 			if (tmp != -1)
 			{
-				user = this.userList[index];
+				user = this.userList[tmp];
 				//mets a jour le state
 				this.roomList[index].user1.login == userLogin
 					? this.roomList[index].gs.p1.afk = false
 					: this.roomList[index].gs.p2.afk = false;
-				//mets a jour le socket dans la room
+				//mets a jour le user dans la room
 				this.roomList[index].user1.login == userLogin
 					? this.roomList[index].user1 = user
 					: this.roomList[index].user2 = user;
@@ -295,7 +295,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 	}
-	
+
 	@SubscribeMessage('moveUp')
 	async handleMoveUp(@MessageBody() data: boolean, @ConnectedSocket() client: Socket): Promise<void>
 	{
@@ -367,7 +367,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			|| (user1Login == r.user2.login && user2Login == r.user1.login));
 		});
 	}
-	
+
 	findSocketInPlayer(socketID: string): number
 	{
 		return this.userList.findIndex(
