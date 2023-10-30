@@ -89,6 +89,7 @@ export default function UserProfile() {
             buttonState={buttonState}
           />
         }
+        noGradient={true}
       ></BoxMenu>
       <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
       <div className="flex h-full w-full flex-col px-3 pt-64 lg:px-28">
@@ -97,6 +98,7 @@ export default function UserProfile() {
             ref={elo_graph}
             className="relative flex min-h-fit min-w-fit flex-col rounded-xl border-b-2 border-stone-300 bg-stone-50 p-4 shadow"
           >
+            <h2 className="-mb-5 text-lg font-semibold">Elo graph</h2>
             <ProfileElo
               data={currentUser.eloHistory}
               w={graphWidth}
@@ -135,22 +137,24 @@ function UserMatchHistory({ login42 }: { login42: string }) {
   }
 
   return (
-    <div
-      className="flex w-full flex-wrap justify-center gap-5 overflow-y-auto overflow-x-hidden rounded-xl bg-stone-50 px-1 pb-20 pt-10 shadow-md"
-      style={{ gridTemplateAreas: "auto-fill", gridRow: "auto-fill" }}
-    >
-      {matchHistory.map(
-        (gameData) =>
-          gameData.gameState != null ? (
-            <MatchCell
-              key={gameData.gameState.id}
-              gameData={gameData}
-              profile_user={login42}
-            />
-          ) : (
-            <></>
-          ), //TODO : MatchCell sould be always displayable
-      )}
+    <div className="flex flex-col items-center w-full rounded-xl bg-stone-50 px-1 pb-20 shadow-md">
+      <h2 className="self-start font-semibold text-lg p-5">Match history</h2>
+      <div className="flex w-full flex-wrap justify-center gap-5 px-5 overflow-y-auto overflow-x-hidden"
+        style={{ gridTemplateAreas: "auto-fill", gridRow: "auto-fill" }}
+      >
+        {matchHistory.map(
+          (gameData) =>
+            gameData.gameState != null ? (
+              <MatchCell
+                key={gameData.gameState.id}
+                gameData={gameData}
+                profile_user={login42}
+              />
+            ) : (
+              <></>
+            ), //TODO : MatchCell sould be always displayable
+        )}
+      </div>
     </div>
   );
 }
@@ -167,6 +171,11 @@ function UserProfileHeading({
   const { user: currentUser } = useAuth();
   const [name, setName] = useState(user.name);
   const [bio, setBio] = useState<string | undefined>(user.bio);
+
+  useEffect(() => {
+    setName(user.name);
+    setBio(user.bio);
+  }, [user])
 
   return (
     <div className="flex w-full flex-row gap-5 pl-8 pt-6 lg:pl-16">

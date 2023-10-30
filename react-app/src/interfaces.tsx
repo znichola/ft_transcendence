@@ -34,6 +34,7 @@ export interface IScore {
 export interface IGameHistory {
   player1: string;
   player2: string;
+  rated: boolean;
   gameState: IGameState; //TODO : Mettre obligatoire dans la base de donné
 }
 
