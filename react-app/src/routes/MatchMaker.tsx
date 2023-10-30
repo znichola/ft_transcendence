@@ -3,7 +3,7 @@ import { Heading } from "../components/FormComponents";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DisplayPlayer } from "./PlayPong";
 import { IconVS } from "../components/Icons";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { userSocket } from "../socket";
 import { ISocRoomCreated } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components/Loading";
@@ -116,6 +116,13 @@ function GameAlert({
 //TODO : invalidate wrong gmae_mode request
 function WaitingForGame({ game_mode }: { game_mode: string }) {
   const navigate = useNavigate();
+  const [waiting, setWaiting] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setWaiting(false);
+    }, 20000);
+  }, []);
 
   useEffect(() => {
     userSocket.emit("looking-for-game", game_mode == "special");
@@ -140,6 +147,16 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
   return (
     <div className="flex h-fit w-fit flex-col gap-5 p-10">
       <LoadingSpinnerMessage message={`Looking for a ${game_mode} game ...`} />
+      {waiting ? (
+        <></>
+      ) : (
+        <div>
+          your've been here a while{" "}
+          <Link to="/play" className="underline">
+            go back
+          </Link>
+        </div>  
+      )}
     </div>
   );
 }
