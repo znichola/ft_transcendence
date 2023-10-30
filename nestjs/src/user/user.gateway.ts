@@ -57,8 +57,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (index != -1)
 		{
 		  this.roomList[index].user1.client.id == client.id
-			  ? this.roomList[index].gs.p1.afk
-			  : this.roomList[index].gs.p2.afk;
+			  ? this.roomList[index].gs.p1.afk = true
+			  : this.roomList[index].gs.p2.afk = false;
 		  this.roomList[index].user1.client.id == client.id
 			  ? this.roomList[index].user1.state = 'AFK'
 			  : this.roomList[index].user2.state = 'AFK';
