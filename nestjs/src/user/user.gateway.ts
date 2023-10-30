@@ -21,7 +21,8 @@ import {
 	scoreBall,
 	createNewBall,
 	positionPlayer,
-	setRandomDirBall } from 'src/pong/pong.maths';
+	setRandomDirBall,
+	setInitialPosition } from 'src/pong/pong.maths';
 import { Cron } from '@nestjs/schedule';
 
 // prettier-ignore
@@ -296,22 +297,22 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
-	@SubscribeMessage('afk') // TODO: check qu'il confirme le bon match, donc for each
-	async handleAfk(@ConnectedSocket() client: Socket,): Promise<void>
-	{
-		console.log('ASDGGAGGFGSAGS');
-		let index: number = this.findSocketInRoom(client.id);
-		if (index != -1)
-		{
-			this.roomList[index].user1.client.id == client.id
-				? this.roomList[index].gs.p1.afk = true
-				: this.roomList[index].gs.p2.afk = true;
-			this.roomList[index].user1.client.id == client.id
-				? this.roomList[index].user1.state = 'AFK'
-				: this.roomList[index].user2.state = 'AFK';
-			client.leave(this.roomList[index].roomID);
-		}
-	}
+	// @SubscribeMessage('afk') // TODO: check qu'il confirme le bon match, donc for each
+	// async handleAfk(@ConnectedSocket() client: Socket,): Promise<void>
+	// {
+	// 	console.log('ASDGGAGGFGSAGS');
+	// 	let index: number = this.findSocketInRoom(client.id);
+	// 	if (index != -1)
+	// 	{
+	// 		this.roomList[index].user1.client.id == client.id
+	// 			? this.roomList[index].gs.p1.afk = true
+	// 			: this.roomList[index].gs.p2.afk = true;
+	// 		this.roomList[index].user1.client.id == client.id
+	// 			? this.roomList[index].user1.state = 'AFK'
+	// 			: this.roomList[index].user2.state = 'AFK';
+	// 		client.leave(this.roomList[index].roomID);
+	// 	}
+	// }
 
 	@SubscribeMessage('moveUp')
 	async handleMoveUp(@MessageBody() data: boolean, @ConnectedSocket() client: Socket): Promise<void>
@@ -462,6 +463,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async pongCalculus(r: IRoom, canvas: I2D): Promise<void>
 	{
+		let endCase: boolean = false;
+		//updata game state
 		if (!r.gs.p1.afk && !r.gs.p2.afk)
 		{
 			positionPlayer(r.gs.p1, canvas);
@@ -471,18 +474,27 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				createNewBall(r.gs.balls, canvas);
 			r.gs.balls.forEach((b: IBall) => bounceWallBall(b, canvas));
 			r.gs.balls.forEach((b: IBall) => definePlayerContact(b, r.gs, canvas));
-			scoreBall(r.gs, canvas);
+			endCase = scoreBall(r.gs, canvas);
 		}
+		//counter for afk decreases
 		else
 		{
 			r.gs.timerAfk -= timer / 1000;
 			if (gameStart.timerAfk <= 0) return; //TODO GIVE DATA INFO
 		}
 		this.broadcastTo(`${r.gs.id}`, 'upDate', <any>r.gs);
+		//re update gs
 		if (!this.isGameOver(r.gs))
+		{
+			if (endCase) {
+				setRandomDirBall(r.gs.balls[0]);
+				setInitialPosition(r.gs);
+			}
 			setTimeout((): void => {
 				this.pongCalculus(r, canvas);
 			}, timer);
+		}
+		//en the game
 		else
 		{
 			r.user1.state = undefined;
