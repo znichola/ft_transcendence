@@ -1,17 +1,17 @@
 import { TChatroomRole, TUserStatus } from "../interfaces";
 
-export function statusColor(status: TUserStatus) {
+export function br_statusColor(status: TUserStatus) {
   switch (status) {
     case "ONLINE":
-      return "green-600";
+      return "border-green-600";
     case "OFFLINE":
-      return "gray-300";
+      return "border-gray-300";
     case "INGAME":
-      return "blue-400";
-    case "UNAVAILABLE":
-      return "red-500";
+      return "border-blue-400";
+    case "INQUEUE":
+      return "border-pink-500";
     default:
-      return "ping-700";
+      return "border-red-700";
   }
 }
 export function isMatch(login42: string, search: string, name?: string) {

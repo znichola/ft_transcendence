@@ -34,7 +34,7 @@ export interface GameHistory {
 export type TUserStatus =
   | "ONLINE"
   | "OFFLINE"
-  | "UNAVAILABLE"
+  | "INQUEUE"
   | "INGAME"
   | undefined;
 

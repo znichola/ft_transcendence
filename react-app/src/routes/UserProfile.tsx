@@ -22,7 +22,7 @@ import {
   PreHeading,
   SubmitBTN,
 } from "../components/FormComponents";
-import { statusColor } from "../functions/utils";
+import { br_statusColor } from "../functions/utils";
 import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions, { FB1 } from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
@@ -134,7 +134,7 @@ function UserProfileHeading({
     <div className="flex w-full gap-5 flex-row pl-8 pt-6 lg:pl-16">
       <div
         className={
-          "mr-6 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
+          "mr-6 border-r-4 pr-6 " + br_statusColor(user.status)
         }
       >
         <img

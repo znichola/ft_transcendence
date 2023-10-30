@@ -17,10 +17,10 @@ export default function Avatar({
         return "bg-gray-300";
       case "INGAME":
         return "bg-blue-400";
-      case "UNAVAILABLE":
-        return "bg-red-500";
+      case "INQUEUE":
+        return "bg-pink-500";
       default:
-        return "bg-ping-700";
+        return "bg-red-700";
     }
   }
   return (
@@ -36,8 +36,8 @@ export default function Avatar({
         {status === "INGAME" && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
         )}
-        <span className="absolute left-1/2 hidden -translate-y-full translate-x-1 rounded-md border border-slate-100 bg-slate-50 p-1 px-2 text-sm capitalize text-slate-400 opacity-0 shadow-sm transition-opacity group-hover:flex group-hover:opacity-100">
-          {status?.toLocaleLowerCase()}
+        <span className="absolute left-1/2 hidden -translate-y-full translate-x-1 rounded-md border border-slate-100 bg-slate-50 p-1 px-2 text-sm capitalize text-slate-400 opacity-0 shadow-sm transition-opacity group-hover:flex group-hover:opacity-100 whitespace-nowrap">
+          {status == "INQUEUE" ? "in queue" : status?.toLocaleLowerCase()}
         </span>
       </div>
     </div>
