@@ -439,7 +439,7 @@ export class UserService {
       }
     });
     
-    console.log(chatrooms);
+    // console.log("chatrooms", chatrooms);
     chatrooms.forEach(room => {
       const chatroom: ChatroomEntity = new ChatroomEntity(room);
       result.push(chatroom);

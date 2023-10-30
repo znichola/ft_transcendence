@@ -137,7 +137,15 @@ export class DmService
 		const id1 = await this.getUserId(user1);
 		const id2 = await this.getUserId(user2);
 
-		let convId = await this.getOneConversation(user1, user2).then(res => res?.id);
+		let convId: number;
+		try
+		{
+			convId = await this.getOneConversation(user1, user2).then(res => res?.id);
+		}
+		catch (e: any)
+		{
+			return [];
+		}
 
 		const msgsFromDb: DirectMessageWithUsername[] = await this.prisma.directMessage.findMany({
 			where: {

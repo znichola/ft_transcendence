@@ -242,7 +242,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (index != -1)
 		{
 			//CHECK IF PAS DEJA ACCEPTE
-			console.log(this.roomList[index]);
+			console.log("if if something deja", this.roomList[index]);
 			if (this.roomList[index].user2.state == undefined)
 			{
 				client.join(this.roomList[index].roomID);
@@ -453,7 +453,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				await this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
 				await this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
 			}
-			let index = this.findCorrectRoom(r.user1.login, r.user2.login);
+			r.user1.state = undefined;
+			r.user2.state = undefined;
+			const index = this.findCorrectRoom(r.user1.login, r.user2.login);
 			this.roomList.splice(index, 1);
 		} //TODO: define data
 	}
@@ -487,6 +489,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@Cron('*/5 * * * * *')
 	async findMatches(): Promise<void>
 	{
+		console.log("classical queue:", this.normalQueue);
 		await this.findPlayersInQueue(true);
 		await this.findPlayersInQueue(false);
 	}
@@ -494,6 +497,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
+		console.log("the rooms:", this.roomList);
 		this.roomList.forEach(async (r: IRoom) => 
 		{
 			if (r.user1.client != undefined && r.user2.client != undefined)
