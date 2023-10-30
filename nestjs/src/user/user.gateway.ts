@@ -454,6 +454,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			{
 				const gameOver: ISocGameOver = await this.pongService.endGame(r.gs);
 				this.broadcastTo(r.roomID, 'game-over', gameOver);
+				r.user1.client.leave(r.roomID);
+				r.user2.client.leave(r.roomID);
 				await this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
 				await this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
 				const index: number = this.findCorrectRoom(r.user1.login, r.user2.login);
@@ -490,8 +492,11 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.pongService.cancelGame(r.gs.id);
 		this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
 		this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
+		this.broadcastTo(r.roomID, 'cancelled', {user1: r.user1.login, user2: r.user2.login, special: r.type})
+		r.user1.client.leave(r.roomID);
+		r.user2.client.leave(r.roomID);
 		const index: number = this.findCorrectRoom(r.user1.login, r.user2.login);
-		this.roomList.splice(index, 1);
+		if (index != - 1) this.roomList.splice(index, 1);
 	}
 
 	/* --------------------- SCHEDULE FUNCTIONS ---------------------*/
