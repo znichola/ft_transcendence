@@ -71,7 +71,7 @@ export class AuthController {
         maxAge: cookieMaxAge,
       });
 
-      return res.status(200).send({ login: user.login42, tfa: user.tfaStatus, first: userExists });
+      return res.status(200).send({ login: user.login42, tfa: user.tfaStatus, first: !userExists });
     }
     catch (error)
     {
