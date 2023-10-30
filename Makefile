@@ -10,10 +10,10 @@ endif
 CERT = requirements/nginx/certs
 
 up : env $(CERT)
-	env $$(cat env/.docker.env) docker compose -f $(COMPOSE_FILE) -p mastermind up --build
+	docker compose -f $(COMPOSE_FILE) -p mastermind up --build
 
 down:
-	env $$(cat env/.docker.env) docker compose -f $(COMPOSE_FILE) -p mastermind down
+	docker compose -f $(COMPOSE_FILE) -p mastermind down
 
 fclean : env-clean
 	docker stop       $(CONTAINERS)                  $(TIDY)
