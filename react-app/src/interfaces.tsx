@@ -1,3 +1,5 @@
+export const VICTORY_POINT = 5;
+
 export interface RelationData {
   login42: string;
   name: string;
@@ -24,11 +26,10 @@ export interface UserData {
   bio?: string;
 }
 
-// /game/id
-export interface GameHistory {
-  player_left: number;
-  player_right: number;
-  result: number;
+export interface IGameHistory {
+  player1: string;
+  player2: string;
+  gameState: IGameState; //TODO : Mettre obligatoire dans la base de donné
 }
 
 export type TUserStatus =

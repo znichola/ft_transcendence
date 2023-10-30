@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logIn = (user: string) => {
     setToken((prev) => {
-      return { ...prev, isloggedIn: true, user: user };
+      return { ...prev, isloggedIn: true, user: user }; //TODO Changer ici pour le tfa
     });
   };
 

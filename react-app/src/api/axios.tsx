@@ -11,6 +11,8 @@ import {
   IMember,
   IUsersAll,
   IPutUserProfile,
+  IGameState,
+  IGameHistory,
 } from "../interfaces";
 
 // const BASE_URL = "/api/";
@@ -84,6 +86,12 @@ export const getUserFriends = async (current_user: string) => {
 export const getUserBlocked = async (current_user: string) => {
   return authApi
     .get<string[]>("/user/" + current_user + "/block")
+    .then((res) => res.data);
+};
+
+export const getUserMatchHistory = async (login42: string) => {
+  return authApi
+    .get<IGameHistory[]>("/pong/history/" + login42)
     .then((res) => res.data);
 };
 
