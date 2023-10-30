@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
-import { I2D, IGameState } from "../interfaces.tsx";
+import { I2D, IGameState, IScore } from "../interfaces.tsx";
 import { userSocket } from "../socket.ts";
 import { caseDraw } from "./draw.tsx";
 
-export default function PongApp({ width, height }: I2D) {
-  return <Canvas width={width} height={height} />;
+export default function PongApp({ width, height, setScore }: I2D) {
+  return <Canvas width={width} height={height} setScore={setScore} />;
 }
 
-function Canvas({ width, height }: { width: number; height: number }) {
-  const canvasRef = useCanvas(caseDraw);
+function Canvas({ width, height, setScore }: I2D) {
+  const canvasRef = useCanvas(caseDraw, setScore);
   return <canvas ref={canvasRef} width={width} height={height} />;
 }
 
@@ -17,6 +17,7 @@ function useCanvas(
     ctx: CanvasRenderingContext2D | null | undefined,
     gs: IGameState,
   ) => void,
+  setScore: (value: IScore) => void,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // const gameState = useRef<IGameState>(gameStart);
@@ -49,6 +50,7 @@ function useCanvas(
     function onUpdate(data: IGameState) {
       // gameState.current = data;
       draw(context, data);
+      setScore({p1Score: data.p1.score, p2Score: data.p2.score});
     }
     userSocket.on("upDate", onUpdate);
 
@@ -56,6 +58,6 @@ function useCanvas(
     return () => {
       userSocket.off("upDate", onUpdate);
     };
-  }, [draw]);
+  }, [draw, setScore]);
   return canvasRef;
 }
