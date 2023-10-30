@@ -32,7 +32,7 @@ export default function Auth() {
         setFTA(true);
         navigate("/tfa/" + authResp.login);
       } else {
-        logIn(authResp.login);
+        logIn(authResp.login, authResp.tfa);
         navigate("/play");
       }
     }
