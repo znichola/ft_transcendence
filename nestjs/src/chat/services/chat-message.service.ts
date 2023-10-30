@@ -177,10 +177,12 @@ export class ChatMessageService
 				}
 			}
 		});
-
-		for (const member of members)
+		
+		// needed because the list does not containe unique members
+		const uniqueMembers = new Set(members.map(m => m.user.login42));
+		for (const member of uniqueMembers)
 		{
-			this.gateway.sendToChatroom(new MessageWithChatroomEntity(msgFromDb), member.user.login42);
+			this.gateway.sendToChatroom(new MessageWithChatroomEntity(msgFromDb), member);
 		}
 	}
 

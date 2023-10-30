@@ -3,7 +3,7 @@ import { RelationData, UserData, UserFriends } from "../interfaces";
 import Avatar from "./Avatar";
 import { IconBolt, IconChatBubble } from "./Icons";
 import RelationActions, { FB1, FB2 } from "./UserInfoCardRelations";
-import { pongSocket } from "../socket";
+import { userSocket } from "../socket";
 
 export default function UserInfoCard({
   cardUser,
@@ -52,7 +52,7 @@ export default function UserInfoCard({
                 to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
                 onClick1={() => {
                   console.log("Challenge to classical");
-                  pongSocket.emit("challenge", {
+                  userSocket.emit("challenge", {
                     invitedLogin: cardUser.login42,
                     special: false,
                   });
@@ -60,7 +60,7 @@ export default function UserInfoCard({
                 to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
                 onClick2={() => {
                   console.log("Challenge to special");
-                  pongSocket.emit("challenge", {
+                  userSocket.emit("challenge", {
                     invitedLogin: cardUser.login42,
                     special: true,
                   });

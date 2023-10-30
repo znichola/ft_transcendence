@@ -22,7 +22,7 @@ import {
   PreHeading,
   SubmitBTN,
 } from "../components/FormComponents";
-import { statusColor } from "../functions/utils";
+import { br_statusColor } from "../functions/utils";
 import { SideButton, SideButton2 } from "../components/UserInfoCard";
 import RelationActions, { FB1 } from "../components/UserInfoCardRelations";
 import { MatchCell } from "../components/MatchCell";
@@ -30,7 +30,7 @@ import ProfileElo from "../components/ProfileElo";
 import { CodeInput } from "../components/CodeTFAinput";
 import { patchTFACodeDisable, postTFACodeEnable } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
-import { pongSocket } from "../socket";
+import { userSocket } from "../socket";
 
 export default function UserProfile() {
   // data fetching
@@ -134,7 +134,7 @@ function UserProfileHeading({
     <div className="flex w-full gap-5 flex-row pl-8 pt-6 lg:pl-16">
       <div
         className={
-          "mr-6 border-r-4 pr-6 " + `border-${statusColor(user.status)}`
+          "mr-6 border-r-4 pr-6 " + br_statusColor(user.status)
         }
       >
         <img
@@ -244,7 +244,7 @@ function UserInteractions({
         to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
         onClick1={() => {
           console.log("Challenge to classical");
-          pongSocket.emit("challenge", {
+          userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: false,
           });
@@ -252,7 +252,7 @@ function UserInteractions({
         to2={`/pong/${currentUser}/vs/${user.login42}/special`}
         onClick2={() => {
           console.log("Challenge to special");
-          pongSocket.emit("challenge", {
+          userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: true,
           });

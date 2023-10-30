@@ -67,8 +67,8 @@ export function useUserData(login42?: string) {
   return useQuery({
     queryKey: ["UserData", login42],
     queryFn: () => getUserData(login42),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: login42 != "",
   });
 }
@@ -89,8 +89,8 @@ export function useCurrentUserData() {
   return useQuery({
     queryKey: ["UserData", currentUser],
     queryFn: () => getUserData(currentUser),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: !!currentUser,
   });
 }
@@ -99,8 +99,8 @@ export function useUserConversations(user: string) {
   return useQuery({
     queryKey: ["UserConversations", user],
     queryFn: () => getUserConverstaionList(user),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user != "",
   });
 }
@@ -109,8 +109,8 @@ export function useUserConversation(user1: string, user2: string) {
   return useQuery({
     queryKey: ["UserConversation", user1, user2],
     queryFn: () => getUserConversation(user1, user2),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user1 != "" && user2 != "",
   });
 }
@@ -119,8 +119,8 @@ export function useUserConvoMessages(user1: string, user2: string) {
   return useQuery({
     queryKey: ["UserConvoMessages", user1, user2],
     queryFn: () => getUserConvoMessageList(user1, user2),
-    // staleTime: 5 * (60 * 1000), // 5 mins
-    // cacheTime: 10 * (60 * 1000), // 10 mins
+    staleTime: 5 * (60 * 1000), // 5 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user1 != "" && user2 != "",
   });
 }
@@ -200,8 +200,8 @@ export function useUserFriends(user: string) {
   return useQuery({
     queryKey: ["Friends"],
     queryFn: () => getUserFriends(user),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user != "",
   });
 }
@@ -210,8 +210,8 @@ export function useUserBlocked(user: string) {
   return useQuery({
     queryKey: ["Blocked"],
     queryFn: () => getUserBlocked(user),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user != "",
   });
 }
@@ -276,8 +276,8 @@ export function useChatroomList() {
   return useQuery({
     queryKey: ["ChatroomList"],
     queryFn: () => getChatroomList(),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
   });
 }
 
@@ -288,8 +288,8 @@ export function useChatroom(
   return useQuery({
     queryKey: ["Chatroom", id],
     queryFn: () => getChatrooomData(id),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "",
     onError: handleError,
     retry: (count, error) => {
@@ -303,8 +303,8 @@ export function useChatroomMembers(id: string) {
   return useQuery({
     queryKey: ["ChatroomMembers", id],
     queryFn: () => getChatroomMembers(id),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "",
   });
 }
@@ -317,8 +317,8 @@ export function useChatroomMember(
   return useQuery({
     queryKey: ["ChatroomMembers", id, member],
     queryFn: () => getChatroomMember(id, member),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "" && member != "",
     onError: handleError,
     retry: (count, error) => {
@@ -335,8 +335,8 @@ export function useUserChatrooms(
   return useQuery({
     queryKey: ["UserChatrooms"],
     queryFn: () => getUserChatrooms(login42),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: login42 != "",
     onError: handleError,
   });
@@ -346,8 +346,8 @@ export function useChatroomMessages(id: string) {
   return useQuery({
     queryKey: ["ChatroomMessages", id],
     queryFn: () => getChatroomMessages(id),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "",
   });
 }
@@ -441,8 +441,8 @@ export function useChatroomBanned(id: string) {
   return useQuery({
     queryKey: ["ChatroomBannedUsers", id],
     queryFn: () => getChatroomBanded(id),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: id != "",
   });
 }

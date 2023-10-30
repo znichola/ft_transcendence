@@ -38,9 +38,9 @@ function statusColor(status: UserData["status"]) {
       return "border-gray-300";
     case "INGAME":
       return "border-blue-400";
-    case "UNAVAILABLE":
-      return "border-red-500";
+    case "INQUEUE":
+      return "border-pink-500";
     default:
-      return "border-ping-700";
+      return "border-red-700";
   }
 }

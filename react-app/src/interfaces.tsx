@@ -34,7 +34,7 @@ export interface GameHistory {
 export type TUserStatus =
   | "ONLINE"
   | "OFFLINE"
-  | "UNAVAILABLE"
+  | "INQUEUE"
   | "INGAME"
   | undefined;
 
@@ -194,7 +194,7 @@ export interface ISocChatroomMessage {
 }
 
 export interface ISocFriendRequest {
-  from: Login42;
+  login: Login42;
   name: string;
 }
 

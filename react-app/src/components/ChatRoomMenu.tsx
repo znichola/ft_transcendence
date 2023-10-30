@@ -383,10 +383,10 @@ function statusColor(status: UserData["status"]) {
       return "ring-gray-300";
     case "INGAME":
       return "ring-blue-400";
-    case "UNAVAILABLE":
-      return "ring-red-500";
+    case "INQUEUE":
+      return "ring-pink-500";
     default:
-      return "ring-ping-700";
+      return "ring-red-700";
   }
 }
 

@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { DmModule } from './dm/dm.module';
 import { TfaModule } from './tfa/tfa.module';
-import { PongGateway } from './pong/pong.gateway';
 import { PongModule } from './pong/pong.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PongService } from './pong/pong.service';

@@ -3,9 +3,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { Conversation, DirectMessage } from '@prisma/client';
 import { ConversationEntity, ConversationWithUsername } from './entities/conversation.entity';
-import { DirectMessageWithUsername, DirectMessageEntity } from './entities/direct-message.entity';
+import { DirectMessageWithUsername, DirectMessageEntity, DirectMessageWithNameEntity } from './entities/direct-message.entity';
 import { UserGateway } from 'src/user/user.gateway';
 
+// prettier-ignore
 @Injectable()
 export class DmService
 {
@@ -136,7 +137,15 @@ export class DmService
 		const id1 = await this.getUserId(user1);
 		const id2 = await this.getUserId(user2);
 
-		let convId = await this.getOneConversation(user1, user2).then(res => res?.id);
+		let convId: number;
+		try
+		{
+			convId = await this.getOneConversation(user1, user2).then(res => res?.id);
+		}
+		catch (e: any)
+		{
+			return [];
+		}
 
 		const msgsFromDb: DirectMessageWithUsername[] = await this.prisma.directMessage.findMany({
 			where: {
@@ -217,7 +226,13 @@ export class DmService
 			}
 		});
 
-		this.gateway.sendDM(new DirectMessageEntity(msgFromDb), to);
+		const user = await this.prisma.user.findFirst({
+			where: {
+				id: msg.senderId,
+			}
+		})
+
+		this.gateway.sendDM(new DirectMessageWithNameEntity(user, msgFromDb), to);
 	}
 
 	async deleteMessage(msgId: number, username: string)

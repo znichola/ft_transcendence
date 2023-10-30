@@ -146,6 +146,7 @@ export class ChatMemberService
 						id: +chatroomId
 					}
 				});
+				return ;
 			}
 			else
 			{

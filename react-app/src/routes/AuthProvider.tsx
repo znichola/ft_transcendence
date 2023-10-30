@@ -1,14 +1,10 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
-import axios, { HttpStatusCode } from "axios";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { setStatus } from "../api/queryMutations";
 import { useAuth } from "../functions/contexts";
 import {
-  pongSocket,
-  socketConnect,
   socketDisconnect,
   socketSetHeadersAndReConnect,
-  userSocket,
 } from "../socket";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser, useMutLogout } from "../api/apiHooks";
@@ -90,7 +86,7 @@ export const ProtectedRoute = () => {
   });
 
   if (!foo)
-    return <h1>critical error with auth, this should not be possible</h1>;
+    return <h1>critical error with auth</h1>;
   if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center">
