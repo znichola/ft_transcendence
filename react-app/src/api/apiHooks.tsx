@@ -32,7 +32,8 @@ import {
   getLogout,
   getUserBlocked,
   postUserBlock,
-  deleteUserBlock
+  deleteUserBlock,
+  getUserMatchHistory,
 } from "./axios";
 import {
   QueryClient,
@@ -119,8 +120,8 @@ export function useUserConvoMessages(user1: string, user2: string) {
   return useQuery({
     queryKey: ["UserConvoMessages", user1, user2],
     queryFn: () => getUserConvoMessageList(user1, user2),
-    staleTime: 5 * (60 * 1000), // 5 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
     enabled: user1 != "" && user2 != "",
   });
 }
@@ -174,8 +175,16 @@ export function useMutUserProfile(user: string) {
     retry: false,
     mutationFn: (paylaod: IPutUserProfile) => putUserProfile(user, paylaod),
     onSuccess: (_, variables) => {
-      queryClient.setQueryData(["UserData", user], (oldProfil: UserData | undefined) =>
-        oldProfil ? {...oldProfil, name: variables?.name || oldProfil.name, bio: variables?.bio || oldProfil.bio} : oldProfil
+      queryClient.setQueryData(
+        ["UserData", user],
+        (oldProfil: UserData | undefined) =>
+          oldProfil
+            ? {
+                ...oldProfil,
+                name: variables?.name || oldProfil.name,
+                bio: variables?.bio || oldProfil.bio,
+              }
+            : oldProfil,
       );
     },
   });
@@ -231,6 +240,16 @@ export function useMutPostUserFriendRequest() {
         queryKey: ["Friends"],
       });
     },
+  });
+}
+
+export function useUserMatchHistory(login42: string) {
+  return useQuery({
+    queryKey: ["UserMatchHistory", login42],
+    queryFn: () => getUserMatchHistory(login42),
+    // staleTime: 5 * (60 * 1000), // 5 mins
+    // cacheTime: 10 * (60 * 1000), // 10 mins
+    enabled: login42 != "",
   });
 }
 
@@ -293,7 +312,7 @@ export function useChatroom(
     enabled: id != "",
     onError: handleError,
     retry: (count, error) => {
-      var error_value = error.response?.status;
+      const error_value = error.response?.status;
       return count < 5 && error_value != 403 && error_value != 404;
     },
   });
@@ -322,7 +341,7 @@ export function useChatroomMember(
     enabled: id != "" && member != "",
     onError: handleError,
     retry: (count, error) => {
-      var error_value = error.response?.status;
+      const error_value = error.response?.status;
       return count < 5 && error_value != 403 && error_value != 404;
     },
   });
@@ -360,8 +379,11 @@ export function useMutPostNewChatroom() {
       queryClient.invalidateQueries({
         queryKey: ["ChatroomList"],
       });
-      queryClient.setQueryData(["UserChatrooms"], (oldChatrooms: IChatroom[] | undefined) =>
-        oldChatrooms ? oldChatrooms.concat(res) : oldChatrooms)
+      queryClient.setQueryData(
+        ["UserChatrooms"],
+        (oldChatrooms: IChatroom[] | undefined) =>
+          oldChatrooms ? oldChatrooms.concat(res) : oldChatrooms,
+      );
     },
   });
 }
@@ -398,7 +420,16 @@ export function useMutPostChatroomMember(id: string) {
 export function useMutDeleteChatroomMember(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({login42, selfDelete = false}:{login42: string, selfDelete?: boolean}) => deleteChatroomMember(id, login42),
+    mutationFn: ({
+      login42,
+      selfDelete = false,
+    }: {
+      login42: string;
+      selfDelete?: boolean;
+    }) => {
+      selfDelete; // Only to prevent debug error
+      return deleteChatroomMember(id, login42);
+    },
     onSuccess: (_, variables) => {
       if (variables.selfDelete) {
         queryClient.removeQueries({
@@ -410,11 +441,16 @@ export function useMutDeleteChatroomMember(id: string) {
         queryClient.removeQueries({
           queryKey: ["ChatroomBannedUsers", id],
         });
-        queryClient.setQueriesData(["UserChatrooms"], (old_chatrooms: IChatroom[] | undefined) =>
-        old_chatrooms ? old_chatrooms.filter((c) => { return c.id.toString() != id}) : old_chatrooms
-        )
-      }
-      else {
+        queryClient.setQueriesData(
+          ["UserChatrooms"],
+          (old_chatrooms: IChatroom[] | undefined) =>
+            old_chatrooms
+              ? old_chatrooms.filter((c) => {
+                  return c.id.toString() != id;
+                })
+              : old_chatrooms,
+        );
+      } else {
         queryClient.invalidateQueries({
           queryKey: ["ChatroomMembers", id],
         });
@@ -469,10 +505,12 @@ export function useMutDeleteChatroom(id: string) {
     onSuccess: () => {
       queryClient.removeQueries({
         queryKey: ["Chatroom", id],
-      })
-      queryClient.setQueryData(["ChatroomList"], (oldList: IChatroom[] | undefined) => 
-        oldList ? oldList.filter((c) => c.id.toString() != id) : oldList
-      )
+      });
+      queryClient.setQueryData(
+        ["ChatroomList"],
+        (oldList: IChatroom[] | undefined) =>
+          oldList ? oldList.filter((c) => c.id.toString() != id) : oldList,
+      );
       queryClient.removeQueries({
         queryKey: ["ChatroomMembers", id],
       });
@@ -482,10 +520,16 @@ export function useMutDeleteChatroom(id: string) {
       queryClient.removeQueries({
         queryKey: ["ChatroomBannedUsers", id],
       });
-      queryClient.setQueriesData(["UserChatrooms"], (old_chatrooms: IChatroom[] | undefined) =>
-      old_chatrooms ? old_chatrooms.filter((c) => { return c.id.toString() != id}) : old_chatrooms
-      )
-    }
+      queryClient.setQueriesData(
+        ["UserChatrooms"],
+        (old_chatrooms: IChatroom[] | undefined) =>
+          old_chatrooms
+            ? old_chatrooms.filter((c) => {
+                return c.id.toString() != id;
+              })
+            : old_chatrooms,
+      );
+    },
   });
 }
 
@@ -526,10 +570,18 @@ export function useMutDeleteChatroomMute(id: string, login42: string) {
 export function useMutJoinChatroom() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ chatroom, payload }:{chatroom: IChatroom, payload: {login42: string, password: string}}) => postNewChatroomMember(chatroom.id.toString(), payload),
+    mutationFn: async ({
+      chatroom,
+      payload,
+    }: {
+      chatroom: IChatroom;
+      payload: { login42: string; password: string };
+    }) => postNewChatroomMember(chatroom.id.toString(), payload),
     onSuccess: (_, variables) => {
-      queryClient.setQueryData(["UserChatrooms"], (oldChatrooms: IChatroom[] | undefined) =>
-        oldChatrooms ? oldChatrooms.concat(variables.chatroom) : oldChatrooms,
+      queryClient.setQueryData(
+        ["UserChatrooms"],
+        (oldChatrooms: IChatroom[] | undefined) =>
+          oldChatrooms ? oldChatrooms.concat(variables.chatroom) : oldChatrooms,
       );
     },
   });
@@ -540,8 +592,10 @@ export function useMutBlockUser(currentUser: string, target: string) {
   return useMutation({
     mutationFn: async () => postUserBlock(currentUser, target),
     onSuccess: () => {
-      queryClient.setQueryData(["Blocked"], (oldBlocked: string[] | undefined) =>
-        oldBlocked ? oldBlocked.concat(target) : oldBlocked
+      queryClient.setQueryData(
+        ["Blocked"],
+        (oldBlocked: string[] | undefined) =>
+          oldBlocked ? oldBlocked.concat(target) : oldBlocked,
       );
     },
   });
@@ -552,8 +606,10 @@ export function useMutUnblockUser(currentUser: string, target: string) {
   return useMutation({
     mutationFn: async () => deleteUserBlock(currentUser, target),
     onSuccess: () => {
-      queryClient.setQueryData(["Blocked"], (oldBlocked: string[] | undefined) =>
-        oldBlocked ? oldBlocked.filter((s) => s != target) : oldBlocked
+      queryClient.setQueryData(
+        ["Blocked"],
+        (oldBlocked: string[] | undefined) =>
+          oldBlocked ? oldBlocked.filter((s) => s != target) : oldBlocked,
       );
     },
   });
@@ -567,7 +623,7 @@ export function useMutLogout() {
       console.log("Successfully logout !");
       queryClient.clear();
     },
-    onError: () => console.log("Error: cannot logout !")
+    onError: () => console.log("Error: cannot logout !"),
   });
 }
 
