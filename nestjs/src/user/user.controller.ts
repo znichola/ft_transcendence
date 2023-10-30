@@ -145,12 +145,14 @@ export class UserController {
     description: 'No user found with the provided login.',
   })
   @Get(':username')
-  async getUser(@Param('username') username: string): Promise<UserData> {
+  async getUser(@Param('username') username: string, @Req() req: Request): Promise<UserData> {
     const userInfo = await this.userService.findUserFromLogin(username);
     if (!userInfo) {
       throw new HttpException('User not Found.', HttpStatus.NOT_FOUND);
     }
-    delete userInfo.tfaStatus;
+    const currentUser = await this.authService.getLoginFromToken(req.cookies[process.env.COOKIE_USR].access_token);
+    if (username != currentUser)
+      delete userInfo.tfaStatus;
     delete userInfo.tfaSecret;
 
     return userInfo;

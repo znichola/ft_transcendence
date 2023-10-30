@@ -8,6 +8,7 @@ import {
   useUserBlocked,
   useUserData,
   useUserFriends,
+  useUserMatchHistory,
 } from "../api/apiHooks";
 import { useAuth, useNotification } from "../functions/contexts";
 import { ErrorMessage } from "../components/ErrorComponents";
@@ -64,10 +65,11 @@ export default function UserProfile() {
     };
   }, []);
 
+  if (isError || !login42)
+    return <ErrorMessage message="This user does not exist" />;
   if (isLoading)
     return <LoadingSpinnerMessage message="loading profile" />;
-  if (isError)
-    return <ErrorMessage message="This user does not exist" />;
+
   return (
     <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
       <BoxMenu
@@ -101,18 +103,33 @@ export default function UserProfile() {
             </div>
           </div>
         </div>
-        <div
-          className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pb-7 px-1"
-          style={{gridTemplateAreas: "auto-fill", gridRow: "auto-fill"}}
-        >
-          <MatchCell victory={true} />
-          <MatchCell victory={false} />
-          <MatchCell victory={true} />
-          <MatchCell victory={false} />
-          <MatchCell victory={true} />
-          <MatchCell victory={false} />
-        </div>
+        <UserMatchHistory login42={login42}/>
       </div>
+    </div>
+  );
+}
+
+function UserMatchHistory({login42}:{login42: string}) {
+
+  const {data: matchHistory, isLoading, isError} = useUserMatchHistory(login42);
+
+  if (isLoading) {
+    return <LoadingSpinner/>
+  }
+  if (isError) {
+    return <ErrorMessage message="Error when loading match history !"/>
+  }
+
+  return (
+    <div
+      className="flex flex-wrap bg-stone-50 shadow-md rounded-xl w-full justify-center gap-5 overflow-y-auto overflow-x-hidden pb-7 px-1"
+      style={{gridTemplateAreas: "auto-fill", gridRow: "auto-fill"}}
+    >
+      {
+        matchHistory.map((gameData) => 
+          gameData.gameState != null ? <MatchCell key={gameData.gameState.id} gameData={gameData} profile_user={login42}/> : <></> //TODO : MatchCell sould be always displayable
+        )
+      }
     </div>
   );
 }

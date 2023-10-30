@@ -141,6 +141,9 @@ export class PongService {
                         player2: { login42: login }
                     }
                 ],
+                AND: {
+                    NOT: { gameStateString: null }
+                }
             },
             select: {
                 player1: { select: { login42: true }},

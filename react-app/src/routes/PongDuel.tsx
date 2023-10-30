@@ -18,11 +18,22 @@ export default function PongDuel() {
   >("PENDING");
   const [gameOver, setGameOver] = useState<ISocGameOver | undefined>(undefined);
   const navigate = useNavigate();
+  const [waitingMSG, setWaitingMSG] = useState(false);
+  const [waitingMSG2, setWaitingMSG2] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setWaitingMSG(true);
+    }, 20000);
+  }, []);
 
   useEffect(() => {
     function getRoomCreated(ev: ISocRoomCreated) {
       console.log("ACOUNA MY FUCKNIG TATAS");
       setState("READY");
+      setTimeout(() => {
+        setWaitingMSG2(false);
+      }, 20000);
       userSocket.emit("ready", ev);
     }
     function getStartGame(_: ISocRoomCreated) {
@@ -55,10 +66,38 @@ export default function PongDuel() {
   console.log("game over ev:", gameOver);
 
   if (state == "PENDING")
-    return <LoadingSpinnerMessage message={"waiting for confirmation"} />;
+    return (
+      <>
+        <LoadingSpinnerMessage message={"waiting for confirmation"} />
+        {waitingMSG ? (
+          <div>
+            your've been here a while,{" "}
+            <Link to="/play" className="underline">
+              go back
+            </Link>
+          </div>
+        ) : (
+          <></>
+        )}
+      </>
+    );
   if (state == "READY")
     return (
-      <LoadingSpinnerMessage message={"waiting for the other player to join"} />
+      <>
+        {waitingMSG2 ? (
+          <></>
+        ) : (
+          <div>
+            your've been here a while,{" "}
+            <Link to="/play" className="underline">
+              go back
+            </Link>
+          </div>
+        )}
+        <LoadingSpinnerMessage
+          message={"waiting for the other player to join"}
+        />
+      </>
     );
   if (state == "PLAYING")
     return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
