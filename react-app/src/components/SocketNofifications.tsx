@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { useNotification } from "../functions/contexts";
+import { useAuth, useNotification } from "../functions/contexts";
 import { userSocket } from "../socket";
 import {
   ISocAcceptChallenge,
@@ -18,6 +18,7 @@ export default function SocketNotificatinos({
 }) {
   const { addNotif } = useNotification();
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const [chatroomEV, setChatroomEV] = useState<ISocChatroomMessage[]>([]);
   const [dmEV, setDMEV] = useState<ISocDirectMessage[]>([]);
   const [frEV, setFREV] = useState<ISocFriendRequest[]>([]);
@@ -73,8 +74,8 @@ export default function SocketNotificatinos({
         message: chat_ev.message.content,
         to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
-      // console.log("should be removing the chatroom ev");
-      queryClient.refetchQueries({
+      console.log("should be removing the chatroom ev", chat_ev.id);
+      queryClient.invalidateQueries({
         queryKey: ["ChatroomMessages", chat_ev.id + ""],
       });
       // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
@@ -95,12 +96,19 @@ export default function SocketNotificatinos({
         message: dm_ev.message.content,
         to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
-      // console.log("should be removing the dm ev", dm_ev);
-      queryClient.refetchQueries({
+      console.log("should be removing the dm ev", dm_ev);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "UserConvoMessages",
+          currentUser,
+          dm_ev.message.senderLogin42,
+        ],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["UserConversations", dm_ev.message.senderLogin42],
       });
       // queryClient.setQueryData(
-      //   ["UserConversations", dm_ev.message.senderLogin42],
+      //   ["UserConvoMessages", currentUser, dm_ev.message.senderLogin42],
       //   (prev: ConvoMessage[] | undefined) =>
       //     prev ? [...prev, dm_ev.message] : prev,
       // );
@@ -125,7 +133,7 @@ export default function SocketNotificatinos({
       queryClient.resetQueries({ queryKey: ["UserData", us_ev] });
       removeFirstUpdatedUser();
     }
-  }, [dmEV, chatroomEV, frEV, updatedUser, queryClient, addNotif]);
+  }, [dmEV, chatroomEV, frEV, updatedUser, queryClient, addNotif, currentUser]);
 
   useEffect(() => {
     function getChatroomMessage(ev: ISocChatroomMessage) {

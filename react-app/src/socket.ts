@@ -18,11 +18,11 @@ export const socketManager = new Manager(
 export const userSocket = socketManager.socket("/"); // main namespace
 
 export const socketSetHeadersAndReConnect = async () => {
-  if (!userSocket.connected) {
-    const access_token = await getUserToken();
-    userSocket.auth = { token: access_token };
-    userSocket.disconnect().connect();
-  }
+  // if (!userSocket.connected) {
+  const access_token = await getUserToken();
+  userSocket.auth = { token: access_token };
+  userSocket.disconnect().connect();
+  // }
 };
 
 export function socketDisconnect() {

@@ -15,7 +15,7 @@ export default function PongDuel() {
   const [searchParams] = useSearchParams();
   const { game_mode } = useParams<"game_mode">();
   const [state, setState] = useState<
-    "PENDING" | "READY" | "PLAYING" | "GAME-OVER" | "RECONNECTION"
+    "PENDING" | "READY" | "PLAYING" | "GAME-OVER" | "RECONNECTION" | "CANCELLED"
   >("PENDING");
   const [gameOver, setGameOver] = useState<ISocGameOver | undefined>(undefined);
   const navigate = useNavigate();
@@ -56,15 +56,21 @@ export default function PongDuel() {
       console.log("game is over motherfucker");
       // navigate("/play");
     }
+    function getCancelled(_: ISocRoomCreated) {
+      setState("CANCELLED");
+      _;
+    }
 
     userSocket.on("room-created", getRoomCreated);
     userSocket.on("start-game", getStartGame);
     userSocket.on("game-over", getGameOver);
+    userSocket.on("cancelled", getCancelled);
 
     return () => {
       userSocket.off("room-created", getRoomCreated);
       userSocket.off("start-game", getStartGame);
       userSocket.off("game-over", getGameOver);
+      userSocket.off("cancelled", getCancelled);
     };
   }, [navigate, game_mode, p1, p2]);
 
@@ -125,6 +131,15 @@ export default function PongDuel() {
   }
   if (state == "PLAYING" || state == "RECONNECTION")
     return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
+  if ((state == "CANCELLED"))
+    return (
+      <div>
+        game cancelled,{" "}
+        <Link to="/play" className="underline">
+          go back
+        </Link>
+      </div>
+    );
 }
 
 interface IGameOver extends ISocGameOver {
