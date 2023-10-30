@@ -82,7 +82,7 @@ function bouncePlayerBall(p: IPlayer, b: IBall) {
   }
 }
 
-export function scoreBall(gs: IGameState, canvas: I2D) {
+export function scoreBall(gs: IGameState, canvas: I2D): boolean {
   for (let index = 0; index < gs.balls.length; index++) {
     //TOUCHE BORD GAUCHE OU DROITE
     if (
@@ -93,12 +93,13 @@ export function scoreBall(gs: IGameState, canvas: I2D) {
       else gs.p1.score += 1;
       if (gs.balls.length > 1) gs.balls.splice(index, 1);
       else {
-        setRandomDirBall(gs.balls[index]);
-        // setInitialPosition(gs, canvas);
-        setInitialPosition(gs);
-      }
+      //   setRandomDirBall(gs.balls[index]);
+      //   setInitialPosition(gs);
+        return true;
+       }
     }
   }
+  return false;
 }
 
 export function createNewBall(bs: Array<IBall>, canvas: I2D) {
@@ -138,7 +139,7 @@ export function positionPlayer(p: IPlayer, canvas: I2D) {
   }
 }
 
-function setInitialPosition(gs: IGameState) {
+export function setInitialPosition(gs: IGameState) {
   //define player initial pos
   gs.p1.pos.x = 1 / 85;
   gs.p2.pos.x = 1 - 2 / 85;

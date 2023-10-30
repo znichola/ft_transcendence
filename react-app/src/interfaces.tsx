@@ -71,19 +71,19 @@ export interface Converstaion {
 
 // --------- chatrooms / chat
 
-export type ChatroomStaus = "PUBLIC" | "PRIVATE" | "PROTECTED";
+export type ChatroomStatus = "PUBLIC" | "PRIVATE" | "PROTECTED";
 
 export interface IChatroom {
   id: number;
   name: string;
   ownerLogin42: string;
-  status: ChatroomStaus;
+  status: ChatroomStatus;
 }
 
 export interface IChatroomPost {
   ownerLogin42: string;
   name: string;
-  status: ChatroomStaus;
+  status: ChatroomStatus;
   password?: string;
 }
 

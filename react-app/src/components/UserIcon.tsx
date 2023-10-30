@@ -12,7 +12,7 @@ export function UserIcon({ user, size = 7 }: { user: string; size?: TSizes }) {
   return (
     <img
       onClick={() => navigate("/user/" + user)}
-      className={`${s(size)} cursor-pointer rounded-full border-[3px] z-10 ${statusColor(u.status)}`}
+      className={`${s(size)} cursor-pointer rounded-full border-[3px] ${statusColor(u.status)}`}
       src={u.avatar}
       alt={u.login42 || "undefined" + " profile image"}
     />

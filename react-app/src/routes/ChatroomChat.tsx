@@ -1,5 +1,6 @@
 import BoxMenu from "../components/BoxMenu";
 import {
+  ChatroomStatus,
   IChatroom,
   IMember,
   IMessage,
@@ -13,6 +14,7 @@ import {
   IconBolt,
   IconCheckBadge,
   IconCrown,
+  IconGear,
   IconMinusCircle,
   IconMute,
   IconPasswordHide,
@@ -42,14 +44,15 @@ import {
   useUserChatrooms,
   useMutJoinChatroom,
   useMutDeleteChatroom,
+  useMutChangeChatroomStatus,
 } from "../api/apiHooks";
 import { LoadingSpinnerMessage } from "../components/Loading";
 import { UserIcon } from "../components/UserIcon";
 import { ErrorMessage } from "../components/ErrorComponents";
 import { Message } from "../components/ChatMassages";
 import { useAuth } from "../functions/contexts";
-import { Heading, PreHeading } from "../components/FormComponents";
-import { UseQueryResult, useQuery } from "@tanstack/react-query";
+import { Heading, InputField, InputToggle, PreHeading } from "../components/FormComponents";
+import { UseQueryResult, useMutation, useQuery } from "@tanstack/react-query";
 import { authApi } from "../api/axios";
 import {
   GenericActionBTN,
@@ -219,23 +222,23 @@ export function ChatroomChat() {
         />
       ),
     },
-    // {
-    //   c: "SETTINGS",
-    //   i: IconGear,
-    //   f: (
-    //     <SettingsButtonUI
-    //       chatroom={chatroom}
-    //       currentMember={currentMember}
-    //       bannedUsersQuery={bannedUserQuery}
-    //     />
-    //   ),
-    // },
   ];
   const ownerMenuBTN = [
     {
       c: "DELETE",
       i: IconTrash,
       f: <DeleteUI chatroom={chatroom} />,
+    },
+    {
+      c: "SETTINGS",
+      i: IconGear,
+      f: (
+        <SettingsButtonUI
+          chatroom={chatroom}
+          currentMember={currentMember}
+          bannedUsersQuery={bannedUserQuery}
+        />
+      ),
     },
   ];
   const usedButtons = hasAdminRights
@@ -571,45 +574,59 @@ function AddUsersUI({
   );
 }
 
-// function SettingsButtonUI({
-//   chatroom,
-//   currentMember,
-//   bannedUsersQuery,
-// }: {
-//   chatroom: IChatroom;
-//   currentMember: IMember;
-//   bannedUsersQuery: UseQueryResult<string[], unknown>;
-// }) {
-//   const [searchValue, setSearchvalue] = useState("");
+function SettingsButtonUI({
+  chatroom,
+}: {
+  chatroom: IChatroom;
+  currentMember: IMember;
+  bannedUsersQuery: UseQueryResult<string[], unknown>;
+}) {
+  const [password, setPassword] = useState("");
+  const [visibility, setVisibility] = useState<ChatroomStatus>(chatroom.status);
+  const changeChatroomStatus = useMutChangeChatroomStatus(chatroom);
 
-//   return (
-//     <ul className="flex flex-col justify-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white p-3 pt-4 shadow-xl ">
-//       <div className="flex justify-center  ">
-//         <div className="max-w-md grow ">
-//           <UserSearch setSearchValue={(v: string) => setSearchvalue(v)} />
-//         </div>
-//       </div>
-//       <p className="text-center">The list of banner users</p>
-//       {bannedUsersQuery.isLoading ? (
-//         <LoadingSpinnerMessage message="Loading banned users..." />
-//       ) : bannedUsersQuery.isError ? (
-//         <ErrorMessage message="Error loading banned users" />
-//       ) : bannedUsersQuery.data ? (
-//         bannedUsersQuery.data.map((u) => (
-//           <ManageBannedUsersCard
-//             searchValue={searchValue}
-//             key={u}
-//             cardLogin42={u}
-//             currentMember={currentMember}
-//             id={chatroom.id + ""}
-//           />
-//         ))
-//       ) : (
-//         <></>
-//       )}
-//     </ul>
-//   );
-// }
+  return (
+    <div className="flex flex-col justify-center items-center gap-2 rounded-lg border-b-4 border-stone-200 bg-white py-5 px-10 shadow-xl ">
+      <div className="flex w-full justify-center gap-10 h-12">
+        <InputToggle
+          offLable="Public"
+          onLable="Public"
+          onToggle={() => {setVisibility("PUBLIC")}}
+          value={visibility == "PUBLIC"}
+        />
+        <InputToggle
+          offLable="Protected"
+          onLable="Protected"
+          onToggle={() => {setVisibility("PROTECTED")}}
+          value={visibility == "PROTECTED"}
+        />
+        <InputToggle
+          offLable="Private"
+          onLable="Private"
+          onToggle={() => {setVisibility("PRIVATE")}}
+          value={visibility == "PRIVATE"}
+        />
+      </div>
+      <div className={(visibility == "PROTECTED" ? "" : "hidden")}>
+        <InputField
+          lable=""
+          max={100}
+          value={password}
+          onChange={(e) => {setPassword(e.currentTarget.value)}}
+          placeholder="Enter a new password"
+        />
+      </div>
+      <button
+        className="shadow-md border-b-2 w-36 h-12 mt-5 font-bold rounded-xl"
+        onClick={() => {
+          changeChatroomStatus.mutate({status: visibility, password: password})
+        }}
+      >
+        Submit
+      </button>
+    </div>
+  );
+}
 
 function ManageBannedUsersCard({
   id,

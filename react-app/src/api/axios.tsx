@@ -13,6 +13,7 @@ import {
   IPutUserProfile,
   IGameState,
   IGameHistory,
+  ChatroomStatus,
 } from "../interfaces";
 
 // const BASE_URL = "/api/";
@@ -303,6 +304,15 @@ export const postNewChatroomMember = async (
 export const deleteChatroomMember = async (id: string, login42: string) => {
   return authApi
     .delete<HttpStatusCode>("/chatroom/" + id + "/members/" + login42)
+    .then((res) => res.data);
+};
+
+export const putChatroomStatus = async (
+  id: string,
+  payload: {status:string, password: string}
+) => {
+  return authApi
+    .put<HttpStatusCode>("/chatroom/" + id + "/visibility", payload)
     .then((res) => res.data);
 };
 
