@@ -194,6 +194,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			// Should not happen as previous return should trigger
 			index = this.findSocketInQueue(client.id, !special);
 			if (index != -1) special ? this.normalQueue.splice(index, 1) : this.specialQueue.splice(index, 1);
+			//check queue to create room if needed
+			this.findPlayersInQueue(special);
 		}
 	}
 
@@ -400,6 +402,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			roomID: roomName,
 			type: special,
 			ranked: ranked,
+			timer: Date.now(),
 		};
 		newRoom.gs.type = special;
 		this.roomList.push(newRoom);
@@ -443,20 +446,20 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}, timer);
 		else
 		{
+			r.user1.state = undefined;
+			r.user2.state = undefined;
 			if(r.gs.p1.afk && r.gs.p2.afk)
-				await this.pongService.cancelGame(r.gs.id);
+				await this.cancelGame(r);
 			else
 			{
 				const gameOver: ISocGameOver = await this.pongService.endGame(r.gs);
 				this.broadcastTo(r.roomID, 'game-over', gameOver);
 				await this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
 				await this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
+				const index: number = this.findCorrectRoom(r.user1.login, r.user2.login);
+				if (index != -1) this.roomList.splice(index, 1);
 			}
-			r.user1.state = undefined;
-			r.user2.state = undefined;
-			const index = this.findCorrectRoom(r.user1.login, r.user2.login);
-			this.roomList.splice(index, 1);
-		} //TODO: define data
+		}
 	}
 	
 	checkState(userLogin:string): boolean
@@ -482,22 +485,23 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return !gs.type && (gs.p1.score == 5 || gs.p2.score == 5);
 	}
 
-	/* --------------------- SCHEDULE FUNCTIONS ---------------------*/
-
-
-	@Cron('*/5 * * * * *')
-	async findMatches(): Promise<void>
+	async cancelGame(r: IRoom)
 	{
-		console.log("classical queue:", this.normalQueue);
-		await this.findPlayersInQueue(true);
-		await this.findPlayersInQueue(false);
+		this.pongService.cancelGame(r.gs.id);
+		this.updateUserStatus(r.user1.login, UserStatus.ONLINE);
+		this.updateUserStatus(r.user2.login, UserStatus.ONLINE);
+		const index: number = this.findCorrectRoom(r.user1.login, r.user2.login);
+		this.roomList.splice(index, 1);
 	}
+
+	/* --------------------- SCHEDULE FUNCTIONS ---------------------*/
   
-	@Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
+	@Cron('*/1 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
 		console.log("the rooms:", this.roomList);
-		for (const r: IRoom of this.roomList) {
+		for (const r of this.roomList)
+		{
 			if (r.user1.client != undefined && r.user2.client != undefined)
 			{
 				//TELLS PLAYERS GAME WILL START
@@ -523,6 +527,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
+			if (Date.now() - r.timer >= 10000)
+				this.cancelGame(r);
 		}
 	}
 }
