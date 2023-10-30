@@ -31,10 +31,10 @@ export default function PongDuel() {
     function getRoomCreated(ev: ISocRoomCreated) {
       console.log("ACOUNA MY FUCKNIG TATAS");
       setState("READY");
-      setTimeout(() => {
-        setWaitingMSG2(false);
-      }, 20000);
       userSocket.emit("ready", ev);
+      setTimeout(() => {
+        setWaitingMSG2(true);
+      }, 20000);
     }
     function getStartGame(_: ISocRoomCreated) {
       setState("PLAYING");
@@ -71,7 +71,7 @@ export default function PongDuel() {
         <LoadingSpinnerMessage message={"waiting for confirmation"} />
         {waitingMSG ? (
           <div>
-            your've been here a while,{" "}
+            you've been here a while,{" "}
             <Link to="/play" className="underline">
               go back
             </Link>
@@ -84,19 +84,19 @@ export default function PongDuel() {
   if (state == "READY")
     return (
       <>
+        <LoadingSpinnerMessage
+          message={"waiting for the other player to join"}
+        />
         {waitingMSG2 ? (
           <></>
         ) : (
           <div>
-            your've been here a while,{" "}
+            you've been here a while,{" "}
             <Link to="/play" className="underline">
               go back
             </Link>
           </div>
         )}
-        <LoadingSpinnerMessage
-          message={"waiting for the other player to join"}
-        />
       </>
     );
   if (state == "PLAYING")

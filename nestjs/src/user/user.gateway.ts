@@ -485,7 +485,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	/* --------------------- SCHEDULE FUNCTIONS ---------------------*/
 
 
-	@Cron('*/5 * * * * *')
+	@Cron('*/1 * * * * *')
 	async findMatches(): Promise<void>
 	{
 		console.log("classical queue:", this.normalQueue);
@@ -493,11 +493,11 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		await this.findPlayersInQueue(false);
 	}
   
-	@Cron('*/5 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
+	@Cron('*/1 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
 		console.log("the rooms:", this.roomList);
-		for (const r: IRoom of this.roomList) {
+		for (const r of this.roomList) {
 			if (r.user1.client != undefined && r.user2.client != undefined)
 			{
 				//TELLS PLAYERS GAME WILL START

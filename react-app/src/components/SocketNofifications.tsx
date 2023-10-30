@@ -4,6 +4,7 @@ import { userSocket } from "../socket";
 import {
   ISocAcceptChallenge,
   ISocChallenge,
+  ISocRoomCreated,
   ISocChatroomMessage,
   ISocDirectMessage,
   ISocFriendRequest,
@@ -20,6 +21,7 @@ export default function SocketNotificatinos({
   const [chatroomEV, setChatroomEV] = useState<ISocChatroomMessage[]>([]);
   const [dmEV, setDMEV] = useState<ISocDirectMessage[]>([]);
   const [frEV, setFREV] = useState<ISocFriendRequest[]>([]);
+  // const [reconnectEV, setReconnectEV] = useState<ISocRoomCreated[]>([]);
   const [updatedUser, setUpdatedUser] = useState<string[]>([]);
 
   // chatrooms
@@ -53,6 +55,14 @@ export default function SocketNotificatinos({
   const removeFirstUpdatedUser = () => {
     setUpdatedUser((prev) => prev.filter((_, i) => i !== 0));
   };
+
+  // // updatedUser
+  // const addReconnectEV = (e: ISocRoomCreated) => {
+  //   setReconnectEV((prev) => [...prev, e]);
+  // };
+  // const removeFirstReconnectEV = () => {
+  //   setReconnectEV((prev) => prev.filter((_, i) => i !== 0));
+  // };
 
   useEffect(() => {
     const chat_ev = chatroomEV[0];
@@ -154,12 +164,22 @@ export default function SocketNotificatinos({
       addUpdatedUser(ev);
     }
 
+    function getReconnect(ev: ISocRoomCreated) {
+      console.log("resume game");
+      const type = ev.special ? "SPECIAL" : "CLASSICAL";
+      addNotif({
+        type: "INFO",
+        message: `resume ${type.toLowerCase()} game ${ev.user1} vs ${ev.user2}`,
+        to: `/pong/${ev.user1}/vs/${ev.user2}/${type.toLowerCase()}`,
+      });
+    }
+
     userSocket.on("chatroomMessage", getChatroomMessage);
     userSocket.on("dm", getDMmessage);
     userSocket.on("friendRequest", getFriendRequest);
     userSocket.on("challenge", getChallenge);
-    userSocket.on("test", (e: string) => console.log("test recived:", e));
     userSocket.on("userUpdated", getUserUpdated);
+    userSocket.on("reconnection", getReconnect);
 
     return () => {
       userSocket.off("chatroomMessage", getChatroomMessage);
@@ -167,6 +187,7 @@ export default function SocketNotificatinos({
       userSocket.off("friendRequest", getFriendRequest);
       userSocket.off("challenge", getChallenge);
       userSocket.off("userUpdated", getUserUpdated);
+      userSocket.off("reconnection", getReconnect);
     };
   }, [addNotif]);
 

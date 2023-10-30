@@ -61,7 +61,7 @@ function DevLogin() {
   );
   const { logIn } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
+  // const qc = useQueryClient();
   return (
     <Form
       onSubmit={() => {
@@ -70,9 +70,9 @@ function DevLogin() {
           .then(async () => {
             logIn(login);
             await socketSetHeadersAndReConnect();
-            setTimeout(() => {
-              setStatus(qc, login, "ONLINE");
-            }, 300);
+            // setTimeout(() => {
+            //   setStatus(qc, login, "ONLINE");
+            // }, 300);
             navigate("/play");
           })
           .catch(() => setColor("bg-rose-500"));

@@ -68,7 +68,7 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   useEffect(() => {
     if (
       foo &&
@@ -79,9 +79,9 @@ export const ProtectedRoute = () => {
     ) {
       foo.logIn(currentUser);
       socketSetHeadersAndReConnect();
-      setTimeout(() => {
-        setStatus(queryClient, currentUser, "ONLINE");
-      }, 300); // idk why but if it's intantanious it get over written so meh
+      // setTimeout(() => {
+      //   setStatus(queryClient, currentUser, "ONLINE");
+      // }, 300); // idk why but if it's intantanious it get over written so meh
     }
   });
 
