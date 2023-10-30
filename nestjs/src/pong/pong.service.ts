@@ -149,6 +149,7 @@ export class PongService {
             select: {
                 player1: { select: { login42: true }},
                 player2: { select: { login42: true }},
+                rated: true,
                 gameStateString: true,
             }
         });
