@@ -24,13 +24,18 @@ export default function PongDuel() {
 
   useEffect(() => {
     if (searchParams.get("reconnection") == "true") {
+      userSocket.emit("reconnect", {
+        user1: p1,
+        user2: p2,
+        special: game_mode == "special",
+      });
       setState("RECONNECTION");
     }
 
     setTimeout(() => {
       setWaitingMSG(true);
     }, 20000);
-  }, [searchParams]);
+  }, [searchParams, p1, p2, game_mode]);
 
   useEffect(() => {
     function getRoomCreated(ev: ISocRoomCreated) {
@@ -43,6 +48,7 @@ export default function PongDuel() {
     }
     function getStartGame(_: ISocRoomCreated) {
       setState("PLAYING");
+      _;
     }
     function getGameOver(ev: ISocGameOver) {
       setState("GAME-OVER");
@@ -60,7 +66,7 @@ export default function PongDuel() {
       userSocket.off("start-game", getStartGame);
       userSocket.off("game-over", getGameOver);
     };
-  }, [navigate]);
+  }, [navigate, game_mode, p1, p2]);
 
   // useEffect(() => {
   //   setTimeout(() => {

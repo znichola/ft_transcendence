@@ -163,37 +163,37 @@ function NotifCount({ type, count }: { type: TNotif; count?: number }) {
     case "ERROR":
       return (
         <span className="inline-block rounded-full bg-rose-400 px-1 text-center text-rose-100">
-          {count}
+          {count + 1}
         </span>
       );
     case "CLASSICAL":
       return (
         <span className="inline-block rounded-full bg-stone-400 px-1 text-center text-stone-100">
-          {count}
+          {count + 1}
         </span>
       );
     case "SPECIAL":
       return (
         <span className="inline-block rounded-full bg-fuchsia-400 px-1 text-center text-fuchsia-100">
-          {count}
+          {count + 1}
         </span>
       );
     case "MESSAGE":
       return (
         <span className="inline-block rounded-full bg-amber-400 px-1 text-center text-amber-100">
-          {count}
+          {count + 1}
         </span>
       );
     case "SUCCESS":
       return (
         <span className="inline-block rounded-full bg-emerald-400 px-1 text-center text-emerald-100">
-          {count}
+          {count + 1}
         </span>
       );
     default:
       return (
         <span className="inline-block rounded-full bg-cyan-400 px-1 text-center text-cyan-100">
-          {count}
+          {count + 1}
         </span>
       );
   }

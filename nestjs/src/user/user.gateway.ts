@@ -10,7 +10,7 @@ import { UserStatus } from '@prisma/client';
 import { DirectMessageEntity, DirectMessageWithUsername, UserDisplayNameWithUserName } from 'src/dm/entities/direct-message.entity';
 import { MessageEntity, MessageWithChatroomEntity} from 'src/chat/entities/message.entity';
 import { PongService } from 'src/pong/pong.service';
-import { I2D, IBall, IGameState, IRoom, ISocGameOver } from 'src/interfaces';
+import {I2D, IBall, IGameState, IPlayer, IRoom, ISocGameOver} from 'src/interfaces';
 import {
 	canvas,
 	timer,
@@ -21,7 +21,8 @@ import {
 	scoreBall,
 	createNewBall,
 	positionPlayer,
-	setRandomDirBall } from 'src/pong/pong.maths';
+	setRandomDirBall,
+	setInitialPosition } from 'src/pong/pong.maths';
 import { Cron } from '@nestjs/schedule';
 
 // prettier-ignore
@@ -88,7 +89,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userToken: string = client.handshake.auth.token;
 		const userLogin = await this.authService.getLoginFromToken(userToken);
 		const userElo: number = await this.pongService.getUserElo(userLogin);
-		
 		console.log(
 			'Pong User connected : ',
 			userLogin,
@@ -98,32 +98,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			userElo,
 		);
 		const user: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
-
 		const index: number = this.findLoginInRoom(userLogin);
-		if (this.userList.findIndex(user => user.login === userLogin) == -1)
-		{
-			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
-		}
-		if (index != -1)
-		{
-			//mets a jour le status afk dans la room
-			this.roomList[index].user1.login == userLogin
-				? this.roomList[index].gs.p1.afk = false
-				: this.roomList[index].gs.p2.afk = false;
-			//mets a jour le socket dans la room
-			this.roomList[index].user1.login == userLogin
-				? (this.roomList[index].user1 = user)
-				: (this.roomList[index].user2 = user);
-			client.join(this.roomList[index].roomID);
-			//putting in correct state
-			if (user.login == this.roomList[index].user1.login)
-				this.roomList[index].user2.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user2.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
-				if (user.login == this.roomList[index].user2.login)
-				this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : this.roomList[index].user1.login == 'READY' ? user.state = 'READY' : user.state = 'WAITING';
-			//tells player he will be redirected to new game
+		//tells player he can rejoin a lobby
+		if (index != -1 && this.roomList[index].started)
 			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
-			await this.updateUserStatus(userLogin, UserStatus.INGAME);
-		}
 		this.userList.push(user);
 	}
 
@@ -278,7 +256,64 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			}
 		}
 	}
-  
+
+	@SubscribeMessage('reconnect') // TODO: check qu'il confirme le bon match, donc for each
+	async handleReconnect(
+		@MessageBody() data: { user1: string, user2: string, special: boolean },
+		@ConnectedSocket() client: Socket,): Promise<void>
+	{
+		let user: PlayerEntity = undefined;
+		const userToken: string = client.handshake.auth.token;
+		const userLogin: string = await this.authService.getLoginFromToken(userToken);
+		const index: number = this.findLoginInRoom(userLogin);
+		//check room has the user
+		if (index != -1)
+		{
+			//check data has correct info
+			if (this.roomList[index].user1.login != data.user1 || this.roomList[index].user2.login != this.roomList[index].user2.login || this.roomList[index].type != data.special)
+				return ;
+			const tmp: number = this.findSocketInPlayer(client.id)
+			//redefine the player inside the room
+			if (tmp != -1)
+			{
+				user = this.userList[tmp];
+				//mets a jour le state
+				this.roomList[index].user1.login == userLogin
+					? this.roomList[index].gs.p1.afk = false
+					: this.roomList[index].gs.p2.afk = false;
+				//mets a jour le user dans la room
+				this.roomList[index].user1.login == userLogin
+					? this.roomList[index].user1 = user
+					: this.roomList[index].user2 = user;
+				//putting in correct state
+				if (user.login == this.roomList[index].user1.login)
+					this.roomList[index].user2.login == 'GAMING'? user.state = 'GAMING' : user.state ='READY';
+				if (user.login == this.roomList[index].user2.login)
+					this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : user.state = 'READY';
+				//join socket room
+				client.join(this.roomList[index].roomID);
+				await this.updateUserStatus(userLogin, UserStatus.INGAME);
+			}
+		}
+	}
+
+	// @SubscribeMessage('afk') // TODO: check qu'il confirme le bon match, donc for each
+	// async handleAfk(@ConnectedSocket() client: Socket,): Promise<void>
+	// {
+	// 	console.log('ASDGGAGGFGSAGS');
+	// 	let index: number = this.findSocketInRoom(client.id);
+	// 	if (index != -1)
+	// 	{
+	// 		this.roomList[index].user1.client.id == client.id
+	// 			? this.roomList[index].gs.p1.afk = true
+	// 			: this.roomList[index].gs.p2.afk = true;
+	// 		this.roomList[index].user1.client.id == client.id
+	// 			? this.roomList[index].user1.state = 'AFK'
+	// 			: this.roomList[index].user2.state = 'AFK';
+	// 		client.leave(this.roomList[index].roomID);
+	// 	}
+	// }
+
 	@SubscribeMessage('moveUp')
 	async handleMoveUp(@MessageBody() data: boolean, @ConnectedSocket() client: Socket): Promise<void>
 	{
@@ -350,6 +385,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			|| (user1Login == r.user2.login && user2Login == r.user1.login));
 		});
 	}
+
 	findSocketInPlayer(socketID: string): number
 	{
 		return this.userList.findIndex(
@@ -406,6 +442,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			type: special,
 			ranked: ranked,
 			timer: Date.now(),
+			started: false,
 		};
 		newRoom.gs.type = special;
 		this.roomList.push(newRoom);
@@ -426,6 +463,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async pongCalculus(r: IRoom, canvas: I2D): Promise<void>
 	{
+		let endCase: boolean = false;
+		//updata game state
 		if (!r.gs.p1.afk && !r.gs.p2.afk)
 		{
 			positionPlayer(r.gs.p1, canvas);
@@ -435,18 +474,27 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				createNewBall(r.gs.balls, canvas);
 			r.gs.balls.forEach((b: IBall) => bounceWallBall(b, canvas));
 			r.gs.balls.forEach((b: IBall) => definePlayerContact(b, r.gs, canvas));
-			scoreBall(r.gs, canvas);
+			endCase = scoreBall(r.gs, canvas);
 		}
+		//counter for afk decreases
 		else
 		{
 			r.gs.timerAfk -= timer / 1000;
 			if (gameStart.timerAfk <= 0) return; //TODO GIVE DATA INFO
 		}
 		this.broadcastTo(`${r.gs.id}`, 'upDate', <any>r.gs);
+		//re update gs
 		if (!this.isGameOver(r.gs))
+		{
+			if (endCase) {
+				setRandomDirBall(r.gs.balls[0]);
+				setInitialPosition(r.gs);
+			}
 			setTimeout((): void => {
 				this.pongCalculus(r, canvas);
 			}, timer);
+		}
+		//en the game
 		else
 		{
 			r.user1.state = undefined;
@@ -529,6 +577,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					//console.log('both players were seen as ready');
 					r.user1.state = 'GAMING';
 					r.user2.state = 'GAMING';
+					r.started = true;
 					r.gs.p1.afk = false;
 					r.gs.p2.afk = false;
 					// SET GAMERS STATUS AS INGAME
@@ -537,7 +586,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
-			if (Date.now() - r.timer >= 10000 && (r.user1.state == 'PENDING' || r.user2.state == 'PENDING'))
+			if (Date.now() - r.timer >= 10000 && !r.started)
 				this.cancelGame(r);
 		}
 	}
