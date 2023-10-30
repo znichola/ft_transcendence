@@ -151,7 +151,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
         <></>
       ) : (
         <div>
-          your've been here a while{" "}
+          your've been here a while,{" "}
           <Link to="/play" className="underline">
             go back
           </Link>

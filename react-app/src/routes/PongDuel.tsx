@@ -71,7 +71,7 @@ export default function PongDuel() {
         <LoadingSpinnerMessage message={"waiting for confirmation"} />
         {waitingMSG ? (
           <div>
-            your've been here a while{" "}
+            your've been here a while,{" "}
             <Link to="/play" className="underline">
               go back
             </Link>
@@ -88,7 +88,7 @@ export default function PongDuel() {
           <></>
         ) : (
           <div>
-            your've been here a while{" "}
+            your've been here a while,{" "}
             <Link to="/play" className="underline">
               go back
             </Link>
