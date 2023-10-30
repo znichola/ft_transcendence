@@ -73,7 +73,7 @@ function DevLogin() {
             // setTimeout(() => {
             //   setStatus(qc, login, "ONLINE");
             // }, 300);
-            navigate("/play");
+            navigate("/user/" + login);
           })
           .catch(() => setColor("bg-rose-500"));
       }}

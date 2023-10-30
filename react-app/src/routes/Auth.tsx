@@ -33,7 +33,7 @@ export default function Auth() {
         navigate("/tfa/" + authResp.login);
       } else {
         logIn(authResp.login);
-        navigate("/play");
+        navigate("/user/" + authResp.login);
       }
     }
   });
