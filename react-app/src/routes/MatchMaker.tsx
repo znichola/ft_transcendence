@@ -1,8 +1,6 @@
 import BoxMenu from "../components/BoxMenu";
 import { Heading } from "../components/FormComponents";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { DisplayPlayer } from "./PlayPong";
-import { IconVS } from "../components/Icons";
 import { useEffect, useState } from "react";
 import { userSocket } from "../socket";
 import { ISocRoomCreated } from "../interfaces";
@@ -67,48 +65,6 @@ function GameModeSelection() {
           </h2>
         </div>
       </GameMode>
-    </div>
-  );
-}
-
-// TODO : wait for game_id when click and then redirect
-function GameAlert({
-  player1,
-  player2,
-  setMatchFound,
-}: {
-  player1: string;
-  player2: string;
-  setMatchFound: (v: boolean) => void;
-}) {
-  return (
-    <div className="min-w-screen fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm ">
-      <div className="flex h-80 w-[42rem] max-w-[75%] flex-col items-center justify-center overflow-hidden rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
-        <h1 className="flex grow items-center justify-center bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
-          {"Game Found !"}
-        </h1>
-        <div className="flex grow items-center justify-center">
-          <DisplayPlayer name={player1} />
-          <h1 className="flex grow translate-y-4 items-center justify-center bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
-            <IconVS className="h-16 w-16" />
-          </h1>
-          <DisplayPlayer name={player2} right={true} />
-        </div>
-        <div className="flex grow items-center justify-center gap-5">
-          <Link
-            className="flex h-14 w-full grow items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-600 to-orange-500 px-3 text-4xl font-bold text-white"
-            to={"/pong/default42/vs/default42/"}
-          >
-            Fight !
-          </Link>
-          <button
-            className="flex h-14 w-full grow items-center justify-center rounded-xl px-3 text-4xl font-semibold text-slate-600"
-            onClick={() => setMatchFound(false)}
-          >
-            Refuse
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

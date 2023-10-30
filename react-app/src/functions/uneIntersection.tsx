@@ -14,11 +14,13 @@ export const useIntersection = (
       { rootMargin },
     );
 
-    element.current && observer.observe(element.current);
+    const cur = element.current
+
+    cur && observer.observe(cur);
 
     return () => {
-      if (element.current) {
-        observer.unobserve(element.current);
+      if (cur) {
+        observer.unobserve(cur);
       }
     };
   }, [element, rootMargin]);

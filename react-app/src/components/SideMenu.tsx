@@ -241,6 +241,7 @@ function NavExpandable({
   const elementNumber = useRef<HTMLUListElement>(null);
   const isExpended: boolean = name == currentExpended;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (elementNumber.current) {
       setWantedHeight(elementNumber.current.childElementCount * 3);

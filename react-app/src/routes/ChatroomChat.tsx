@@ -57,7 +57,7 @@ import {
   InputToggle,
   PreHeading,
 } from "../components/FormComponents";
-import { UseQueryResult, useMutation, useQuery } from "@tanstack/react-query";
+import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import { authApi } from "../api/axios";
 import {
   GenericActionBTN,

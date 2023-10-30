@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import { useChatroomList, useUserChatrooms } from "../api/apiHooks";
+import { useUserChatrooms } from "../api/apiHooks";
 import { IChatroom } from "../interfaces";
 import { ErrorMessage } from "./ErrorComponents";
 import { IconBashShell } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading";
 import { useAuth } from "../functions/contexts";
-import { authApi } from "../api/axios";
 
 function SmallRoomCard({ room }: { room: IChatroom }) {
   return (

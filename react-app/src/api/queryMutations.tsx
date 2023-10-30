@@ -25,49 +25,52 @@ export const useQuerySubscription = () => {
   const { addNotif } = useNotification();
   const queryClient = useQueryClient();
 
-  function getChatroomMessage(id: string) {
-    // addNotif({
-    //   type: "MESSAGE",
-    //   from: id,
-    //   message: `message from ${id}`,
-    //   to: `chatroom/${id}`,
-    // });
-
-    setTimeout(() => {
-      queryClient.refetchQueries({ queryKey: ["ChatroomMessages", id] });
-    }, 500);
-
-    // const m: IMessage = {
-    //   id: parseInt(id) + Math.random(),
-    //   senderLogin42: "default42",
-    //   content: "this is message content",
-    //   sentAt: Date.toString(),
-    //   isBlocked: false,
-    // };
-    // // setChatroomMessage(queryClient, id, m);
-
-    // queryClient.setQueryData(
-    //   ["ChatroomMessages", id],
-    //   (prev: IMessage[] | undefined) => (prev ? [...prev, m] : prev),
-    // );
-
-    console.log("new message", id);
-  }
-
-  function getChatroomMessageDM(m: Converstaion) {
-    addNotif({
-      type: "MESSAGE",
-      from: m.id + randString(3),
-      message: `message from ${m}`,
-    });
-    queryClient.refetchQueries([
-      "UserConvoMessages",
-      m.user1Login42,
-      m.user2Login42,
-    ]);
-  }
-
   useEffect(() => {
+    function getChatroomMessage(id: string) {
+      // addNotif({
+      //   type: "MESSAGE",
+      //   from: id,
+      //   message: `message from ${id}`,
+      //   to: `chatroom/${id}`,
+      // });
+      queryClient.refetchQueries({ queryKey: ["ChatroomMessages", id] });
+      
+
+      // CHECK HERE: this used to the the refetch qery, maybe it's wrong !
+      // setTimeout(() => {
+      //   queryClient.refetchQueries({ queryKey: ["ChatroomMessages", id] });
+      // }, 500);
+  
+      // const m: IMessage = {
+      //   id: parseInt(id) + Math.random(),
+      //   senderLogin42: "default42",
+      //   content: "this is message content",
+      //   sentAt: Date.toString(),
+      //   isBlocked: false,
+      // };
+      // // setChatroomMessage(queryClient, id, m);
+  
+      // queryClient.setQueryData(
+      //   ["ChatroomMessages", id],
+      //   (prev: IMessage[] | undefined) => (prev ? [...prev, m] : prev),
+      // );
+  
+      console.log("new message", id);
+    }
+  
+    function getChatroomMessageDM(m: Converstaion) {
+      addNotif({
+        type: "MESSAGE",
+        from: m.id + randString(3),
+        message: `message from ${m}`,
+      });
+      queryClient.refetchQueries([
+        "UserConvoMessages",
+        m.user1Login42,
+        m.user2Login42,
+      ]);
+    }
+
     userSocket.on("newChatroomMessage", getChatroomMessage);
     userSocket.on("newDirectMessage", getChatroomMessageDM);
 
@@ -75,7 +78,7 @@ export const useQuerySubscription = () => {
       userSocket.off("newChatroomMessage", getChatroomMessage);
       userSocket.off("newDirectMessage", getChatroomMessageDM);
     };
-  }, [queryClient]);
+  }, [queryClient, addNotif]);
 };
 
 // const useReactQuerySubscription = () => {

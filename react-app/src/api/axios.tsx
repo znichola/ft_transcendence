@@ -11,9 +11,7 @@ import {
   IMember,
   IUsersAll,
   IPutUserProfile,
-  IGameState,
   IGameHistory,
-  ChatroomStatus,
 } from "../interfaces";
 
 // const BASE_URL = "/api/";
