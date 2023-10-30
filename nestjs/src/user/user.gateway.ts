@@ -206,13 +206,13 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		player1.state = 'PENDING';
 		//SEND INVITE TO ALL SOCKET CHALLENGED IS CONNECTED ON
 		const roomId = await this.createNewRoom(player1, player2, data.special, false);
-		this.toAllUserClients(data.invitedLogin, 'challenge', {from: userLogin, to: data.invitedLogin, special: data.special, roomId: roomId});
+		this.toAllUserClients(data.invitedLogin, 'challenge', {from: userLogin, to: data.invitedLogin, special: data.special, id: roomId});
 		// console.log('sent message challenge');
 	}
   
 	@SubscribeMessage('accept')
 	async handleAccept(
-		@MessageBody() data: { opponent: string, special: boolean, roomId: string },
+		@MessageBody() data: { id: string },
 		@ConnectedSocket() client: Socket,
 	): Promise<void>
 	{
@@ -220,11 +220,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
 		const userElo: number = await this.pongService.getUserElo(userLogin);
 		// CHECK IF BOTH ARE IN UNACCEPTABLE STATE
-		if (!this.checkState(userLogin) || !this.checkState(data.opponent))
-			return ;
+		// if (!this.checkState(userLogin) || !this.checkState(data.opponent))
+		// 	return ;
 		// FIND CORRECT ROOM
-		let index = this.roomList.findIndex((roomList) => { return (roomList.roomID == data.roomId)});
-		console.log('test accept: ', userLogin, ' with id: ', client.id, ' accept challenge from : ', data.opponent, ' and index: ' , index);
+		const index = this.roomList.findIndex((roomList) => { return (roomList.roomID == data.id)});
 		if (index != -1)
 		{
 			//CHECK IF PAS DEJA ACCEPTE
@@ -232,7 +231,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (this.roomList[index].user2.state == undefined)
 			{
 				client.join(this.roomList[index].roomID);
-				this.broadcastTo(this.roomList[index].roomID, 'test', 'asdfasdfasf');
+				// this.broadcastTo(this.roomList[index].roomID, 'test', 'asdfasdfasf');
 				// this.roomList[index].user2 = this.userList[this.findCorrectPlayer(userLogin, client.id)];
 				this.roomList[index].user2.state = 'PENDING';
 			}

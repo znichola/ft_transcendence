@@ -212,12 +212,14 @@ export interface ISocChallenge {
   from: Login42;
   to: Login42;
   special: boolean;
+  id: string;
 }
 
 interface IGameData {
   user1: Login42;
   user2: Login42;
   special: boolean;
+  id: string;
 }
 
 // room-created
@@ -240,20 +242,18 @@ export interface ISocGameOver {
 export interface ISocAcceptChallenge {
   opponent: Login42;
   special: boolean;
+  id: string;
 }
 
 // challenge
 export interface ISocIssueChallenge {
   invitedLogin: Login42;
   special: boolean;
+  id: string;
 }
 
 // ready
-export interface ISocConfirmGame {
-  user1: string;
-  user2: string;
-  special: boolean;
-}
+export interface ISocConfirmGame extends IGameData {}
 
 // looking-for-game
 export interface ISocLookingForGame {

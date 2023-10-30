@@ -156,8 +156,9 @@ export default function SocketNotificatinos({
       const accept: ISocAcceptChallenge = {
         opponent: ev.from,
         special: ev.special,
+        id: ev.id,
       };
-      console.log("event got it", ev);
+      console.log("challenge responce", accept);
       addNotif({
         type: type,
         from: ev.from,
