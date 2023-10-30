@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../functions/contexts";
 import { useEffect } from "react";
+import { socketSetHeadersAndReConnect } from "../socket";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -33,6 +34,7 @@ export default function Auth() {
         navigate("/tfa/" + authResp.login);
       } else {
         logIn(authResp.login);
+        socketSetHeadersAndReConnect();
         if (authResp.first)
           navigate(`/user/${authResp.login}?first=true`);
         else
