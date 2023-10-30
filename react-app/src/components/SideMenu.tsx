@@ -122,9 +122,11 @@ export default function SideMenu({
 
             <Category name="Session Management" />
             <Nav name="Logout" to="/login" onClick={logOut} icon={IconFire} />
-            <Category name="dev stuff" />
             {import.meta.env.MODE == "development" ? (
-              <Nav name="socket tests" to="/socket" icon={IconBolt} />
+              <>
+                <Category name="dev stuff" />
+                <Nav name="socket tests" to="/socket" icon={IconBolt} />
+              </>
             ) : (
               <></>
             )}
