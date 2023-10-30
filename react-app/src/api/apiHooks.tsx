@@ -92,7 +92,7 @@ export function useCurrentUserData() {
     queryFn: () => getUserData(currentUser),
     // staleTime: 5 * (60 * 1000), // 5 mins
     // cacheTime: 10 * (60 * 1000), // 10 mins
-    enabled: !!currentUser,
+    enabled: currentUser != null && !!currentUser,
   });
 }
 

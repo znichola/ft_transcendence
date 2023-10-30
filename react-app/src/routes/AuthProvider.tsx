@@ -1,34 +1,29 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../functions/contexts";
-import {
-  socketDisconnect,
-  socketSetHeadersAndReConnect,
-} from "../socket";
+import { socketDisconnect, socketSetHeadersAndReConnect } from "../socket";
 import { useCurrentUser, useMutLogout, useUserData } from "../api/apiHooks";
-import { UserData } from "../interfaces";
 
 export type IAuth = {
   isloggedIn: boolean;
   user: string;
   tfa: boolean;
   setFTA: (tfa: boolean) => void;
-  logIn: (userData: UserData) => void;
+  logIn: (userData: string, tfa: boolean) => void;
   logOut: () => void;
 };
 
-// to avoid this  dumb ass null stuff
+// prettier-ignore
 export const AuthContext = createContext<IAuth>({
   isloggedIn: false,
   user: "",
   tfa: false,
   setFTA: (_: boolean) => {_},
-  logIn: (_: UserData) => {_},
+  logIn: (_: string, __: boolean) => {_; __},
   logOut: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-
   const logOutMut = useMutLogout();
 
   const [auth, setToken] = useState({
@@ -37,9 +32,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     tfa: false,
   });
 
-  const logIn = (userData: UserData) => {
+  const logIn = (user: string, tfa: boolean = false) => {
     setToken((prev) => {
-      return { ...prev, isloggedIn: true, user: userData.login42, tfa: userData.tfaStatus? userData.tfaStatus : false};
+      return {
+        ...prev,
+        isloggedIn: true,
+        user: user,
+        tfa: tfa,
+      };
     });
   };
 
@@ -67,17 +67,23 @@ export const ProtectedRoute = () => {
   const foo = useAuth();
   const location = useLocation();
   const { data: currentUser, isLoading, isError } = useCurrentUser();
-  const { data: currentUserData, isLoading: isDataLoading, isError: isDataError } = useUserData(currentUser ? currentUser : "");
+  const {
+    data: currentUserData,
+    isLoading: isDataLoading,
+    isError: isDataError,
+  } = useUserData(currentUser ? currentUser : "");
   // const queryClient = useQueryClient();
   useEffect(() => {
     if (
       foo &&
       currentUser !== "" &&
       !foo.isloggedIn &&
-      !isLoading && !isDataLoading &&
-      !isError && !isDataError
+      !isLoading &&
+      !isDataLoading &&
+      !isError &&
+      !isDataError
     ) {
-      foo.logIn(currentUserData);
+      foo.logIn(currentUser, currentUserData.tfaStatus ? currentUserData.tfaStatus : false);
       socketSetHeadersAndReConnect();
       // setTimeout(() => {
       //   setStatus(queryClient, currentUser, "ONLINE");
@@ -85,8 +91,7 @@ export const ProtectedRoute = () => {
     }
   });
 
-  if (!foo)
-    return <h1>critical error with auth</h1>;
+  if (!foo) return <h1>critical error with auth</h1>;
   if (isLoading)
     return (
       <div className="flex min-h-screen items-center justify-center">
