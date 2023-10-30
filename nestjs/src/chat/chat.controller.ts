@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe, UseFilters, UseGuards, Request, Req} from '@nestjs/common';
+import { Controller, Delete, Get, Post, Patch, Put, Body, UsePipes, ValidationPipe, Param, ParseIntPipe, UseFilters, UseGuards, Request, Req, Header} from '@nestjs/common';
 import { ChatService } from './services/chat.service';
 import { AddMemberToChatroomDto } from './dto/add-member-to-chatroom-dto';
 import { CreateChatroomDto } from './dto/create-chatroom-dto';
@@ -57,6 +57,7 @@ export class ChatController
 	}
 
 	@Delete(':id')
+	@Header('content-type', 'application/json')
 	async deleteChatroom(@Param('id', ParseIntPipe) id: number, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -80,6 +81,7 @@ export class ChatController
 	}
 
 	@Post(':id/messages')
+	@Header('content-type', 'application/json')
 	async sendMessage(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: SendMessageDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -87,6 +89,7 @@ export class ChatController
 	}
 
 	@Put(':id/messages/:msgId')
+	@Header('content-type', 'application/json')
 	async updateMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: UpdateMessageDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -94,6 +97,7 @@ export class ChatController
 	}
 
 	@Delete(':id/messages/:msgId')
+	@Header('content-type', 'application/json')
 	async deleteMessage(@Param('id', ParseIntPipe) chatroomId: number, @Param('msgId', ParseIntPipe) msgId: number, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -101,6 +105,7 @@ export class ChatController
 	}
 
 	@Put(':id/visibility')
+	@Header('content-type', 'application/json')
 	async updateChatroomVisibility(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateVisibilityDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -108,6 +113,7 @@ export class ChatController
 	}
 
 	@Put(":id/owner")
+	@Header('content-type', 'application/json')
 	async updateChatroomOwner(@Param('id', ParseIntPipe) id: number, @Body() patch: UpdateOwnerDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -123,6 +129,7 @@ export class ChatController
 	}
 
 	@Post(':id/members')
+	@Header('content-type', 'application/json')
 	async addMemberToChatRoom(@Param('id', ParseIntPipe) id: number, @Body() addMemberDto: AddMemberToChatroomDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -138,6 +145,7 @@ export class ChatController
 	}
 
 	@Delete(':id/members/:username')
+	@Header('content-type', 'application/json')
 	async deleteMemberFromChatRoom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -145,6 +153,7 @@ export class ChatController
 	}
 
 	@Put(':id/members/:username/role')
+	@Header('content-type', 'application/json')
 	async updateMemberFromChatroom(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Body() patch: UpdateRoleDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -159,6 +168,7 @@ export class ChatController
 	}
 
 	@Post(':id/banned')
+	@Header('content-type', 'application/json')
 	async addBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: BanUserDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -173,6 +183,7 @@ export class ChatController
 	}
 
 	@Delete(':id/banned/:username')
+	@Header('content-type', 'application/json')
 	async deleteBannedUser(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -180,6 +191,7 @@ export class ChatController
 	}
 
 	@Post(':id/muted/')
+	@Header('content-type', 'application/json')
 	async muteMember(@Param('id', ParseIntPipe) chatroomId: number, @Body() payload: MuteMemberDto, @Request() req)
 	{
 		const identity: string = req.user.login;
@@ -187,6 +199,7 @@ export class ChatController
 	}
 
 	@Delete(':id/muted/:username')
+	@Header('content-type', 'application/json')
 	async unmuteMember(@Param('id', ParseIntPipe) chatroomId: number, @Param('username') username: string, @Request() req)
 	{
 		const identity: string = req.user.login;
