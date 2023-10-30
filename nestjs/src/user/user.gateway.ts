@@ -97,7 +97,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			' and elo: ',
 			userElo,
 		);
-
 		const user: PlayerEntity = new PlayerEntity(userLogin, client, userElo, undefined);
 
 		let index: number = this.findLoginInRoom(userLogin);
@@ -105,7 +104,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		{
 			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
 		}
-
 		if (index != -1)
 		{
 			//mets a jour le status afk dans la room
@@ -118,9 +116,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 				? (this.roomList[index].user1.client = client)
 				: (this.roomList[index].user2.client = client);
 			client.join(this.roomList[index].roomID);
+			//tells player he will be redirected to new game
+			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
 			await this.updateUserStatus(userLogin, UserStatus.INGAME);
 		}
-
 		this.userList.push(user);
 	}
 
@@ -141,7 +140,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	sendUserUpdated(login: string)
 	{
-		this.server.emit('userUpdated', login);
+		this.server.emit('userUpdated', <any>login);
 	}
 
 	sendDM(msg: UserDisplayNameWithUserName, to: string)
@@ -498,8 +497,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async launchRoom(): Promise<void>
 	{
 		console.log("the rooms:", this.roomList);
-		this.roomList.forEach(async (r: IRoom) => 
-		{
+		for (const r: IRoom of this.roomList) {
 			if (r.user1.client != undefined && r.user2.client != undefined)
 			{
 				//TELLS PLAYERS GAME WILL START
@@ -525,6 +523,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
-		});
+		}
 	}
 }
