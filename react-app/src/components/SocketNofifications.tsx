@@ -99,11 +99,11 @@ export default function SocketNotificatinos({
 
     const fr_ev = frEV[0];
     if (fr_ev) {
+      // console.log("friend request:", fr_ev);
       addNotif({
-        type: "INFO",
+        type: "FRIEND",
         from: fr_ev.name,
-        message: "new friend request",
-        to: `user/${fr_ev.from}`,
+        to: `user/${fr_ev.login}`,
       });
       queryClient.resetQueries({ queryKey: ["Friends"] });
       removeFirstFREV();

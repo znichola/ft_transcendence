@@ -82,7 +82,7 @@ function MsgText({
         {from && (type == "ERROR" || type == "MESSAGE")
           ? from
           : type?.toLowerCase()}{" "}
-        <NotifCount type={type} count={count} /> 
+        <NotifCount type={type} count={count} />
       </h3>
       <p className="pl-3">
         {type == "CLASSICAL" || type == "SPECIAL" ? (
@@ -95,7 +95,7 @@ function MsgText({
           </span>
         ) : type == "FRIEND" ? (
           <span>
-            <b>{from}</b> sent your a request
+            <b>{from}</b> sent you a friend request
           </span>
         ) : (
           message
@@ -162,37 +162,37 @@ function NotifCount({ type, count }: { type: TNotif; count?: number }) {
   switch (type) {
     case "ERROR":
       return (
-        <span className="inline-block px-1 rounded-full bg-rose-400 text-rose-100 text-center">
+        <span className="inline-block rounded-full bg-rose-400 px-1 text-center text-rose-100">
           {count}
         </span>
       );
     case "CLASSICAL":
       return (
-        <span className="inline-block px-1 rounded-full bg-stone-400 text-stone-100 text-center">
+        <span className="inline-block rounded-full bg-stone-400 px-1 text-center text-stone-100">
           {count}
         </span>
       );
     case "SPECIAL":
       return (
-        <span className="inline-block px-1 rounded-full bg-fuchsia-400 text-fuchsia-100 text-center">
+        <span className="inline-block rounded-full bg-fuchsia-400 px-1 text-center text-fuchsia-100">
           {count}
         </span>
       );
     case "MESSAGE":
       return (
-        <span className="inline-block px-1 rounded-full bg-amber-400 text-amber-100 text-center">
+        <span className="inline-block rounded-full bg-amber-400 px-1 text-center text-amber-100">
           {count}
         </span>
       );
     case "SUCCESS":
       return (
-        <span className="inline-block px-1 rounded-full bg-emerald-400 text-emerald-100 text-center">
+        <span className="inline-block rounded-full bg-emerald-400 px-1 text-center text-emerald-100">
           {count}
         </span>
       );
     default:
       return (
-        <span className="inline-block px-1 rounded-full bg-cyan-400 text-cyan-100 text-center">
+        <span className="inline-block rounded-full bg-cyan-400 px-1 text-center text-cyan-100">
           {count}
         </span>
       );

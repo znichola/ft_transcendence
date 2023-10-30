@@ -194,7 +194,7 @@ export interface ISocChatroomMessage {
 }
 
 export interface ISocFriendRequest {
-  from: Login42;
+  login: Login42;
   name: string;
 }
 

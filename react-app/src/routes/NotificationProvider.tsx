@@ -28,14 +28,18 @@ export default function NotificationProvider({
       window.location.pathname,
       `/${notif.to?.split("#")[0]}`,
     );
-    if (window.location.pathname !== `/login` && window.location.pathname !== `/${notif.to?.split("#")[0]}`) {
+    if (
+      notif.type !== "MESSAGE" ||
+      (window.location.pathname !== `/login` &&
+        window.location.pathname !== `/${notif.to?.split("#")[0]}`)
+    ) {
       if (
         notifications.length > 0 &&
-        (notifications[notifications.length - 1].from === notif.from &&
-          notifications[notifications.length - 1].to === notif.to &&
-          notifications[notifications.length - 1].type === notif.type &&
-          notifications[notifications.length - 1].onClick === notif.onClick &&
-          notifications[notifications.length - 1].message === notif.message)
+        notifications[notifications.length - 1].from === notif.from &&
+        notifications[notifications.length - 1].to === notif.to &&
+        notifications[notifications.length - 1].type === notif.type &&
+        notifications[notifications.length - 1].onClick === notif.onClick &&
+        notifications[notifications.length - 1].message === notif.message
       ) {
         console.log("already displayed", notifications);
 
@@ -47,8 +51,7 @@ export default function NotificationProvider({
         setNotifications(updated);
         return;
       }
-      console.log("this bar ");
-      
+
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         { ...notif, id: randString(8), count: 0 },
