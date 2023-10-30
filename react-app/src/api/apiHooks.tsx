@@ -34,6 +34,7 @@ import {
   postUserBlock,
   deleteUserBlock,
   getUserMatchHistory,
+  putChatroomStatus,
 } from "./axios";
 import {
   QueryClient,
@@ -42,6 +43,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  ChatroomStatus,
   IChatroom,
   IChatroomPost,
   IMessagePost,
@@ -50,7 +52,7 @@ import {
   UserData,
 } from "../interfaces";
 import { AxiosError } from "axios";
-import { useAuth } from "../functions/contexts";
+import { useAuth, useNotification } from "../functions/contexts";
 
 export function useCurrentUser() {
   return useQuery({
@@ -583,6 +585,32 @@ export function useMutJoinChatroom() {
         (oldChatrooms: IChatroom[] | undefined) =>
           oldChatrooms ? oldChatrooms.concat(variables.chatroom) : oldChatrooms,
       );
+    },
+  });
+}
+
+export function useMutChangeChatroomStatus(chatroom: IChatroom) {
+  const queryClient = useQueryClient();
+  const { addNotif } = useNotification();
+  return useMutation({
+    mutationFn: async ( payload: { status: ChatroomStatus, password: string }
+    ) => putChatroomStatus(chatroom.id.toString(), payload),
+    onSuccess: (_, variables) => {
+      const newChatroom : IChatroom = {...chatroom, status: variables.status};
+      console.log(newChatroom);
+      addNotif({type: "SUCCESS", message: "Chatroom status changed !"})
+      // queryClient.setQueryData(
+      //   ["UserChatrooms"],
+      //   (oldChatrooms: IChatroom[] | undefined) =>
+      //     oldChatrooms ? oldChatrooms.map((c) => (c.id.toString() == chatroom.id.toString()) ? newChatroom : c) : oldChatrooms,
+      // );
+      queryClient.setQueryData(
+        ["Chatroom", chatroom.id.toString()],
+        (oldChatroom: IChatroom | undefined) => {
+          return oldChatroom ? newChatroom : oldChatroom;
+        }
+      );
+      queryClient.refetchQueries(["ChatroomList"]); //TODO: optimiser à l'occasion
     },
   });
 }
