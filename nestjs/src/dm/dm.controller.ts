@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe, UseFilters, UseGuards, Req, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UsePipes, ValidationPipe, ParseIntPipe, UseFilters, UseGuards, Req, Request, ForbiddenException, Header } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { SendDmDto } from './dto/send-dm-dto';
 import { ConversationEntity } from './entities/conversation.entity';
@@ -14,16 +14,6 @@ import { AuthGuard } from 'src/auth/auth.guard';
 @Controller('dm')
 export class DmController {
 	constructor(private readonly dmService: DmService) {}
-
-	/* this one should be forbidden, superuser only */
-	/*
-	@Get()
-	@ApiOkResponse({type: ConversationEntity, isArray: true})
-	findAllConversations(): Promise<ConversationEntity[]>
-	{
-		return this.dmService.getAllConversations();
-	}
-	*/
 
 	/* user1 only */
 	@Get(':user1')
@@ -47,6 +37,7 @@ export class DmController {
 
 	/* user1 only */
 	@Delete(':user1/:user2')
+	@Header('content-type', 'application/json')
 	async deleteOneConversation(@Param('user1') user1: string, @Param('user2') user2: string, @Request() req)
 	{
 		if (req.user.login != user1)
@@ -66,6 +57,7 @@ export class DmController {
 
 	/* user1 only */
 	@Post(':user1/:user2/messages')
+	@Header('content-type', 'application/json')
 	async sendMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Body() payload: SendDmDto, @Request() req)
 	{
 		if (req.user.login != user1)
@@ -85,6 +77,7 @@ export class DmController {
 
 	/* user1 only */
 	@Delete(':user1/:user2/messages/:msgId')
+	@Header('content-type', 'application/json')
 	deleteMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Request() req)
 	{
 		if (req.user.login != user1)
@@ -94,6 +87,7 @@ export class DmController {
 
 	/* user1 only */
 	@Put(':user1/:user2/messages/:msgId')
+	@Header('content-type', 'application/json')
 	updateMessage(@Param('user1') user1: string, @Param('user2') user2: string, @Param('msgId', ParseIntPipe) msgId: number, @Body() payload: SendDmDto, @Request() req)
 	{
 		if (req.user.login != user1)
