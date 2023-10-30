@@ -9,7 +9,7 @@ export type IAuth = {
   user: string;
   tfa: boolean;
   setFTA: (tfa: boolean) => void;
-  logIn: (userData: string, tfa: boolean) => void;
+  logIn: (userData: string, tfa?: boolean) => void;
   logOut: () => void;
 };
 
@@ -19,7 +19,7 @@ export const AuthContext = createContext<IAuth>({
   user: "",
   tfa: false,
   setFTA: (_: boolean) => {_},
-  logIn: (_: string, __: boolean) => {_; __},
+  logIn: (_: string, __: boolean = false) => {_; __},
   logOut: () => {},
 });
 

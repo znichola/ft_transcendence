@@ -32,8 +32,8 @@ export default function Auth() {
         setFTA(true);
         navigate("/tfa/" + authResp.login);
       } else {
-        logIn(authResp.login, authResp.tfa);
-        navigate("/play");
+        logIn(authResp.login);
+        navigate("/user/" + authResp.login);
       }
     }
   });
