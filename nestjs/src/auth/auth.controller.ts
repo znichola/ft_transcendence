@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  NotFoundException,
   Post,
   Query,
   Req,
@@ -112,6 +113,9 @@ export class AuthController {
   @Get('dev')
   async loginDev(@Res() res: Response, @Query('user') user?: string)
   {
+	if (process.env.TRANSCENDANCE_MODE == 'prod')
+		throw new NotFoundException();
+
     if (!user) user = 'default42';
     const token = await this.authService.getUserToken(user);
     if (!token) throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
