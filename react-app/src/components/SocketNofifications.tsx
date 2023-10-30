@@ -66,13 +66,14 @@ export default function SocketNotificatinos({
         to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
       // console.log("should be removing the chatroom ev");
-      // queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id] });
+      console.log("getting called how many times?");
+      queryClient.refetchQueries({ queryKey: ["ChatroomMessages", chat_ev.id + ""] });
       // console.log("asd", ["ChatroomMessages", chat_ev.id + ""]);
-      queryClient.setQueryData(
-        ["ChatroomMessages", chat_ev.id + ""],
-        (prev: IMessage[] | undefined) =>
-          prev ? [...prev, chat_ev.message] : prev,
-      );
+      // queryClient.setQueryData(
+      //   ["ChatroomMessages", chat_ev.id + ""],
+      //   (prev: IMessage[] | undefined) =>
+      //     prev ? [...prev, chat_ev.message] : prev,
+      // );
       removeFirstChatroomEV();
     }
 
@@ -85,12 +86,12 @@ export default function SocketNotificatinos({
         to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
       // console.log("should be removing the dm ev", dm_ev);
-      // queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.senderLogin42] });
-      queryClient.setQueryData(
-        ["UserConversations", dm_ev.message.senderLogin42],
-        (prev: ConvoMessage[] | undefined) =>
-          prev ? [...prev, dm_ev.message] : prev,
-      );
+      queryClient.refetchQueries({ queryKey: ["UserConversations", dm_ev.message.senderLogin42] });
+      // queryClient.setQueryData(
+      //   ["UserConversations", dm_ev.message.senderLogin42],
+      //   (prev: ConvoMessage[] | undefined) =>
+      //     prev ? [...prev, dm_ev.message] : prev,
+      // );
       removeFirstDMEV();
     }
 
@@ -102,12 +103,13 @@ export default function SocketNotificatinos({
         message: "new friend request",
         to: `user/${fr_ev.from}`,
       });
-      queryClient.refetchQueries({ queryKey: ["Friends"] });
+      queryClient.resetQueries({ queryKey: ["Friends"] });
       removeFirstFREV();
     }
 
     const us_ev = updatedUser[0];
     if (us_ev) {
+      console.log("mutating", us_ev);
       queryClient.resetQueries({ queryKey: ["UserData", us_ev] });
       removeFirstUpdatedUser();
     }
@@ -116,17 +118,17 @@ export default function SocketNotificatinos({
   useEffect(() => {
     function getChatroomMessage(ev: ISocChatroomMessage) {
       addChatroomEV(ev);
-      // console.log("adding to que the chatroom message");
+      console.log("adding to que the chatroom message");
     }
 
     function getDMmessage(ev: ISocDirectMessage) {
       addDMEV(ev);
-      // console.log("adding to que the dm message", ev);
+      console.log("adding to que the dm message", ev);
     }
 
     function getFriendRequest(ev: ISocFriendRequest) {
       addFREV(ev);
-      // console.log("adding to que the dm message", ev);
+      console.log("adding to que the freind request", ev);
     }
 
     function getChallenge(ev: ISocChallenge) {
@@ -150,17 +152,17 @@ export default function SocketNotificatinos({
       addUpdatedUser(ev);
     }
 
-    userSocket.on("newChatroomMessage", getChatroomMessage);
-    userSocket.on("newDirectMessage", getDMmessage);
-    userSocket.on("newFriendRequest", getFriendRequest);
+    userSocket.on("chatroomMessage", getChatroomMessage);
+    userSocket.on("dm", getDMmessage);
+    userSocket.on("friendRequest", getFriendRequest);
     userSocket.on("challenge", getChallenge);
     userSocket.on("test", (e: string) => console.log("test recived:", e));
     userSocket.on("userUpdated", getUserUpdated);
 
     return () => {
-      userSocket.off("newChatroomMessage", getChatroomMessage);
-      userSocket.off("newDirectMessage", getDMmessage);
-      userSocket.off("newFriendRequest", getFriendRequest);
+      userSocket.off("chatroomMessage", getChatroomMessage);
+      userSocket.off("dm", getDMmessage);
+      userSocket.off("friendRequest", getFriendRequest);
       userSocket.off("challenge", getChallenge);
       userSocket.off("userUpdated", getUserUpdated);
     };
