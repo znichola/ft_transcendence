@@ -91,7 +91,6 @@ export default function UserProfile() {
         }
         noGradient={true}
       ></BoxMenu>
-      <div className="absolute bottom-0 left-0 h-[7%] w-full bg-gradient-to-t from-stone-50 to-transparent"></div>
       <div className="flex h-full w-full flex-col px-3 pt-64 lg:px-28">
         <div className="flex max-h-72 w-full grow items-center py-4">
           <div
