@@ -19,6 +19,7 @@ import {
   Res,
   UsePipes,
   ValidationPipe,
+  Header
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FriendData, UserData, UserFriends } from '../interfaces';
@@ -212,6 +213,7 @@ export class UserController {
     description:
       'No JWT token found, or logged in user does not match URL user login.',
   })
+  @Header('content-type', 'application/json')
   @Put(':username')
   async updateUser(
     @Param('username') username: string,
@@ -253,6 +255,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', saveImageToServer))
   @HttpCode(HttpStatus.OK)
+  @Header('content-type', 'application/json')
   @Post(':username/avatar')
   async uploadAvatar(
     @UploadedFile(
@@ -365,6 +368,7 @@ export class UserController {
     status: 404,
     description: 'No user found with corresponding username or target data.',
   })
+  @Header('content-type', 'application/json')
   @Post(':username/friends/:target')
   async addFriend(
     @Param('username') username: string,
@@ -450,6 +454,7 @@ export class UserController {
     status: 404,
     description: 'No user found with corresponding username or target data.',
   })
+  @Header('content-type', 'application/json')
   @Put(':username/friends/:target')
   async acceptFriend(
     @Param('username') username: string,
@@ -510,6 +515,7 @@ export class UserController {
     status: 404,
     description: 'No user found with corresponding username or target data.',
   })
+  @Header('content-type', 'application/json')
   @Post(':username/block/:target')
   async blockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
@@ -543,6 +549,7 @@ export class UserController {
     status: 404,
     description: 'No user found with corresponding username or target data.',
   })
+  @Header('content-type', 'application/json')
   @Delete(':username/block/:target')
   async unblockUser(@Param('username') username: string, @Param('target') target: string, @Req() req: Request)
   {
