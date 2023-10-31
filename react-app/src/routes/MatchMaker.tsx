@@ -1,6 +1,11 @@
 import BoxMenu from "../components/BoxMenu";
 import { Heading } from "../components/FormComponents";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 import { userSocket } from "../socket";
 import { LoadingSpinnerMessage } from "../components/Loading";
@@ -72,6 +77,7 @@ function GameModeSelection() {
 function WaitingForGame({ game_mode }: { game_mode: string }) {
   const navigate = useNavigate();
   const [waiting, setWaiting] = useState(true);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     setTimeout(() => {
@@ -80,8 +86,12 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
   }, []);
 
   useEffect(() => {
-    userSocket.emit("looking-for-game", game_mode == "special");
-  }, [game_mode]);
+    if (searchParams.get("challenge") === "true") {
+      console.log("it's a challenge");
+    } else {
+      userSocket.emit("looking-for-game", game_mode == "special");
+    }
+  }, [game_mode, searchParams]);
 
   useEffect(() => {
     function getRoomCreated(ev: string) {

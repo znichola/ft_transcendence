@@ -80,7 +80,7 @@ export default function PlayPong({
         </div>
       </div>
       <div className="flex h-full w-full grow items-center justify-center pb-14 pt-3">
-        <div className="aspect-video w-full rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
+        <div className="w-full h-full rounded-xl border-2 border-stone-600 bg-stone-700 text-sky-200 shadow-2xl ">
           <ResponsiveAppPong setScore={setScore} />
         </div>
       </div>

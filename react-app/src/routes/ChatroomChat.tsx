@@ -793,7 +793,7 @@ function UserChallenge({ user }: { user: UserData }) {
         message={"Play pong"}
         a1={"classical"}
         a2={"special"}
-        to1={`/play/classical`}
+        to1={`/play/classical?challenge=true`}
         onClick1={() => {
           console.log("Challenge to classical");
           userSocket.emit("challenge", {
@@ -801,7 +801,7 @@ function UserChallenge({ user }: { user: UserData }) {
             special: false,
           });
         }}
-        to2={`/play/special`}
+        to2={`/play/special?challenge=true`}
         onClick2={() => {
           console.log("Challenge to special");
           userSocket.emit("challenge", {
