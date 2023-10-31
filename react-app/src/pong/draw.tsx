@@ -27,17 +27,17 @@ export default function draw(
     ctx.fillRect(tmp.p1.pos.x, tmp.p1.pos.y, tmp.p1.dim.w, tmp.p1.dim.h);
     ctx.fillRect(tmp.p2.pos.x, tmp.p2.pos.y, tmp.p2.dim.w, tmp.p2.dim.h);
     //dessine le score
-    ctx.fillStyle = "rgb(186 230 253)";
-    ctx.font = `${Math.round(
-      (ctx.canvas.height * ctx.canvas.width) / 9400,
-    )}px sans-serif`;
-    ctx.fillText(`${gs.p1.score}`, ctx.canvas.width / 6, ctx.canvas.height / 7);
-    ctx.fillText(
-      `${gs.p2.score}`,
-      (ctx.canvas.width * 5) / 6 -
-        Math.round((ctx.canvas.height * ctx.canvas.width) / 9400) / 3,
-      ctx.canvas.height / 7,
-    );
+    // ctx.fillStyle = "rgb(186 230 253)";
+    // ctx.font = `${Math.round(
+    //   (ctx.canvas.height * ctx.canvas.width) / 9400,
+    // )}px sans-serif`;
+    // ctx.fillText(`${gs.p1.score}`, ctx.canvas.width / 6, ctx.canvas.height / 7);
+    // ctx.fillText(
+    //   `${gs.p2.score}`,
+    //   (ctx.canvas.width * 5) / 6 -
+    //     Math.round((ctx.canvas.height * ctx.canvas.width) / 9400) / 3,
+    //   ctx.canvas.height / 7,
+    // );
     //dessine le milieu de terrain
     for (let i = 0; i < ctx.canvas.height; i += 14)
       ctx.fillRect(
