@@ -49,7 +49,7 @@ export default function UserInfoCard({
                 message={"Play pong"}
                 a1={"classical"}
                 a2={"special"}
-                to1={`/pong/${currentUser}/vs/${cardUser.login42}/classical`}
+                to1={`/play/classical`}
                 onClick1={() => {
                   console.log("Challenge to classical");
                   userSocket.emit("challenge", {
@@ -57,7 +57,7 @@ export default function UserInfoCard({
                     special: false,
                   });
                 }}
-                to2={`/pong/${currentUser}/vs/${cardUser.login42}/special`}
+                to2={`/play/special`}
                 onClick2={() => {
                   console.log("Challenge to special");
                   userSocket.emit("challenge", {

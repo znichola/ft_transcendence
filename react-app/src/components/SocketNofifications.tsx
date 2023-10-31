@@ -2,12 +2,11 @@ import { ReactNode, useEffect, useState } from "react";
 import { useAuth, useNotification } from "../functions/contexts";
 import { userSocket } from "../socket";
 import {
-  ISocAcceptChallenge,
   ISocChallenge,
-  ISocRoomCreated,
   ISocChatroomMessage,
   ISocDirectMessage,
   ISocFriendRequest,
+  ISocReconnection,
 } from "../interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -153,17 +152,13 @@ export default function SocketNotificatinos({
 
     function getChallenge(ev: ISocChallenge) {
       const type = ev.special ? "SPECIAL" : "CLASSICAL";
-      const accept: ISocAcceptChallenge = {
-        opponent: ev.from,
-        special: ev.special,
-        id: ev.id,
-      };
+      const accept = { id: ev.id };
       console.log("challenge responce", accept);
       addNotif({
         type: type,
         from: ev.from,
         message: `${ev.from} has challenged you, do you accept?`,
-        to: `/pong/${ev.from}/vs/${ev.to}/${type.toLowerCase()}`,
+        to: `/pong/${ev.id}`,
         onClick: () => userSocket.emit("accept", accept),
       });
     }
@@ -173,15 +168,13 @@ export default function SocketNotificatinos({
       addUpdatedUser(ev);
     }
 
-    function getReconnect(ev: ISocRoomCreated) {
+    function getReconnect(ev: ISocReconnection) {
       console.log("resume game");
       const type = ev.special ? "SPECIAL" : "CLASSICAL";
       addNotif({
         type: "INFO",
         message: `resume ${type.toLowerCase()} game ${ev.user1} vs ${ev.user2}`,
-        to: `/pong/${ev.user1}/vs/${
-          ev.user2
-        }/${type.toLowerCase()}?reconnection=true`,
+        to: `/pong/${ev.id}?reconnection=true`,
       });
     }
 

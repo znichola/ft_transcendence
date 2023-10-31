@@ -3,7 +3,6 @@ import { Heading } from "../components/FormComponents";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { userSocket } from "../socket";
-import { ISocRoomCreated } from "../interfaces";
 import { LoadingSpinnerMessage } from "../components/Loading";
 
 function GameMode({
@@ -85,13 +84,9 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
   }, [game_mode]);
 
   useEffect(() => {
-    function getRoomCreated(ev: ISocRoomCreated) {
+    function getRoomCreated(ev: string) {
       console.log("event game found:", ev);
-      navigate(
-        `/pong/${ev.user1}/vs/${ev.user2}/${
-          ev.special ? "special" : "classical"
-        }`,
-      );
+      navigate(`/pong/${ev}`);
     }
     userSocket.on("room-created", getRoomCreated);
 

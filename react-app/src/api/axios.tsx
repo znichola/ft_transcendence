@@ -95,6 +95,11 @@ export const getUserMatchHistory = async (login42: string) => {
     .then((res) => res.data);
 };
 
+export const getPongGame = async (id?: string) => {
+  if (id)
+    return authApi.get<IGameHistory>(`/pong/${id}`).then((res) => res.data);
+};
+
 export const postUserFriendRequest = async (
   current_user: string,
   login42: string,

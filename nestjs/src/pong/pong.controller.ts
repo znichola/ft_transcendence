@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, Query, Req, UseGuards, HttpException, HttpStatus, } from "@nestjs/common";
 import { PongService } from './pong.service';
 import { Request, Response } from 'express';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -8,6 +8,7 @@ import { AuthService } from "src/auth/auth.service";
 import { ChallengeEntity } from "src/user/user.entity";
 import { IGameState } from "src/interfaces";
 
+// prettier-ignore
 @ApiTags('Pong')
 @Controller('pong')
 export class PongController
@@ -27,5 +28,29 @@ export class PongController
             gameHistory.push({player1: game.player1.login42, player2: game.player2.login42, rated: game.rated, gameState: JSON.parse(game.gameStateString)});
         })
         return gameHistory;
+    }
+
+    @UseGuards(AuthGuard)
+    @Get(':id')
+    async getGameInfo(@Param('id') id: string)
+    {
+        const gameId: number = parseInt(id);
+        const gameInfo = await this.pongService.getSingleGame(gameId);
+
+        if (!gameInfo)
+            throw new HttpException("Game not found.", HttpStatus.NOT_FOUND);
+
+        const gameState = gameInfo.gameStateString ? JSON.parse(gameInfo.gameStateString) : null;
+
+        const data = {
+            player1:        gameInfo.player1.login42,
+            player2:        gameInfo.player2.login42,
+            player1Change:  gameInfo.player1EloChange,
+            player2Change:  gameInfo.player2EloChange,
+            rated:          gameInfo.rated,
+            gameState:      gameState,
+        };
+
+        return (data);
     }
 }

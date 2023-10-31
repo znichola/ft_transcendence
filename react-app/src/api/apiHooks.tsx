@@ -35,6 +35,7 @@ import {
   deleteUserBlock,
   getUserMatchHistory,
   putChatroomStatus,
+  getPongGame,
 } from "./axios";
 import {
   QueryClient,
@@ -659,4 +660,12 @@ export function setStatus(qc: QueryClient, user: string, status: TUserStatus) {
   qc.setQueryData(["UserData", user], (oldUser: UserData | undefined) =>
     oldUser ? { ...oldUser, status: status } : oldUser,
   );
+}
+
+export function usePongGame(id?: string) {
+  return useQuery({
+    queryKey: ["PongGame", id],
+    queryFn: () => getPongGame(id),
+    retry: false,
+  });
 }

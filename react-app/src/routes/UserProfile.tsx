@@ -302,7 +302,7 @@ function UserInteractions({
         message={"Play pong"}
         a1={"classical"}
         a2={"special"}
-        to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
+        to1={`/play/classical`}
         onClick1={() => {
           console.log("Challenge to classical");
           userSocket.emit("challenge", {
@@ -310,7 +310,7 @@ function UserInteractions({
             special: false,
           });
         }}
-        to2={`/pong/${currentUser}/vs/${user.login42}/special`}
+        to2={`/play/special`}
         onClick2={() => {
           console.log("Challenge to special");
           userSocket.emit("challenge", {

@@ -755,7 +755,7 @@ function ManageUserCard({
 
   return (
     <li className="flex items-center gap-2 px-2 py-1">
-      <UserChallenge user={user} currentUser={currentMember?.login42} />
+      <UserChallenge user={user} />
       <UserIcon user={cardLogin42} />
       <div className="grow ">{user.name}</div>
       <BanUserBTN
@@ -786,20 +786,14 @@ function ManageUserCard({
   );
 }
 
-function UserChallenge({
-  user,
-  currentUser,
-}: {
-  user: UserData;
-  currentUser?: string;
-}) {
+function UserChallenge({ user }: { user: UserData }) {
   return (
     <div className="flex h-8">
       <SideButton2
         message={"Play pong"}
         a1={"classical"}
         a2={"special"}
-        to1={`/pong/${currentUser}/vs/${user.login42}/classical`}
+        to1={`/play/classical`}
         onClick1={() => {
           console.log("Challenge to classical");
           userSocket.emit("challenge", {
@@ -807,7 +801,7 @@ function UserChallenge({
             special: false,
           });
         }}
-        to2={`/pong/${currentUser}/vs/${user.login42}/special`}
+        to2={`/play/special`}
         onClick2={() => {
           console.log("Challenge to special");
           userSocket.emit("challenge", {

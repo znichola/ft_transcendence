@@ -240,6 +240,10 @@ export interface ISocGameOver {
   winner: string;
 }
 
+// reconnection
+export interface ISocReconnection extends IGameData {}
+
+
 // ws/pong - send
 
 // accept

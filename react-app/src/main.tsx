@@ -33,6 +33,7 @@ import SocketTest from "./routes/SocketTest.tsx";
 import ChatroomManager from "./routes/ChatroomChat.tsx";
 import NotificationProvider from "./routes/NotificationProvider.tsx";
 import SocketNotificatinos from "./components/SocketNofifications.tsx";
+import PongTV from "./routes/PongTV.tsx";
 
 const router = createBrowserRouter([
   {
@@ -69,8 +70,12 @@ const router = createBrowserRouter([
             element: <PongFeed />,
           },
           {
-            path: "/pong/:player1_login42/vs/:player2_login42/:game_mode?",
+            path: "/pong/:id",
             element: <PongDuel />,
+          },
+          {
+            path: "/pong-tv",
+            element: <PongTV />,
           },
           {
             path: "/ranking",

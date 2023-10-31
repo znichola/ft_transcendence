@@ -1,21 +1,27 @@
 import { useParams } from "react-router";
-import PlayPong from "./PlayPong";
+import PlayPong, { DisplayPlayer } from "./PlayPong";
 import { useEffect, useState } from "react";
 import { userSocket } from "../socket.ts";
 import { ISocGameOver, ISocRoomCreated, UserData } from "../interfaces.tsx";
 import { LoadingSpinnerMessage } from "../components/Loading.tsx";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useUserData } from "../api/apiHooks.tsx";
+import { usePongGame, useUserData } from "../api/apiHooks.tsx";
 import { ErrorMessage } from "../components/ErrorComponents.tsx";
-import { IconTrophy } from "../components/Icons.tsx";
+import { IconTrophy, IconVS } from "../components/Icons.tsx";
+import { useAuth } from "../functions/contexts.tsx";
 
 export default function PongDuel() {
-  const { player1_login42: p1 } = useParams<"player1_login42">();
-  const { player2_login42: p2 } = useParams<"player2_login42">();
+  const { id } = useParams<"id">();
   const [searchParams] = useSearchParams();
-  const { game_mode } = useParams<"game_mode">();
+  const { data: game, isLoading, isError } = usePongGame(id);
   const [state, setState] = useState<
-    "PENDING" | "READY" | "PLAYING" | "GAME-OVER" | "RECONNECTION" | "CANCELLED"
+    | "PENDING"
+    | "READY"
+    | "PLAYING"
+    | "GAME-OVER"
+    | "RECONNECTION"
+    | "CANCELLED"
+    | "JOIN-GAME"
   >("PENDING");
   const [gameOver, setGameOver] = useState<ISocGameOver | undefined>(undefined);
   const navigate = useNavigate();
@@ -24,24 +30,20 @@ export default function PongDuel() {
 
   useEffect(() => {
     if (searchParams.get("reconnection") == "true") {
-      userSocket.emit("reconnect", {
-        user1: p1,
-        user2: p2,
-        special: game_mode == "special",
-      });
+      userSocket.emit("reconnect", id);
       setState("RECONNECTION");
     }
 
     setTimeout(() => {
       setWaitingMSG(true);
     }, 20000);
-  }, [searchParams, p1, p2, game_mode]);
+  }, [searchParams, id]);
 
   useEffect(() => {
-    function getRoomCreated(ev: ISocRoomCreated) {
+    function getRoomCreated(ev: string) {
       console.log("ACOUNA MY FUCKNIG TATAS");
       setState("READY");
-      userSocket.emit("ready", ev);
+      userSocket.emit("ready", { id: ev });
       setTimeout(() => {
         setWaitingMSG2(true);
       }, 20000);
@@ -72,7 +74,7 @@ export default function PongDuel() {
       userSocket.off("game-over", getGameOver);
       userSocket.off("cancelled", getCancelled);
     };
-  }, [navigate, game_mode, p1, p2]);
+  }, [navigate]);
 
   // useEffect(() => {
   //   setTimeout(() => {
@@ -80,7 +82,48 @@ export default function PongDuel() {
   //   }, 20 * 3600);
   // }, [navigate]);
 
-  console.log("game over ev:", gameOver);
+  if (isLoading)
+    return <LoadingSpinnerMessage message="Getting rooom data.." />;
+  if (isError || !game)
+    return (
+      <div>
+        game not found,{" "}
+        <Link to="/play" className="underline">
+          go back
+        </Link>
+      </div>
+    );
+
+  const p1 = game.player1;
+  const p2 = game.player2;
+
+  if (game.gameState) {
+    if (gameOver && p1 && p2) {
+      return (
+        <GameOver {...gameOver} p1={p1} p2={p2} special={game.gameState.type} />
+      );
+    }
+    return <div>Gameover</div>;
+  }
+
+  console.log("state:", state);
+  if (state == "PLAYING" || state == "RECONNECTION" || state == "JOIN-GAME")
+    return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
+
+  console.log("ongong game:? ", game);
+
+  if (game.gameState !== undefined)
+    return (
+      <GameAlert
+        player1={p1}
+        player2={p2}
+        onJoin={() => {
+          setState("JOIN-GAME");
+          console.log("state to join game");
+          userSocket.emit("join-game", { id: id });
+        }}
+      />
+    );
 
   if (state == "PENDING")
     return (
@@ -119,18 +162,11 @@ export default function PongDuel() {
   if (state == "GAME-OVER") {
     if (gameOver && p1 && p2) {
       return (
-        <GameOver
-          {...gameOver}
-          p1={p1}
-          p2={p2}
-          special={game_mode == "special"}
-        />
+        <GameOver {...gameOver} p1={p1} p2={p2} special={false} />
       );
     }
     return <div>Gameover</div>;
   }
-  if (state == "PLAYING" || state == "RECONNECTION")
-    return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
   if (state == "CANCELLED")
     return (
       <div>
@@ -195,6 +231,49 @@ function EloChange({ user, elo }: { user: UserData; elo: number }) {
       <b className={` ${elo < 0 ? "text-rose-500" : "text-green-500"}`}>
         {(elo < 0 ? " " : " +") + elo}
       </b>
+    </div>
+  );
+}
+
+// TODO : wait for game_id when click and then redirect
+function GameAlert({
+  player1,
+  player2,
+  onJoin,
+}: {
+  player1: string;
+  player2: string;
+  onJoin: () => void;
+}) {
+  const { user } = useAuth();
+  return (
+    <div className="min-w-screen fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm ">
+      <div className="flex h-80 w-[42rem] max-w-[75%] flex-col items-center justify-center overflow-hidden rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
+        <h1 className="flex grow items-center justify-center bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
+          {"Game Found !"}
+        </h1>
+        <div className="flex grow items-center justify-center">
+          <DisplayPlayer name={player1} />
+          <h1 className="flex grow translate-y-4 items-center justify-center bg-gradient-to-br from-fuchsia-600 to-orange-500 bg-clip-text text-5xl font-bold text-transparent">
+            <IconVS className="h-16 w-16" />
+          </h1>
+          <DisplayPlayer name={player2} right={true} />
+        </div>
+        <div className="flex grow items-center justify-center gap-5">
+          <button
+            className="flex h-14 w-full grow items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-600 to-orange-500 px-3 text-4xl font-bold text-white"
+            onClick={onJoin}
+          >
+            {user == player1 || user == player2 ? "Fight" : "Spectate"}
+          </button>
+          <Link
+            to="/play"
+            className="flex h-14 w-full grow items-center justify-center rounded-xl px-3 text-3xl font-semibold text-slate-600"
+          >
+            go back
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

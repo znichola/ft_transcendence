@@ -12,6 +12,7 @@ import {
   IconFire,
   IconGit,
   Icon42,
+  IconMegaphone,
 } from "./Icons";
 import { LoadingSpinnerMessage } from "./Loading.tsx";
 import Avatar from "../components/Avatar.tsx";
@@ -67,12 +68,17 @@ export default function SideMenu({
       </button>
       <div className="flex h-full w-full overflow-hidden">
         <div className="flex w-full min-w-[17.5rem] flex-col overflow-hidden">
-          <div className="h-fit w-full rounded-md border-b-2 border-stone-300 px-1 pb-1 shadow-md">
+          <div className="h-fit w-full border-b-2 border-stone-300 px-1 pb-1 ">
             <CurrentUserStats />
             <NavHighlight
               name="Play a game of Pong"
               to="/play"
               icon={IconHomeComputer}
+            />
+            <Nav
+              name="pong.tv"
+              to={"/pong-tv"}
+              icon={IconMegaphone}
             />
           </div>
           <div className="flex grow flex-col overflow-y-auto pl-3">

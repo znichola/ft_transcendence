@@ -155,4 +155,20 @@ export class PongService {
         });
         return (games);
     }
+
+    async getSingleGame(id: number)
+    {
+        const game = await prisma.game.findUnique({
+            where: { id: id },
+            select: {
+                player1: { select: { login42: true }},
+                player2: { select: { login42: true }},
+                player1EloChange: true,
+                player2EloChange: true,
+                rated: true,
+                gameStateString: true,
+            }
+        });
+        return game;
+    }
 }

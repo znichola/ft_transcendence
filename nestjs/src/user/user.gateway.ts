@@ -49,7 +49,6 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async afterInit(client: Socket)
 	{
 		client.use(SocketAuthMiddleware() as any);
-		console.log('User WS Initialized');
 	}
 
 	async handleDisconnect(client: Socket)
@@ -101,11 +100,16 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const index: number = this.findLoginInRoom(userLogin);
 		//tells player he can rejoin a lobby
 		if (index != -1 && this.roomList[index].started)
-			this.broadcastTo(client.id, 'reconnection', {user1: this.roomList[index].user1.login, user2: this.roomList[index].user2.login, special: this.roomList[index].type})
+			this.broadcastTo(client.id, 'reconnection', { 
+				user1: this.roomList[index].user1.login,
+				user2: this.roomList[index].user2.login,
+				special: this.roomList[index].type,
+				id: this.roomList[index].roomID
+			});
 		this.userList.push(user);
 
 		if (this.userList.findIndex(user => user.login === userLogin) == -1)
-			await this.updateUserStatus(userLogin, UserStatus.OFFLINE);
+			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
 	}
 
 	sendFriendRequest(to: string, sender: UserNameEntity)
@@ -156,6 +160,41 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	/* ---------------------- EVENTS FUNCTIONS ----------------------*/
 
+	@SubscribeMessage('join-game')
+	async handleJoinGame(@MessageBody() data: { id: string }, @ConnectedSocket() client: Socket)
+	{
+		const userToken: string = client.handshake.auth.token;
+		const userLogin: string = await this.authService.getLoginFromToken(userToken);
+
+		const index = this.findRoomFromId(data.id);
+		if (index != -1)
+		{
+			const room = this.roomList[index];
+			client.join(room.roomID);
+			const tmp: number = this.findSocketInPlayer(client.id)
+
+			if (tmp != -1)
+			{
+				const user = this.userList[tmp];
+				//mets a jour le state
+				if (room.user1.login == userLogin)
+				{
+					room.gs.p1.afk = false;
+					room.user1 = user;
+					room.user2.state == 'GAMING'? user.state = 'GAMING' : user.state ='READY';
+				}
+				else if (room.user2.login == userLogin)
+				{
+					room.gs.p2.afk = false;
+					room.user2 = user;
+					room.user1.state == 'GAMING'? user.state = 'GAMING' : user.state = 'READY';
+				}
+			}
+		}
+		else
+			client.send('Game is over or does not exist');
+	}
+
 	@SubscribeMessage('looking-for-game')
 	async handleSpecial(@MessageBody() special: boolean, @ConnectedSocket() client: Socket): Promise<void>
 	{
@@ -164,9 +203,12 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
 		
 		console.log("looking-for-game triggered", userLogin, this.userList[this.findSocketInPlayer(client.id)].state, special);
-		if (!this.checkState(userLogin)) return ;
+		if (!this.checkState(userLogin))
+		{
+			client.send('Unable to join queue at the moment');
+			return ;
+		}
 		index = this.findSocketInQueue(client.id, special);
-		console.log('Mission passed !!!', index)
 		if (index == -1)
 		{
 			index = this.findSocketInPlayer(client.id);
@@ -194,8 +236,10 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
 		//CHECK IF BOTH ARE IN UNACCEPTABLE STATE
 		if (!this.checkState(userLogin) || !this.checkState(data.invitedLogin))
+		{
+			client.send('Unable to challenge this player');
 			return ;
-		// console.log(userLogin, ' with id: ', client.id, ' challenges: ', data.invitedLogin);
+		}
 		//FIND CHALLENGER IN PLAYER LIST
 		let index: number = this.findSocketInPlayer(client.id);
 		const player1: PlayerEntity = this.userList[index];
@@ -206,8 +250,8 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		player1.state = 'PENDING';
 		//SEND INVITE TO ALL SOCKET CHALLENGED IS CONNECTED ON
 		const roomId = await this.createNewRoom(player1, player2, data.special, false);
+		this.broadcastTo(client.id, 'room-created', roomId);
 		this.toAllUserClients(data.invitedLogin, 'challenge', {from: userLogin, to: data.invitedLogin, special: data.special, id: roomId});
-		// console.log('sent message challenge');
 	}
   
 	@SubscribeMessage('accept')
@@ -218,63 +262,60 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	{
 		const userToken: string = client.handshake.auth.token;
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
-		const userElo: number = await this.pongService.getUserElo(userLogin);
+		// const userElo: number = await this.pongService.getUserElo(userLogin);
 		// CHECK IF BOTH ARE IN UNACCEPTABLE STATE
 		// if (!this.checkState(userLogin) || !this.checkState(data.opponent))
 		// 	return ;
 		// FIND CORRECT ROOM
-		const index = this.roomList.findIndex((roomList) => { return (roomList.roomID == data.id)});
+		const index = this.findRoomFromId(data.id);
 		if (index != -1)
 		{
 			//CHECK IF PAS DEJA ACCEPTE
-			console.log("if if something deja", this.roomList[index]);
-			if (this.roomList[index].user2.state == undefined)
+			if (userLogin == this.roomList[index].user2.login && this.roomList[index].user2.state == undefined)
 			{
 				client.join(this.roomList[index].roomID);
-				// this.broadcastTo(this.roomList[index].roomID, 'test', 'asdfasdfasf');
-				// this.roomList[index].user2 = this.userList[this.findCorrectPlayer(userLogin, client.id)];
 				this.roomList[index].user2.state = 'PENDING';
 			}
 		}
 	}
 
 	@SubscribeMessage('ready') // TODO: check qu'il confirme le bon match, donc for each
-	async handleReady(@ConnectedSocket() client: Socket): Promise<void>
+	async handleReady(@MessageBody() data: { id: string }, @ConnectedSocket() client: Socket): Promise<void>
 	{
 		const userToken: string = client.handshake.auth.token;
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
-		const index: number = this.findSocketInRoom(client.id);
-		// console.log('test ready: ', userLogin, client.id, index);
+		const index: number = this.findRoomFromId(data.id);
 		if (index != -1)
 		{
 			if (this.roomList[index].user1.login == userLogin && this.roomList[index].user1.client.id == client.id)
 			{
 				this.roomList[index].user1.state = 'READY';
-				// console.log(this.roomList[index].user1.login, 'with id: ', this.roomList[index].user1.client.id, 'has been defined as READY')
 			}
 			else if (this.roomList[index].user2.login == userLogin && this.roomList[index].user2.client.id == client.id)
 			{
 				this.roomList[index].user2.state = 'READY';
-				// console.log(this.roomList[index].user2.login, 'with id: ', this.roomList[index].user2.client.id, 'has been defined as READY')
 			}
 		}
 	}
 
 	@SubscribeMessage('reconnect') // TODO: check qu'il confirme le bon match, donc for each
 	async handleReconnect(
-		@MessageBody() data: { user1: string, user2: string, special: boolean },
+		@MessageBody() data: { id: string },
 		@ConnectedSocket() client: Socket,): Promise<void>
 	{
 		let user: PlayerEntity = undefined;
 		const userToken: string = client.handshake.auth.token;
 		const userLogin: string = await this.authService.getLoginFromToken(userToken);
-		const index: number = this.findLoginInRoom(userLogin);
+		const index: number = this.findRoomFromId(data.id);
 		//check room has the user
 		if (index != -1)
 		{
 			//check data has correct info
-			if (this.roomList[index].user1.login != data.user1 || this.roomList[index].user2.login != this.roomList[index].user2.login || this.roomList[index].type != data.special)
+			if (this.roomList[index].user1.login != userLogin && this.roomList[index].user2.login != userLogin)
+			{
+				client.send('Unable to reconnect to this game');
 				return ;
+			}
 			const tmp: number = this.findSocketInPlayer(client.id)
 			//redefine the player inside the room
 			if (tmp != -1)
@@ -389,6 +430,11 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		});
 	}
 
+	findRoomFromId(roomId: string) : number
+	{
+		return this.roomList.findIndex((roomList) => { return (roomList.roomID == roomId)});
+	}
+
 	findSocketInPlayer(socketID: string): number
 	{
 		return this.userList.findIndex(
@@ -415,7 +461,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async findPlayersInQueue(special: boolean): Promise<void>
 	{
 		special ? this.specialQueue = this.trimQueue(this.specialQueue) : this.normalQueue = this.trimQueue(this.normalQueue);
-		let array: PlayerEntity[] = special ? this.specialQueue : this.normalQueue;
+		const array: PlayerEntity[] = special ? this.specialQueue : this.normalQueue;
 		//console.log('test length: ', array.length, 'merde:', this.merde++);
 		// NOT ENOUGH PEOPLE
 		if (array.length <= 1) {
@@ -561,6 +607,22 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@Cron('*/3 * * * * *')//TODO supprime les rooms si les deux afk trop longtemps
 	async launchRoom(): Promise<void>
 	{
+		this.server.emit('inqueue-special', this.specialQueue.length.toString());
+		this.server.emit('inqueue-classical', this.normalQueue.length.toString());
+
+		const gamePreview: {id: string, gameState: IGameState}[] = [];
+		this.roomList.forEach((room) => {
+			if (room.started)
+			{
+				const preview = {
+					id: room.roomID,
+					gameState: room.gs
+				};
+				gamePreview.push(preview);
+			}
+		});
+		this.server.emit('game-preview', gamePreview);
+
 		console.log("the rooms[");
 		this.roomList.forEach((r) => console.log(r.roomID, r.user1.login, r.user1.state, r.user2.login, r.user2.state));
 		console.log("]");
@@ -569,18 +631,11 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			if (r.user1.client != undefined && r.user2.client != undefined)
 			{
 				//TELLS PLAYERS GAME WILL START
-				const payload = {
-				user1: r.user1.login,
-				user2: r.user2.login,
-				special: r.type,
-				};
-				console.log("launch room:", payload);
 				if (r.user1.state == 'PENDING' && r.user2.state == 'PENDING')
-					this.broadcastTo(r.roomID, 'room-created', payload); //TODO
+					this.broadcastTo(r.roomID, 'room-created', r.roomID); //TODO
 				if (r.user1.state == 'READY' && r.user2.state == 'READY')
 				{
-					this.broadcastTo(r.roomID, 'start-game', payload); // TODO
-					//console.log('both players were seen as ready');
+					this.broadcastTo(r.roomID, 'start-game', r.roomID); // TODO
 					r.user1.state = 'GAMING';
 					r.user2.state = 'GAMING';
 					r.started = true;
@@ -592,7 +647,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.pongCalculus(r, canvas);
 				}
 			}
-			if (Date.now() - r.timer >= 10000 && !r.started)
+			if (Date.now() - r.timer >= 60000 && !r.started)
 				this.cancelGame(r);
 		}
 	}
