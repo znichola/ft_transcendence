@@ -62,7 +62,7 @@ export default function DirectMessage() {
               <Message
                 sender={m.senderLogin42 === user_string ? user : target}
                 message={im}
-                left={m.senderLogin42 === user_string}
+                left={m.senderLogin42 !== user_string}
                 showIcon={
                   !(i < messages.length - 1)
                     ? true
