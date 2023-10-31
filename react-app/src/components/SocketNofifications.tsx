@@ -174,7 +174,7 @@ export default function SocketNotificatinos({
       addNotif({
         type: "INFO",
         message: `resume ${type.toLowerCase()} game ${ev.user1} vs ${ev.user2}`,
-        to: `/pong/${ev.id}?reconnection=true`,
+        to: `/pong/${ev.id}`,
       });
     }
 
