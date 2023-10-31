@@ -114,14 +114,12 @@ export default function PongDuel() {
 
   if (state == "GAME-OVER") {
     if (gameOver && p1 && p2) {
-      console.log("lskdflksdjfldsjlfdf");
       return <GameOver {...gameOver} p1={p1} p2={p2} special={false} />;
     }
     return <div>Gameover</div>;
   }
 
   if (game.gameState !== undefined) {
-    console.log("this isa isdas d");
     return (
       <GameAlert
         player1={p1}

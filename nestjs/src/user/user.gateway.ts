@@ -626,9 +626,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		});
 		this.server.emit('game-preview', gamePreview);
 
-		console.log("the rooms[");
-		this.roomList.forEach((r) => console.log(r.roomID, r.user1.login, r.user1.state, r.user2.login, r.user2.state));
-		console.log("]");
+		// console.log("the rooms[");
+		// this.roomList.forEach((r) => console.log(r.roomID, r.user1.login, r.user1.state, r.user2.login, r.user2.state));
+		// console.log("]");
 		for (const r of this.roomList)
 		{
 			if (r.user1.client != undefined && r.user2.client != undefined)
