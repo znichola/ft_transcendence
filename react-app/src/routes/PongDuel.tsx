@@ -244,6 +244,7 @@ function GameAlert({
   onJoin: () => void;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   return (
     <div className="min-w-screen fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm ">
       <div className="flex h-80 w-[42rem] max-w-[75%] flex-col items-center justify-center overflow-hidden rounded-xl border-b-4 border-stone-300 bg-stone-50 bg-size-200 pt-6 shadow-lg">
@@ -264,12 +265,12 @@ function GameAlert({
           >
             {user == player1 || user == player2 ? "Fight" : "Spectate"}
           </button>
-          <Link
-            to="/play"
+          <button
+            onClick={() => navigate(-1)}
             className="flex h-14 w-full grow items-center justify-center rounded-xl px-3 text-3xl font-semibold text-slate-600"
           >
             go back
-          </Link>
+          </button>
         </div>
       </div>
     </div>

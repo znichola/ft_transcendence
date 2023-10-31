@@ -8,11 +8,20 @@ const prisma: PrismaService = new PrismaService();
 export class UserStatusService {
 constructor(){}
 
-async setUserStatus(login: string, newStatus: UserStatus)
+  async setUserStatus(login: string, newStatus: UserStatus)
   {
     await prisma.user.update({
       where: { login42: login },
       data: { status: newStatus },
     });
+  }
+
+  async getUserStatus(login: string): Promise<UserStatus>
+  {
+    const user = await prisma.user.findUnique({
+      where: { login42: login },
+      select: { status: true },
+    });
+    return user.status;
   }
 }

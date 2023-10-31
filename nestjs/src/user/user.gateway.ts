@@ -108,8 +108,9 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			});
 		this.userList.push(user);
 
-		if (this.userList.findIndex(user => user.login === userLogin) == -1)
-			await this.updateUserStatus(userLogin, UserStatus.ONLINE);
+		const userStatus = await this.userStatusService.getUserStatus(userLogin);
+		if (userStatus == UserStatus.OFFLINE)
+			this.updateUserStatus(userLogin, UserStatus.ONLINE);
 	}
 
 	sendFriendRequest(to: string, sender: UserNameEntity)
@@ -182,12 +183,14 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					room.gs.p1.afk = false;
 					room.user1 = user;
 					room.user2.state == 'GAMING'? user.state = 'GAMING' : user.state ='READY';
+					this.updateUserStatus(userLogin, UserStatus.INGAME);
 				}
 				else if (room.user2.login == userLogin)
 				{
 					room.gs.p2.afk = false;
 					room.user2 = user;
 					room.user1.state == 'GAMING'? user.state = 'GAMING' : user.state = 'READY';
+					this.updateUserStatus(userLogin, UserStatus.INGAME);
 				}
 			}
 		}
@@ -336,7 +339,7 @@ export class UserGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 					this.roomList[index].user1.login == 'GAMING'? user.state = 'GAMING' : user.state = 'READY';
 				//join socket room
 				client.join(this.roomList[index].roomID);
-				await this.updateUserStatus(userLogin, UserStatus.INGAME);
+				this.updateUserStatus(userLogin, UserStatus.INGAME);
 			}
 		}
 	}
