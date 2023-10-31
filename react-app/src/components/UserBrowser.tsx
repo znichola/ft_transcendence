@@ -227,7 +227,7 @@ function Searchbar({ value, setValue }: ISearchbar) {
       className="flex w-[28rem] min-w-max flex-row items-end justify-center px-6"
       onSubmit={(e) => {
         e.preventDefault();
-        console.log("submitted new image");
+        //console.log("submitted new image");
       }}
     >
       <div className="w-full">

@@ -3,7 +3,7 @@ import { IconMegaphone } from "../components/Icons";
 export default function PongFeed() {
   return (
     <>
-      <button onClick={() => console.log("Clicked button")}>
+      <button>
         <div className="flex content-center justify-center rounded-full border border-stone-500 bg-gradient-to-r from-indigo-500 to-rose-500 p-8 shadow-xl">
           <IconMegaphone className="h-16 w-16 text-stone-50" strokeWidth={1} />
           <div className="w-5" />

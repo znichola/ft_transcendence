@@ -131,7 +131,7 @@ export default function ChatroomManager() {
   const currentUser = useAuth()?.user || "";
   const { data: chatrooms, isLoading, isError } = useUserChatrooms(currentUser);
 
-  console.log("Username = ", currentUser);
+  //console.log("Username = ", currentUser);
 
   if (currentUser == "" || isLoading) {
     return (
@@ -366,7 +366,7 @@ export function ChatroomMessageInput({
       content: inputValue,
     });
     setInputValue("");
-    console.log("Ref : ", scrollRef.current);
+    //console.log("Ref : ", scrollRef.current);
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -795,7 +795,7 @@ function UserChallenge({ user }: { user: UserData }) {
         a2={"special"}
         to1={`/play/classical`}
         onClick1={() => {
-          console.log("Challenge to classical");
+          //console.log("Challenge to classical");
           userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: false,
@@ -803,7 +803,7 @@ function UserChallenge({ user }: { user: UserData }) {
         }}
         to2={`/play/special`}
         onClick2={() => {
-          console.log("Challenge to special");
+          //console.log("Challenge to special");
           userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: true,
@@ -964,11 +964,11 @@ function ManageAdminsBTN({
     <GenericActionBTN
       onUnChecked={() => {
         mutRole.mutate("ADMIN");
-        console.log("set as admin");
+        //console.log("set as admin");
       }}
       onChecked={() => {
         mutRole.mutate("MEMBER");
-        console.log("set as member");
+        //console.log("set as member");
       }}
       value={cardMember?.role == "ADMIN" || false}
       actionPerms="ADMIN"

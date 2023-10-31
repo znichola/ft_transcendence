@@ -598,7 +598,6 @@ export function useMutChangeChatroomStatus(chatroom: IChatroom) {
       putChatroomStatus(chatroom.id.toString(), payload),
     onSuccess: (_, variables) => {
       const newChatroom: IChatroom = { ...chatroom, status: variables.status };
-      console.log(newChatroom);
       addNotif({ type: "SUCCESS", message: "Chatroom status changed !" });
       // queryClient.setQueryData(
       //   ["UserChatrooms"],
@@ -649,10 +648,9 @@ export function useMutLogout() {
   return useMutation({
     mutationFn: async () => getLogout(),
     onSuccess: () => {
-      console.log("Successfully logout !");
+      //console.log("Successfully logout !");
       queryClient.clear();
-    },
-    onError: () => console.log("Error: cannot logout !"),
+    }
   });
 }
 

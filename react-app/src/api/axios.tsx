@@ -16,7 +16,7 @@ import {
 
 // const BASE_URL = "/api/";
 const BASE_URL = import.meta.env.VITE_SITE_URL + "/api/";
-console.log(BASE_URL);
+//console.log(BASE_URL);
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
@@ -199,7 +199,7 @@ export const getUserConvoMessageList = async (user1: string, user2: string) => {
     .get<ConvoMessage[]>("/dm/" + user1 + "/" + user2 + "/messages")
     .then((res) => {
       if (res.status == 404) {
-        console.log("caught the 404 here");
+        //console.log("caught the 404 here");
         return [];
       }
       return res.data;

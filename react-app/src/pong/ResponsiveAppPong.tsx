@@ -22,8 +22,9 @@ export default function ResponsiveAppPong({
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
   return (
-    <div ref={pong} className={`h-full w-full`}>
+    <div ref={pong} className={`h-full w-full transition-none duration-0`}>
       <PongApp width={dim.x} height={dim.y} setScore={setScore} />
     </div>
   );

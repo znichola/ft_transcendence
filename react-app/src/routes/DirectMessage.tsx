@@ -30,7 +30,7 @@ export default function DirectMessage() {
   if (isLoading)
     return <LoadingSpinnerMessage message="Loading chat history ..." />;
   if (isError || !targetSuccess || !userSuccess) {
-    console.log("error this that");
+    //console.log("error this that");
     return <ErrorMessage message="Error fetching chat history" />;
   }
 

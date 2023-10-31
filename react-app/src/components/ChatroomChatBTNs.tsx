@@ -71,7 +71,6 @@ export function Pop({
   message?: string;
   children: ReactNode;
 }) {
-  console.log;
   if (!message) return <></>;
   return (
     <div className="group relative">

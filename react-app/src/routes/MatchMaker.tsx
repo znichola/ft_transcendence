@@ -85,7 +85,7 @@ function WaitingForGame({ game_mode }: { game_mode: string }) {
 
   useEffect(() => {
     function getRoomCreated(ev: string) {
-      console.log("event game found:", ev);
+      //console.log("event game found:", ev);
       navigate(`/pong/${ev}`);
     }
     userSocket.on("room-created", getRoomCreated);
@@ -124,7 +124,7 @@ Magic button : Find a game
 export default function MatchMaker() {
   const { game_mode } = useParams<"game_mode">();
 
-  console.log("match maker:", game_mode);
+  //console.log("match maker:", game_mode);
   return (
     <div className="relative flex h-full w-full items-center justify-center pt-16">
       <BoxMenu heading={<Heading title="Select your Game Mode" />}></BoxMenu>

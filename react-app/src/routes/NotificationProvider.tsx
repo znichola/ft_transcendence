@@ -23,11 +23,11 @@ export default function NotificationProvider({
   const [notifications, setNotifications] = useState<INotification[]>([]);
 
   const addNotif = (notif: INotification) => {
-    console.log(
-      "notification href",
-      window.location.pathname,
-      `/${notif.to?.split("#")[0]}`,
-    );
+    // console.log(
+    //   "notification href",
+    //   window.location.pathname,
+    //   `/${notif.to?.split("#")[0]}`,
+    // );
     if (
       notif.type !== "MESSAGE" ||
       (window.location.pathname !== `/login` &&
@@ -41,7 +41,7 @@ export default function NotificationProvider({
         notifications[notifications.length - 1].onClick === notif.onClick &&
         notifications[notifications.length - 1].message === notif.message
       ) {
-        console.log("already displayed", notifications);
+        // console.log("already displayed", notifications);
 
         const updated = notifications.map((n, i) =>
           i == notifications.length - 1

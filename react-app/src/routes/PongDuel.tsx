@@ -41,7 +41,7 @@ export default function PongDuel() {
 
   useEffect(() => {
     function getRoomCreated(ev: string) {
-      console.log("ACOUNA MY FUCKNIG TATAS");
+      //console.log("ACOUNA MY FUCKNIG TATAS");
       setState("READY");
       userSocket.emit("ready", { id: ev });
       setTimeout(() => {
@@ -55,7 +55,7 @@ export default function PongDuel() {
     function getGameOver(ev: ISocGameOver) {
       setState("GAME-OVER");
       setGameOver(ev);
-      console.log("game is over motherfucker");
+      //console.log("game is over motherfucker");
       // navigate("/play");
     }
     function getCancelled(_: ISocRoomCreated) {
@@ -106,11 +106,11 @@ export default function PongDuel() {
     return <div>Gameover</div>;
   }
 
-  console.log("state:", state);
+  //console.log("state:", state);
   if (state == "PLAYING" || state == "RECONNECTION" || state == "JOIN-GAME")
     return <PlayPong player1={p1 || ""} player2={p2 || ""} />;
 
-  console.log("ongong game:? ", game);
+  //console.log("ongong game:? ", game);
 
   if (game.gameState !== undefined)
     return (
@@ -119,7 +119,7 @@ export default function PongDuel() {
         player2={p2}
         onJoin={() => {
           setState("JOIN-GAME");
-          console.log("state to join game");
+          //console.log("state to join game");
           userSocket.emit("join-game", { id: id });
         }}
       />

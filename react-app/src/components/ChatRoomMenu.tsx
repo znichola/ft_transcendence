@@ -147,7 +147,6 @@ function ButtonGeneric({
       <input
         type="checkbox"
         checked={buttonState === checked}
-        onChange={() => console.log("click")}
         className="peer hidden"
       />
       <button

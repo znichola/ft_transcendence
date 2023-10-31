@@ -304,7 +304,7 @@ function UserInteractions({
         a2={"special"}
         to1={`/play/classical`}
         onClick1={() => {
-          console.log("Challenge to classical");
+          //console.log("Challenge to classical");
           userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: false,
@@ -312,7 +312,7 @@ function UserInteractions({
         }}
         to2={`/play/special`}
         onClick2={() => {
-          console.log("Challenge to special");
+          //console.log("Challenge to special");
           userSocket.emit("challenge", {
             invitedLogin: user.login42,
             special: true,
@@ -383,7 +383,7 @@ function ProfileModifyForm({ user, name, bio, setName, setBio }: IModifyForm) {
       className=" flex w-full max-w-lg flex-col gap-3 px-6"
       onSubmit={(e) => {
         e.preventDefault();
-        console.log("submitted");
+        //console.log("submitted");
         mp.mutate(
           { name: name, bio: bio },
           {
@@ -427,7 +427,7 @@ function ProfileModifyAvatar({ user }: { user: UserData }) {
       className="flex w-full max-w-lg flex-row items-end justify-center px-6"
       onSubmit={(e) => {
         e.preventDefault();
-        console.log("submitted new image");
+        //console.log("submitted new image");
         if (file)
           foo.mutate(file, {
             onSuccess: () =>

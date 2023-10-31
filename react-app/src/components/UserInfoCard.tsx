@@ -51,7 +51,7 @@ export default function UserInfoCard({
                 a2={"special"}
                 to1={`/play/classical`}
                 onClick1={() => {
-                  console.log("Challenge to classical");
+                  //console.log("Challenge to classical");
                   userSocket.emit("challenge", {
                     invitedLogin: cardUser.login42,
                     special: false,
@@ -59,7 +59,7 @@ export default function UserInfoCard({
                 }}
                 to2={`/play/special`}
                 onClick2={() => {
-                  console.log("Challenge to special");
+                  //console.log("Challenge to special");
                   userSocket.emit("challenge", {
                     invitedLogin: cardUser.login42,
                     special: true,

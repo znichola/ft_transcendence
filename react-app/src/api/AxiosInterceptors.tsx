@@ -13,7 +13,7 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
       },
       (error) => {
         if (error.response.status) {
-          console.log(error.response);
+          //console.log(error.response);
           if (window.location.pathname !== "/login") {
             addNotif({
               from: error.response.statusText,
@@ -21,7 +21,7 @@ export function AxiosInterceptors({ children }: { children: ReactNode }) {
               type: "ERROR",
             });
           } else {
-            console.log("skipped error adding");
+            //console.log("skipped error adding");
           }
         }
         return Promise.reject(error);

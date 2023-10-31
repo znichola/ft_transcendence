@@ -32,7 +32,7 @@ const AuthButton = () => {
     randString(10) +
     "&response_type=code"; // Replace with your authentication URL
 
-  console.log(authRedirectionUrl);
+  //console.log(authRedirectionUrl);
 
   const handleAuthButtonClick = () => {
     // Redirect the user to the authentication URL

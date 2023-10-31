@@ -73,7 +73,7 @@ export default function SocketNotificatinos({
         message: chat_ev.message.content,
         to: `chatroom/${chat_ev.id}#message-${chat_ev.message.id}`,
       });
-      console.log("should be removing the chatroom ev", chat_ev.id);
+      //console.log("should be removing the chatroom ev", chat_ev.id);
       queryClient.invalidateQueries({
         queryKey: ["ChatroomMessages", chat_ev.id + ""],
       });
@@ -95,7 +95,7 @@ export default function SocketNotificatinos({
         message: dm_ev.message.content,
         to: `message/${dm_ev.message.senderLogin42}#message-${dm_ev.message.id}`,
       });
-      console.log("should be removing the dm ev", dm_ev);
+      //console.log("should be removing the dm ev", dm_ev);
       queryClient.invalidateQueries({
         queryKey: [
           "UserConvoMessages",
@@ -128,7 +128,7 @@ export default function SocketNotificatinos({
 
     const us_ev = updatedUser[0];
     if (us_ev) {
-      console.log("mutating", us_ev);
+      //console.log("mutating", us_ev);
       queryClient.resetQueries({ queryKey: ["UserData", us_ev] });
       removeFirstUpdatedUser();
     }
@@ -137,23 +137,23 @@ export default function SocketNotificatinos({
   useEffect(() => {
     function getChatroomMessage(ev: ISocChatroomMessage) {
       addChatroomEV(ev);
-      console.log("adding to que the chatroom message");
+      //console.log("adding to que the chatroom message");
     }
 
     function getDMmessage(ev: ISocDirectMessage) {
       addDMEV(ev);
-      console.log("adding to que the dm message", ev);
+      //console.log("adding to que the dm message", ev);
     }
 
     function getFriendRequest(ev: ISocFriendRequest) {
       addFREV(ev);
-      console.log("adding to que the freind request", ev);
+      //console.log("adding to que the freind request", ev);
     }
 
     function getChallenge(ev: ISocChallenge) {
       const type = ev.special ? "SPECIAL" : "CLASSICAL";
       const accept = { id: ev.id };
-      console.log("challenge responce", accept);
+      //console.log("challenge responce", accept);
       addNotif({
         type: type,
         from: ev.from,
@@ -164,12 +164,12 @@ export default function SocketNotificatinos({
     }
 
     function getUserUpdated(ev: string) {
-      console.log("getUserUpdated:", ev);
+      //console.log("getUserUpdated:", ev);
       addUpdatedUser(ev);
     }
 
     function getReconnect(ev: ISocReconnection) {
-      console.log("resume game");
+      //console.log("resume game");
       const type = ev.special ? "SPECIAL" : "CLASSICAL";
       addNotif({
         type: "INFO",

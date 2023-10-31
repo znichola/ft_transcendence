@@ -73,23 +73,23 @@ export function ActionsBTN({
 
   function addFriend() {
     postFriendRequest.mutate(requestProps);
-    console.log("Add friend");
+    //console.log("Add friend");
   }
   function unFriend() {
     deleteRelation.mutate(requestProps);
-    console.log("Unfriend");
+    //console.log("Unfriend");
   }
   function cancelRequest() {
     deleteRelation.mutate(requestProps);
-    console.log("Cancled sent requests");
+    //console.log("Cancled sent requests");
   }
   function accept() {
     putAcceptFriendRequest.mutate(requestProps);
-    console.log("Accpeted request");
+    //console.log("Accpeted request");
   }
   function reject() {
     deleteRelation.mutate(requestProps);
-    console.log("Rejected request");
+    //console.log("Rejected request");
   }
 
   switch (status) {

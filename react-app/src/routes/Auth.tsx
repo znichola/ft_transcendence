@@ -48,6 +48,6 @@ export default function Auth() {
       </div>
     );
   if (isError) return <p>Lol.</p>;
-  console.log("auth object", authResp);
+  //console.log("auth object", authResp);
   return <h1 className="text-center text-8xl">Lol, it's a bag bug</h1>;
 }

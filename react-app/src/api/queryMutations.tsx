@@ -54,7 +54,7 @@ export const useQuerySubscription = () => {
       //   (prev: IMessage[] | undefined) => (prev ? [...prev, m] : prev),
       // );
 
-      console.log("new message", id);
+      //console.log("new message", id);
     }
 
     function getChatroomMessageDM(m: Converstaion) {
