@@ -72,8 +72,10 @@ function bouncePlayerBall(p: IPlayer, b: IBall) {
     b.direction.x = -direction * Math.cos(angle);
     b.direction.y = Math.sin(angle);
     b.mitosis = false;
-    if (direction < 0) b.pos.x = p.pos.x + p.dim.w + b.radius + 1 / 100;
-    else b.pos.x = p.pos.x - b.radius - 1 / 100;
+    // if (direction < 0) b.pos.x = p.pos.x + p.dim.w + b.radius + 1 / 1000;
+    // else b.pos.x = p.pos.x - b.radius - 1 / 1000;
+    b.pos.x += b.direction.x * b.speed * timer / 10;
+    b.pos.y += b.direction.y * b.speed * timer / 10;
     //put lim to Vmax pending on p.w and ball.diam
     if (b.speed < maxV) {
       b.speed *= 1.1;
