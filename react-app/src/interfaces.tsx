@@ -50,6 +50,7 @@ export interface IUsersAll {
   page?: number;
   status?: TUserStatus;
   name?: string;
+  friend?: string;
 }
 
 // I think it's better we use convoMessage[] as the type instead

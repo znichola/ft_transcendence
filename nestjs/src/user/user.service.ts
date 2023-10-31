@@ -83,6 +83,8 @@ export class UserService {
         ],
         status: FriendStatus.ACCEPTED,
       },
+      skip: (page - 1) * 10 || 0,
+      take: 10,
       select: { 
         user1Id: true,
         user2Id: true
@@ -92,11 +94,10 @@ export class UserService {
     console.log(allFriends);
 
     let filteredFriends: string[] = [];
-    console.log('logging friendships');
     for (const friendship of allFriends) {
       if (friendship.user1Id != userId)
       {
-        const friendLogin = await this.getUserLogin(friendship.user2Id);
+        const friendLogin = await this.getUserLogin(friendship.user1Id);
         filteredFriends.push(friendLogin);
       }
       else

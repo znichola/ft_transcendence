@@ -68,6 +68,7 @@ export default function UserBrowser({ title }: { title: string }) {
   const searchParams: IUsersAll = {
     status: findStatus(settings),
     name: searchValue != "" ? searchValue : undefined,
+    friend: settings.isFriend + "",
   };
 
   // api calls
@@ -100,6 +101,7 @@ export default function UserBrowser({ title }: { title: string }) {
   //   return <LoadingSpinnerMessage message="fetching pages ..." />;
   // if (status !== "success") return <ErrorMessage message="Error fetching pages" />;
 
+  
   const _posts = data?.pages.flatMap((p) => p);
 
   if (
