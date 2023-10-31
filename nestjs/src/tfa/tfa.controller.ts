@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Req, Res, UseGuards, UseInterceptors, Header} from '@nestjs/common';
 import { TfaService } from './tfa.service';
 import { Request, Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
@@ -33,6 +33,7 @@ export class TfaController {
     }
 
     @UseGuards(AuthGuard)
+    @Header('content-type', 'application/json')
     @Post(':username/enable')
     async enableTfa(@Param('username') username: string, @Body() bodyData: TfaCodeDto, @Req() req: Request)
     {
@@ -46,6 +47,7 @@ export class TfaController {
     }
 
     @UseGuards(AuthGuard)
+    @Header('content-type', 'application/json')
     @Patch(':username/disable')
     async disableTfa(@Param('username') username: string, @Res() res: Response, @Req() req: Request)
     {
@@ -75,6 +77,7 @@ export class TfaController {
           },
         },
       })
+    @Header('content-type', 'application/json')
     @Post(':username/login')
     async loginTfaUser(@Param('username') username: string, @Body() bodyData: TfaCodeDto, @Req() req: Request, @Res() res: Response)
     {
@@ -84,7 +87,7 @@ export class TfaController {
 
         const userSecret = await this.tfaService.getTfaSecret(username);
         if (!userSecret) throw new HttpException("User not found or doesn't have 2FA active.", HttpStatus.NOT_FOUND);
-        
+
         const isValid = this.tfaService.isTfaCodeValid(bodyData.tfaCode, userSecret);
         if (!isValid) throw new HttpException("Invalid Authentication code.", HttpStatus.UNAUTHORIZED);
 

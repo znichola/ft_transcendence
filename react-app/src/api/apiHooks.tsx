@@ -199,9 +199,9 @@ export function useMutUserAvatar(user: string) {
     retry: false,
     mutationFn: (file: File) => postUserAvatar(user, file),
     onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: ["UserData", user],
-      });
+      //queryClient.removeQueries({
+        //queryKey: ["UserData", user],
+      //});
     },
   });
 }

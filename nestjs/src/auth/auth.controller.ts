@@ -11,6 +11,7 @@ import {
   Req,
   Res,
   UseGuards,
+  Header
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -26,6 +27,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @Header('content-type', 'application/json')
   async signIn(
     @Body() bodyData: object,
     @Res() res: Response,
@@ -52,7 +54,7 @@ export class AuthController {
         },
       });
       const { first_name, last_name, login, image } = userInfo.data;
-      
+
       const userExists = await this.authService.findUser(login);
       const defaultName = first_name + ' ' + last_name;
       const user = await this.authService.signInUser(
