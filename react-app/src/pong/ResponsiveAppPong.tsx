@@ -17,14 +17,14 @@ export default function ResponsiveAppPong({
 
   useEffect(() => {
     handleResize();
-    window.addEventListener("resize", handleResize);
+    const id = setInterval(handleResize, 20);
     return () => {
-      window.removeEventListener("resize", handleResize);
+      clearInterval(id);
     };
   }, []);
 
   return (
-    <div ref={pong} className={`h-full w-full transition-none duration-0`}>
+    <div ref={pong} className={`h-full w-full`}>
       <PongApp width={dim.x} height={dim.y} setScore={setScore} />
     </div>
   );
