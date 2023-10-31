@@ -79,7 +79,7 @@ export default function UserProfile() {
   if (isLoading) return <LoadingSpinnerMessage message="loading profile" />;
 
   return (
-    <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center">
+    <div className="relative flex h-full max-h-full min-h-0 w-full flex-grow-0 flex-col items-center overflow-y-auto">
       <BoxMenu
         resetBTN={() => setButtonState("UNSET")}
         heading={
