@@ -161,9 +161,7 @@ export default function PongDuel() {
     );
   if (state == "GAME-OVER") {
     if (gameOver && p1 && p2) {
-      return (
-        <GameOver {...gameOver} p1={p1} p2={p2} special={false} />
-      );
+      return <GameOver {...gameOver} p1={p1} p2={p2} special={false} />;
     }
     return <div>Gameover</div>;
   }

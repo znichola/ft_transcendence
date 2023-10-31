@@ -74,7 +74,7 @@ export function MatchCell({
     <Link to={`/pong/${id}`} className="flex grow justify-center">
       <div className="flex h-fit w-full flex-col items-center rounded-xl border border-stone-200 bg-stone-50 px-3 pt-3 sm:w-fit">
         <div className={`h-fit w-fit rounded bg-stone-50 px-2 pt-2`}>
-          <h2 className="" >{gameState.type ? "special" : "classical"}</h2>
+          <h2 className="">{gameState.type ? "special" : "classical"}</h2>
           <div className="h-fit w-fit rounded-xl border-4 border-stone-500 bg-stone-700">
             <DrawPong height={104} width={170} gs={gameState} />
           </div>

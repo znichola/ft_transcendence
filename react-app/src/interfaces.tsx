@@ -243,7 +243,6 @@ export interface ISocGameOver {
 // reconnection
 export interface ISocReconnection extends IGameData {}
 
-
 // ws/pong - send
 
 // accept

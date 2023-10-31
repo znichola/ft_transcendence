@@ -14,7 +14,7 @@ export const useIntersection = (
       { rootMargin },
     );
 
-    const cur = element.current
+    const cur = element.current;
 
     cur && observer.observe(cur);
 

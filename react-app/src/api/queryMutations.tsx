@@ -34,13 +34,12 @@ export const useQuerySubscription = () => {
       //   to: `chatroom/${id}`,
       // });
       queryClient.refetchQueries({ queryKey: ["ChatroomMessages", id] });
-      
 
       // CHECK HERE: this used to the the refetch qery, maybe it's wrong !
       // setTimeout(() => {
       //   queryClient.refetchQueries({ queryKey: ["ChatroomMessages", id] });
       // }, 500);
-  
+
       // const m: IMessage = {
       //   id: parseInt(id) + Math.random(),
       //   senderLogin42: "default42",
@@ -49,15 +48,15 @@ export const useQuerySubscription = () => {
       //   isBlocked: false,
       // };
       // // setChatroomMessage(queryClient, id, m);
-  
+
       // queryClient.setQueryData(
       //   ["ChatroomMessages", id],
       //   (prev: IMessage[] | undefined) => (prev ? [...prev, m] : prev),
       // );
-  
+
       console.log("new message", id);
     }
-  
+
     function getChatroomMessageDM(m: Converstaion) {
       addNotif({
         type: "MESSAGE",

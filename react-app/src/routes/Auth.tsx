@@ -49,5 +49,5 @@ export default function Auth() {
     );
   if (isError) return <p>Lol.</p>;
   console.log("auth object", authResp);
-  return <h1 className="text-8xl text-center">Lol, it's a bag bug</h1>;
+  return <h1 className="text-center text-8xl">Lol, it's a bag bug</h1>;
 }

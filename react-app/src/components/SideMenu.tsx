@@ -75,11 +75,7 @@ export default function SideMenu({
               to="/play"
               icon={IconHomeComputer}
             />
-            <Nav
-              name="pong.tv"
-              to={"/pong-tv"}
-              icon={IconMegaphone}
-            />
+            <Nav name="pong.tv" to={"/pong-tv"} icon={IconMegaphone} />
           </div>
           <div className="flex grow flex-col overflow-y-auto pl-3">
             <Category name="User" />
