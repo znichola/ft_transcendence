@@ -35,6 +35,9 @@ export class PongController
     async getGameInfo(@Param('id') id: string)
     {
         const gameId: number = parseInt(id);
+        if (!gameId || Number.isNaN(gameId))
+            throw new HttpException("Bad game ID provided", HttpStatus.BAD_REQUEST);
+
         const gameInfo = await this.pongService.getSingleGame(gameId);
 
         if (!gameInfo)
